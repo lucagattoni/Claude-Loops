@@ -105,6 +105,38 @@ claude mcp add          # interactive setup
 claude mcp add --global # available in all projects
 ```
 
+#### Chrome extension — authenticated web access
+
+The Chrome integration (`claude --chrome`) is a first-class connector that gives the
+loop access to **any site you're already logged into** — including X/Twitter, Google
+Docs, Notion, Linear, and internal tools — without API keys or MCP setup.
+
+```bash
+claude --chrome
+# then:
+> "Go to x.com, open this tweet: <url>, and extract the full thread text"
+> "Monitor my X notifications every hour and summarise new replies"
+> "Read this GitHub discussion and pull the key decisions into DECISIONS.md"
+```
+
+Key properties:
+- Shares your browser's **existing login session** — no OAuth setup
+- Browser actions run in a **visible Chrome window** (you can watch)
+- Claude pauses and asks you to handle CAPTCHAs or login walls manually
+- Works with Chrome and Edge; not yet supported on Brave, Arc, or WSL
+- Requires a direct Anthropic plan (Pro/Max/Team/Enterprise); not available via Bedrock/Vertex
+
+```bash
+# Enable by default so every session has browser access
+# Run /chrome → "Enabled by default"
+
+# Or per-session
+claude --chrome -p "go to x.com/mikenevermiss and extract his last 5 posts about Claude"
+```
+
+**For scraping research inputs into a loop:** this is the cleanest path — navigate
+directly, extract text, write it to a local file, then pipe it into your loop prompt.
+
 ### 3.5 Sub-agents
 Isolated Claude sessions spawned from the parent loop to handle focused subtasks.
 Each subagent starts with a **fresh context window** — it does not see the parent's
