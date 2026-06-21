@@ -175,12 +175,14 @@ claude --permission-mode auto \
       three-phase procedure above (including the `LOOP_ENGINEERING.md` update logic).
 - [x] **Step 5** — Create `scripts/run-loop-news.sh` (executable).
 - [x] **Step 6** — Create `logs/` directory (gitignored) for run logs.
-- [ ] **Step 7** — Register the cron job via `CronCreate`:
-      `0 8 * * *` UTC (= `3 9 * * *` IST, UTC+1) → `bash scripts/run-loop-news.sh`.
-- [ ] **Step 8** — Do a dry-run (manually invoke the skill) to verify the full
-      fetch → deduplicate → append → optional doc update cycle works end-to-end.
-- [ ] **Step 9** — Confirm the cron entry is registered and the next fire time is
-      correct.
+- [x] **Step 7** — Registered cron via `CronCreate`: `3 9 * * *` IST (= 08:03 UTC),
+      durable, fires daily. Note: auto-expires after 7 days; re-register or use
+      system crontab for permanent scheduling.
+- [x] **Step 8** — Dry-run completed Jun 21 2026 19:33 IST: 5 findings captured,
+      `docs/mcp-security.md` created, `docs/failure-patterns.md` updated, digest
+      appended to `LOOP_ENGINEERING_NEWS.md`. Cycle verified end-to-end.
+- [x] **Step 9** — Cron confirmed registered at 09:03 IST daily. Skill strategy and
+      keyword taxonomy subsequently corrected and merged (PR #2).
 
 ---
 
