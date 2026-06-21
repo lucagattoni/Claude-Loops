@@ -31,6 +31,7 @@ while you sleep.
 | 16 | [Memory Patterns](docs/memory-patterns.md) | Progress files, GitHub Issues as task queue, spec-driven loops |
 | 17 | [Common Failure Patterns](docs/failure-patterns.md) | Kitchen-sink sessions, correction loops, uncapped runs |
 | 18 | [Quick Reference](docs/quick-reference.md) | Commands and flags cheat sheet |
+| 19 | [MCP Security](docs/mcp-security.md) | AgentJacking and indirect prompt injection via MCP connectors |
 
 ---
 

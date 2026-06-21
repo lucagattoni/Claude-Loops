@@ -10,3 +10,4 @@
 | No stopping condition | Loop runs forever or halts randomly | Define a verifiable success criterion before starting |
 | Uncapped headless run | Expensive, hard to debug after the fact | Set `--max-turns` and `--max-budget-usd` |
 | Reviewer bias | Claude reviews code it wrote, misses issues | Always use a subagent for final review |
+| Polling loop | Cron fires every N minutes just to check if work exists, burning tokens on empty runs | Use event-driven triggers (webhook, file watcher, CI event) so the loop only fires when there is actually something to do |
