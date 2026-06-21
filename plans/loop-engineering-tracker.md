@@ -166,17 +166,17 @@ claude --permission-mode auto \
 
 ## Implementation Steps
 
-- [ ] **Step 1** — Create `SOURCES.md` with the seed source list (table format).
-- [ ] **Step 2** — Create `LOOP_ENGINEERING_NEWS.md` with a header and placeholder
+- [x] **Step 1** — Create `SOURCES.md` with the seed source list (table format).
+- [x] **Step 2** — Create `LOOP_ENGINEERING_NEWS.md` with a header and placeholder
       first entry (so Phase 1 always has a "last run" timestamp to read).
 - [x] **Step 3** — Refactor `LOOP_ENGINEERING.md` into a slim index: extracted all 18
       sections into `docs/<topic>.md`; main doc is now a linked topic table.
-- [ ] **Step 4** — Create `.claude/skills/fetch-loop-news/SKILL.md` with the
+- [x] **Step 4** — Create `.claude/skills/fetch-loop-news/SKILL.md` with the
       three-phase procedure above (including the `LOOP_ENGINEERING.md` update logic).
-- [ ] **Step 5** — Create `scripts/run-loop-news.sh` (executable).
-- [ ] **Step 6** — Create `logs/` directory (gitignored) for run logs.
+- [x] **Step 5** — Create `scripts/run-loop-news.sh` (executable).
+- [x] **Step 6** — Create `logs/` directory (gitignored) for run logs.
 - [ ] **Step 7** — Register the cron job via `CronCreate`:
-      `0 8 * * *` → `bash scripts/run-loop-news.sh`.
+      `0 8 * * *` UTC (= `3 9 * * *` IST, UTC+1) → `bash scripts/run-loop-news.sh`.
 - [ ] **Step 8** — Do a dry-run (manually invoke the skill) to verify the full
       fetch → deduplicate → append → optional doc update cycle works end-to-end.
 - [ ] **Step 9** — Confirm the cron entry is registered and the next fire time is
