@@ -10,17 +10,17 @@ Versioning follows [Semantic Versioning](https://semver.org/):
 
 ---
 
-## [2.0.0] — 2026-06-21 09:07 IST
+## [Unreleased]
 
-### Changed
-- Restructured `LOOP_ENGINEERING.md` from a monolithic document into a slim index table
-- Extracted all 18 sections into individual `docs/<topic>.md` files
-- Main doc is now a map: one row per topic with a one-line summary and link
+---
+
+## [1.0.0] — 2026-06-21 09:07 IST
 
 ### Added
+- `LOOP_ENGINEERING.md` as a slim index table — one row per topic with summary and link
 - `docs/paradigm-shift.md`
 - `docs/agent-loop-cycle.md`
-- `docs/building-blocks.md`
+- `docs/building-blocks.md` — covers Automations, Worktrees, Skills, Chrome connector, Sub-agents, Memory
 - `docs/verification.md`
 - `docs/claude-md.md`
 - `docs/skills.md`
@@ -36,22 +36,7 @@ Versioning follows [Semantic Versioning](https://semver.org/):
 - `docs/memory-patterns.md`
 - `docs/failure-patterns.md`
 - `docs/quick-reference.md`
-
----
-
-## [1.1.0] — 2026-06-20 IST
-
-### Added
-- Section 3.4: Chrome extension connector for authenticated web access (`claude --chrome`)
-
----
-
-## [1.0.0] — 2026-06-20 IST
-
-### Added
-- Initial `LOOP_ENGINEERING.md` with 18 sections covering the full loop engineering paradigm
-- Sources: Claude Code docs, Addy Osmani, Boris Cherny / The New Stack, Medium community posts
-
----
-
-_Entries below v2.0.0 are reconstructed from git history._
+- `SOURCES.md` — dynamic source list for the daily news tracker
+- `LOOP_ENGINEERING_NEWS.md` — append-only daily digest log
+- `.claude/skills/fetch-loop-news/SKILL.md` — 3-phase daily news skill
+- `scripts/run-loop-news.sh` — headless runner script
