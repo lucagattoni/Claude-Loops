@@ -14,13 +14,13 @@ run without touching the loop logic.
 
 ## Files to Create
 
-| File | Role |
-|---|---|
-| `SOURCES.md` | Dynamic list of sources and relevance signals |
-| `LOOP_ENGINEERING_NEWS.md` | Append-only digest log (one entry per run) |
-| `docs/` | In-depth topic docs linked from `LOOP_ENGINEERING.md` |
-| `.claude/skills/fetch-loop-news/SKILL.md` | Reusable Claude skill the cron triggers |
-| `scripts/run-loop-news.sh` | Thin shell wrapper that invokes `claude -p /fetch-loop-news` |
+| File | Role | Status |
+|---|---|---|
+| `SOURCES.md` | Dynamic list of sources and relevance signals | pending |
+| `LOOP_ENGINEERING_NEWS.md` | Append-only digest log (one entry per run) | pending |
+| `docs/<topic>.md` | In-depth topic docs (one per section) | **done** — 18 files created |
+| `.claude/skills/fetch-loop-news/SKILL.md` | Reusable Claude skill the cron triggers | pending |
+| `scripts/run-loop-news.sh` | Thin shell wrapper that invokes `claude -p /fetch-loop-news` | pending |
 
 ---
 
@@ -122,11 +122,12 @@ Each subagent returns a JSON array of matching items:
 6. If chrome was used, close the tab.
 
 ### `LOOP_ENGINEERING.md` content policy
-- The main doc is a **map, not a manual** — one line per topic with a link to the
-  relevant `docs/` file.
-- Never expand a section inline when a `docs/` file exists for it.
-- New sections added by the loop must follow the same pattern:
-  `## <Topic>\n> <one-sentence summary> — see [docs/<topic>.md](docs/<topic>.md)`
+- The main doc is a **map, not a manual** — a single table with one row per topic.
+- Never expand content inline; all detail lives in `docs/<topic>.md`.
+- New rows added by the loop must follow the existing table format:
+  `| N | [Topic title](docs/<topic>.md) | One-sentence summary |`
+- If an existing `docs/<topic>.md` is updated, do not touch `LOOP_ENGINEERING.md`
+  unless the row itself is missing or the summary needs correcting.
 
 **Skill invocation:**
 ```bash
@@ -168,9 +169,8 @@ claude --permission-mode auto \
 - [ ] **Step 1** — Create `SOURCES.md` with the seed source list (table format).
 - [ ] **Step 2** — Create `LOOP_ENGINEERING_NEWS.md` with a header and placeholder
       first entry (so Phase 1 always has a "last run" timestamp to read).
-- [ ] **Step 3** — Refactor `LOOP_ENGINEERING.md` into a slim index: extract each
-      major section into `docs/<topic>.md` and replace the section body with a
-      one-line link. Keep `LOOP_ENGINEERING.md` as the map.
+- [x] **Step 3** — Refactor `LOOP_ENGINEERING.md` into a slim index: extracted all 18
+      sections into `docs/<topic>.md`; main doc is now a linked topic table.
 - [ ] **Step 4** — Create `.claude/skills/fetch-loop-news/SKILL.md` with the
       three-phase procedure above (including the `LOOP_ENGINEERING.md` update logic).
 - [ ] **Step 5** — Create `scripts/run-loop-news.sh` (executable).
