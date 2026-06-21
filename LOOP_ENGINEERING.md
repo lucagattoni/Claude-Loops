@@ -32,6 +32,8 @@ while you sleep.
 | 17 | [Common Failure Patterns](docs/failure-patterns.md) | Kitchen-sink sessions, correction loops, uncapped runs |
 | 18 | [Quick Reference](docs/quick-reference.md) | Commands and flags cheat sheet |
 | 19 | [MCP Security](docs/mcp-security.md) | AgentJacking and indirect prompt injection via MCP connectors |
+| 20 | [Loop Maturity Model](docs/loop-maturity-model.md) | 14-step progression from manual prompter to loop engineer |
+| 21 | [Context vs. Loop Engineering](docs/context-vs-loop-engineering.md) | Emerging debate: which layer deserves more engineering attention? |
 
 ---
 

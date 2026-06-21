@@ -46,3 +46,41 @@ Web search for "loop engineering" surfaced active blogs not yet in SOURCES.md:
 - the-ai-corner.com — "Loop Engineering: Build Self-Running Coding Agents 2026"
 
 ---
+
+## 2026-06-21 21:55 IST (run)
+
+### New findings
+
+| Tier | Source | Title | URL | Summary |
+|---|---|---|---|---|
+| 2 | @RoundtableSpace / @AnatoliKopadze | "Claude Code team shows full app from scratch using a loop of three agents — 40 min, AI Engineer Europe" | [link](https://x.com/RoundtableSpace/status/2068789803945214042) | Live conference demo of a sequential 3-agent loop (plan → build → verify) that built a complete app in 40 minutes, the most concrete public example of the factory model in action. |
+| 2 | @0xCodez | "Lead of Claude Code: 100% of our code at Anthropic is now shipped by Claude. Loops are as big a shift as source coding to agents." | [link](https://x.com/0xCodez/status/2068784463186932059) | Shares Boris Cherny's live conference quote and references the Jun 9 article "Loop engineering: the 14-step roadmap from prompter to loop designer" — a maturity model for the transition. |
+| 2 | @batjko_labs | "Loop engineering is the right frame but the wrong unit. The job is not to design a loop that runs the agent. It is to…" | [link](https://x.com/batjko_labs/status/2068789878200922603) | Challenges the loop as the atomic unit of design, suggesting a higher-level abstraction is needed — an emerging counter-argument within the community. |
+| 2 | @techtasium | "CONTEXT ENGINEERING > LOOP ENGINEERING" | [link](https://x.com/techtasium/status/2068784586222612560) | Provocative claim that context engineering (what you put into the loop) matters more than the loop structure itself — sparking a community debate about relative priority. |
+| 3 | @shivangchheda22 | "The hard part isn't prompting, it's the stop condition. A useful loop needs trace logs, bounds…" | [link](https://x.com/shivangchheda22/status/2068789961223262458) | Citing @steipete: reinforces that stopping conditions, trace logs, and explicit bounds are the underrated hard parts of loop design — not the prompts themselves. |
+
+### No new content
+- Anthropic RSS — 404 (feed URL may have changed again)
+- @bcherny — no keyword-matching posts since last run
+- @karpathy — no keyword-matching posts since last run
+- @AndrewYNg — no keyword-matching posts since last run
+- @swyx — no keyword-matching posts since last run
+- @steipete — no keyword-matching posts since last run (cited secondhand by @shivangchheda22)
+- Addy Osmani — last post Jun 16
+- Simon Willison — last post Jun 18
+- The New Stack — no new articles since 19:33 IST
+- Cobus Greyling — last post Jun 18
+- OpenAI news — 403 blocked
+- swyx.io — no new posts since last run
+- sabrina.dev — no new posts since last run
+
+### Docs updated this run
+- `docs/context-vs-loop-engineering.md` — new doc: emerging debate on whether context engineering supersedes loop engineering
+- `docs/loop-maturity-model.md` — new doc: 14-step progression from prompter to loop designer
+- `docs/failure-patterns.md` — added "Loop as wrong unit" entry
+
+### Sources to consider adding to SOURCES.md
+- @0xCodez — AI content creator; high-engagement loop engineering explainers (402+ views, 27 likes); published 14-step roadmap article Jun 9
+- @AnatoliKopadze — conference reporter; captured Claude Code AI Engineer Europe live demo
+
+---
