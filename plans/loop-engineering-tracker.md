@@ -176,7 +176,7 @@ claude --permission-mode auto \
 - [x] **Step 5** — Create `scripts/run-loop-news.sh` (executable).
 - [x] **Step 6** — Create `logs/` directory (gitignored) for run logs.
 - [ ] **Step 7** — Register the cron job via `CronCreate`:
-      `0 8 * * *` UTC (= `30 13 * * *` IST) → `bash scripts/run-loop-news.sh`.
+      `0 8 * * *` UTC (= `3 9 * * *` IST, UTC+1) → `bash scripts/run-loop-news.sh`.
 - [ ] **Step 8** — Do a dry-run (manually invoke the skill) to verify the full
       fetch → deduplicate → append → optional doc update cycle works end-to-end.
 - [ ] **Step 9** — Confirm the cron entry is registered and the next fire time is

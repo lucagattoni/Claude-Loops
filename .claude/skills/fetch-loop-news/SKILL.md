@@ -61,10 +61,11 @@ Each subagent returns a JSON array (empty array if no matches):
 
 1. Merge all subagent result arrays into a single list
 2. Deduplicate: remove any item whose `url` already appears anywhere in `LOOP_ENGINEERING_NEWS.md`
-3. Append a new section to `LOOP_ENGINEERING_NEWS.md` using this format:
+3. Append a new section to `LOOP_ENGINEERING_NEWS.md` using this format.
+   Use Irish Standard Time (IST = UTC+1 in summer, UTC in winter) for the timestamp:
 
 ```markdown
-## YYYY-MM-DD (run: 08:00 UTC)
+## YYYY-MM-DD HH:MM IST (run)
 
 ### New findings
 
