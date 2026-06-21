@@ -1,6 +1,6 @@
 ---
 name: fetch-loop-news
-description: Daily fetch of loop engineering news from X.com and blogs; updates LOOP_ENGINEERING_NEWS.md and docs/ when new concepts are found
+description: Daily fetch of loop engineering news from tracked sources and general search; updates LOOP_ENGINEERING_NEWS.md and docs/ when new concepts are found
 ---
 
 Fetch today's loop engineering news and update the tracking docs.
@@ -8,61 +8,102 @@ Fetch today's loop engineering news and update the tracking docs.
 ## Phase 1 — Load context
 
 1. Read `SOURCES.md`:
-   - Extract the sources table (Actor, Type, Handle/URL, Why)
+   - Extract the sources table (Actor, Type, Handle/URL, Notes)
    - Extract the relevance keywords list
 2. Read `LOOP_ENGINEERING_NEWS.md`:
    - Find the most recent dated section header (format: `## YYYY-MM-DD`)
-   - Record that date as `last_run_date` — skip any content older than this
-3. Record today's date as `today` (ISO format: YYYY-MM-DD)
+   - Record that date as `last_run_date`
+3. Record today's date as `today` (ISO format: YYYY-MM-DD) and current Irish Standard
+   Time (IST = UTC+1 in summer, UTC in winter) as `run_time`
 
-## Phase 2 — Fetch and score
+## Phase 2 — Per-source search
 
-Launch one subagent per source in parallel. Each subagent receives:
-- The source row (Actor, Type, Handle/URL)
-- The relevance keywords list
-- `last_run_date` (to filter out old content)
+Launch one subagent per source in parallel. Each subagent receives the source row,
+the full keywords list, and `last_run_date`.
 
-**For `type: x` sources:**
-1. Use the Chrome browser tools to navigate to `https://x.com/<handle>`
-2. Extract all posts visible on the profile page
-3. Filter to posts published after `last_run_date`
-4. Score each post: relevant if title/text matches ≥ 1 keyword (case-insensitive)
-5. For each relevant post collect: title/first line, URL, date, one-sentence summary
+**The goal is to find relevant content from that source — not just recent content.**
+Search *within* the source for the keywords. Do not limit to posts newer than
+`last_run_date` for the search itself; use `last_run_date` only to de-prioritise
+already-seen items during deduplication in Phase 3.
 
-**For `type: rss` sources:**
-1. Try fetching these paths in order until one returns valid XML:
-   `<url>/feed`, `<url>/rss.xml`, `<url>/atom.xml`, `<url>/feed.xml`, `<url>/rss`
-2. Parse `<item>` or `<entry>` elements
-3. Filter to items with `<pubDate>` or `<updated>` after `last_run_date`
-4. Score each item against keywords
-5. Collect: title, link, date, description snippet (truncated to 1 sentence)
+---
 
-**For `type: html` sources:**
-1. WebFetch the blog index URL
-2. Extract all article links with their titles and any visible date/snippet
-3. Filter to items that appear to be newer than `last_run_date` (use dates in text or proximity to top of page)
-4. Score each item against keywords
-5. Collect: title, URL, inferred date, one-sentence summary from snippet
+### For `type: x` sources
 
-Each subagent returns a JSON array (empty array if no matches):
+1. Use Chrome to navigate to:
+   `https://x.com/search?q=from%3A<handle>+<url-encoded-keyword-query>&f=live`
+
+   Build the keyword query as an OR of the most specific keywords:
+   `"loop engineering" OR "Claude Code" OR "agent loop" OR agentic OR subagent OR MCP OR worktree`
+
+2. Read the search results (latest posts matching those keywords from that account).
+3. For each result collect: post text (first line), URL, date, one-sentence summary.
+4. Also navigate to the profile page `https://x.com/<handle>` and scan the first
+   visible page of posts for anything posted after `last_run_date` that matches
+   ≥ 1 keyword (catches posts that don't use exact keyword phrasing).
+
+---
+
+### For `type: rss` sources
+
+1. WebFetch the feed URL from SOURCES.md.
+2. Parse all `<item>` or `<entry>` elements.
+3. Score each against the keywords (title + description).
+4. Collect matching items: title, link, pubDate, one-sentence description.
+
+---
+
+### For `type: html` sources
+
+1. WebFetch the page URL from SOURCES.md.
+2. Extract all article/post links with their titles and any visible snippet or date.
+3. Score each against the keywords.
+4. Collect matching items: title, URL, inferred date, one-sentence summary.
+
+---
+
+Each subagent returns a JSON array (empty if no matches):
 ```json
 [
   {
     "source": "Actor name or @handle",
-    "title": "Post or article title",
+    "title": "Post or article title / first line",
     "url": "https://...",
     "date": "YYYY-MM-DD",
-    "summary": "One sentence describing why this is relevant."
+    "summary": "One sentence on why this is relevant to loop engineering."
   }
 ]
 ```
 
-## Phase 3 — Write digest
+## Phase 3 — General search (bonus pass)
 
-1. Merge all subagent result arrays into a single list
-2. Deduplicate: remove any item whose `url` already appears anywhere in `LOOP_ENGINEERING_NEWS.md`
-3. Append a new section to `LOOP_ENGINEERING_NEWS.md` using this format.
-   Use Irish Standard Time (IST = UTC+1 in summer, UTC in winter) for the timestamp:
+After all per-source subagents return, run two additional searches:
+
+**X.com keyword search:**
+Use Chrome to navigate to:
+`https://x.com/search?q=%22loop+engineering%22+OR+%22agent+loop%22+OR+%22Claude+Code%22&src=typed_query&f=live`
+
+Read the first page of live results. Score each post against the keywords.
+Collect any relevant items not already found in Phase 2.
+
+**Web search:**
+Use WebSearch (or WebFetch a search engine) for:
+`"loop engineering" OR "agent loop" Claude Code agentic 2026`
+
+Collect any new articles, blog posts, or resources from the last 7 days.
+
+**Dynamic source expansion:**
+If Phase 2 or Phase 3 surfaces a person or company that:
+- Published 2+ relevant pieces on the topic, AND
+- Has meaningful audience engagement
+
+…add them as a new row to `SOURCES.md` under the appropriate type.
+
+## Phase 4 — Write digest
+
+1. Merge all results from Phases 2 and 3 into a single list.
+2. Deduplicate: remove any item whose `url` already appears in `LOOP_ENGINEERING_NEWS.md`.
+3. Append a new section using this format (timestamp in Irish Standard Time):
 
 ```markdown
 ## YYYY-MM-DD HH:MM IST (run)
@@ -74,22 +115,28 @@ Each subagent returns a JSON array (empty array if no matches):
 | @handle | "Title" | [link](url) | Summary sentence |
 
 ### No new content
-- Actor — reason (e.g. no posts since last run, no keyword matches)
+- Actor — reason (e.g. no keyword matches found in their posts)
+
+### Docs updated this run
+- (list any docs/ changes made below)
+
+### Sources to consider adding to SOURCES.md
+- (list any newly surfaced actors worth tracking)
 
 ---
 ```
 
-If there are zero new findings after deduplication, write the section with an empty
-"New findings" table and list all sources under "No new content". Never skip the
-section — the log must always record that the run happened.
+If zero new findings after deduplication, write the section with an empty findings
+table and list all sources under "No new content". Never skip the section.
 
-4. For each item in "New findings", assess whether it describes a **new concept,
+4. For each item in "New findings", assess whether it introduces a **new concept,
    technique, or tool** not yet present in any `docs/*.md` file:
    - Read the relevant `docs/*.md` files to check coverage
-   - If the concept is new → create `docs/<topic>.md` with an in-depth write-up,
-     then add a new row to the Topics table in `LOOP_ENGINEERING.md`:
-     `| N | [Topic title](docs/<topic>.md) | One-sentence summary |`
-   - If the concept updates an existing topic → edit only that `docs/<topic>.md`
-   - If already fully covered → no doc changes needed
+   - New concept → create `docs/<topic>.md` and add a row to `LOOP_ENGINEERING.md`:
+     `| N | [Topic](docs/<topic>.md) | One-sentence summary |`
+   - Updates existing concept → edit only that `docs/<topic>.md`
+   - Already fully covered → no doc changes needed
 
-5. Close any Chrome tabs opened during this run.
+5. Update `CHANGELOG.md` under `[Unreleased]` for any doc additions or changes.
+
+6. Close any Chrome tabs opened during this run.
