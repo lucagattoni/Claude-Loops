@@ -62,6 +62,11 @@ already-seen items during deduplication in Phase 3.
 
 ---
 
+Score each item against the keyword tiers from `SOURCES.md`:
+- **Tier 1 or 2 match** → always include
+- **Tier 3 or 4 match only** → include only if the post substantively discusses loop
+  engineering practice, not just a passing mention of a tool name
+
 Each subagent returns a JSON array (empty if no matches):
 ```json
 [
@@ -70,10 +75,14 @@ Each subagent returns a JSON array (empty if no matches):
     "title": "Post or article title / first line",
     "url": "https://...",
     "date": "YYYY-MM-DD",
+    "tier": 1,
     "summary": "One sentence on why this is relevant to loop engineering."
   }
 ]
 ```
+
+The `tier` field is the highest tier matched (1 = most specific). Include it so the
+digest can sort findings by relevance.
 
 ## Phase 3 — General search (bonus pass)
 
@@ -110,9 +119,9 @@ If Phase 2 or Phase 3 surfaces a person or company that:
 
 ### New findings
 
-| Source | Title | URL | Summary |
-|---|---|---|---|
-| @handle | "Title" | [link](url) | Summary sentence |
+| Tier | Source | Title | URL | Summary |
+|---|---|---|---|---|
+| 1 | @handle | "Title" | [link](url) | Summary sentence |
 
 ### No new content
 - Actor — reason (e.g. no keyword matches found in their posts)
