@@ -19,6 +19,16 @@ Versioning follows [Semantic Versioning](https://semver.org/):
 
 ---
 
+## [2.0.0] — 2026-06-22 IST
+
+### Changed
+- `LOOP_ENGINEERING.md` — restructured flat 27-row table into 7 logical sections (Foundations, Designing a Loop, Components, State & Long-Running Loops, Quality & Safety, Scaling, Reference); rows reordered within sections but numbers preserved
+- `docs/memory-patterns.md` — added cross-reference to `long-running-agents.md`
+- `docs/paradigm-shift.md` — added cross-reference to `factory-model.md`
+- `.claude/skills/fetch-loop-news/SKILL.md` — added Phase 4b doc coherence review; release criteria MAJOR condition now explicitly covers index restructuring
+
+---
+
 ## [1.2.0] — 2026-06-22 IST
 
 ### Added

@@ -190,6 +190,39 @@ table and list all sources under "No new content". Never skip the section.
 
 6. Close any Chrome tabs opened during this run.
 
+## Phase 4b — Doc coherence review
+
+After all per-finding doc writes are done, reason about the overall state of the
+knowledge base **as a whole**. This is not about individual findings — it is about
+whether the docs still form a coherent, well-structured body of knowledge given
+the evolution of loop engineering thinking.
+
+**Ask these questions each run:**
+
+1. **Grouping**: Does `LOOP_ENGINEERING.md` still organise topics logically? If
+   new docs were added this run, do they belong in an existing section or do they
+   warrant a new section header?
+
+2. **Overlap and redundancy**: Do any two docs now cover the same concept from
+   different angles without cross-referencing each other? Add a `See also:` line
+   to each overlapping doc pointing to the other.
+
+3. **Staleness**: Do any existing doc summaries in the index no longer reflect the
+   doc's current content (because it was extended this run)? Update the summary
+   in `LOOP_ENGINEERING.md`.
+
+4. **Progression**: Does the ordering within each section still reflect the logical
+   reading sequence — from foundational to advanced? Reorder rows within a section
+   if a new doc belongs earlier.
+
+5. **Fragmentation**: Is any concept now split across 3+ docs in a way that makes
+   it hard to find? Consider whether two short docs should be merged, or whether
+   one doc should become the canonical page with the others as thin cross-references.
+
+**Apply the minimum change that resolves each issue found.** Restructuring the index
+counts as a MAJOR release (see Phase 5). Adding cross-reference lines or updating
+summaries counts as PATCH.
+
 ## Phase 5 — Release determination and auto-commit
 
 After all Phase 4 writes are complete:

@@ -29,3 +29,7 @@ At the end of each task, append to PROGRESS.md:
 3. Each requirement has a verifiable test
 4. Loop stops when all tests pass
 ```
+
+See [Long-Running Agents](long-running-agents.md) for the architectural pattern
+(Ralph loop / planner-worker-judge) that uses these memory strategies to coordinate
+work across multiple context windows.
