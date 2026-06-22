@@ -74,6 +74,7 @@ substantively relevant to loop engineering practice (not just a passing mention)
 | swyx.io | html | https://www.swyx.io/writing | AI engineering long-form posts |
 | The New Stack | rss | https://thenewstack.io/feed/ | Active loop engineering coverage |
 | Sabrina Ramonov | html | https://www.sabrina.dev | Loop engineering + /goal + Routines (Jun 2026) |
+| Sabrina Ramonov | x | @Sabrina_Ramonov | Active X presence posting loop engineering definitions and techniques (Jun 2026) |
 | Cobus Greyling | rss | https://cobusgreyling.substack.com/feed | Loop Engineering Substack + GitHub repo |
 | Peter Steinberger | x | @steipete | Creator of OpenClaw; "designing loops" framing |
 

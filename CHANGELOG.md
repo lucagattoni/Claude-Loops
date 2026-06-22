@@ -15,9 +15,14 @@ Versioning follows [Semantic Versioning](https://semver.org/):
 ### Added
 - `docs/loop-maturity-model.md` — 14-step progression from manual prompter to loop engineer (Boris Cherny's 3-stage model + community roadmap, Jun 21 2026)
 - `docs/context-vs-loop-engineering.md` — emerging community debate on whether context engineering supersedes loop engineering (@techtasium, Jun 21 2026)
+- `docs/learned-orchestration.md` — new concept: training the orchestrator (Sakana Fugu, TRINITY/Conductor, Thinker/Worker/Verifier roles) vs. coding it by hand (Jun 22 2026)
+- `docs/fleet-engineering.md` — new concept: managing fleets of AI agents at enterprise scale (Cobus Greyling, LangSmith Fleet, Jun 22 2026)
+- `SOURCES.md` — added @Sabrina_Ramonov X handle (active loop engineering presence confirmed Jun 22 2026)
 
 ### Changed
 - `docs/failure-patterns.md` — added "Loop as wrong unit" anti-pattern (@batjko_labs, Jun 21 2026)
+- `docs/failure-patterns.md` — added "Cost runaway" ($47k in 11 days with no stop condition) and "Provider lock-in" failure patterns (Jun 22 2026)
+- `LOOP_ENGINEERING.md` — added rows 22 (learned-orchestration) and 23 (fleet-engineering)
 
 ---
 

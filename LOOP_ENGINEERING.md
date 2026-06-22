@@ -34,6 +34,8 @@ while you sleep.
 | 19 | [MCP Security](docs/mcp-security.md) | AgentJacking and indirect prompt injection via MCP connectors |
 | 20 | [Loop Maturity Model](docs/loop-maturity-model.md) | 14-step progression from manual prompter to loop engineer |
 | 21 | [Context vs. Loop Engineering](docs/context-vs-loop-engineering.md) | Emerging debate: which layer deserves more engineering attention? |
+| 22 | [Learned Orchestration](docs/learned-orchestration.md) | Training the orchestrator instead of coding it — Sakana Fugu's Thinker/Worker/Verifier approach |
+| 23 | [Fleet Engineering](docs/fleet-engineering.md) | Managing many loops at enterprise scale: governance, observability, routing across agent fleets |
 
 ---
 

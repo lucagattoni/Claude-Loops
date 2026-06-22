@@ -84,3 +84,51 @@ Web search for "loop engineering" surfaced active blogs not yet in SOURCES.md:
 - @AnatoliKopadze — conference reporter; captured Claude Code AI Engineer Europe live demo
 
 ---
+
+## 2026-06-22 13:52 IST (run)
+
+### New findings
+
+| Tier | Source | Title | URL | Summary |
+|---|---|---|---|---|
+| 1 | @Sabrina_Ramonov | "prompt engineering was you writing 1 good message at a time / loop engineering is you stepping out of that process" | [link](https://x.com/Sabrina_Ramonov/status/2069038443200418221) | The cleanest one-sentence distinction between prompt engineering and loop engineering — from a tracked practitioner, posted today on X amid broader community discourse. |
+| 1 | @limalemonnn | "$47,000 in 11 days with no stop condition is the best argument for loop engineering I have seen, just not the way they intended. The brakes are not optional, they are the whole point." | [link](https://x.com/limalemonnn/status/2069039311584891122) | Real-world cost-runaway example: a loop with no stopping condition accumulated $47k in 11 days — illustrating that budget caps and stop conditions are mandatory infrastructure, not polish. |
+| 2 | Addy Osmani | "Loop Engineering" | [link](https://addyosmani.com/blog/loop-engineering/) | Foundational Jun 7 article defining the 5 building blocks (automations, worktrees, skills, plugins, sub-agents) and noting that Codex and Claude Code now have identical loop engineering capabilities — the platform matters less than the design. |
+| 2 | Addy Osmani | "Agent Harness Engineering" | [link](https://addyosmani.com/blog/agent-harness-engineering/) | Apr 19 article framing the scaffolding surrounding a coding agent — prompts, tools, context policies, sandboxes, feedback loops — as first-class artefacts requiring continuous refinement, not disposable wrappers. |
+| 2 | @karpathy (repost of @trq212) | "A harness for every task: dynamic workflows in Claude Code" | [link](https://x.com/trq212/status/2061907337154367865) | Claude Code can now write its own task-specific harness on the fly before executing — the agent designs the workflow structure, not just the code. 3.1M views on @karpathy's repost. |
+| 2 | Sakana AI | "Sakana Fugu: A Multi-Agent System as a Foundation Model" | [link](https://sakana.ai/fugu/) | Launched today: a trained-orchestrator model using TRINITY/Conductor architecture (Thinker/Worker/Verifier roles) that replaces hand-designed multi-agent loop code with learned orchestration — the harness as a training target, not a codebase. |
+| 2 | Cobus Greyling | "Loop Engineering" (Medium) | [link](https://cobusgreyling.medium.com/loop-engineering-62926dd6991c) | Jun 9 article with 6-component breakdown (scheduling, worktrees, skills, connectors, sub-agents, memory) citing Cherny and Steinberger — a solid practitioner synthesis from a tracked source. |
+| 2 | Cobus Greyling | "Fleet Engineering" | [link](https://cobusgreyling.substack.com/p/fleet-engineering) | New discipline: managing fleets of AI agents across enterprises via governance, observability, and routing — one layer above loop engineering. |
+| 2 | @devops_prashant | "The model is the engine, the agent harness is the car—everyone's been debating horsepower while the real product was always the steering wheel" | [link](https://x.com/devops_prashant/status/2069034725738766545) | Quotable framing of why harness design matters more than model selection — the steering wheel (harness) determines where the car (loop) goes. |
+| 2 | @shalabi | "If you hard-coded a single provider into your agent loop, it is an outage plus an emergency compliance review, at the same time. Model portability stopped being optional." | [link](https://x.com/shalabi/status/2069038743894597743) | Names provider lock-in as a new agent loop failure mode: hard-coding one model provider into the loop creates a single point of failure that combines technical and compliance risk. |
+| 3 | @steipete | "This is becoming my favorite way to read Twitter" (birdclaw.sh) | [link](https://x.com/steipete/status/2068965200343224367) | Peter Steinberger shares birdclaw.sh, an OpenClaw-powered agent for consuming Twitter — itself a loop engineering application, and context for OpenClaw trending globally today. |
+| 3 | Addy Osmani | "Agentic Code Review" | [link](https://addyosmani.com/blog/agentic-code-review/) | Jun 15 article: improved coding agents shift engineering focus toward trust assessment and review — adversarial evaluation becomes the highest-leverage skill in agentic development. |
+| 3 | The New Stack | "Gemini CLI vs. Antigravity: What works, not the spec sheet" | [link](https://thenewstack.io/gemini-cli-antigravity-replacement/) | Google replaced open-source Gemini CLI with closed-source Antigravity CLI; key practical finding: Antigravity handles headless file and shell operations where Gemini CLI fails — headless capability is table stakes. |
+| 3 | Simon Willison | "Claude Fable is relentlessly proactive" | [link](https://simonwillison.net/2026/Jun/11/fable-is-relentlessly-proactive/) | Fable 5 autonomously invented novel debugging techniques (browser automation, shadow DOM manipulation, custom web servers) — the model itself becoming more loop-like, blurring the line between agent and harness. |
+
+### No new content
+- Anthropic RSS — 404 (ongoing; feed URL appears down)
+- @bcherny — last own post Jun 19 (no keyword match on loop engineering)
+- @karpathy — last own post Jun 12 (SpaceX); Jun 2 repost captured above
+- @AndrewYNg — no new posts since Jun 19 (pre-cutoff)
+- OpenAI news — 403 blocked (ongoing)
+- @swyx — posts today about AI Engineer conference logistics; no loop engineering content
+- swyx.io — most recent post May 2026, no loop engineering content
+
+### Docs updated this run
+- `docs/failure-patterns.md` — added "Cost runaway" and "Provider lock-in" failure patterns
+- `docs/learned-orchestration.md` — new doc: Sakana Fugu's trained-orchestrator approach (TRINITY/Conductor, Thinker/Worker/Verifier)
+- `docs/fleet-engineering.md` — new doc: managing fleets of agents at enterprise scale (Cobus Greyling, LangSmith Fleet)
+- `LOOP_ENGINEERING.md` — added rows 22 (learned-orchestration) and 23 (fleet-engineering)
+- `SOURCES.md` — added @Sabrina_Ramonov X handle (active X presence confirmed today)
+
+### Community signal
+- X trending today: "AI Leaders Champion Loops Over One-Off Prompts" (2,151 posts, 9 hours ago)
+- "OpenClaw" trending globally on X (context: Sakana Fugu vs OpenClaw discussion, birdclaw.sh launch)
+- The X general search for "loop engineering" is live with dozens of posts per minute — the term has reached mainstream AI Twitter
+
+### Sources to consider adding to SOURCES.md
+- @limalemonnn — surfaced the $47k cost-runaway anecdote; active in loop engineering discussions
+- @shalabi — named provider lock-in as an agent loop failure mode; substantive practitioner voice
+
+---
