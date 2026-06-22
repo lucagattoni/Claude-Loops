@@ -13,8 +13,12 @@ Fetch today's loop engineering news and update the tracking docs.
 2. Read `LOOP_ENGINEERING_NEWS.md`:
    - Find the most recent dated section header (format: `## YYYY-MM-DD`)
    - Record that date as `last_run_date`
-3. Record today's date as `today` (ISO format: YYYY-MM-DD) and current Irish Standard
-   Time (IST = UTC+1 in summer, UTC in winter) as `run_time`
+3. Get the exact Irish time by running:
+   ```bash
+   TZ='Europe/Dublin' date '+%Y-%m-%d %H:%M %Z'
+   ```
+   Record the date part as `today` and the full output as `run_time`.
+   Use this value for all timestamps written to files — never estimate the time.
 
 ## Phase 2 — Per-source search
 

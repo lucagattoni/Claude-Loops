@@ -47,7 +47,7 @@ Web search for "loop engineering" surfaced active blogs not yet in SOURCES.md:
 
 ---
 
-## 2026-06-21 21:55 IST (run)
+## 2026-06-21 21:20 IST (run)
 
 ### New findings
 

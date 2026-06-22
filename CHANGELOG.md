@@ -21,7 +21,7 @@ Versioning follows [Semantic Versioning](https://semver.org/):
 
 ---
 
-## [1.1.0] — 2026-06-20 IST
+## [1.1.0] — 2026-06-21 IST
 
 ### Added
 - `docs/mcp-security.md` — AgentJacking attack pattern, indirect prompt injection via MCP tool results, mitigations (sourced from The New Stack, Jun 21 2026)
