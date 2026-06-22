@@ -45,6 +45,15 @@ already-seen items during deduplication in Phase 3.
 4. Also navigate to the profile page `https://x.com/<handle>` and scan the first
    visible page of posts for anything posted after `last_run_date` that matches
    ≥ 1 keyword (catches posts that don't use exact keyword phrasing).
+5. **Thread and link expansion** — for every post that scores Tier 1 or Tier 2:
+   - Navigate to the post's thread URL (`x.com/<handle>/status/<id>`)
+   - Read all visible replies and quote-tweets; note any that add new concepts,
+     data points, or counter-arguments relevant to loop engineering
+   - For every external link in the post or its replies (not x.com links), follow
+     and WebFetch the page if the title/snippet suggests loop engineering relevance;
+     stop after 3 external links per post to avoid rabbit holes
+   - Add any additional findings discovered this way to the results array with
+     `"source": "via @<handle> thread"` and the actual URL of the linked page
 
 ---
 
@@ -54,6 +63,9 @@ already-seen items during deduplication in Phase 3.
 2. Parse all `<item>` or `<entry>` elements.
 3. Score each against the keywords (title + description).
 4. Collect matching items: title, link, pubDate, one-sentence description.
+5. **Link expansion** — for every Tier 1 or Tier 2 match, WebFetch the article URL
+   itself (not just the RSS summary); read the full text and any embedded links that
+   look relevant; follow up to 2 embedded links per article.
 
 ---
 
@@ -63,6 +75,9 @@ already-seen items during deduplication in Phase 3.
 2. Extract all article/post links with their titles and any visible snippet or date.
 3. Score each against the keywords.
 4. Collect matching items: title, URL, inferred date, one-sentence summary.
+5. **Link expansion** — for every Tier 1 or Tier 2 match, WebFetch the article URL
+   itself; read the full text and follow up to 2 embedded links per article that
+   look relevant.
 
 ---
 
@@ -98,6 +113,10 @@ Use Chrome to navigate to:
 
 Read the first page of live results. Score each post against the keywords.
 Collect any relevant items not already found in Phase 2.
+
+For any Tier 1 or Tier 2 post found here, apply the same thread-and-link
+expansion as Phase 2 X sources: read the full thread, follow up to 3 external
+links per post.
 
 **Web search:**
 Use WebSearch (or WebFetch a search engine) for:
