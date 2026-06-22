@@ -49,11 +49,19 @@ already-seen items during deduplication in Phase 3.
    - Navigate to the post's thread URL (`x.com/<handle>/status/<id>`)
    - Read all visible replies and quote-tweets; note any that add new concepts,
      data points, or counter-arguments relevant to loop engineering
-   - For every external link in the post or its replies (not x.com links), follow
-     and WebFetch the page if the title/snippet suggests loop engineering relevance;
-     stop after 3 external links per post to avoid rabbit holes
-   - Add any additional findings discovered this way to the results array with
-     `"source": "via @<handle> thread"` and the actual URL of the linked page
+   - Collect **every** external link found in the post and its thread (not x.com
+     links) into a candidate list; for each candidate record: URL, anchor
+     text / surrounding context, and which reply it appeared in
+   - Score the full candidate list and select the **3 most innovative** links —
+     prioritise links that:
+       1. Introduce a concept, technique, or data point not yet in `docs/`
+       2. Come from a domain not already tracked in `SOURCES.md`
+       3. Carry strong signal words (research paper, benchmark, new framework,
+          case study, real cost/time numbers)
+     Discard links that duplicate known sources, are generic landing pages, or
+     are promotional without substantive content
+   - WebFetch those 3 selected URLs; summarise each and add to the results array
+     with `"source": "via @<handle> thread"` and the actual URL of the linked page
 
 ---
 
@@ -64,8 +72,11 @@ already-seen items during deduplication in Phase 3.
 3. Score each against the keywords (title + description).
 4. Collect matching items: title, link, pubDate, one-sentence description.
 5. **Link expansion** — for every Tier 1 or Tier 2 match, WebFetch the article URL
-   itself (not just the RSS summary); read the full text and any embedded links that
-   look relevant; follow up to 2 embedded links per article.
+   itself (not just the RSS summary); read the full text and collect **all** embedded
+   links into a candidate list with their anchor text and surrounding sentence;
+   score the candidates and select the **3 most innovative** — prioritise links
+   that introduce new concepts, cite research, or reference real-world deployments
+   not already in `docs/`; WebFetch those 3 and add findings to the results array.
 
 ---
 
@@ -76,8 +87,10 @@ already-seen items during deduplication in Phase 3.
 3. Score each against the keywords.
 4. Collect matching items: title, URL, inferred date, one-sentence summary.
 5. **Link expansion** — for every Tier 1 or Tier 2 match, WebFetch the article URL
-   itself; read the full text and follow up to 2 embedded links per article that
-   look relevant.
+   itself; read the full text and collect **all** embedded links into a candidate
+   list; score and select the **3 most innovative** using the same criteria as the
+   X source expansion (new concept, untracked domain, strong signal words);
+   WebFetch those 3 and add findings to the results array.
 
 ---
 
@@ -115,8 +128,8 @@ Read the first page of live results. Score each post against the keywords.
 Collect any relevant items not already found in Phase 2.
 
 For any Tier 1 or Tier 2 post found here, apply the same thread-and-link
-expansion as Phase 2 X sources: read the full thread, follow up to 3 external
-links per post.
+expansion as Phase 2 X sources: read the full thread, collect all external
+links as candidates, score them, and WebFetch the 3 most innovative.
 
 **Web search:**
 Use WebSearch (or WebFetch a search engine) for:
