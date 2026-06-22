@@ -37,4 +37,4 @@ most common harness design mistakes:
 The goal loop is the most powerful and the most dangerous: without a verifiable
 stopping condition and a hard spend cap, it will run indefinitely.
 
-See also: [Loop Contract](loop-contract.md) for mandatory BUDGET and STOP properties.
+See also: [Loop Contract](27-loop-contract.md) for mandatory BUDGET and STOP properties.

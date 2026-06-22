@@ -58,7 +58,7 @@ condition the loop checks before stopping. Without it, loops either run forever 
 
 ## Related
 
-- [The Paradigm Shift](paradigm-shift.md)
-- [Common Failure Patterns](failure-patterns.md) — "No stopping condition"
-- [Verification](verification.md)
-- [Memory Patterns](memory-patterns.md)
+- [The Paradigm Shift](01-paradigm-shift.md)
+- [Common Failure Patterns](17-failure-patterns.md) — "No stopping condition"
+- [Verification](04-verification.md)
+- [Memory Patterns](16-memory-patterns.md)

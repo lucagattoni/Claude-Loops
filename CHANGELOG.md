@@ -19,76 +19,76 @@ Versioning follows [Semantic Versioning](https://semver.org/):
 
 ---
 
-## [2.0.0] — 2026-06-22 IST
+## [2.0.0] — 2026-06-22
 
 ### Changed
 - `LOOP_ENGINEERING.md` — restructured flat 27-row table into 7 logical sections (Foundations, Designing a Loop, Components, State & Long-Running Loops, Quality & Safety, Scaling, Reference); rows reordered within sections but numbers preserved
-- `docs/memory-patterns.md` — added cross-reference to `long-running-agents.md`
-- `docs/paradigm-shift.md` — added cross-reference to `factory-model.md`
+- `docs/16-memory-patterns.md` — added cross-reference to `25-long-running-agents.md`
+- `docs/01-paradigm-shift.md` — added cross-reference to `26-factory-model.md`
 - `.claude/skills/fetch-loop-news/SKILL.md` — added Phase 4b doc coherence review; release criteria MAJOR condition now explicitly covers index restructuring
 
 ---
 
-## [1.2.0] — 2026-06-22 IST
+## [1.2.0] — 2026-06-22
 
 ### Added
-- `docs/loop-maturity-model.md` — 14-step progression from manual prompter to loop engineer (Boris Cherny's 3-stage model + community roadmap, Jun 21 2026)
-- `docs/context-vs-loop-engineering.md` — emerging community debate on whether context engineering supersedes loop engineering (@techtasium, Jun 21 2026)
-- `docs/learned-orchestration.md` — new concept: training the orchestrator (Sakana Fugu, TRINITY/Conductor, Thinker/Worker/Verifier roles) vs. coding it by hand (Jun 22 2026)
-- `docs/fleet-engineering.md` — new concept: managing fleets of AI agents at enterprise scale (Cobus Greyling, LangSmith Fleet, Jun 22 2026)
-- `docs/harness-patterns.md` — new doc: two-part Anthropic harness (initializer + coding agent); four-type loop taxonomy (heartbeat/cron/hook/goal) (Jun 22 2026)
-- `docs/long-running-agents.md` — new doc: Ralph loop, planner-worker-judge, cross-context-window state management and git-based recovery (Jun 22 2026)
-- `docs/factory-model.md` — new doc: AI software factory framing — spec quality and verification replace coding speed as the bottleneck (Jun 22 2026)
-- `docs/loop-contract.md` — new doc: TRIGGER/SCOPE/ACTION/BUDGET/STOP/REPORT; Anchor File Pattern; Uber annual-budget-in-4-months data (Jun 22 2026)
+- `docs/20-loop-maturity-model.md` — 14-step progression from manual prompter to loop engineer (Boris Cherny's 3-stage model + community roadmap, Jun 21 2026)
+- `docs/21-context-vs-loop-engineering.md` — emerging community debate on whether context engineering supersedes loop engineering (@techtasium, Jun 21 2026)
+- `docs/22-learned-orchestration.md` — new concept: training the orchestrator (Sakana Fugu, TRINITY/Conductor, Thinker/Worker/Verifier roles) vs. coding it by hand (Jun 22 2026)
+- `docs/23-fleet-engineering.md` — new concept: managing fleets of AI agents at enterprise scale (Cobus Greyling, LangSmith Fleet, Jun 22 2026)
+- `docs/24-harness-patterns.md` — new doc: two-part Anthropic harness (initializer + coding agent); four-type loop taxonomy (heartbeat/cron/hook/goal) (Jun 22 2026)
+- `docs/25-long-running-agents.md` — new doc: Ralph loop, planner-worker-judge, cross-context-window state management and git-based recovery (Jun 22 2026)
+- `docs/26-factory-model.md` — new doc: AI software factory framing — spec quality and verification replace coding speed as the bottleneck (Jun 22 2026)
+- `docs/27-loop-contract.md` — new doc: TRIGGER/SCOPE/ACTION/BUDGET/STOP/REPORT; Anchor File Pattern; Uber annual-budget-in-4-months data (Jun 22 2026)
 - `SOURCES.md` — added @Sabrina_Ramonov X handle (active loop engineering presence confirmed Jun 22 2026)
 - `SOURCES.md` — added Lenny's Newsletter (Claire Vo) html source (Jun 22 2026)
 
 ### Changed
-- `docs/failure-patterns.md` — added "Loop as wrong unit" anti-pattern (@batjko_labs, Jun 21 2026)
-- `docs/failure-patterns.md` — added "Cost runaway", "Provider lock-in", "Cognitive surrender", "Orchestration tax", and "Intent debt" failure patterns (Jun 22 2026)
-- `docs/agent-loop-cycle.md` — added Universal Agent Thesis ("Perceive, reason, act, learn") framing with "Learn" step explained (Jun 22 2026)
-- `docs/skills.md` — added "Skills as SDLC Scaffolding" section: non-skippable engineering phase enforcement (Jun 22 2026)
-- `docs/paradigm-shift.md` — added "New Software Lifecycle" table: implementation speed no longer the bottleneck (Jun 22 2026)
+- `docs/17-failure-patterns.md` — added "Loop as wrong unit" anti-pattern (@batjko_labs, Jun 21 2026)
+- `docs/17-failure-patterns.md` — added "Cost runaway", "Provider lock-in", "Cognitive surrender", "Orchestration tax", and "Intent debt" failure patterns (Jun 22 2026)
+- `docs/02-agent-loop-cycle.md` — added Universal Agent Thesis ("Perceive, reason, act, learn") framing with "Learn" step explained (Jun 22 2026)
+- `docs/06-skills.md` — added "Skills as SDLC Scaffolding" section: non-skippable engineering phase enforcement (Jun 22 2026)
+- `docs/01-paradigm-shift.md` — added "New Software Lifecycle" table: implementation speed no longer the bottleneck (Jun 22 2026)
 - `LOOP_ENGINEERING.md` — added rows 22–27 (learned-orchestration, fleet-engineering, harness-patterns, long-running-agents, factory-model, loop-contract)
 
 ---
 
-## [1.1.0] — 2026-06-21 IST
+## [1.1.0] — 2026-06-21
 
 ### Added
-- `docs/mcp-security.md` — AgentJacking attack pattern, indirect prompt injection via MCP tool results, mitigations (sourced from The New Stack, Jun 21 2026)
+- `docs/19-mcp-security.md` — AgentJacking attack pattern, indirect prompt injection via MCP tool results, mitigations (sourced from The New Stack, Jun 21 2026)
 - Four-tier keyword taxonomy in `SOURCES.md` — Tier 1 (Boris Cherny's exact language), Tier 2 (named discipline), Tier 3 (named concepts/failure modes), Tier 4 (tool/feature names)
 - New sources: Sabrina Ramonov (`sabrina.dev`), Cobus Greyling (Substack), Peter Steinberger (`@steipete`)
 
 ### Changed
-- `docs/failure-patterns.md` — added "Polling loop" anti-pattern: using cron when an event-driven trigger would be more token-efficient (sourced from @CKGrafico, X.com, Jun 21 2026)
+- `docs/17-failure-patterns.md` — added "Polling loop" anti-pattern: using cron when an event-driven trigger would be more token-efficient (sourced from @CKGrafico, X.com, Jun 21 2026)
 - `SOURCES.md` — corrected Anthropic RSS to `/rss.xml`, OpenAI changed to `html` type (RSS 403), swyx.io path corrected to `/writing`, Addy Osmani RSS corrected to `/rss.xml`
 - `.claude/skills/fetch-loop-news/SKILL.md` — strategy corrected: per-source phase searches within source for keywords; general search added as bonus pass (Phase 3); tiered scoring in result JSON and digest
 
 ---
 
-## [1.0.0] — 2026-06-21 09:07 IST
+## [1.0.0] — 2026-06-21
 
 ### Added
 - `LOOP_ENGINEERING.md` as a slim index table — one row per topic with summary and link
-- `docs/paradigm-shift.md`
-- `docs/agent-loop-cycle.md`
-- `docs/building-blocks.md` — covers Automations, Worktrees, Skills, Chrome connector, Sub-agents, Memory
-- `docs/verification.md`
-- `docs/claude-md.md`
-- `docs/skills.md`
-- `docs/subagents.md`
-- `docs/permissions.md`
-- `docs/headless-mode.md`
-- `docs/fan-out.md`
-- `docs/cost-control.md`
-- `docs/hooks.md`
-- `docs/context-management.md`
-- `docs/human-in-the-loop.md`
-- `docs/explore-plan-implement.md`
-- `docs/memory-patterns.md`
-- `docs/failure-patterns.md`
-- `docs/quick-reference.md`
+- `docs/01-paradigm-shift.md`
+- `docs/02-agent-loop-cycle.md`
+- `docs/03-building-blocks.md` — covers Automations, Worktrees, Skills, Chrome connector, Sub-agents, Memory
+- `docs/04-verification.md`
+- `docs/05-claude-md.md`
+- `docs/06-skills.md`
+- `docs/07-subagents.md`
+- `docs/08-permissions.md`
+- `docs/09-headless-mode.md`
+- `docs/10-fan-out.md`
+- `docs/11-cost-control.md`
+- `docs/12-hooks.md`
+- `docs/13-context-management.md`
+- `docs/14-human-in-the-loop.md`
+- `docs/15-explore-plan-implement.md`
+- `docs/16-memory-patterns.md`
+- `docs/17-failure-patterns.md`
+- `docs/18-quick-reference.md`
 - `SOURCES.md` — dynamic source list for the daily news tracker
 - `LOOP_ENGINEERING_NEWS.md` — append-only daily digest log
 - `.claude/skills/fetch-loop-news/SKILL.md` — 3-phase daily news skill

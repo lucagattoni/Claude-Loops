@@ -45,7 +45,7 @@ When debugging a failing loop:
 
 ## Related
 
-- [The Core Agent Loop Cycle](agent-loop-cycle.md)
-- [Context Management](context-management.md)
-- [CLAUDE.md](claude-md.md)
-- [Memory Patterns](memory-patterns.md)
+- [The Core Agent Loop Cycle](02-agent-loop-cycle.md)
+- [Context Management](13-context-management.md)
+- [CLAUDE.md](05-claude-md.md)
+- [Memory Patterns](16-memory-patterns.md)

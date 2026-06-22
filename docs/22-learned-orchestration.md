@@ -53,7 +53,7 @@ handcrafted.
 
 3. **Provider-agnostic design matters more.** A learned orchestrator dynamically selects
    the best model for each sub-task; coupling your loop to a single provider blocks this.
-   See [Failure Patterns](failure-patterns.md) → Provider lock-in.
+   See [Failure Patterns](17-failure-patterns.md) → Provider lock-in.
 
 ---
 
@@ -68,6 +68,6 @@ handcrafted.
 
 ## See also
 
-- [The Six Building Blocks](building-blocks.md) — the hand-designed equivalent
-- [Fleet Engineering](fleet-engineering.md) — managing many loops at enterprise scale
-- [Failure Patterns](failure-patterns.md) — what can go wrong in any orchestration approach
+- [The Six Building Blocks](03-building-blocks.md) — the hand-designed equivalent
+- [Fleet Engineering](23-fleet-engineering.md) — managing many loops at enterprise scale
+- [Failure Patterns](17-failure-patterns.md) — what can go wrong in any orchestration approach

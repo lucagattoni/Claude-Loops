@@ -179,7 +179,7 @@ claude --permission-mode auto \
       durable, fires daily. Note: auto-expires after 7 days; re-register or use
       system crontab for permanent scheduling.
 - [x] **Step 8** — Dry-run completed Jun 21 2026 19:33 IST: 5 findings captured,
-      `docs/mcp-security.md` created, `docs/failure-patterns.md` updated, digest
+      `docs/19-mcp-security.md` created, `docs/17-failure-patterns.md` updated, digest
       appended to `LOOP_ENGINEERING_NEWS.md`. Cycle verified end-to-end.
 - [x] **Step 9** — Cron confirmed registered at 09:03 IST daily. Skill strategy and
       keyword taxonomy subsequently corrected and merged (PR #2).

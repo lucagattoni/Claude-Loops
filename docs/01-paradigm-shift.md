@@ -12,7 +12,7 @@
 The key insight (credited to Boris Cherny, who built Claude Code):
 **replace yourself as the person who prompts the agent**.
 
-See [The Factory Model](factory-model.md) for the deeper treatment: what the
+See [The Factory Model](26-factory-model.md) for the deeper treatment: what the
 engineer's role becomes once implementation speed is no longer the bottleneck.
 
 ## The New Software Lifecycle

@@ -22,7 +22,7 @@ A loop that lacks BUDGET or STOP is not a loop — it is a runaway process.
 
 Uber engineers burned their **entire annual AI budget in 4 months** before a
 $1,500/month per-tool cap was imposed. The Loop Contract's BUDGET property exists
-to prevent exactly this. See also [Cost & Turn Control](cost-control.md).
+to prevent exactly this. See also [Cost & Turn Control](11-cost-control.md).
 
 ## The Anchor File Pattern
 
@@ -42,4 +42,4 @@ changing its rules or goal.
 
 The Loop Contract is the specification document for a factory model workflow. Just
 as a factory floor has defined inputs, processes, and quality gates, the contract
-defines what the loop accepts, does, and produces. See [The Factory Model](factory-model.md).
+defines what the loop accepts, does, and produces. See [The Factory Model](26-factory-model.md).

@@ -40,6 +40,6 @@ You are operating in factory-model territory when:
 
 ## Relationship to Other Concepts
 
-- [Loop Contract](loop-contract.md) — the factory spec: what the loop is allowed to do and when it stops
-- [Harness Patterns](harness-patterns.md) — the factory floor: how the workers are orchestrated
-- [Verification](verification.md) — quality control: how finished work is checked before shipping
+- [Loop Contract](27-loop-contract.md) — the factory spec: what the loop is allowed to do and when it stops
+- [Harness Patterns](24-harness-patterns.md) — the factory floor: how the workers are orchestrated
+- [Verification](04-verification.md) — quality control: how finished work is checked before shipping

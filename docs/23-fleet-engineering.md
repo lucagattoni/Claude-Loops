@@ -73,7 +73,7 @@ A fleet engineer asks: "What happens when we have 50 of these running simultaneo
 
 ## See also
 
-- [The Six Building Blocks](building-blocks.md) — the foundation for individual loops
-- [Learned Orchestration](learned-orchestration.md) — training the orchestrator vs. coding it
-- [Fan-Out](fan-out.md) — parallelising at the loop level (a step toward fleet thinking)
-- [Cost & Turn Control](cost-control.md) — mandatory at fleet scale
+- [The Six Building Blocks](03-building-blocks.md) — the foundation for individual loops
+- [Learned Orchestration](22-learned-orchestration.md) — training the orchestrator vs. coding it
+- [Fan-Out](10-fan-out.md) — parallelising at the loop level (a step toward fleet thinking)
+- [Cost & Turn Control](11-cost-control.md) — mandatory at fleet scale

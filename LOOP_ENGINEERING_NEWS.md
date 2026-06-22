@@ -38,14 +38,14 @@ Sources are defined in [`SOURCES.md`](SOURCES.md).
 - X general keyword search — browser congestion; no results returned
 
 ### Docs updated this run
-- `docs/harness-patterns.md` — new doc: two-part Anthropic harness (initializer + coding agent); four-type loop taxonomy (heartbeat/cron/hook/goal)
-- `docs/long-running-agents.md` — new doc: Ralph loop, planner-worker-judge, cross-context-window state management, git-based recovery
-- `docs/factory-model.md` — new doc: AI software factory framing — spec quality and verification replace coding speed as the engineering bottleneck
-- `docs/loop-contract.md` — new doc: TRIGGER/SCOPE/ACTION/BUDGET/STOP/REPORT — six loop properties; Anchor File Pattern; Uber annual-budget-in-4-months data point
-- `docs/failure-patterns.md` — added cognitive surrender, orchestration tax, and intent debt failure patterns
-- `docs/agent-loop-cycle.md` — added Universal Agent Thesis ("Perceive, reason, act, learn") as alternative framing with the "Learn" step explained
-- `docs/skills.md` — added "Skills as SDLC Scaffolding" section: encoding engineering phases as non-skippable skill steps
-- `docs/paradigm-shift.md` — added "New Software Lifecycle" framing: implementation speed no longer the bottleneck
+- `docs/24-harness-patterns.md` — new doc: two-part Anthropic harness (initializer + coding agent); four-type loop taxonomy (heartbeat/cron/hook/goal)
+- `docs/25-long-running-agents.md` — new doc: Ralph loop, planner-worker-judge, cross-context-window state management, git-based recovery
+- `docs/26-factory-model.md` — new doc: AI software factory framing — spec quality and verification replace coding speed as the engineering bottleneck
+- `docs/27-loop-contract.md` — new doc: TRIGGER/SCOPE/ACTION/BUDGET/STOP/REPORT — six loop properties; Anchor File Pattern; Uber annual-budget-in-4-months data point
+- `docs/17-failure-patterns.md` — added cognitive surrender, orchestration tax, and intent debt failure patterns
+- `docs/02-agent-loop-cycle.md` — added Universal Agent Thesis ("Perceive, reason, act, learn") as alternative framing with the "Learn" step explained
+- `docs/06-skills.md` — added "Skills as SDLC Scaffolding" section: encoding engineering phases as non-skippable skill steps
+- `docs/01-paradigm-shift.md` — added "New Software Lifecycle" framing: implementation speed no longer the bottleneck
 - `LOOP_ENGINEERING.md` — added rows 24–27 (harness-patterns, long-running-agents, factory-model, loop-contract)
 - `SOURCES.md` — added Lenny's Newsletter (Claire Vo) as new html source
 
@@ -85,9 +85,9 @@ Sources are defined in [`SOURCES.md`](SOURCES.md).
 - swyx.io — most recent post May 2026, no loop engineering content
 
 ### Docs updated this run
-- `docs/failure-patterns.md` — added "Cost runaway" and "Provider lock-in" failure patterns
-- `docs/learned-orchestration.md` — new doc: Sakana Fugu's trained-orchestrator approach (TRINITY/Conductor, Thinker/Worker/Verifier)
-- `docs/fleet-engineering.md` — new doc: managing fleets of agents at enterprise scale (Cobus Greyling, LangSmith Fleet)
+- `docs/17-failure-patterns.md` — added "Cost runaway" and "Provider lock-in" failure patterns
+- `docs/22-learned-orchestration.md` — new doc: Sakana Fugu's trained-orchestrator approach (TRINITY/Conductor, Thinker/Worker/Verifier)
+- `docs/23-fleet-engineering.md` — new doc: managing fleets of agents at enterprise scale (Cobus Greyling, LangSmith Fleet)
 - `LOOP_ENGINEERING.md` — added rows 22 (learned-orchestration) and 23 (fleet-engineering)
 - `SOURCES.md` — added @Sabrina_Ramonov X handle (active X presence confirmed today)
 
@@ -130,9 +130,9 @@ Sources are defined in [`SOURCES.md`](SOURCES.md).
 - sabrina.dev — no new posts since last run
 
 ### Docs updated this run
-- `docs/context-vs-loop-engineering.md` — new doc: emerging debate on whether context engineering supersedes loop engineering
-- `docs/loop-maturity-model.md` — new doc: 14-step progression from prompter to loop designer
-- `docs/failure-patterns.md` — added "Loop as wrong unit" entry
+- `docs/21-context-vs-loop-engineering.md` — new doc: emerging debate on whether context engineering supersedes loop engineering
+- `docs/20-loop-maturity-model.md` — new doc: 14-step progression from prompter to loop designer
+- `docs/17-failure-patterns.md` — added "Loop as wrong unit" entry
 
 ### Sources to consider adding to SOURCES.md
 - @0xCodez — AI content creator; high-engagement loop engineering explainers (402+ views, 27 likes); published 14-step roadmap article Jun 9
@@ -164,8 +164,8 @@ Sources are defined in [`SOURCES.md`](SOURCES.md).
 - swyx.io blog — page returned 404
 
 ### Docs updated this run
-- `docs/mcp-security.md` — new doc: AgentJacking via Sentry MCP, indirect prompt injection, mitigations
-- `docs/failure-patterns.md` — added "Polling loop" anti-pattern
+- `docs/19-mcp-security.md` — new doc: AgentJacking via Sentry MCP, indirect prompt injection, mitigations
+- `docs/17-failure-patterns.md` — added "Polling loop" anti-pattern
 
 ### Sources to consider adding to SOURCES.md
 Web search for "loop engineering" surfaced active blogs not yet in SOURCES.md:

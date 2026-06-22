@@ -17,63 +17,63 @@ Row numbers are stable identifiers — they do not change when docs are reorgani
 
 | # | Topic | Summary |
 |---|---|---|
-| 1 | [The Paradigm Shift](docs/paradigm-shift.md) | Old-way prompting vs. autonomous loop design; the New Software Lifecycle |
-| 26 | [The Factory Model](docs/factory-model.md) | Orchestrating agent factories — spec quality and verification replace coding speed |
-| 2 | [The Core Agent Loop Cycle](docs/agent-loop-cycle.md) | Observe → Reason → Plan → Act → Verify; Universal Agent Thesis |
-| 20 | [Loop Maturity Model](docs/loop-maturity-model.md) | 14-step progression from manual prompter to loop engineer |
-| 21 | [Context vs. Loop Engineering](docs/context-vs-loop-engineering.md) | Emerging debate: which layer deserves more engineering attention? |
+| 1 | [The Paradigm Shift](docs/01-paradigm-shift.md) | Old-way prompting vs. autonomous loop design; the New Software Lifecycle |
+| 26 | [The Factory Model](docs/26-factory-model.md) | Orchestrating agent factories — spec quality and verification replace coding speed |
+| 2 | [The Core Agent Loop Cycle](docs/02-agent-loop-cycle.md) | Observe → Reason → Plan → Act → Verify; Universal Agent Thesis |
+| 20 | [Loop Maturity Model](docs/20-loop-maturity-model.md) | 14-step progression from manual prompter to loop engineer |
+| 21 | [Context vs. Loop Engineering](docs/21-context-vs-loop-engineering.md) | Emerging debate: which layer deserves more engineering attention? |
 
 ### Designing a Loop
 
 | # | Topic | Summary |
 |---|---|---|
-| 27 | [The Loop Contract](docs/loop-contract.md) | TRIGGER/SCOPE/ACTION/BUDGET/STOP/REPORT — the six properties every loop must specify |
-| 24 | [Harness Patterns](docs/harness-patterns.md) | Two-part Anthropic harness (initializer + coding agent); four-type trigger taxonomy |
-| 3 | [The Six Building Blocks](docs/building-blocks.md) | Automations, Worktrees, Skills, Connectors, Sub-agents, Memory |
-| 15 | [Explore → Plan → Implement → Commit](docs/explore-plan-implement.md) | The four-phase workflow for complex tasks |
+| 27 | [The Loop Contract](docs/27-loop-contract.md) | TRIGGER/SCOPE/ACTION/BUDGET/STOP/REPORT — the six properties every loop must specify |
+| 24 | [Harness Patterns](docs/24-harness-patterns.md) | Two-part Anthropic harness (initializer + coding agent); four-type trigger taxonomy |
+| 3 | [The Six Building Blocks](docs/03-building-blocks.md) | Automations, Worktrees, Skills, Connectors, Sub-agents, Memory |
+| 15 | [Explore → Plan → Implement → Commit](docs/15-explore-plan-implement.md) | The four-phase workflow for complex tasks |
 
 ### Components
 
 | # | Topic | Summary |
 |---|---|---|
-| 5 | [CLAUDE.md](docs/claude-md.md) | Persistent context layer — keep it short and surgical |
-| 6 | [Skills](docs/skills.md) | Reusable on-demand workflows; SDLC phases as non-skippable skill steps |
-| 7 | [Subagents](docs/subagents.md) | Keep main context clean; writer/reviewer pattern |
-| 12 | [Hooks](docs/hooks.md) | Deterministic side effects — PreToolUse, PostToolUse, Stop |
-| 8 | [Permissions & Auto Mode](docs/permissions.md) | Allowlists, auto mode, bypassPermissions |
-| 9 | [Headless & Non-Interactive Mode](docs/headless-mode.md) | `claude -p` — the entry point for all automation |
+| 5 | [CLAUDE.md](docs/05-claude-md.md) | Persistent context layer — keep it short and surgical |
+| 6 | [Skills](docs/06-skills.md) | Reusable on-demand workflows; SDLC phases as non-skippable skill steps |
+| 7 | [Subagents](docs/07-subagents.md) | Keep main context clean; writer/reviewer pattern |
+| 12 | [Hooks](docs/12-hooks.md) | Deterministic side effects — PreToolUse, PostToolUse, Stop |
+| 8 | [Permissions & Auto Mode](docs/08-permissions.md) | Allowlists, auto mode, bypassPermissions |
+| 9 | [Headless & Non-Interactive Mode](docs/09-headless-mode.md) | `claude -p` — the entry point for all automation |
 
 ### State & Long-Running Loops
 
 | # | Topic | Summary |
 |---|---|---|
-| 13 | [Context Management](docs/context-management.md) | `/clear`, `/compact`, subagents for investigation |
-| 16 | [Memory Patterns](docs/memory-patterns.md) | Progress files, GitHub Issues as task queue, spec-driven loops |
-| 25 | [Long-Running Agents](docs/long-running-agents.md) | Ralph loop, planner-worker-judge, cross-context-window state and git-based recovery |
+| 13 | [Context Management](docs/13-context-management.md) | `/clear`, `/compact`, subagents for investigation |
+| 16 | [Memory Patterns](docs/16-memory-patterns.md) | Progress files, GitHub Issues as task queue, spec-driven loops |
+| 25 | [Long-Running Agents](docs/25-long-running-agents.md) | Ralph loop, planner-worker-judge, cross-context-window state and git-based recovery |
 
 ### Quality & Safety
 
 | # | Topic | Summary |
 |---|---|---|
-| 4 | [Verification](docs/verification.md) | The non-negotiable foundation — always give Claude a check it can run |
-| 17 | [Common Failure Patterns](docs/failure-patterns.md) | Cognitive surrender, orchestration tax, intent debt, cost runaway, and more |
-| 14 | [Human-in-the-Loop Escalation](docs/human-in-the-loop.md) | When to pause and ask for human input |
-| 11 | [Cost & Turn Control](docs/cost-control.md) | `--max-turns`, `--max-budget-usd`, effort levels |
-| 19 | [MCP Security](docs/mcp-security.md) | AgentJacking and indirect prompt injection via MCP connectors |
+| 4 | [Verification](docs/04-verification.md) | The non-negotiable foundation — always give Claude a check it can run |
+| 17 | [Common Failure Patterns](docs/17-failure-patterns.md) | Cognitive surrender, orchestration tax, intent debt, cost runaway, and more |
+| 14 | [Human-in-the-Loop Escalation](docs/14-human-in-the-loop.md) | When to pause and ask for human input |
+| 11 | [Cost & Turn Control](docs/11-cost-control.md) | `--max-turns`, `--max-budget-usd`, effort levels |
+| 19 | [MCP Security](docs/19-mcp-security.md) | AgentJacking and indirect prompt injection via MCP connectors |
 
 ### Scaling
 
 | # | Topic | Summary |
 |---|---|---|
-| 10 | [Fan-Out](docs/fan-out.md) | Parallelizing at scale across many Claude invocations |
-| 23 | [Fleet Engineering](docs/fleet-engineering.md) | Managing many loops at enterprise scale: governance, observability, routing |
-| 22 | [Learned Orchestration](docs/learned-orchestration.md) | Training the orchestrator instead of coding it — Sakana Fugu's Thinker/Worker/Verifier |
+| 10 | [Fan-Out](docs/10-fan-out.md) | Parallelizing at scale across many Claude invocations |
+| 23 | [Fleet Engineering](docs/23-fleet-engineering.md) | Managing many loops at enterprise scale: governance, observability, routing |
+| 22 | [Learned Orchestration](docs/22-learned-orchestration.md) | Training the orchestrator instead of coding it — Sakana Fugu's Thinker/Worker/Verifier |
 
 ### Reference
 
 | # | Topic | Summary |
 |---|---|---|
-| 18 | [Quick Reference](docs/quick-reference.md) | Commands and flags cheat sheet |
+| 18 | [Quick Reference](docs/18-quick-reference.md) | Commands and flags cheat sheet |
 
 ---
 

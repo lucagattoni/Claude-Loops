@@ -51,4 +51,4 @@ This pattern turns any crash into a clean resume.
 Long-running agents are the highest-risk scenario for cost runaway. Always pair with:
 - `--max-budget-usd` on every invocation
 - Explicit STOP conditions in the PLAN.md
-- A human checkpoint after each major phase (see [Human-in-the-Loop](human-in-the-loop.md))
+- A human checkpoint after each major phase (see [Human-in-the-Loop](14-human-in-the-loop.md))
