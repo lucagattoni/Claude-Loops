@@ -13,12 +13,14 @@ Fetch today's loop engineering news and update the tracking docs.
 2. Read `LOOP_ENGINEERING_NEWS.md`:
    - Find the most recent dated section header (format: `## YYYY-MM-DD`)
    - Record that date as `last_run_date`
-3. Get the exact Irish time by running:
+3. Get the exact local time by running:
    ```bash
-   TZ='Europe/Dublin' date '+%Y-%m-%d %H:%M %Z'
+   date '+%Y-%m-%d %H:%M %Z'
    ```
    Record the date part as `today` and the full output as `run_time`.
-   Use this value for all timestamps written to files — never estimate the time.
+   The `%Z` token captures the system timezone automatically — use whatever
+   the computer reports. Use this value for all timestamps written to files —
+   never estimate the time or override the timezone.
 
 ## Phase 2 — Per-source search
 
@@ -148,10 +150,11 @@ If Phase 2 or Phase 3 surfaces a person or company that:
 
 1. Merge all results from Phases 2 and 3 into a single list.
 2. Deduplicate: remove any item whose `url` already appears in `LOOP_ENGINEERING_NEWS.md`.
-3. Append a new section using this format (timestamp in Irish Standard Time):
+3. Append a new section using this format (timestamp from `run_time` — timezone
+   label comes from the system, e.g. IST, GMT, CET):
 
 ```markdown
-## YYYY-MM-DD HH:MM IST (run)
+## YYYY-MM-DD HH:MM <TZ> (run)
 
 ### New findings
 
