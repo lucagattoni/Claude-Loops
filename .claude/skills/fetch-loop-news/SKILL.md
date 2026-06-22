@@ -150,8 +150,9 @@ If Phase 2 or Phase 3 surfaces a person or company that:
 
 1. Merge all results from Phases 2 and 3 into a single list.
 2. Deduplicate: remove any item whose `url` already appears in `LOOP_ENGINEERING_NEWS.md`.
-3. Append a new section using this format (timestamp from `run_time` — timezone
-   label comes from the system, e.g. IST, GMT, CET):
+3. Insert a new section immediately after the initial `---` separator (so the
+   newest run always appears at the top). The format (timestamp from `run_time` —
+   timezone label comes from the system, e.g. IST, GMT, CET):
 
 ```markdown
 ## YYYY-MM-DD HH:MM <TZ> (run)
@@ -189,19 +190,44 @@ table and list all sources under "No new content". Never skip the section.
 
 6. Close any Chrome tabs opened during this run.
 
-## Phase 5 — Auto-commit
+## Phase 5 — Release determination and auto-commit
 
-After all Phase 4 writes are complete, commit every changed file directly to `main`:
+After all Phase 4 writes are complete:
 
-1. Stage the changed files:
-   ```bash
-   git add LOOP_ENGINEERING_NEWS.md LOOP_ENGINEERING.md SOURCES.md CHANGELOG.md docs/
-   ```
-2. Count new findings (N) and new docs created (M) from the digest section just written.
-3. Commit with the run timestamp and counts:
-   ```bash
-   git commit -m "feat: loop news run <run_time> — <N> findings, <M> new docs"
-   ```
-   Where `<run_time>` is the full timestamp from Phase 1 (e.g. `2026-06-22 14:55 IST`).
+### 5a — Determine release tier
 
-If `git add` stages nothing (all sources returned empty and no docs changed), skip the commit.
+Count the outputs of this run:
+- **M** = number of new `docs/*.md` files created
+- **U** = number of existing `docs/*.md` files updated
+- **N** = number of new findings added to the digest
+
+Apply this decision table:
+
+| Condition | Release tier |
+|---|---|
+| Any existing doc removed or renamed, or `LOOP_ENGINEERING.md` restructured | **MAJOR** |
+| M ≥ 1 (at least one new doc file created) | **MINOR** |
+| M = 0 and U ≥ 1 (existing docs updated, none new) | **PATCH** |
+| M = 0 and U = 0 and N ≥ 1 (findings only, no doc changes) | **PATCH** |
+| N = 0 and M = 0 and U = 0 (nothing changed) | **None** — skip commit |
+
+### 5b — Cut a release if warranted
+
+For **MINOR** or **PATCH** releases:
+1. Read the most recent versioned section header in `CHANGELOG.md` (format `## [X.Y.Z]`) to determine the current version.
+2. Increment it: MINOR bumps Y and resets Z to 0; PATCH bumps Z only.
+3. In `CHANGELOG.md`, rename `## [Unreleased]` to `## [X.Y.Z] — <today's date> <TZ>` (the new version) and add a fresh `## [Unreleased]` section above it with empty `### Added` and `### Changed` subsections.
+
+For **MAJOR** releases: leave `[Unreleased]` in place and note the major change there — major releases require a manual decision.
+
+For **None**: skip all changelog changes and skip the commit entirely.
+
+### 5c — Commit
+
+Stage and commit:
+```bash
+git add LOOP_ENGINEERING_NEWS.md LOOP_ENGINEERING.md SOURCES.md CHANGELOG.md docs/ .claude/skills/fetch-loop-news/SKILL.md
+git commit -m "feat: loop news run <run_time> — <N> findings, <M> new docs [<tier>]"
+```
+Where `<tier>` is the release tier (e.g. `minor`, `patch`, or `none`).
+Omit `[none]` from the message when tier is None (but in that case the commit is skipped anyway).

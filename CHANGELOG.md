@@ -4,13 +4,22 @@ All notable changes to `LOOP_ENGINEERING.md` and the `docs/` knowledge base are 
 
 Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 Versioning follows [Semantic Versioning](https://semver.org/):
-- **MAJOR** — significant restructure or removal of existing content
-- **MINOR** — new topic added (new `docs/<topic>.md` + row in index)
-- **PATCH** — update or correction to an existing topic doc
+- **MAJOR** — existing doc removed/renamed, or `LOOP_ENGINEERING.md` index restructured
+- **MINOR** — ≥1 new `docs/*.md` file created (new concept documented)
+- **PATCH** — existing docs updated or new findings added to digest with no new doc files
+- **None** — zero findings and zero doc changes (no commit made)
 
 ---
 
 ## [Unreleased]
+
+### Added
+
+### Changed
+
+---
+
+## [1.2.0] — 2026-06-22 IST
 
 ### Added
 - `docs/loop-maturity-model.md` — 14-step progression from manual prompter to loop engineer (Boris Cherny's 3-stage model + community roadmap, Jun 21 2026)
