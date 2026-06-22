@@ -5,6 +5,41 @@ Sources are defined in [`SOURCES.md`](SOURCES.md).
 
 ---
 
+## 2026-06-22 21:43 IST (run)
+
+### New findings
+
+| Tier | Source | Title | URL | Summary |
+|---|---|---|---|---|
+| 2 | Cobus Greyling | "The Evolving Vocabulary of AI" | [link](https://cobusgreyling.substack.com/p/the-evolving-vocabulary-of-ai) | Traces AI terminology through six phases (2020–2026+) and names Loop Engineering as one of four mature engineering disciplines alongside Context Engineering, Harness Engineering, and Fleet Engineering — the clearest published framing of the field's vocabulary consolidation. |
+| 3 | Addy Osmani | "Don't Outsource the Learning" | [link](https://addyosmani.com/blog/dont-outsource-learning/) | Empirical argument against cognitive surrender: engineers who copy-paste AI output score under 40% on comprehension tests vs 65%+ for those using AI assistively — quantifying the skill-degradation cost of outsourcing judgment to the loop. |
+| 3 | Medium (@KilgortTrout) | "From Prompts to Loops: A Practical Guide to Building Agentic Workflows in Codex and Claude" | [link](https://medium.com/@KilgortTrout/from-prompts-to-loops-a-practical-guide-to-building-agentic-workflows-in-codex-and-claude-0b57234452ed) | Introduces "circuit breakers" (auto-halt on no-progress or error accumulation) and the "dark factory" anti-pattern (fully autonomous loops with zero human checkpoints) — two new safety framings added to the failure patterns doc. |
+
+### No new content
+- Anthropic RSS — 404 (ongoing)
+- @bcherny — Jun 19 post on deciphering Linear A with Claude Code; no loop engineering content
+- @karpathy — Jun 12 SpaceX, Jun 9 Fable reaction; no loop engineering content
+- @AndrewYNg — Jun 19 policy/course posts; no loop engineering content
+- @swyx — no keyword-matching posts
+- @Sabrina_Ramonov — no new posts since 14:55 IST run
+- @steipete — new posts about OpenClaw becoming a non-profit; no loop engineering substance
+- OpenAI news — 403 blocked (ongoing)
+- swyx.io — most recent post May 2026
+- sabrina.dev — no posts after Jun 19
+- Lenny's Newsletter — two 2025 articles found; Tier 4, below inclusion threshold
+- Simon Willison — "Initial impressions of Claude Fable 5" mentions PauseChain stop mechanism; primarily a model review, insufficient loop engineering substance
+- The New Stack — two new Jun 22 articles (Cursor/Continue acquisition, Qodo cross-repo review); no loop patterns discussed
+- X keyword search — browser error; no results returned
+
+### Docs updated this run
+- `docs/17-failure-patterns.md` — updated cognitive surrender with empirical data point (<40% vs 65%+ comprehension); added "Dark factory" and "Missing circuit breaker" failure patterns
+- `docs/21-context-vs-loop-engineering.md` — added "The four disciplines" section: Greyling's vocabulary consolidation (Loop/Context/Harness/Fleet Engineering as four named disciplines)
+
+### Sources to consider adding to SOURCES.md
+- Geoffrey Huntley — credited as originator of the Ralph planner-worker-judge technique; worth checking for a blog/X presence with ≥2 loop engineering pieces
+
+---
+
 ## 2026-06-22 14:55 IST (run)
 
 ### New findings

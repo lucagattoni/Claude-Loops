@@ -43,6 +43,23 @@ When debugging a failing loop:
 
 ---
 
+## The four disciplines (2026 vocabulary consolidation)
+
+As of mid-2026 the community has consolidated around four named engineering disciplines
+(Cobus Greyling, "The Evolving Vocabulary of AI", Jun 2026):
+
+| Discipline | Focus |
+|---|---|
+| **Loop Engineering** | The system that runs the agent: triggers, stopping conditions, verification, harness |
+| **Context Engineering** | What the agent sees at each turn: files, instructions, memory, task state |
+| **Harness Engineering** | The scaffolding around the agent: prompts, tools, sandboxes, feedback loops |
+| **Fleet Engineering** | Managing many agents at enterprise scale: governance, observability, routing |
+
+These are not competing disciplines — they compose. A well-designed agentic system
+requires deliberate engineering at all four levels.
+
+---
+
 ## Related
 
 - [The Core Agent Loop Cycle](02-agent-loop-cycle.md)

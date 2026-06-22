@@ -19,6 +19,15 @@ Versioning follows [Semantic Versioning](https://semver.org/):
 
 ---
 
+## [2.0.1] — 2026-06-22
+
+### Changed
+- `docs/17-failure-patterns.md` — updated cognitive surrender with empirical data (<40% vs 65%+ comprehension, Osmani May 2026); added "Dark factory" and "Missing circuit breaker" failure patterns
+- `docs/21-context-vs-loop-engineering.md` — added "The four disciplines" section: Loop/Context/Harness/Fleet Engineering as four named disciplines (Cobus Greyling, Jun 2026)
+- `LOOP_ENGINEERING.md` — updated index summaries for rows 17 and 21 to reflect new content
+
+---
+
 ## [2.0.0] — 2026-06-22
 
 ### Changed

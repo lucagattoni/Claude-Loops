@@ -21,7 +21,7 @@ Row numbers are stable identifiers — they do not change when docs are reorgani
 | 26 | [The Factory Model](docs/26-factory-model.md) | Orchestrating agent factories — spec quality and verification replace coding speed |
 | 2 | [The Core Agent Loop Cycle](docs/02-agent-loop-cycle.md) | Observe → Reason → Plan → Act → Verify; Universal Agent Thesis |
 | 20 | [Loop Maturity Model](docs/20-loop-maturity-model.md) | 14-step progression from manual prompter to loop engineer |
-| 21 | [Context vs. Loop Engineering](docs/21-context-vs-loop-engineering.md) | Emerging debate: which layer deserves more engineering attention? |
+| 21 | [Context vs. Loop Engineering](docs/21-context-vs-loop-engineering.md) | Debate and vocabulary consolidation: four named disciplines — Loop, Context, Harness, Fleet Engineering |
 
 ### Designing a Loop
 
@@ -56,7 +56,7 @@ Row numbers are stable identifiers — they do not change when docs are reorgani
 | # | Topic | Summary |
 |---|---|---|
 | 4 | [Verification](docs/04-verification.md) | The non-negotiable foundation — always give Claude a check it can run |
-| 17 | [Common Failure Patterns](docs/17-failure-patterns.md) | Cognitive surrender, orchestration tax, intent debt, cost runaway, and more |
+| 17 | [Common Failure Patterns](docs/17-failure-patterns.md) | Cognitive surrender, orchestration tax, intent debt, dark factory, circuit breakers, and more |
 | 14 | [Human-in-the-Loop Escalation](docs/14-human-in-the-loop.md) | When to pause and ask for human input |
 | 11 | [Cost & Turn Control](docs/11-cost-control.md) | `--max-turns`, `--max-budget-usd`, effort levels |
 | 19 | [MCP Security](docs/19-mcp-security.md) | AgentJacking and indirect prompt injection via MCP connectors |
