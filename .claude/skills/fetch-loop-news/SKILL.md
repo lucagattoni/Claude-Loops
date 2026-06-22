@@ -188,3 +188,20 @@ table and list all sources under "No new content". Never skip the section.
 5. Update `CHANGELOG.md` under `[Unreleased]` for any doc additions or changes.
 
 6. Close any Chrome tabs opened during this run.
+
+## Phase 5 — Auto-commit
+
+After all Phase 4 writes are complete, commit every changed file directly to `main`:
+
+1. Stage the changed files:
+   ```bash
+   git add LOOP_ENGINEERING_NEWS.md LOOP_ENGINEERING.md SOURCES.md CHANGELOG.md docs/
+   ```
+2. Count new findings (N) and new docs created (M) from the digest section just written.
+3. Commit with the run timestamp and counts:
+   ```bash
+   git commit -m "feat: loop news run <run_time> — <N> findings, <M> new docs"
+   ```
+   Where `<run_time>` is the full timestamp from Phase 1 (e.g. `2026-06-22 14:55 IST`).
+
+If `git add` stages nothing (all sources returned empty and no docs changed), skip the commit.

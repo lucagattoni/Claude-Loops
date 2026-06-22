@@ -36,6 +36,10 @@ while you sleep.
 | 21 | [Context vs. Loop Engineering](docs/context-vs-loop-engineering.md) | Emerging debate: which layer deserves more engineering attention? |
 | 22 | [Learned Orchestration](docs/learned-orchestration.md) | Training the orchestrator instead of coding it — Sakana Fugu's Thinker/Worker/Verifier approach |
 | 23 | [Fleet Engineering](docs/fleet-engineering.md) | Managing many loops at enterprise scale: governance, observability, routing across agent fleets |
+| 24 | [Harness Patterns](docs/harness-patterns.md) | Two-part Anthropic harness (initializer + coding agent); four-type loop taxonomy (heartbeat/cron/hook/goal) |
+| 25 | [Long-Running Agents](docs/long-running-agents.md) | Maintaining progress across multiple context windows via the Ralph loop, persistent state, and git-based recovery |
+| 26 | [The Factory Model](docs/factory-model.md) | Orchestrating agent factories — spec quality and verification replace coding speed as the engineering bottleneck |
+| 27 | [The Loop Contract](docs/loop-contract.md) | TRIGGER/SCOPE/ACTION/BUDGET/STOP/REPORT — the six properties every loop must specify before running |
 
 ---
 

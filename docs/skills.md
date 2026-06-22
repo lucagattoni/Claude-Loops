@@ -29,3 +29,23 @@ Deploy the current branch to production:
 8. `kubectl rollout status deployment/app`
 9. Report deploy SHA and confirm pods are Running
 ```
+
+## Skills as SDLC Scaffolding
+
+Skills can enforce engineering process, not just task steps. By baking spec writing,
+testing, and review into the skill definition as **non-skippable phases**, you
+prevent the agent from taking shortcuts inside a loop. (Pattern from Addy Osmani,
+"Agent Skills", May 2026.)
+
+```markdown
+<!-- .claude/skills/implement-feature/SKILL.md -->
+1. Write a spec in SPEC.md: requirements, acceptance criteria, edge cases
+2. Only after spec is written: implement the feature
+3. Write tests — unit and integration
+4. Run tests; fix all failures before proceeding
+5. Open a self-review subagent to audit the diff for correctness
+6. Only after review passes: commit and open PR
+```
+
+The skill becomes a quality gate: each phase must complete before the next begins,
+regardless of how the agent would otherwise sequence the work.

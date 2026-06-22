@@ -132,3 +132,52 @@ Web search for "loop engineering" surfaced active blogs not yet in SOURCES.md:
 - @shalabi — named provider lock-in as an agent loop failure mode; substantive practitioner voice
 
 ---
+
+## 2026-06-22 14:55 IST (run)
+
+### New findings
+
+| Tier | Source | Title | URL | Summary |
+|---|---|---|---|---|
+| 1 | @bcherny | "When we first demoed Claude Code internally, it got two reactions on Slack. A year after GA… how routines…" | [link](https://x.com/bcherny/status/2064034799711588805) | Boris Cherny's own account of how he uses routines and loops in Claude Code, from a 1-year-GA retrospective interview — the most direct source on his mental model for loop and routine design. |
+| 2 | Anthropic Engineering | "Effective Harnesses for Long-Running Agents" | [link](https://www.anthropic.com/engineering/effective-harnesses-for-long-running-agents) | Defines a two-part harness pattern (initializer agent + coding agent) with structured JSON feature lists, mandatory session init routines, browser automation testing, and git-based recovery to maintain agent progress across multiple context windows. |
+| 2 | Addy Osmani | "Factory Model" | [link](https://addyosmani.com/blog/factory-model/) | Argues developers are transitioning from writing code to orchestrating agent factories, where success depends on specification quality, architectural thinking, and rigorous output verification rather than coding speed. |
+| 2 | Lenny's Newsletter (Claire Vo) | "How to design AI agent loops: schedules, goals, and subagents in Claude Code and Codex" | [link](https://www.lennysnewsletter.com/p/how-to-design-ai-agent-loops-schedules) | Introduces a four-type loop taxonomy (heartbeat, cron, hook, goal) and an 'onboarding an employee' mental model for loop design; warns that goal loops are the hardest to write and most likely to burn tokens without output. |
+| 2 | explainx.ai | "Loop Engineering: How to Design Coding Agent Loops That Run While You Sleep (2026 Guide)" | [link](https://explainx.ai/blog/loop-engineering-coding-agents-claude-code-guide-2026) | Introduces the Loop Contract Model (TRIGGER/SCOPE/ACTION/BUDGET/STOP/REPORT), the Anchor File Pattern (VISION.md/CLAUDE.md/AGENTS.md/PROMPT.md), and the Uber data point that engineers burned an annual AI budget in four months before a $1,500/month per-tool cap was imposed. |
+| 2 | The New Stack | "The Anthropic leader who built Claude Code says he ditched prompting — now he just writes loops" | [link](https://thenewstack.io/loop-engineering/) | The New Stack's primary loop engineering explainer, framed around Boris Cherny's public shift from prompting to writing loops — canonical source linking the Cherny quote to the broader loop engineering movement. |
+| 3 | Addy Osmani | "Long-running Agents" | [link](https://addyosmani.com/blog/long-running-agents/) | Covers architectural patterns for agents that maintain progress across hours or days via persistent state management, recovery mechanisms, and the Ralph loop / planner-worker-judge multi-agent pattern. |
+| 3 | Addy Osmani | "Agent Skills" | [link](https://addyosmani.com/blog/agent-skills/) | Encodes senior-engineering practices (specs, tests, reviews) as workflow scaffolding in agent harnesses, ensuring agents follow healthy SDLC phases and cannot skip verification steps inside loops. |
+| 3 | Addy Osmani | "Cognitive Surrender" | [link](https://addyosmani.com/blog/cognitive-surrender/) | Distinguishes cognitive offloading (delegating with retained judgment) from cognitive surrender (accepting AI output unchecked), which compounds comprehension debt across agentic workflows. |
+| 3 | Addy Osmani | "The Orchestration Tax" | [link](https://addyosmani.com/blog/orchestration-tax/) | Argues human attention is the bottleneck in multi-agent loops; the orchestration tax — cognitive cost of closing feedback loops on multiple parallel agents — requires deliberate backpressure and batching architecture. |
+| 3 | Addy Osmani | "The Intent Debt" | [link](https://addyosmani.com/blog/intent-debt/) | Argues that undocumented design intent becomes the most expensive technical debt in agentic workflows, since AI agents cannot fabricate authentic rationale and will silently fill gaps with plausible-sounding explanations. |
+| 3 | Addy Osmani | "The New Software Lifecycle" | [link](https://addyosmani.com/blog/new-sdlc-vibe-coding/) | AI agents have collapsed implementation speed, making spec quality, harness design, and verification the new engineering bottlenecks — explicitly references the factory model and harness as first-class artefacts in the modern SDLC. |
+| 3 | Cobus Greyling | "Universal Agent Thesis" | [link](https://cobusgreyling.substack.com/p/universal-agent-thesis) | Proposes that autonomous agents must self-discover tools and map environment boundaries before executing — frames 'Perceive, reason, act, learn' as the universal agent loop and names the terminal as the universal integration layer replacing curated APIs. |
+
+### No new content
+- Anthropic RSS — 404 (ongoing; feed URL appears down)
+- @karpathy — browser congestion; last known own post Jun 12; Jun 2 repost already captured
+- @AndrewYNg — browser congestion; no loop engineering content in prior runs
+- OpenAI news — 403 blocked (ongoing)
+- @swyx — no keyword-matching posts found
+- @Sabrina_Ramonov — last captured post from the 13:52 IST run; no new posts since
+- @steipete — no new posts since last run
+- swyx.io — most recent post May 2026; no loop engineering content
+- sabrina.dev — most recent post Jun 19 (already captured)
+- X general keyword search — browser congestion; no results returned
+
+### Docs updated this run
+- `docs/harness-patterns.md` — new doc: two-part Anthropic harness (initializer + coding agent); four-type loop taxonomy (heartbeat/cron/hook/goal)
+- `docs/long-running-agents.md` — new doc: Ralph loop, planner-worker-judge, cross-context-window state management, git-based recovery
+- `docs/factory-model.md` — new doc: AI software factory framing — spec quality and verification replace coding speed as the engineering bottleneck
+- `docs/loop-contract.md` — new doc: TRIGGER/SCOPE/ACTION/BUDGET/STOP/REPORT — six loop properties; Anchor File Pattern; Uber annual-budget-in-4-months data point
+- `docs/failure-patterns.md` — added cognitive surrender, orchestration tax, and intent debt failure patterns
+- `docs/agent-loop-cycle.md` — added Universal Agent Thesis ("Perceive, reason, act, learn") as alternative framing with the "Learn" step explained
+- `docs/skills.md` — added "Skills as SDLC Scaffolding" section: encoding engineering phases as non-skippable skill steps
+- `docs/paradigm-shift.md` — added "New Software Lifecycle" framing: implementation speed no longer the bottleneck
+- `LOOP_ENGINEERING.md` — added rows 24–27 (harness-patterns, long-running-agents, factory-model, loop-contract)
+- `SOURCES.md` — added Lenny's Newsletter (Claire Vo) as new html source
+
+### Sources to consider adding to SOURCES.md
+- explainx.ai — published substantive Loop Contract Model guide (Jun 9 2026); consistent loop engineering coverage worth tracking
+
+---

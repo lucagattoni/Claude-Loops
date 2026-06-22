@@ -77,6 +77,7 @@ substantively relevant to loop engineering practice (not just a passing mention)
 | Sabrina Ramonov | x | @Sabrina_Ramonov | Active X presence posting loop engineering definitions and techniques (Jun 2026) |
 | Cobus Greyling | rss | https://cobusgreyling.substack.com/feed | Loop Engineering Substack + GitHub repo |
 | Peter Steinberger | x | @steipete | Creator of OpenClaw; "designing loops" framing |
+| Lenny's Newsletter (Claire Vo) | html | https://www.lennysnewsletter.com/p/how-to-design-ai-agent-loops-schedules | Four-type loop taxonomy (heartbeat/cron/hook/goal); high-engagement AI practitioner audience (Jun 2026) |
 
 ---
 
