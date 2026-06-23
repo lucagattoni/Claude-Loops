@@ -79,6 +79,7 @@ substantively relevant to loop engineering practice (not just a passing mention)
 | Peter Steinberger | x | @steipete | Creator of OpenClaw; "designing loops" framing |
 | Lenny's Newsletter (Claire Vo) | html | https://www.lennysnewsletter.com/p/how-to-design-ai-agent-loops-schedules | Four-type loop taxonomy (heartbeat/cron/hook/goal); high-engagement AI practitioner audience (Jun 2026) |
 | Cobus Greyling loop-engineering | github | https://github.com/cobusgreyling/loop-engineering | Reference implementation and patterns repo; watch for new docs, examples, and releases |
+| The Rundown AI | html | https://www.therundown.ai/archive | Daily AI newsletter archive; scan for loop engineering / agentic workflow coverage |
 
 ---
 
