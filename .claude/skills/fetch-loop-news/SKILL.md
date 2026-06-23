@@ -110,6 +110,52 @@ If search returns no results or errors, fall back to the index page.
 
 ---
 
+### For `type: x-search` sources
+
+These are live keyword search URLs on X.com. Content is dynamically loaded — a single page read is not enough.
+
+1. Use Chrome to navigate to the search URL from SOURCES.md.
+2. **Scroll to load posts**: after the initial page load, scroll down at least 3 times (waiting briefly between scrolls) to load a minimum of 20 posts. Use the scroll action or JavaScript `window.scrollBy(0, 3000)` between reads.
+3. Read all visible posts. For each collect: author handle, post text (first 2 lines), URL, date, one-sentence summary.
+4. Score each post against the keyword tiers.
+5. **Link expansion** — for every Tier 1 or Tier 2 post: apply the same thread-and-link expansion as `type: x` sources (navigate to thread URL, collect external links, WebFetch the 3 most innovative).
+
+---
+
+### For `type: linkedin` sources
+
+LinkedIn search results are dynamically loaded. A single page read returns very few posts.
+
+1. Use Chrome to navigate to the search URL from SOURCES.md.
+2. **Scroll to load posts**: scroll down at least 3 times to load a minimum of 20 posts. Use JavaScript `window.scrollBy(0, 3000)` and wait 1–2 seconds between each scroll.
+3. **Extract post text with JavaScript** — LinkedIn uses hashed class names; use this approach:
+   ```javascript
+   const walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT);
+   const feedPostNodes = [];
+   let node;
+   while (node = walker.nextNode()) {
+     if (node.textContent.trim() === 'Feed post') feedPostNodes.push(node.parentElement);
+   }
+   const seen = new Set();
+   const posts = [];
+   feedPostNodes.forEach(el => {
+     let container = el;
+     for (let j = 0; j < 8; j++) {
+       if (container.innerText?.length > 200) break;
+       container = container.parentElement;
+     }
+     const text = container.innerText?.replace(/\n{3,}/g, '\n')?.trim()?.slice(0, 700);
+     const key = text?.slice(0, 60);
+     const pulseHref = container.querySelector('a[href*="/pulse/"]')?.href?.split('?')[0];
+     if (text && !seen.has(key)) { seen.add(key); posts.push({ text, pulseHref }); }
+   });
+   JSON.stringify(posts);
+   ```
+4. Score each post against the keyword tiers (author headline + post text).
+5. **Pulse article expansion** — for every Tier 1 or Tier 2 post that includes a `pulseHref`: WebFetch the article URL and summarise its content. Treat it like a full article find.
+
+---
+
 ### For `type: github` sources
 
 1. WebFetch `<repo-url>/commits/main` (try `master` if `main` returns 404).

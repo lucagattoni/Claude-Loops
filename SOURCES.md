@@ -83,6 +83,8 @@ substantively relevant to loop engineering practice (not just a passing mention)
 | TLDR AI | rss | https://tldr.tech/ai/rss | Daily AI digest RSS; scan for Claude Code, agent loop, agentic workflow coverage |
 | Ben's Bites | rss | https://bensbites.beehiiv.com/feed | Daily AI news digest RSS; scan for loop engineering / agent loop coverage |
 | AI Breakfast | rss | https://aibreakfast.beehiiv.com/feed | Daily AI newsletter (Beehiiv RSS); scan for agentic workflow and Claude Code coverage |
+| X search — loop engineering | x-search | https://x.com/search?q=loop%20engineering&src=typed_query&f=live | Live keyword search; dynamically loaded — scroll ≥3 times to surface 20+ posts |
+| LinkedIn search — loop engineering | linkedin | https://www.linkedin.com/search/results/content/?keywords=loop+engineering | Professional community posts; dynamically loaded — scroll ≥3 times to surface 20+ posts |
 
 ---
 
@@ -94,6 +96,8 @@ substantively relevant to loop engineering practice (not just a passing mention)
 | `rss` | WebFetch feed URL → parse `<item>` / `<entry>` → score against keyword tiers |
 | `html` | WebFetch page URL → extract article links + snippets → score against keyword tiers |
 | `github` | WebFetch repo URL + `/commits/main` → score new commits since `last_run_date`; also check `/releases` for tagged releases |
+| `x-search` | Chrome → navigate to the search URL → scroll down ≥3 times to load 20+ posts → read all posts → score against keyword tiers |
+| `linkedin` | Chrome → navigate to the search URL → scroll down ≥3 times to load 20+ posts → use JavaScript to extract post text → score against keyword tiers; WebFetch any linked Pulse articles for Tier 1/2 matches |
 
 ---
 
