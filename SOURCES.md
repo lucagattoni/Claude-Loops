@@ -80,6 +80,9 @@ substantively relevant to loop engineering practice (not just a passing mention)
 | Lenny's Newsletter (Claire Vo) | html | https://www.lennysnewsletter.com/p/how-to-design-ai-agent-loops-schedules | Four-type loop taxonomy (heartbeat/cron/hook/goal); high-engagement AI practitioner audience (Jun 2026) |
 | Cobus Greyling loop-engineering | github | https://github.com/cobusgreyling/loop-engineering | Reference implementation and patterns repo; watch for new docs, examples, and releases |
 | The Rundown AI | html | https://www.therundown.ai/archive | Daily AI newsletter archive; scan for loop engineering / agentic workflow coverage |
+| TLDR AI | html | https://tldr.tech/ai/archives | Daily AI digest; scan for Claude Code, agent loop, agentic workflow coverage |
+| Ben's Bites | rss | https://bensbites.beehiiv.com/feed | Daily AI news digest RSS; scan for loop engineering / agent loop coverage |
+| AI Breakfast | html | https://aibreakfast.beehiiv.com/archive | Daily AI newsletter; scan for agentic workflow and Claude Code coverage |
 
 ---
 
