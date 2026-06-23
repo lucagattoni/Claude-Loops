@@ -29,19 +29,20 @@ Row numbers are stable identifiers — they do not change when docs are reorgani
 |---|---|---|
 | 27 | [The Loop Contract](docs/27-loop-contract.md) | TRIGGER/SCOPE/ACTION/BUDGET/STOP/REPORT — the six properties every loop must specify |
 | 24 | [Harness Patterns](docs/24-harness-patterns.md) | Two-part Anthropic harness (initializer + coding agent); four-type trigger taxonomy |
-| 3 | [The Six Building Blocks](docs/03-building-blocks.md) | Automations, Worktrees, Skills, Connectors, Sub-agents, Memory |
+| 3 | [The Six Building Blocks](docs/03-building-blocks.md) | Automations, Worktrees, Skills, Connectors, Sub-agents, Memory; Routines for cloud execution |
+| 28 | [Routines](docs/28-routines.md) | Cloud-hosted loop execution: Schedule / API / GitHub triggers — no local machine needed |
 | 15 | [Explore → Plan → Implement → Commit](docs/15-explore-plan-implement.md) | The four-phase workflow for complex tasks |
 
 ### Components
 
 | # | Topic | Summary |
 |---|---|---|
-| 5 | [CLAUDE.md](docs/05-claude-md.md) | Persistent context layer — keep it short and surgical |
+| 5 | [CLAUDE.md](docs/05-claude-md.md) | Persistent context layer — hierarchy, path-scoped rules, import syntax, HTML comments |
 | 6 | [Skills](docs/06-skills.md) | Reusable on-demand workflows; SDLC phases as non-skippable skill steps |
-| 7 | [Subagents](docs/07-subagents.md) | Keep main context clean; DOER/CHECKER — never let the AI grade its own output |
-| 12 | [Hooks](docs/12-hooks.md) | Deterministic side effects — PreToolUse, PostToolUse, Stop |
-| 8 | [Permissions & Auto Mode](docs/08-permissions.md) | Allowlists, auto mode, bypassPermissions |
-| 9 | [Headless & Non-Interactive Mode](docs/09-headless-mode.md) | `claude -p` — the entry point for all automation |
+| 7 | [Subagents](docs/07-subagents.md) | Keep main context clean; DOER/CHECKER; built-in types (fork/Explore/Plan); custom agents |
+| 12 | [Hooks](docs/12-hooks.md) | Deterministic loop control — types, JSON output API, asyncRewake circuit breaker |
+| 8 | [Permissions & Auto Mode](docs/08-permissions.md) | Allow/deny/ask lists, auto mode, Tool(param:value) patterns, PermissionRequest hook |
+| 9 | [Headless & Non-Interactive Mode](docs/09-headless-mode.md) | `claude -p` — headless automation, session continuation, background sessions, CI flags |
 
 ### State & Long-Running Loops
 
@@ -50,6 +51,7 @@ Row numbers are stable identifiers — they do not change when docs are reorgani
 | 13 | [Context Management](docs/13-context-management.md) | `/clear`, `/compact`, subagents for investigation |
 | 16 | [Memory Patterns](docs/16-memory-patterns.md) | Progress files, GitHub Issues as task queue, spec-driven loops |
 | 25 | [Long-Running Agents](docs/25-long-running-agents.md) | Ralph loop, planner-worker-judge, Inner/Outer Dual Loop, git-based recovery |
+| 29 | [Background Agents](docs/29-background-agents.md) | `--bg` detached sessions, agent view, fan-out pattern, worktree isolation |
 
 ### Quality & Safety
 

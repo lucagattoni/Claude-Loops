@@ -81,6 +81,13 @@ driven entirely by a single /goal command and the loop's built-in stopping condi
 The limiting factor was not model capability but the quality of the stopping condition
 and the budget cap.
 
+## Detaching from the terminal
+
+Long-running agents often need to run after you close your IDE. Two options:
+
+- **`claude --bg`** — starts a background session on the same machine; survives terminal close; manageable via `claude agents`. See [Background Agents](29-background-agents.md).
+- **Routines** — Anthropic-hosted cloud execution; survives machine shutdown entirely. See [Routines](28-routines.md).
+
 ## Relationship to Cost Control
 
 Long-running agents are the highest-risk scenario for cost runaway. Always pair with:

@@ -3,16 +3,27 @@
 Addy Osmani (Google) and Boris Cherny frame every well-designed loop around six
 components.
 
-## 1. Automations
+## 1. Automations (local) and Routines (cloud)
 
 What triggers the loop: a cron/schedule, a GitHub event, a Slack message, a CI
 failure, a file watcher. The loop starts because *something happened*, not because
 you typed.
 
 ```bash
-# Example: run Claude on every push via GitHub Actions
+# Local: run Claude from GitHub Actions on every push
 claude -p "$(cat .claude/prompts/review.md)" --permission-mode auto
 ```
+
+**Routines** extend automations to the cloud: Anthropic-hosted loop execution that
+runs without your machine. Three trigger types — Schedule (cron), API (webhook), and
+GitHub events (PR open/close, Release). Your laptop can be off; the loop runs.
+
+```bash
+# Inside a Claude Code session:
+/schedule   # create a Routine — choose Schedule / API / GitHub trigger
+```
+
+See [Routines](28-routines.md) for the full model.
 
 ## 2. Worktrees
 
