@@ -19,6 +19,24 @@ Versioning follows [Semantic Versioning](https://semver.org/):
 
 ---
 
+## [2.1.0] — 2026-06-23
+
+### Added
+- `docs/28-routines.md` — Routines: cloud-hosted loop execution with Schedule/API/GitHub triggers
+- `docs/29-background-agents.md` — Background agents: `--bg`, agent view, fan-out, worktree isolation
+
+### Changed
+- `docs/12-hooks.md` — Full rewrite: 5 hook types, complete lifecycle events, JSON output API, asyncRewake circuit breaker, conditional `if` field, env vars, scope hierarchy
+- `docs/09-headless-mode.md` — Full rewrite: session continuation, background sessions, prompt overrides, CI flags, prompt cache optimisation
+- `docs/07-subagents.md` — Added built-in types table (fork/Explore/Plan), custom agent frontmatter, nesting depth, permission control
+- `docs/08-permissions.md` — Added deny/ask lists, Tool(param:value) pattern syntax, PermissionRequest hook, settings precedence
+- `docs/05-claude-md.md` — Added load hierarchy, path-scoped rules (`.claude/rules/`), HTML comment stripping, import syntax, `claudeMdExcludes`
+- `docs/03-building-blocks.md` — Added Routines as cloud automation layer alongside local Automations
+- `docs/25-long-running-agents.md` — Added "Detaching from the terminal" section with `--bg` and Routines pointers
+- `LOOP_ENGINEERING.md` — Added rows 28 and 29; updated summaries for rows 3, 5, 7, 8, 9, 12
+
+---
+
 ## [2.0.2] — 2026-06-23
 
 ### Changed
