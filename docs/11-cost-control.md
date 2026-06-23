@@ -33,6 +33,22 @@ loop), then raise after observing actual consumption on real runs.
 
 (Data Science Dojo, "Agentic Loops: From ReAct to Loop Engineering", 2026.)
 
+## Real project cost benchmarks
+
+From Anthropic's own harness engineering work (Prithvi Rajasekaran, Mar 2026):
+
+| Task | Architecture | Time | Cost | Result |
+|---|---|---|---|---|
+| Retro game maker | Solo agent | 20 min | $9 | Broken core functionality |
+| Retro game maker | Full harness (Planner + Generator + QA) | 6 hours | $200 | Fully playable, 16-feature spec, 10 sprints |
+| Digital audio workstation | Simplified harness (no sprints) | 3h 50min | $124.70 | Working application |
+
+The DAW cost breakdown: Planner $0.46 · Build phases $113.85 · QA phases $10.39.
+
+**Key takeaway:** the 20× cost increase (solo → harness) on the game maker yielded
+qualitatively different output — not incrementally better. Budget for this step-change
+when reliability and completeness are non-negotiable.
+
 ## Effort levels
 
 | Level | Use when |

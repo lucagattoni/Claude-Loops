@@ -56,6 +56,50 @@ stopping condition and a hard spend cap, it will run indefinitely.
 
 See also: [Loop Contract](27-loop-contract.md) for mandatory BUDGET and STOP properties.
 
+## Three-Agent Full-Stack Harness (Anthropic Engineering)
+
+For complex, multi-feature applications, Anthropic extended the two-part harness
+into a three-agent system (Prithvi Rajasekaran, Mar 2026):
+
+| Agent | Role | Key behaviour |
+|---|---|---|
+| **Planner** | Converts 1–4 sentence prompts into detailed product specs | Ambitious on scope; avoids technical over-specification; identifies AI feature opportunities |
+| **Generator** | Implements features from spec | Self-evaluates before QA handoff; uses git for recovery; works in sprint contracts |
+| **QA / Evaluator** | Active testing with Playwright MCP | Tests UI, API endpoints, and database states like a real user; grades against 20+ predefined criteria |
+
+The Planner prevents cascade errors from spec mistakes by staying high-level.
+The Generator negotiates sprint contracts with the Evaluator before each build phase.
+
+### Sprint Contract
+
+Before each implementation sprint, the Generator and Evaluator **negotiate** a specific
+set of deliverables and testable criteria — often 20+ per sprint:
+
+```
+Sprint N contract:
+- What will be built: [specific features]
+- Success criteria: [20+ testable, objective conditions]
+- "Done" definition: all criteria pass in QA
+```
+
+This bridges the gap between high-level user stories and implementation detail
+without over-constraining technical decisions upfront. It also eliminates ambiguity
+about what the Evaluator is checking — the criteria are agreed before code is written.
+
+### Load-Bearing vs. Optional Components
+
+As models improve, harness components that were essential scaffolding become
+unnecessary overhead. **Re-evaluate which components are load-bearing with every
+significant model release:**
+
+- With **Opus 4.5**: sprints, explicit decomposition, and per-sprint evaluation were essential
+- With **Opus 4.6**: model capability increased enough that sprint removal did not degrade output; single end-evaluation often sufficient
+
+Rule: *find the simplest solution possible, and only increase complexity when
+needed.* An evaluator only adds value when the task sits beyond what the baseline
+model handles reliably solo. As that boundary moves outward with each model
+generation, periodically simplify your harness and measure whether quality holds.
+
 ## Alternative Harness Architectures
 
 The default pattern is a persistent orchestration graph (LangGraph, custom state

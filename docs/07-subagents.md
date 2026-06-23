@@ -43,6 +43,28 @@ implementation.
 
 > "The AI was never the hard part — the CHECKER is." — Sabrina Ramonov, Jun 2026
 
+**Why external evaluation enables improvement** (and self-assessment does not):
+A generator agent assessing its own output has no gradient — it rated the work
+acceptable before it generated it. An external evaluator with concrete, objective
+criteria creates a signal the generator can actually improve against. This is
+analogous to the GAN (Generative Adversarial Network) training dynamic: the
+generator improves because the discriminator provides real pressure.
+
+### Tuning evaluator agents
+
+Out-of-the-box, Claude exhibits poor QA discipline in evaluator roles:
+- Identifies issues but then talks itself into accepting them ("it works in most cases")
+- Tests the happy path only; does not probe edge cases
+- Grades against intent rather than observable behaviour
+
+Fix with explicit prompt refinement against real examples of divergent judgment:
+- Show the evaluator an example where it should have blocked but did not, and explain why
+- Require it to output *evidence* (test output, stack trace, reproduction steps) — not verdicts
+- Instruct it to fail loudly on any criterion not met, with no partial credit
+
+Tuning the evaluator is iterative: expect 3–5 prompt refinement cycles before it
+produces reliable results. (Anthropic Engineering, Mar 2026.)
+
 ## Built-in subagent types
 
 Claude Code ships with named subagent types you can invoke directly:

@@ -23,6 +23,25 @@ A check is anything that returns a pass/fail signal Claude can read:
 | Deterministic gate | Stop hook | Runs a script; blocks the turn from ending until it passes |
 | Independent review | Verification subagent | Fresh model reviews the diff, not the work-in-progress |
 
+## Making subjective goals gradable
+
+Verification only works if the success criteria are specific enough for an agent to
+check them. For subjective goals (design quality, code style, UX), convert them into
+four measurable dimensions before writing the loop:
+
+| Dimension | Question | Example criterion |
+|---|---|---|
+| **Quality** | Does it feel coherent — not fragmented or accidental? | No element looks like a default placeholder |
+| **Originality** | Is there evidence of a deliberate decision? | At least one non-standard colour or layout choice |
+| **Craft** | Are the technical details correct? | Typography scale consistent, contrast ≥ 4.5:1 |
+| **Functionality** | Does it work independently of aesthetics? | All interactive elements respond correctly |
+
+Weight the first two heavily to push models away from generic outputs. Encoding these
+as explicit criteria (rather than prose instructions) makes them evaluable by a
+separate agent and reduces the ambiguity that leads to self-evaluation bias.
+
+(Prithvi Rajasekaran, Anthropic Engineering, Mar 2026.)
+
 ## The self-verifying loop pattern
 
 ```text

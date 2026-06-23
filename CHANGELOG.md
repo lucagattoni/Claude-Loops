@@ -11,6 +11,19 @@ Versioning follows [Semantic Versioning](https://semver.org/):
 
 ---
 
+## [2.1.2] — 2026-06-23
+
+### Changed
+- `docs/13-context-management.md` — Added: Context resets vs. compaction comparison; context anxiety finding (Sonnet 4.5 vs. Opus 4.6)
+- `docs/07-subagents.md` — Added: GAN framing for why external evaluation enables improvement; evaluator tuning anti-patterns
+- `docs/04-verification.md` — Added: Making subjective goals gradable (4-dimension framework)
+- `docs/11-cost-control.md` — Added: Real project cost benchmarks ($9 broken / $200 working; DAW $124.70)
+- `docs/24-harness-patterns.md` — Added: Three-agent full-stack harness; sprint contract system; load-bearing vs. optional components / re-baseline per model release
+
+Source: Prithvi Rajasekaran, Anthropic Engineering, "Harness Design for Long-Running Application Development", Mar 2026.
+
+---
+
 ## [2.1.1] — 2026-06-23
 
 ### Changed
