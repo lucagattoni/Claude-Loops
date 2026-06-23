@@ -19,6 +19,20 @@ async for message in query(
     ...
 ```
 
+## Token consumption benchmarks
+
+Real-world multipliers relative to standard single-turn chat:
+
+| Mode | Approximate token multiplier |
+|---|---|
+| Single agent | ~4× |
+| Multi-agent | ~15× |
+
+Set `--max-budget-usd` conservatively on first deployment (e.g. $2–5 for a single-agent
+loop), then raise after observing actual consumption on real runs.
+
+(Data Science Dojo, "Agentic Loops: From ReAct to Loop Engineering", 2026.)
+
 ## Effort levels
 
 | Level | Use when |

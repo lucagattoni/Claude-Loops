@@ -38,7 +38,7 @@ Row numbers are stable identifiers — they do not change when docs are reorgani
 |---|---|---|
 | 5 | [CLAUDE.md](docs/05-claude-md.md) | Persistent context layer — keep it short and surgical |
 | 6 | [Skills](docs/06-skills.md) | Reusable on-demand workflows; SDLC phases as non-skippable skill steps |
-| 7 | [Subagents](docs/07-subagents.md) | Keep main context clean; writer/reviewer pattern |
+| 7 | [Subagents](docs/07-subagents.md) | Keep main context clean; DOER/CHECKER — never let the AI grade its own output |
 | 12 | [Hooks](docs/12-hooks.md) | Deterministic side effects — PreToolUse, PostToolUse, Stop |
 | 8 | [Permissions & Auto Mode](docs/08-permissions.md) | Allowlists, auto mode, bypassPermissions |
 | 9 | [Headless & Non-Interactive Mode](docs/09-headless-mode.md) | `claude -p` — the entry point for all automation |
@@ -49,7 +49,7 @@ Row numbers are stable identifiers — they do not change when docs are reorgani
 |---|---|---|
 | 13 | [Context Management](docs/13-context-management.md) | `/clear`, `/compact`, subagents for investigation |
 | 16 | [Memory Patterns](docs/16-memory-patterns.md) | Progress files, GitHub Issues as task queue, spec-driven loops |
-| 25 | [Long-Running Agents](docs/25-long-running-agents.md) | Ralph loop, planner-worker-judge, cross-context-window state and git-based recovery |
+| 25 | [Long-Running Agents](docs/25-long-running-agents.md) | Ralph loop, planner-worker-judge, Inner/Outer Dual Loop, git-based recovery |
 
 ### Quality & Safety
 
@@ -58,7 +58,7 @@ Row numbers are stable identifiers — they do not change when docs are reorgani
 | 4 | [Verification](docs/04-verification.md) | The non-negotiable foundation — always give Claude a check it can run |
 | 17 | [Common Failure Patterns](docs/17-failure-patterns.md) | Cognitive surrender, orchestration tax, intent debt, dark factory, circuit breakers, and more |
 | 14 | [Human-in-the-Loop Escalation](docs/14-human-in-the-loop.md) | When to pause and ask for human input |
-| 11 | [Cost & Turn Control](docs/11-cost-control.md) | `--max-turns`, `--max-budget-usd`, effort levels |
+| 11 | [Cost & Turn Control](docs/11-cost-control.md) | `--max-turns`, `--max-budget-usd`, effort levels; ~4× (single) to ~15× (multi-agent) token cost |
 | 19 | [MCP Security](docs/19-mcp-security.md) | AgentJacking and indirect prompt injection via MCP connectors |
 
 ### Scaling

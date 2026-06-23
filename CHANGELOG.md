@@ -19,6 +19,18 @@ Versioning follows [Semantic Versioning](https://semver.org/):
 
 ---
 
+## [2.0.2] — 2026-06-23
+
+### Changed
+- `docs/07-subagents.md` — added DOER/CHECKER pattern: never let the AI grade its own output
+- `docs/01-paradigm-shift.md` — added AI Leverage Formula: AI Leverage = Clarity × Skill (Sabrina Ramonov, Jun 2026)
+- `docs/25-long-running-agents.md` — added Inner/Outer Dual Loop pattern; @samwillis real-world /goal example (1k commits, 10 days)
+- `docs/27-loop-contract.md` — added stopping condition aphorism: "if you can't say what done looks like, you don't have a loop"
+- `docs/11-cost-control.md` — added token consumption benchmarks (~4× single agent, ~15× multi-agent vs standard chat)
+- `LOOP_ENGINEERING.md` — updated index summaries for rows 7, 11, 25
+
+---
+
 ## [2.0.1] — 2026-06-22
 
 ### Changed

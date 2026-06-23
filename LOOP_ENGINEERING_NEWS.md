@@ -5,6 +5,47 @@ Sources are defined in [`SOURCES.md`](SOURCES.md).
 
 ---
 
+## 2026-06-23 06:12 IST (run)
+
+### New findings
+
+| Tier | Source | Title | URL | Summary |
+|---|---|---|---|---|
+| 1 | @Sabrina_Ramonov | "everyone's still typing prompts one at a time... loop engineering looks like this" | [link](https://x.com/Sabrina_Ramonov/status/2069235241139515590) | Tier 1 loop engineering framing post; the "everyone is still prompting, engineers are designing loops" narrative. |
+| 1 | Sabrina Ramonov (sabrina.dev) | "AI Loop Engineering: Build Autonomous Agents with Claude Code /goal + Routines" | [link](https://www.sabrina.dev/p/loop-engineering-claude-code-goal-routines) | Introduces the DOER/CHECKER pattern ("never let the AI grade its own output"), the AI Leverage Formula (Clarity × Skill), and the stopping condition prerequisite: "if you can't say what done looks like, you don't have a loop. You have a wish." |
+| 2 | @Sabrina_Ramonov | "the hardest skill in AI right now isn't prompting — it's defining clearly what done looks like so your agent knows when to stop." | [link](https://x.com/Sabrina_Ramonov/status/2069280036335604104) | Standalone aphorism on stopping conditions as the core loop engineering skill. |
+| 2 | The New Stack | "Loops are replacing prompts. Verification is about to be your biggest problem." | [link](https://thenewstack.io/agent-loops-cloud-native-verification/) | Argues the shift from prompts to loops makes verification the primary cloud-native engineering challenge; a separate model must grade results before the loop exits. |
+| 2 | Data Science Dojo | "Agentic Loops: From ReAct to Loop Engineering (2026 Guide)" | [link](https://datasciencedojo.com/blog/agentic-loops-explained-from-react-to-loop-engineering-2026-guide/) | Four-generation taxonomy (AutoGPT → ReAct → OODA/Dual Loop → Ralph//goal); Inner/Outer Dual Loop pattern (outer loop resets strategy when inner loop insistently fails); cost benchmarks: ~4× tokens (single agent), ~15× (multi-agent) vs standard chat. |
+| 4 | @samwillis via @steipete | "/goal make postgres multithreaded — 1k commits, 124k lines, 786 files, 10 days" | [link](https://x.com/samwillis/status/2069147163255312392) | Real-world demonstration of a /goal long-running loop running unattended for 10 days at scale — stopping condition quality is the primary limiting factor, not model capability. |
+
+### No new content
+- @bcherny — no keyword-matching posts since Jun 22
+- @karpathy — no keyword-matching posts since Jun 22
+- @AndrewYNg — most recent relevant posts from Apr 2026
+- @swyx — no keyword-matching posts
+- @steipete — reposted @samwillis /goal example (captured above as Tier 4)
+- Anthropic RSS — 404 (ongoing)
+- Addy Osmani RSS — no new posts since Jun 22
+- Simon Willison RSS — no new posts since Jun 22
+- The New Stack RSS — no new loop-engineering posts since Jun 22 (pre-cutoff article captured above)
+- Cobus Greyling — no new posts since Jun 22
+- OpenAI news — 403 blocked (ongoing)
+- swyx.io — most recent post May 2026
+- sabrina.dev HTML — Jun 19 article captured via X; no newer HTML posts
+- Lenny's Newsletter — most recent relevant content Mar 2026
+
+### Docs updated this run
+- `docs/07-subagents.md` — added DOER/CHECKER pattern: "never let the AI grade its own output"
+- `docs/01-paradigm-shift.md` — added AI Leverage Formula: AI Leverage = Clarity × Skill
+- `docs/25-long-running-agents.md` — added Inner/Outer Dual Loop pattern; @samwillis real-world scale example (1k commits, 10 days)
+- `docs/27-loop-contract.md` — added stopping condition aphorism ("if you can't say what done looks like, you don't have a loop")
+- `docs/11-cost-control.md` — added token consumption benchmarks (~4× single agent, ~15× multi-agent)
+
+### Sources to consider adding to SOURCES.md
+- Data Science Dojo — published a substantive loop engineering guide with novel patterns and benchmarks; worth verifying a second article before adding as a tracked source
+
+---
+
 ## 2026-06-22 21:43 IST (run)
 
 ### New findings

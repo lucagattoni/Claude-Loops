@@ -46,6 +46,41 @@ Before starting any work:
 
 This pattern turns any crash into a clean resume.
 
+## Inner/Outer Dual Loop
+
+When a long-running agent insistently fails on a sub-task, the inner loop alone
+cannot escape the deadlock. The Dual Loop adds a strategic layer above the execution loop:
+
+```
+Outer loop (strategy):
+  → sets the goal and approach
+  → monitors inner loop health (success/failure counts)
+
+Inner loop (execution):
+  → attempts the current sub-task
+  → reports success or failure with reason
+
+If inner loop fails N consecutive times:
+  → outer loop triggers a strategy reset
+  → re-evaluates the approach, adjusts the plan
+  → re-enters with a different strategy
+```
+
+The key insight: repeated failure is a signal about the *strategy*, not the execution.
+The outer loop intervenes before the inner loop burns its budget on a stuck approach.
+
+(Data Science Dojo, "Agentic Loops: From ReAct to Loop Engineering", 2026.)
+
+## Real-World Scale
+
+`/goal` loops have demonstrated remarkable autonomous reach. @samwillis ran
+`/goal make postgres multithreaded` unattended for 10 days:
+**1,000 commits · 124,000 lines changed · 786 files modified** —
+driven entirely by a single /goal command and the loop's built-in stopping condition.
+
+The limiting factor was not model capability but the quality of the stopping condition
+and the budget cap.
+
 ## Relationship to Cost Control
 
 Long-running agents are the highest-risk scenario for cost runaway. Always pair with:

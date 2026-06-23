@@ -18,6 +18,8 @@ complete contract is guaranteed to under-deliver or over-spend.
 
 A loop that lacks BUDGET or STOP is not a loop — it is a runaway process.
 
+> "If you can't say what done looks like, you don't have a loop. You have a wish." — Sabrina Ramonov, Jun 2026
+
 ## Real Cost Data
 
 Uber engineers burned their **entire annual AI budget in 4 months** before a

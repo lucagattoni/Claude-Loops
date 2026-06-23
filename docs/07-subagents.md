@@ -21,3 +21,24 @@ Session B (Reviewer): "Review @src/middleware/rateLimiter.ts.
 
 Session A: "Here's the review: [Session B output]. Address the issues."
 ```
+
+## DOER/CHECKER Pattern
+
+A named, explicit form of the writer/reviewer pattern with a stronger principle:
+
+- **DOER**: executes the task
+- **CHECKER**: independently validates output — *never* the same agent that did the work
+
+```text
+Agent A (DOER): "Implement the login endpoint. Write tests."
+
+Agent B (CHECKER): "Review the login endpoint in @src/auth/login.ts.
+  Does it handle the three failure modes in SPEC.md?
+  Report gaps only — do not suggest fixes."
+```
+
+The core rule: **never let the AI grade its own output.** A DOER is biased toward the
+work it produced — the CHECKER must be a fresh session with no attachment to the
+implementation.
+
+> "The AI was never the hard part — the CHECKER is." — Sabrina Ramonov, Jun 2026
