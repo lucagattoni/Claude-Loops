@@ -77,12 +77,12 @@ substantively relevant to loop engineering practice (not just a passing mention)
 | Sabrina Ramonov | x | @Sabrina_Ramonov | Active X presence posting loop engineering definitions and techniques (Jun 2026) |
 | Cobus Greyling | rss | https://cobusgreyling.substack.com/feed | Loop Engineering Substack + GitHub repo |
 | Peter Steinberger | x | @steipete | Creator of OpenClaw; "designing loops" framing |
-| Lenny's Newsletter (Claire Vo) | html | https://www.lennysnewsletter.com/p/how-to-design-ai-agent-loops-schedules | Four-type loop taxonomy (heartbeat/cron/hook/goal); high-engagement AI practitioner audience (Jun 2026) |
+| Lenny's Newsletter (Claire Vo) | rss | https://www.lennysnewsletter.com/feed | Four-type loop taxonomy article; high-engagement AI practitioner audience (Jun 2026); Substack RSS |
 | Cobus Greyling loop-engineering | github | https://github.com/cobusgreyling/loop-engineering | Reference implementation and patterns repo; watch for new docs, examples, and releases |
-| The Rundown AI | html | https://www.therundown.ai/archive | Daily AI newsletter archive; scan for loop engineering / agentic workflow coverage |
-| TLDR AI | html | https://tldr.tech/ai/archives | Daily AI digest; scan for Claude Code, agent loop, agentic workflow coverage |
+| The Rundown AI | rss | https://www.therundown.ai/feed | Daily AI newsletter (Beehiiv); scan for loop engineering / agentic workflow coverage |
+| TLDR AI | rss | https://tldr.tech/ai/rss | Daily AI digest RSS; scan for Claude Code, agent loop, agentic workflow coverage |
 | Ben's Bites | rss | https://bensbites.beehiiv.com/feed | Daily AI news digest RSS; scan for loop engineering / agent loop coverage |
-| AI Breakfast | html | https://aibreakfast.beehiiv.com/archive | Daily AI newsletter; scan for agentic workflow and Claude Code coverage |
+| AI Breakfast | rss | https://aibreakfast.beehiiv.com/feed | Daily AI newsletter (Beehiiv RSS); scan for agentic workflow and Claude Code coverage |
 
 ---
 

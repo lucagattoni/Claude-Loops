@@ -84,7 +84,23 @@ already-seen items during deduplication in Phase 3.
 
 ### For `type: html` sources
 
-1. WebFetch the page URL from SOURCES.md.
+**Prefer RSS over HTML.** Before fetching the index page, check whether the site
+exposes an RSS feed (common paths: `/feed`, `/rss`, `/rss.xml`, `/atom.xml`). If a
+valid feed is found, switch to the `rss` strategy for this source and record the feed
+URL in SOURCES.md for future runs.
+
+**Use site search when available.** If the site has a search interface, prefer
+fetching a search URL over scraping the full index — it returns targeted results and
+reduces noise. Build the query from Tier 1+2 keywords:
+
+```
+<base-url>/search?q=loop+engineering+OR+agent+loop+OR+harness+engineering
+```
+
+Common search path patterns: `/search`, `/search?q=`, `/?s=`, `/?query=`.
+If search returns no results or errors, fall back to the index page.
+
+1. WebFetch the page URL from SOURCES.md (or the search URL constructed above).
 2. Extract all article/post links with their titles and any visible snippet or date.
 3. Score each against the keywords.
 4. Collect matching items: title, URL, inferred date, one-sentence summary.
