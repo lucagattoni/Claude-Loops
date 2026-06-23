@@ -11,11 +11,12 @@ Versioning follows [Semantic Versioning](https://semver.org/):
 
 ---
 
-## [Unreleased]
-
-### Added
+## [2.1.1] — 2026-06-23
 
 ### Changed
+- `docs/17-failure-patterns.md` — Added: Reward hacking, Context pollution + Context reset pattern, Context drift
+- `docs/24-harness-patterns.md` — Added: Harness vs. Loop two-layer distinction, "Verification closure → reliability → scalability", Event-Driven Architecture (EDA) loops, Serverless loops
+- `docs/27-loop-contract.md` — Added: Two Quality Gates (evidence completeness, stopping condition clarity), Experience Encoding as post-iteration learning step
 
 ---
 

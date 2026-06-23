@@ -40,6 +40,41 @@ The Loop Contract can be materialised as four files in the repo:
 The loop reads all four at startup. Updating `PROMPT.md` re-tasks the loop without
 changing its rules or goal.
 
+## Two Quality Gates
+
+Before a loop iteration continues or launches, apply two explicit checkpoints:
+
+| Gate | Question | When |
+|---|---|---|
+| **Gate 1 — Evidence completeness** | Is the output backed by objective evidence (test results, logs, metrics)? | Before allowing the loop to continue to the next iteration |
+| **Gate 2 — Stopping condition clarity** | Can you state exactly what "done" looks like before the loop starts? | Before launching the loop at all |
+
+Gate 2 maps directly to the STOP property in the Loop Contract above. Gate 1 is
+what enforces it at runtime — without objective evidence, the loop cannot know
+whether STOP has been met.
+
+(Wooheum Xin, "Stop Writing Prompts: The True Nature of Loop Engineering", Zenn, Jun 2026.)
+
+## Experience Encoding — The Loop's Learning Step
+
+After each iteration completes and before context is cleared, encode what was learned
+back into the project's persistent knowledge:
+
+1. **Rules** — add a new CLAUDE.md rule if a mistake was made that a rule would prevent
+2. **Templates** — update or create a skill in `.claude/skills/` if a reusable procedure emerged
+3. **Negative lessons** — document anti-patterns encountered so the next iteration avoids them
+4. **PROGRESS.md** — mark the completed task and note any blockers or discoveries
+
+This step closes the learning loop: each iteration makes the next one smarter, not
+just incrementally further along. The cycle is:
+
+```
+Goal Contract → Execution → Evidence Gate → Stopping Condition → Experience Encoding → next cycle
+```
+
+Skipping Experience Encoding means the loop accumulates runtime progress but no
+institutional knowledge. The skills file stays empty; the same mistakes recur.
+
 ## Relationship to the Factory Model
 
 The Loop Contract is the specification document for a factory model workflow. Just

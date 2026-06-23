@@ -27,8 +27,8 @@ Row numbers are stable identifiers — they do not change when docs are reorgani
 
 | # | Topic | Summary |
 |---|---|---|
-| 27 | [The Loop Contract](docs/27-loop-contract.md) | TRIGGER/SCOPE/ACTION/BUDGET/STOP/REPORT — the six properties every loop must specify |
-| 24 | [Harness Patterns](docs/24-harness-patterns.md) | Two-part Anthropic harness (initializer + coding agent); four-type trigger taxonomy |
+| 27 | [The Loop Contract](docs/27-loop-contract.md) | TRIGGER/SCOPE/ACTION/BUDGET/STOP/REPORT — six properties; two quality gates; experience encoding between cycles |
+| 24 | [Harness Patterns](docs/24-harness-patterns.md) | Harness vs. Loop layers; two-part Anthropic harness; four-type trigger taxonomy; EDA and serverless alternatives |
 | 3 | [The Six Building Blocks](docs/03-building-blocks.md) | Automations, Worktrees, Skills, Connectors, Sub-agents, Memory; Routines for cloud execution |
 | 28 | [Routines](docs/28-routines.md) | Cloud-hosted loop execution: Schedule / API / GitHub triggers — no local machine needed |
 | 15 | [Explore → Plan → Implement → Commit](docs/15-explore-plan-implement.md) | The four-phase workflow for complex tasks |
@@ -58,7 +58,7 @@ Row numbers are stable identifiers — they do not change when docs are reorgani
 | # | Topic | Summary |
 |---|---|---|
 | 4 | [Verification](docs/04-verification.md) | The non-negotiable foundation — always give Claude a check it can run |
-| 17 | [Common Failure Patterns](docs/17-failure-patterns.md) | Cognitive surrender, orchestration tax, intent debt, dark factory, circuit breakers, and more |
+| 17 | [Common Failure Patterns](docs/17-failure-patterns.md) | Cognitive surrender, orchestration tax, reward hacking, context pollution, context drift, dark factory, circuit breakers, and more |
 | 14 | [Human-in-the-Loop Escalation](docs/14-human-in-the-loop.md) | When to pause and ask for human input |
 | 11 | [Cost & Turn Control](docs/11-cost-control.md) | `--max-turns`, `--max-budget-usd`, effort levels; ~4× (single) to ~15× (multi-agent) token cost |
 | 19 | [MCP Security](docs/19-mcp-security.md) | AgentJacking and indirect prompt injection via MCP connectors |

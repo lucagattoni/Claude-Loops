@@ -4,6 +4,23 @@ The harness is the scaffolding around the agent — prompts, tools, context poli
 sandboxes, and feedback loops. It is a first-class engineering artefact that requires
 continuous refinement, not a disposable wrapper.
 
+## Harness vs. Loop — Two Architectural Layers
+
+| Layer | Scope | Analogy |
+|---|---|---|
+| **Harness** | Single-agent safety wrapper — prompts, tools, context policies, sandboxes | Equipment |
+| **Loop** | Multi-agent orchestration + scheduler that governs multiple harness cycles | Factory control plane |
+
+The harness is prerequisite infrastructure; the loop is the control plane above it.
+A well-designed loop depends on well-designed harnesses — but the loop's job is
+coordination and termination, not execution.
+
+> "Verification closure creates reliability; reliability creates scalability."
+
+Verification built into the harness (a separate verifier agent, objective evidence
+gates) is what makes a loop safe to scale up: you can run more iterations, more
+agents in parallel, and larger budgets only when each cycle's output is trustworthy.
+
 ## The Two-Part Harness (Anthropic Engineering)
 
 Anthropic's ["Effective Harnesses for Long-Running Agents"](https://www.anthropic.com/engineering/effective-harnesses-for-long-running-agents)
@@ -38,3 +55,46 @@ The goal loop is the most powerful and the most dangerous: without a verifiable
 stopping condition and a hard spend cap, it will run indefinitely.
 
 See also: [Loop Contract](27-loop-contract.md) for mandatory BUDGET and STOP properties.
+
+## Alternative Harness Architectures
+
+The default pattern is a persistent orchestration graph (LangGraph, custom state
+machine) where the loop retains state across turns. Two lighter alternatives:
+
+### Event-Driven Architecture (EDA)
+
+Rather than a persistent orchestration process, agents become lightweight **event
+handlers** that subscribe to topics on a message broker (Kafka, AWS EventBridge):
+
+```
+Event source → broker topic → agent handler → output event → next topic
+```
+
+Each agent is stateless; state lives in the event stream. The loop is the sequence
+of events, not a long-running process.
+
+**Benefit:** Complexity scales as O(N) — adding a new agent adds one subscriber, not
+a new edge in an O(N²) coordination graph.  
+**Tradeoff:** Eventual consistency; asynchronous failures are harder to debug than
+synchronous call stacks.
+
+Use EDA when: you have many agent types that each do one thing, you need elastic
+scaling, or you want natural audit trails (events are immutable and replayable).
+
+### Serverless Loops
+
+Stateless functions with hard execution time limits (e.g. 15 minutes on AWS Lambda):
+
+- Each loop iteration is one function invocation — forced reset, no accumulated context
+- Memory is externalised to Redis / PostgreSQL / S3 between invocations
+- Hard timeout prevents infinite loop incidents without requiring a separate circuit breaker
+
+**Benefit:** Elastic scaling, cost containment by construction (you pay per invocation,
+not per idle minute), and the timeout acts as a built-in stopping condition.  
+**Tradeoff:** Cold start latency; agents must read external state at the start of
+every invocation.
+
+Use serverless when: iterations are bounded and short, state is well-defined enough
+to serialise, or you are operating in a cost-sensitive production environment.
+
+(Paramveer Singh, "Designing Autonomous AI Loops", Jun 2026.)
