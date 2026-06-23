@@ -5,7 +5,7 @@ Sources are defined in [`SOURCES.md`](SOURCES.md).
 
 ---
 
-## 2026-06-23 06:12 IST (run)
+## 2026-06-23 05:12 UTC (run)
 
 ### New findings
 
@@ -46,7 +46,7 @@ Sources are defined in [`SOURCES.md`](SOURCES.md).
 
 ---
 
-## 2026-06-22 21:43 IST (run)
+## 2026-06-22 20:43 UTC (run)
 
 ### New findings
 
@@ -62,7 +62,7 @@ Sources are defined in [`SOURCES.md`](SOURCES.md).
 - @karpathy — Jun 12 SpaceX, Jun 9 Fable reaction; no loop engineering content
 - @AndrewYNg — Jun 19 policy/course posts; no loop engineering content
 - @swyx — no keyword-matching posts
-- @Sabrina_Ramonov — no new posts since 14:55 IST run
+- @Sabrina_Ramonov — no new posts since 13:55 UTC run
 - @steipete — new posts about OpenClaw becoming a non-profit; no loop engineering substance
 - OpenAI news — 403 blocked (ongoing)
 - swyx.io — most recent post May 2026
@@ -81,7 +81,7 @@ Sources are defined in [`SOURCES.md`](SOURCES.md).
 
 ---
 
-## 2026-06-22 14:55 IST (run)
+## 2026-06-22 13:55 UTC (run)
 
 ### New findings
 
@@ -107,7 +107,7 @@ Sources are defined in [`SOURCES.md`](SOURCES.md).
 - @AndrewYNg — browser congestion; no loop engineering content in prior runs
 - OpenAI news — 403 blocked (ongoing)
 - @swyx — no keyword-matching posts found
-- @Sabrina_Ramonov — last captured post from the 13:52 IST run; no new posts since
+- @Sabrina_Ramonov — last captured post from the 12:52 UTC run; no new posts since
 - @steipete — no new posts since last run
 - swyx.io — most recent post May 2026; no loop engineering content
 - sabrina.dev — most recent post Jun 19 (already captured)
@@ -130,7 +130,7 @@ Sources are defined in [`SOURCES.md`](SOURCES.md).
 
 ---
 
-## 2026-06-22 13:52 IST (run)
+## 2026-06-22 12:52 UTC (run)
 
 ### New findings
 
@@ -178,7 +178,7 @@ Sources are defined in [`SOURCES.md`](SOURCES.md).
 
 ---
 
-## 2026-06-21 21:20 IST (run)
+## 2026-06-21 20:20 UTC (run)
 
 ### New findings
 
@@ -199,7 +199,7 @@ Sources are defined in [`SOURCES.md`](SOURCES.md).
 - @steipete — no keyword-matching posts since last run (cited secondhand by @shivangchheda22)
 - Addy Osmani — last post Jun 16
 - Simon Willison — last post Jun 18
-- The New Stack — no new articles since 19:33 IST
+- The New Stack — no new articles since 18:33 UTC
 - Cobus Greyling — last post Jun 18
 - OpenAI news — 403 blocked
 - swyx.io — no new posts since last run
@@ -216,7 +216,7 @@ Sources are defined in [`SOURCES.md`](SOURCES.md).
 
 ---
 
-## 2026-06-21 19:33 IST (run)
+## 2026-06-21 18:33 UTC (run)
 
 ### New findings
 
@@ -252,7 +252,7 @@ Web search for "loop engineering" surfaced active blogs not yet in SOURCES.md:
 
 ---
 
-## 2026-06-21 09:07 IST (initialized)
+## 2026-06-21 08:07 UTC (initialized)
 
 _No entries yet — first automated run pending._
 

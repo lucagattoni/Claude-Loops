@@ -13,14 +13,12 @@ Fetch today's loop engineering news and update the tracking docs.
 2. Read `LOOP_ENGINEERING_NEWS.md`:
    - Find the most recent dated section header (format: `## YYYY-MM-DD`)
    - Record that date as `last_run_date`
-3. Get the exact local time by running:
+3. Get the current UTC time by running:
    ```bash
-   date '+%Y-%m-%d %H:%M %Z'
+   TZ=UTC date '+%Y-%m-%d %H:%M UTC'
    ```
    Record the date part as `today` and the full output as `run_time`.
-   The `%Z` token captures the system timezone automatically — use whatever
-   the computer reports. Use this value for all timestamps written to files —
-   never estimate the time or override the timezone.
+   Always use UTC — never estimate the time or substitute a local timezone.
 
 ## Phase 2 — Per-source search
 
@@ -185,11 +183,10 @@ If Phase 2 or Phase 3 surfaces a person or company that:
 1. Merge all results from Phases 2 and 3 into a single list.
 2. Deduplicate: remove any item whose `url` already appears in `LOOP_ENGINEERING_NEWS.md`.
 3. Insert a new section immediately after the initial `---` separator (so the
-   newest run always appears at the top). The format (timestamp from `run_time` —
-   timezone label comes from the system, e.g. IST, GMT, CET):
+   newest run always appears at the top). The format:
 
 ```markdown
-## YYYY-MM-DD HH:MM <TZ> (run)
+## YYYY-MM-DD HH:MM UTC (run)
 
 ### New findings
 

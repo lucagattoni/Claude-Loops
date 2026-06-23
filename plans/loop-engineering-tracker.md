@@ -175,13 +175,13 @@ claude --permission-mode auto \
       three-phase procedure above (including the `LOOP_ENGINEERING.md` update logic).
 - [x] **Step 5** — Create `scripts/run-loop-news.sh` (executable).
 - [x] **Step 6** — Create `logs/` directory (gitignored) for run logs.
-- [x] **Step 7** — Registered cron via `CronCreate`: `3 9 * * *` IST (= 08:03 UTC),
+- [x] **Step 7** — Registered cron via `CronCreate`: `3 6 * * *` local (= 05:03 UTC),
       durable, fires daily. Note: auto-expires after 7 days; re-register or use
       system crontab for permanent scheduling.
-- [x] **Step 8** — Dry-run completed Jun 21 2026 19:33 IST: 5 findings captured,
+- [x] **Step 8** — Dry-run completed Jun 21 2026 18:33 UTC: 5 findings captured,
       `docs/19-mcp-security.md` created, `docs/17-failure-patterns.md` updated, digest
       appended to `LOOP_ENGINEERING_NEWS.md`. Cycle verified end-to-end.
-- [x] **Step 9** — Cron confirmed registered at 09:03 IST daily. Skill strategy and
+- [x] **Step 9** — Cron confirmed registered at 05:03 UTC daily. Skill strategy and
       keyword taxonomy subsequently corrected and merged (PR #2).
 
 ---
