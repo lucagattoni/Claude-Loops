@@ -96,6 +96,24 @@ already-seen items during deduplication in Phase 3.
 
 ---
 
+### For `type: github` sources
+
+1. WebFetch `<repo-url>/commits/main` (try `master` if `main` returns 404).
+2. Scan the commit list for entries with a `committerdate` or commit message date
+   newer than `last_run_date`. Collect their commit SHAs and messages.
+3. For each new commit whose message or diff path mentions a keyword-matching file
+   (e.g. new `.md` files in a `docs/` folder, a `PATTERNS.md`, `EXAMPLES.md`):
+   - WebFetch the commit URL (`<repo-url>/commit/<sha>`) to read the diff.
+   - Score changed files and commit message against the keyword tiers.
+   - Collect matching items: commit title, `<repo-url>/commit/<sha>`, date, summary.
+4. Also WebFetch `<repo-url>/releases` — if any release is newer than `last_run_date`,
+   include it; describe what new patterns or examples it introduces.
+5. **Link expansion** — for any Tier 1 or Tier 2 commit or release, collect external
+   links from the commit message / release notes; score and WebFetch the 3 most
+   innovative using the same criteria as other source types.
+
+---
+
 Score each item against the keyword tiers from `SOURCES.md`:
 - **Tier 1 or 2 match** → always include
 - **Tier 3 or 4 match only** → include only if the post substantively discusses loop

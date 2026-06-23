@@ -78,6 +78,7 @@ substantively relevant to loop engineering practice (not just a passing mention)
 | Cobus Greyling | rss | https://cobusgreyling.substack.com/feed | Loop Engineering Substack + GitHub repo |
 | Peter Steinberger | x | @steipete | Creator of OpenClaw; "designing loops" framing |
 | Lenny's Newsletter (Claire Vo) | html | https://www.lennysnewsletter.com/p/how-to-design-ai-agent-loops-schedules | Four-type loop taxonomy (heartbeat/cron/hook/goal); high-engagement AI practitioner audience (Jun 2026) |
+| Cobus Greyling loop-engineering | github | https://github.com/cobusgreyling/loop-engineering | Reference implementation and patterns repo; watch for new docs, examples, and releases |
 
 ---
 
@@ -88,6 +89,7 @@ substantively relevant to loop engineering practice (not just a passing mention)
 | `x` | Chrome → search `from:<handle> (<tier1-tier2-query>)` in X.com search; also scan profile's recent posts |
 | `rss` | WebFetch feed URL → parse `<item>` / `<entry>` → score against keyword tiers |
 | `html` | WebFetch page URL → extract article links + snippets → score against keyword tiers |
+| `github` | WebFetch repo URL + `/commits/main` → score new commits since `last_run_date`; also check `/releases` for tagged releases |
 
 ---
 
