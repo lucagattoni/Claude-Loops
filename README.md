@@ -33,7 +33,7 @@ yet covered, it creates a new `docs/<topic>.md` and adds a row to the index.
 
 ## Daily news tracker
 
-Every day at **09:00 IST (08:00 UTC)** a Claude loop:
+Every day at **10:30 IST (05:00 UTC)** a Claude loop:
 
 1. Reads [`SOURCES.md`](SOURCES.md) to get the current source list and relevance keywords
 2. Fetches new posts from X.com profiles (via Chrome), RSS feeds, and blog pages
