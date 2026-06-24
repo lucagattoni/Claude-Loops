@@ -263,9 +263,49 @@ table and list all sources under "No new content". Never skip the section.
    - Updates existing concept → edit only that `docs/<topic>.md`
    - Already fully covered → no doc changes needed
 
-5. Update `CHANGELOG.md` under `[Unreleased]` for any doc additions or changes.
+5. **Reading list curation** — after KB doc writes, evaluate new findings against
+   `docs/32-reading-list.md`:
 
-6. Close any Chrome tabs opened during this run.
+   a. Read `docs/32-reading-list.md` to understand the current entries and groups.
+
+   b. For each new finding that is a **full article** (not an X post or a short thread):
+      - Determine which reading list group it fits: *Why Loops* / *Getting Started* /
+        *Harness & Architecture* / *Goal Engineering & Stopping Conditions* /
+        *Loops in Production* — or a **new group** if the topic isn't covered.
+      - Ask: does this article offer something the existing entries in that group do not?
+        Strong signals for inclusion: quantified claims, authoritative source (official
+        Anthropic engineering, creator of a major tool), unique technique not documented
+        elsewhere in `docs/`, or a real-world case study with outcome data.
+      - Weak signals (skip): restatement of concepts already well-covered, no original
+        contribution, promotional without substantive content.
+
+   c. **Add** the article if it clears the bar. Write the full entry format:
+      ```
+      ### [Title](url) — Author
+      **Added:** YYYY-MM-DD · **Published:** Mon YYYY
+
+      **Why here:** One or two sentences on what uniquely earns this article a place —
+      what it offers that existing entries in this group do not.
+
+      **Summary:** 3–5 sentences covering the article's key claims, data points,
+      patterns, or techniques.
+      ```
+
+   d. **Remove or replace** — if adding an article would push a group past ~4 entries,
+      remove the weakest existing entry in that group (the one with the least unique
+      contribution relative to the rest of the KB). A group should never exceed 5
+      entries; the list must stay slim.
+
+   e. **New groups** — if a new finding covers a topic not represented by any existing
+      group (e.g. "Fleet Engineering at Scale", "MCP Security"), add a new `##` group
+      section with a one-sentence description before the first entry.
+
+   f. Record any reading list changes in "Docs updated this run":
+      `- docs/32-reading-list.md — added "<title>"; removed "<title>" (replaced)`
+
+6. Update `CHANGELOG.md` under `[Unreleased]` for any doc additions or changes.
+
+7. Close any Chrome tabs opened during this run.
 
 ## Phase 4b — Doc coherence review
 
