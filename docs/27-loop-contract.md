@@ -127,10 +127,15 @@ confusion forward. Instead:
 Experience Encoding (above) captures per-iteration learning. Cross-session learning
 accumulates patterns across 5+ sessions and promotes them to standing rules:
 
-| Command | What it does | When to use |
+| Skill | What it does | When to use |
 |---|---|---|
 | `/evolve` | Analyses session transcripts, extracts recurring patterns, drafts rule proposals | After ≥5 completed sessions on a loop |
 | `/reconcile` | Converts extracted proposals into reviewable `.claude/rules/` files | Before any pattern is applied standing |
+
+**Implementation note:** `/evolve` and `/reconcile` are not built-in Claude Code commands.
+They are implemented as Claude Code [Skills](06-skills.md) — on-demand workflows
+defined in `.claude/skills/`. To adopt this pattern, create `evolve.md` and `reconcile.md`
+as skills in your project.
 
 **Critical constraint: nothing auto-applies.** `/evolve` produces a draft; `/reconcile`
 produces a reviewable file. The human reviews and approves before any pattern becomes

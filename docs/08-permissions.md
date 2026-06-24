@@ -142,6 +142,16 @@ replace scoped allowlists.
 
 (cobusgreyling/loop-engineering, Jun 2026.)
 
+## Relationship to Agent Security Hardening
+
+The [Agent Security Hardening](33-agent-security-hardening.md) doc covers the OS-layer
+complement to these software-layer controls: OS-user-per-agent kernel isolation,
+credential broker/sidecar dispositions, and the SECURITY_MATRIX.md adversarial policy.
+
+Software-layer permission lists operate inside the model's execution environment.
+OS-layer hardening operates outside it — enforcing boundaries that the model cannot
+override even if instructed to. The two layers are designed to be deployed together.
+
 ## Settings precedence
 
 Later sources override earlier ones:

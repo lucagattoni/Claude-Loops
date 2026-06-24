@@ -432,7 +432,7 @@ For **None**: skip all changelog changes and skip the commit entirely.
 
 Stage and commit:
 ```bash
-git add LOOP_ENGINEERING_NEWS.md LOOP_ENGINEERING.md SOURCES.md CHANGELOG.md docs/ .claude/skills/fetch-loop-news/SKILL.md
+git add LOOP_ENGINEERING_NEWS.md LOOP_ENGINEERING.md SOURCES.md CHANGELOG.md KB_GAPS.md docs/ .claude/skills/fetch-loop-news/SKILL.md
 git commit -m "feat: loop news run <run_time> — <N> findings, <M> new docs [<tier>]"
 ```
 Where `<tier>` is the release tier (e.g. `minor`, `patch`, or `none`).

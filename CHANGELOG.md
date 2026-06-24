@@ -11,6 +11,16 @@ Versioning follows [Semantic Versioning](https://semver.org/):
 
 ---
 
+## [2.3.2] — 2026-06-24
+
+### Changed
+- `.claude/skills/fetch-loop-news/SKILL.md` — Phase 5c: add KB_GAPS.md to git add command (was being omitted from daily commits)
+- `docs/08-permissions.md` — Added: cross-reference to docs/33 (Agent Security Hardening) as the OS-layer companion
+- `docs/27-loop-contract.md` — Clarified: /evolve and /reconcile are Skills to implement (not built-in Claude Code commands); link to docs/06
+- `docs/32-reading-list.md` — Updated intro: "articles" → "articles, essays, and reference implementations" (covers GitHub repos now in the list)
+
+---
+
 ## [2.3.1] — 2026-06-24
 
 ### Added

@@ -1,8 +1,9 @@
 # Loop Engineering — Reading List
 
-A curated, slim collection of the best articles on loop engineering.
-**Articles are selected for depth and longevity, not recency.** Weaker pieces are
-removed when better ones arrive; the list stays short by design.
+A curated, slim collection of the best reading on loop engineering — articles,
+essays, and reference implementations. **Content is selected for depth and longevity,
+not recency.** Weaker pieces are removed when better ones arrive; the list stays
+short by design.
 
 Each entry records why it earned a place — a reference for future curation decisions.
 
