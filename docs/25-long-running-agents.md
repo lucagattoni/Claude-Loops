@@ -88,6 +88,32 @@ Long-running agents often need to run after you close your IDE. Two options:
 - **`claude --bg`** — starts a background session on the same machine; survives terminal close; manageable via `claude agents`. See [Background Agents](29-background-agents.md).
 - **Routines** — Anthropic-hosted cloud execution; survives machine shutdown entirely. See [Routines](28-routines.md).
 
+## Session Watchdog and Hard Time Limits
+
+A long-running agent that never stops is not a feature — it is a bug waiting to
+become an incident. Three complementary limits:
+
+| Mechanism | Scope | Implemented by |
+|---|---|---|
+| `--max-turns` | Turn cap per invocation | Claude Code flag (in-process) |
+| `--max-budget-usd` | Cost cap per invocation | Claude Code flag (in-process) |
+| **Session watchdog** | Wall-clock time limit; crash recovery | OS supervisor (outside the process) |
+
+The watchdog is the layer the other two cannot cover: it detects stalled processes,
+enforces an absolute wall-clock limit (e.g. 2 hours), and restarts crashed sessions
+cleanly from the state file without human intervention.
+
+Implementation pattern (systemd or equivalent):
+1. Agent runs until it completes or hits the 2-hour limit
+2. On limit hit, the agent sleeps and externalises its current state
+3. Watchdog detects the sleep, waits the configured interval, and re-invokes
+4. On crash (non-zero exit), watchdog immediately re-invokes from state file
+
+This prevents zombie agents — processes that are running but producing nothing,
+neither failing nor succeeding, consuming tokens and budget indefinitely.
+
+(clem — jahwag/clem, Jun 2026.)
+
 ## Relationship to Cost Control
 
 Long-running agents are the highest-risk scenario for cost runaway. Always pair with:

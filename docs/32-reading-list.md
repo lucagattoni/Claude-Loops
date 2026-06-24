@@ -188,6 +188,26 @@ every single time."
 
 ---
 
+### [Harness Books](https://harness-books.agentway.dev) — AgentWay (wquguru)
+**Added:** 2026-06-24 · **Published:** Jun 2026
+
+**Why here:** The most rigorous theoretical treatment of harness design published to
+date. Introduces the "unstable components" axiom as a foundational stance, ledger
+closure (every tool_use must pair with tool_result), input governance pipeline, and
+the runtime republic vs. constitutional control plane distinction — concepts not
+covered at this depth elsewhere.
+
+**Summary:** A collection of essays arguing the model is an unreliable runtime
+component requiring containment, not a collaborator requiring instructions. Key
+contributions: ledger closure for interrupted tool calls, five-step input governance
+pipeline (prefetch/snip/microcompact/collapse/autocompact), reactive compact with
+circuit breaker (reserve 20K output tokens, early-warning at 13K remaining, halt
+after 3 consecutive failures), synthesis as the non-delegable orchestration bottleneck,
+and the runtime republic (Claude Code) vs. constitutional control plane (Codex) framing.
+Essential reading once you have working harnesses and want to make them production-grade.
+
+---
+
 ## Goal Engineering & Stopping Conditions
 
 The stopping condition is where most loops fail. These articles address it directly.
@@ -234,6 +254,38 @@ token caps per org/channel, audit logging, role-based memory separation. Signal:
 65% of Anthropic's product team code is created using their internal version.
 "The beginning of an evolution of Claude Code: more proactive, works better with
 a full team."
+
+---
+
+## Reference Implementations
+
+Open-source projects demonstrating complete loop engineering implementations.
+Curated for depth of design and breadth of patterns covered — not for popularity.
+
+---
+
+### [session-orchestrator](https://github.com/Kanevry/session-orchestrator) — Kanevry
+**Added:** 2026-06-24 · **Published:** Jun 2026
+
+**Why here:** The most complete reference implementation combining patterns from
+across the whole field: five-wave execution model, confidence-scored inter-wave gates,
+STATE.md wave crash recovery, governed cross-session learning, scope-verified
+parallelism via Pre-Edit hooks, and explicit hook exit code safety contract. Ideal
+to study before building a production orchestrator from scratch.
+
+**Summary:** Implements a five-wave sequential architecture (Discovery → Impl-Core →
+Impl-Polish → Quality → Finalization) where Wave 4 is a dedicated simplification pass
+run before test authoring — preventing tests from cementing suboptimal AI-generated
+code. Inter-wave quality gates are confidence-scored (≥80% threshold). STATE.md
+tracks wave-level execution so crashes resume from the last completed wave rather than
+from the start. The /evolve + /reconcile commands enable governed cross-session pattern
+extraction where no rule auto-applies without human review.
+
+---
+
+## Loops in Production
+
+Articles documenting real deployed systems using loop engineering.
 
 ---
 

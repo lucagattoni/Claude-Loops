@@ -56,6 +56,41 @@ separate agent and reduces the ambiguity that leads to self-evaluation bias.
 it ran, and what it returned. Reviewing evidence is faster than re-running
 verification yourself.
 
+## Simplification Before Testing
+
+Standard practice: write tests, then verify the implementation passes them.
+When AI generates the implementation, this creates a trap: if the AI produces
+a working but structurally poor implementation, tests written against it cement
+the suboptimal structure. Passing tests make refactoring feel risky.
+
+**Inversion:** run a dedicated simplification pass on AI-generated code *before*
+writing tests. The simplification agent has one job — make the code cleaner and
+more intelligible — without the pressure of test coverage. Then write tests against
+the simplified code.
+
+This is Wave 4 in the five-wave execution model. See [Harness Patterns](24-harness-patterns.md).
+
+(session-orchestrator — Kanevry/session-orchestrator, Jun 2026.)
+
+## Verification of Memory, Not Just Code
+
+Loops with persistent state (GOAL.md, STATE.md, PROGRESS.md) accumulate stale
+entries over time. A verification pass that checks only code output misses a
+category of failure where correct code acts on incorrect state.
+
+Before acting on any persistent memory record:
+1. Validate that referenced items still exist (PR not merged, issue not closed, branch not deleted)
+2. Re-read the original source rather than trusting the memory summary
+3. Treat any memory record older than a defined threshold (e.g. 24h) as unverified
+
+> "Stale memory records must be revalidated against present reality before
+> recommendations." — wquguru/harness-books
+
+Apply this specifically to: STATE.md watchlists, GOAL.md execution logs,
+PROGRESS.md task statuses, and any cached API responses.
+
+(wquguru/harness-books, AgentWay, Jun 2026.)
+
 ## Real-world case study: Mozilla Firefox security harness
 
 Brian Grinstead (Anthropic, Jun 2026) built a security bug-finding harness for

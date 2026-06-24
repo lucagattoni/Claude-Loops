@@ -23,13 +23,43 @@ breakers, audit logging, and automatic continuation.
 |---|---|---|
 | `0` | Success | Parse stdout as JSON; apply output fields |
 | `2` | **Blocking** | PreToolUse: deny tool. Stop/SubagentStop: prevent stopping. UserPromptSubmit: block prompt |
-| Other | Non-blocking warning | Show first line of stderr; continue |
+| Other (incl. `1`) | Non-blocking warning | Show first line of stderr; **continue** |
 
 Exit code `2` is the **loop control signal**: returning `2` from a `Stop` hook
 tells Claude "you are not done — re-enter the loop."
 
 After 8 consecutive blocks from a Stop hook, Claude Code overrides and ends the
 turn to prevent infinite loops.
+
+### Safety contract: never exit 1 in a denial hook
+
+Exit code `1` (or any non-2 non-zero exit) is treated as a **non-blocking warning**
+— Claude logs the error and **continues**. A hook that intends to deny but crashes
+with exit code `1` silently allows the action instead of blocking it.
+
+**Rule:** All deny logic must be wrapped so that any exception exits `2`, not `1`.
+Test every denial path explicitly.
+
+```bash
+#!/bin/bash
+# deny-hook.sh — safe pattern
+deny_reason() {
+  echo '{"hookSpecificOutput":{"hookEventName":"PreToolUse","permissionDecision":"deny"}}'
+  exit 2
+}
+
+# Wrap all logic — any unhandled error exits 2 (deny), not 1 (allow)
+set -e
+trap 'deny_reason' ERR
+
+# ... your check logic ...
+if [[ "$SOME_CONDITION" == "true" ]]; then
+  deny_reason
+fi
+exit 0  # allow
+```
+
+(session-orchestrator — Kanevry/session-orchestrator, Jun 2026.)
 
 ## Key lifecycle events
 

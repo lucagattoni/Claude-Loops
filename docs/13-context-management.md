@@ -39,6 +39,48 @@ drifting from the original goal across turns, switch from compaction to resets.
 Encode the learnings externally first (see [Experience Encoding](27-loop-contract.md)),
 then start the next iteration from a clean window.
 
+## Input Governance Pipeline
+
+Before the model sees context, a governance pipeline can pre-process it to prevent
+bloat from accumulating in the first place. Run these steps at session or turn start:
+
+| Step | What it does |
+|---|---|
+| **Prefetch** | Load only the files and state actually needed for this turn |
+| **Snip** | Truncate or summarise oversized inputs before they enter context |
+| **Microcompact** | Compress completed subtask summaries into one-line records |
+| **Collapse** | Merge redundant assistant-turn repetitions |
+| **Autocompact** | Apply `/compact` automatically when context exceeds a threshold |
+
+"Clean the site first, then execute." Proactive governance keeps context lean
+throughout the session; reactive compaction triggered when the window is full is
+more expensive and disruptive.
+
+(wquguru/harness-books, AgentWay, Jun 2026.)
+
+## Reactive Compact — Emergency Mid-Loop Compaction
+
+Distinct from planned `/compact`: a reactive compact fires when context pressure
+becomes critical mid-loop. Treat it as a failure-prone operation with its own
+defensive budgeting:
+
+- **Reserve output tokens**: keep ≥20,000 tokens free for the compact summary;
+  compaction that runs out of output space produces a truncated summary that is
+  worse than no summary
+- **Early-warning buffer**: trigger at ≥13,000 tokens remaining — not when the
+  window is already full
+- **Circuit breaker**: if compaction fails 3 consecutive times, halt and escalate
+  rather than continuing with degraded context
+
+```
+context usage > (window − 13,000 tokens)
+  → fire reactive compact
+  → verify summary completeness
+  → if 3 consecutive failures → halt + escalate to human
+```
+
+(wquguru/harness-books, AgentWay, Jun 2026.)
+
 ## What eats context fastest
 
 - Large file reads (every file read accumulates)

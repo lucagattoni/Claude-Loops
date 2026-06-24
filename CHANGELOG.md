@@ -11,6 +11,42 @@ Versioning follows [Semantic Versioning](https://semver.org/):
 
 ---
 
+## [Unreleased]
+
+### Added
+
+### Changed
+
+---
+
+## [2.3.0] — 2026-06-24
+
+### Added
+- `docs/33-agent-security-hardening.md` — OS-user-per-agent kernel isolation, four credential disposition types (Broker/Sidecar/Remove/Egress Firewall), SECURITY_MATRIX.md design, fail-safe secret gate (clem — jahwag/clem, Jun 2026)
+- `docs/34-loop-patterns.md` — Seven named loop patterns (Daily Triage, PR Babysitter, CI Sweeper, Dependency Sweeper, Post-Merge Cleanup, Changelog Drafter, Issue Triage); L1/L2/L3 operational readiness levels; token cost benchmarks; multi-loop coordination rules with priority ordering and collision detection; auto-merge allowlist and path denylist (cobusgreyling/loop-engineering, Jun 2026)
+
+### Changed
+- `docs/04-verification.md` — Added: simplification-before-testing (Wave 4 inversion — simplify AI code before writing tests); verification of memory (revalidate stale GOAL.md/STATE.md entries before acting)
+- `docs/07-subagents.md` — Added: synthesis as the non-delegable bottleneck (task forwarding anti-pattern); confidence-scored quality gates (≥80% threshold, suppress low-confidence findings)
+- `docs/08-permissions.md` — Added: risk-tiered authorization by consequence (read/write/irreversible tiers); safety path denylist globs for sensitive files
+- `docs/10-fan-out.md` — Added: scope-verified parallelism via Pre-Edit hooks; multi-loop coordination with STATE.md acting_on claiming
+- `docs/11-cost-control.md` — Added: token cost by loop pattern (noop 3-5K → action run 200-250K → CI Sweeper without early exit 5M/day); early exit rule as correctness requirement
+- `docs/12-hooks.md` — Added: exit code safety contract — exit 1 is treated as non-blocking warning (continues); always use exit 2 for denial; safe bash pattern with ERR trap
+- `docs/13-context-management.md` — Added: input governance pipeline (prefetch/snip/microcompact/collapse/autocompact); reactive compact with circuit breaker (20K reserved tokens, 13K early-warning, halt after 3 failures)
+- `docs/16-memory-patterns.md` — Added: multi-backend task queue (Slack/Discord thread claiming, GitHub Issue label workflow); STATE.md wave recovery (resume from last completed wave on crash)
+- `docs/17-failure-patterns.md` — Added: State Rot (acting on ghost state references), Verifier Theater (approval without evidence), Notification Fatigue (notifying on every run regardless of delta)
+- `docs/20-loop-maturity-model.md` — Added: per-loop L1/L2/L3 operational readiness levels (distinct from developer maturity); default rule: all new loops start at L1
+- `docs/24-harness-patterns.md` — Added: Unstable Components design axiom; Ledger Closure for interrupted tool calls; Five-Wave Execution Model with Wave 4 simplification pass; Runtime Republic vs. Constitutional Control Plane framing
+- `docs/25-long-running-agents.md` — Added: session watchdog and 2-hour hard session limit implemented at OS level (systemd); distinct from turn caps and budget caps
+- `docs/27-loop-contract.md` — Added: governed cross-session learning — /evolve (extract patterns after 5+ sessions) + /reconcile (convert to reviewable .claude/rules/ proposals); nothing auto-applies
+- `docs/32-reading-list.md` — Added: harness-books.agentway.dev ("Harness Books") to Harness Design group; session-orchestrator (Kanevry) to new "Reference Implementations" group
+- `SOURCES.md` — Added: harness-books.agentway.dev (html), GitHub search for "loop engineering claude" (github-search), GitHub search for "claude code harness" (github-search)
+- `LOOP_ENGINEERING.md` — Updated summaries for rows 4, 7, 8, 10, 11, 12, 13, 16, 17, 20, 24, 25, 27, 32; added rows 33, 34
+
+Sources: jahwag/clem (Jun 2026), cobusgreyling/loop-engineering (Jun 2026), wquguru/harness-books / AgentWay (Jun 2026), Kanevry/session-orchestrator (Jun 2026).
+
+---
+
 ## [2.2.0] — 2026-06-24
 
 ### Added

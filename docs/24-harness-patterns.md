@@ -21,6 +21,48 @@ Verification built into the harness (a separate verifier agent, objective eviden
 gates) is what makes a loop safe to scale up: you can run more iterations, more
 agents in parallel, and larger budgets only when each cycle's output is trustworthy.
 
+## The "Unstable Components" Design Axiom
+
+> "Models may speak like teammates, but they do not automatically gain
+> teammate-grade stability."
+
+This is the foundational posture for harness design: treat the model as an
+**unreliable runtime component requiring containment**, not a collaborator requiring
+instructions. The consequences for harness design:
+
+- Every agent output is unverified until a deterministic check confirms it
+- The harness enforces boundaries the model cannot override (hooks, OS-level isolation)
+- Stability comes from the harness, not from model capability — model improvement
+  shifts the cost boundary but does not eliminate the need for containment
+
+(wquguru/harness-books, AgentWay, Jun 2026.)
+
+## Ledger Closure for Interrupted Tool Calls
+
+When a session is interrupted mid-tool-call, external systems reading the session
+transcript get corrupted state unless ledger closure is enforced:
+
+Every `tool_use` block **must** be paired with a `tool_result` block before the
+session can be considered consistently closed. An interrupted session that leaves
+a `tool_use` without a matching `tool_result` produces an uninterpretable trace —
+orchestrators that resume from this state make decisions based on corrupted input.
+
+Interrupt handling pattern:
+1. Detect the interruption (timeout, crash, explicit stop)
+2. Emit a `tool_result` for the pending `tool_use` with an error payload
+3. Only then persist the session state to the state file
+
+```json
+{
+  "type": "tool_result",
+  "tool_use_id": "<id-of-the-interrupted-call>",
+  "content": "Interrupted — result unavailable",
+  "is_error": true
+}
+```
+
+(wquguru/harness-books, AgentWay, Jun 2026.)
+
 ## The Two-Part Harness (Anthropic Engineering)
 
 Anthropic's ["Effective Harnesses for Long-Running Agents"](https://www.anthropic.com/engineering/effective-harnesses-for-long-running-agents)
@@ -99,6 +141,48 @@ Rule: *find the simplest solution possible, and only increase complexity when
 needed.* An evaluator only adds value when the task sits beyond what the baseline
 model handles reliably solo. As that boundary moves outward with each model
 generation, periodically simplify your harness and measure whether quality holds.
+
+## Five-Wave Execution Model
+
+A typed sequential execution pattern where agents deploy in parallel within each
+wave and output feeds the next gate:
+
+| Wave | Role | Mode |
+|---|---|---|
+| 1. Discovery | Read-only audit — gather context, identify scope | Read-only |
+| 2. Impl-Core | Primary implementation, parallel agents | Write |
+| 3. Impl-Polish | Edge cases, integration, secondary paths | Write |
+| 4. Quality | **Simplification pass** — before any test authoring | Write |
+| 5. Finalization | Commit, create carryover issues for incomplete items | Write + commit |
+
+**Wave 4 (Quality) is an inversion of standard TDD:** a dedicated simplification pass
+runs on AI-generated code *before* tests are written. This prevents tests from
+cementing suboptimal implementations — once tests pass against an awkward structure,
+that structure becomes load-bearing. Simplify first; then write tests against the
+simplified code.
+
+Between waves: a confidence-scored reviewer audits deliverables across multiple
+dimensions; only findings at ≥80% confidence surface. Low-confidence findings are
+logged but suppressed. (See [Subagents](07-subagents.md) for confidence-scored gates.)
+
+(session-orchestrator — Kanevry/session-orchestrator, Jun 2026.)
+
+## Runtime Republic vs. Constitutional Control Plane
+
+Two fundamentally different harness philosophies, each suited to different contexts:
+
+| | **Runtime Republic** (Claude Code) | **Constitutional Control Plane** (Codex) |
+|---|---|---|
+| Authority source | Emerges from the dominant query loop — continuous negotiation with reality | Encoded upfront in types, policies, event systems |
+| Decisions | Flow from conversation and context | Flow from the constitution |
+| Flexibility | High — instructions and context steer behaviour | Low — constitution is fixed at deploy time |
+| Predictability | Medium — model reasoning introduces variance | High — policy violations are structurally impossible |
+| Best for | Exploratory, creative, or complex tasks | Regulated, auditable, compliance-sensitive workflows |
+
+Neither is strictly better — the choice depends on how much variance you can accept
+and how much authority you need to encode upfront before the loop runs.
+
+(wquguru/harness-books, AgentWay, Jun 2026.)
 
 ## Alternative Harness Architectures
 

@@ -56,6 +56,26 @@ condition the loop checks before stopping. Without it, loops either run forever 
 
 ---
 
+## Per-Loop Readiness Levels (Operational)
+
+Distinct from developer maturity: each individual loop has its own readiness
+classification based on its operational behaviour, not the engineer's experience.
+
+| Level | Mode | Gate to advance |
+|---|---|---|
+| **L1** | Report-only — discovers work and notifies; no autonomous action | ≥1 week of zero false positives |
+| **L2** | Assisted — proposes changes; human approves before any merge | Full observability + `loop-budget.md` in place |
+| **L3** | Autonomous — auto-merges; fires without human approval | L2 evidence + `loop-run-log.md` + LOOP.md BUDGET section |
+
+**Default rule: start every new loop at L1**, regardless of developer maturity.
+A loop engineer at step 14 still runs a new loop's first week in report-only mode.
+Operational trust is earned by each loop individually.
+
+For the seven named loop patterns with their default levels, token costs, and
+coordination rules, see [Loop Patterns](34-loop-patterns.md).
+
+(Cobus Greyling, cobusgreyling/loop-engineering, Jun 2026.)
+
 ## Related
 
 - [The Paradigm Shift](01-paradigm-shift.md)

@@ -122,6 +122,27 @@ confusion forward. Instead:
 > "Clean iterations with recorded learnings will outperform long, polluted
 > conversations every single time." — Martin Dilger, Jun 2026
 
+## Governed Cross-Session Learning
+
+Experience Encoding (above) captures per-iteration learning. Cross-session learning
+accumulates patterns across 5+ sessions and promotes them to standing rules:
+
+| Command | What it does | When to use |
+|---|---|---|
+| `/evolve` | Analyses session transcripts, extracts recurring patterns, drafts rule proposals | After ≥5 completed sessions on a loop |
+| `/reconcile` | Converts extracted proposals into reviewable `.claude/rules/` files | Before any pattern is applied standing |
+
+**Critical constraint: nothing auto-applies.** `/evolve` produces a draft; `/reconcile`
+produces a reviewable file. The human reviews and approves before any pattern becomes
+a standing rule. This prevents the loop from silently encoding bad habits as governance.
+
+The review gate for each proposal:
+1. Does this pattern actually improve outcomes, or just describe what happened?
+2. Does it conflict with any existing rule?
+3. Does it generalise correctly, or is it specific to one anomalous session?
+
+(session-orchestrator — Kanevry/session-orchestrator, Jun 2026.)
+
 ## Relationship to Goal Engineering
 
 When a loop's STOP condition is deterministic and the task is non-recurring, the

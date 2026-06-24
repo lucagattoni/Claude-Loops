@@ -156,6 +156,34 @@ LinkedIn search results are dynamically loaded. A single page read returns very 
 
 ---
 
+### For `type: github-search` sources
+
+These are GitHub search URLs that surface repositories matching keywords.
+
+1. WebFetch the search URL from SOURCES.md. GitHub returns HTML with repo cards;
+   extract: repo name, owner, description, star count, last updated date.
+2. Score each repo against the keyword tiers (name + description).
+3. For every Tier 1 or Tier 2 repo:
+   - Check whether `last_updated` is newer than `last_run_date`; if not, de-prioritise
+     but still include if highly relevant to KB gaps
+   - WebFetch `<repo-url>/blob/main/README.md` (or `/blob/master/README.md`) to read
+     the full README
+   - Summarise the README's key patterns, techniques, or data points against the KB
+   - Check whether the repo is already tracked as a `github` source in SOURCES.md;
+     if not and it has ≥2 relevant contributions, note it in "Sources to consider"
+4. Collect matching items: repo name, URL, last-updated date, summary.
+5. **KB-gap targeting**: Before fetching, read the current `docs/` index and note any
+   topics that are thin or missing. Prefer repos that address those gaps over repos
+   that duplicate well-covered topics.
+
+**Iterative keyword refinement:** The keywords in each `github-search` source row
+should be updated over time as the KB evolves. After each run, if the search returns
+low-relevance repos (≤1 Tier 1-2 match), note the search in "Sources to consider"
+with a suggested keyword refinement. The coordinator will update the SOURCES.md row
+on the next relevant commit.
+
+---
+
 ### For `type: github` sources
 
 1. WebFetch `<repo-url>/commits/main` (try `master` if `main` returns 404).

@@ -89,6 +89,59 @@ instead of using static lists:
 The hook receives the tool name and input; return `allow`, `deny`, `ask`, or
 `defer` (fall through to default auto mode classifier) in `permissionDecision`.
 
+## Risk-Tiered Authorization by Consequence
+
+Rather than categorising permissions by tool name, classify them by the reversibility
+of their outcome. This framing catches dangerous tool combinations that name-based
+lists miss:
+
+| Tier | Consequence | Examples | Policy |
+|---|---|---|---|
+| **Read** | Fully reversible — observation only | File reads, listing directories, running tests | Allow freely in all modes |
+| **Write** | Reversible with effort — changes can be undone | File edits, git commits, opening PRs | Allow in auto mode; log all actions |
+| **Irreversible** | Cannot be undone without significant recovery work | `rm -rf`, force-push, database drops, secret rotation, production deploys | Deny by default; require explicit `ask` even in auto mode |
+
+Apply this framing to the `allow`/`deny`/`ask` lists in `.claude/settings.json`:
+
+```json
+{
+  "permissions": {
+    "allow": ["Read", "Edit", "Bash(git commit *)", "Bash(git push origin feature-*)"],
+    "ask":   ["Bash(git push origin main)", "Bash(npm publish)", "Bash(rm -rf *)"],
+    "deny":  ["Bash(git push --force *)", "Bash(DROP TABLE *)"]
+  }
+}
+```
+
+(wquguru/harness-books, AgentWay, Jun 2026.)
+
+## Safety Path Denylist
+
+For unattended loops, maintain a denylist of paths the loop must never touch
+autonomously, regardless of what it is instructed to do:
+
+```json
+{
+  "permissions": {
+    "deny": [
+      "Edit(**/.env)",
+      "Edit(**/secrets/**)",
+      "Edit(auth/**)",
+      "Edit(payments/**)",
+      "Edit(**/migrations/**)",
+      "Edit(k8s/production/**)",
+      "Edit(**/credentials/**)"
+    ]
+  }
+}
+```
+
+Add project-specific sensitive paths to this list in `.claude/settings.json` before
+deploying any unattended loop. The denylist is a last-resort safety net — it does not
+replace scoped allowlists.
+
+(cobusgreyling/loop-engineering, Jun 2026.)
+
 ## Settings precedence
 
 Later sources override earlier ones:

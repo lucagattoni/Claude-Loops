@@ -49,6 +49,28 @@ The DAW cost breakdown: Planner $0.46 · Build phases $113.85 · QA phases $10.3
 qualitatively different output — not incrementally better. Budget for this step-change
 when reliability and completeness are non-negotiable.
 
+## Token cost by loop pattern
+
+Concrete benchmarks from operating named loop patterns (Cobus Greyling, cobusgreyling/loop-engineering, Jun 2026):
+
+| Run type | Token cost |
+|---|---|
+| Noop pass (empty watchlist, early exit) | ~3,000–5,000 |
+| Report-only triage run | ~50,000–80,000 |
+| Action run (implementer + verifier) | ~200,000–250,000 |
+| CI Sweeper at 5 min cadence, no early exit | ~5,000,000/day |
+
+**The early exit rule:** every loop must check for work before doing any triage.
+If the watchlist is empty, exit immediately at <5k tokens. Never run the full loop
+body if there is nothing to act on.
+
+Without early exit, a CI Sweeper running every 5 minutes against a green repo burns
+~5M tokens per day on no-ops. The early exit rule converts it to ~3k tokens per pass.
+This is not an optimisation — it is a correctness requirement for always-on loops.
+
+See [Loop Patterns](34-loop-patterns.md) for the seven named loop patterns and their
+typical token envelopes.
+
 ## Effort levels
 
 | Level | Use when |
