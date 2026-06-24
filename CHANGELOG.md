@@ -14,6 +14,7 @@ Versioning follows [Semantic Versioning](https://semver.org/):
 ## [2.2.0] — 2026-06-24
 
 ### Added
+- `docs/32-reading-list.md` — Curated best-articles collection; 14 articles across 5 groups (Why Loops / Getting Started / Harness Design / Goal Engineering / Production); dynamic — articles can be added/removed by future runs
 - `docs/30-goal-engineering.md` — Goals vs. Loops decision framework; four Goal Primitives (Objective, Verifier, GOAL.md State, Budget); GOAL.md pattern for persistent goal state (Cobus Greyling, Jun 2026)
 - `docs/31-claude-tag.md` — Claude Tag: ambient loops in Slack; channel-scoped identity; self-scheduling; org-wide context; third LLM paradigm framing (Anthropic + Karpathy, Jun 2026)
 

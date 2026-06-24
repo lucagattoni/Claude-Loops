@@ -78,6 +78,7 @@ Row numbers are stable identifiers — they do not change when docs are reorgani
 | # | Topic | Summary |
 |---|---|---|
 | 18 | [Quick Reference](docs/18-quick-reference.md) | Commands and flags cheat sheet |
+| 32 | [Reading List](docs/32-reading-list.md) | Curated best articles — grouped by Why Loops / Getting Started / Harness Design / Goal Engineering / Production |
 
 ---
 
