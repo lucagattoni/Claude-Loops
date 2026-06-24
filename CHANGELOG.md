@@ -11,6 +11,22 @@ Versioning follows [Semantic Versioning](https://semver.org/):
 
 ---
 
+## [2.2.0] — 2026-06-24
+
+### Added
+- `docs/30-goal-engineering.md` — Goals vs. Loops decision framework; four Goal Primitives (Objective, Verifier, GOAL.md State, Budget); GOAL.md pattern for persistent goal state (Cobus Greyling, Jun 2026)
+- `docs/31-claude-tag.md` — Claude Tag: ambient loops in Slack; channel-scoped identity; self-scheduling; org-wide context; third LLM paradigm framing (Anthropic + Karpathy, Jun 2026)
+
+### Changed
+- `docs/01-paradigm-shift.md` — Added: compound probability argument (0.9^10 = 35%); era framing 2022→2023→2024–2026; "performance ceiling set by loop, not model"
+- `docs/04-verification.md` — Added: Firefox harness case study (LLM file prioritization, score→fix→verify, 423 fixes in one month, 50% harness attribution)
+- `docs/17-failure-patterns.md` — Added: amplification effect (defensive complexity accumulation); cognitive dependency (AI-only-legible codebases) — both Armin Ronacher, Jun 2026
+- `docs/27-loop-contract.md` — Added: job-description framing (Claire Vo); Event Modeling for task decomposition with Never Argue rule (Martin Dilger, Jun 2026)
+
+Sources: Cobus Greyling (Substack), Anthropic / Boris Cherny, Andrej Karpathy, Armin Ronacher (lucumr.pocoo.org), @roanbrasil (Medium), Martin Dilger (LinkedIn), Claire Vo / Lenny's Newsletter, Brian Grinstead — all Jun 2026.
+
+---
+
 ## [2.1.2] — 2026-06-23
 
 ### Changed

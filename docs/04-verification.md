@@ -55,3 +55,24 @@ separate agent and reduces the ambiguity that leads to self-evaluation bias.
 **Show evidence, not assertions.** Have Claude output the test result, the command
 it ran, and what it returned. Reviewing evidence is faster than re-running
 verification yourself.
+
+## Real-world case study: Mozilla Firefox security harness
+
+Brian Grinstead (Anthropic, Jun 2026) built a security bug-finding harness for
+Mozilla Firefox with explicit verification at every stage:
+
+1. **LLM file prioritization** — a scoring model ranked files by bug likelihood before
+   allocating agents; agents spent time on high-signal targets, not a full codebase scan
+2. **score → fix → verify pipeline** — three mandatory sequential stages; no stage was
+   skipped even when previous output "looked correct"
+3. **Dedicated verifier subagent** — a fresh agent, not the bug-finder, confirmed each
+   fix and eliminated false positives; tuned explicitly to avoid accepting fixes with
+   unresolved edge cases
+
+**Result:** 423 security bug fixes in one month.
+
+> "The harness was responsible for roughly 50% of the results — the model alone
+> wouldn't have delivered this." — Brian Grinstead
+
+This confirms the compound probability argument in [The Paradigm Shift](01-paradigm-shift.md):
+the verification chain converts per-step model accuracy into end-to-end reliable output.

@@ -17,7 +17,7 @@ Row numbers are stable identifiers — they do not change when docs are reorgani
 
 | # | Topic | Summary |
 |---|---|---|
-| 1 | [The Paradigm Shift](docs/01-paradigm-shift.md) | Old-way prompting vs. autonomous loop design; the New Software Lifecycle |
+| 1 | [The Paradigm Shift](docs/01-paradigm-shift.md) | Old-way prompting vs. loops; compound probability argument (0.9^10 = 35%); the New Software Lifecycle |
 | 26 | [The Factory Model](docs/26-factory-model.md) | Orchestrating agent factories — spec quality and verification replace coding speed |
 | 2 | [The Core Agent Loop Cycle](docs/02-agent-loop-cycle.md) | Observe → Reason → Plan → Act → Verify; Universal Agent Thesis |
 | 20 | [Loop Maturity Model](docs/20-loop-maturity-model.md) | 14-step progression from manual prompter to loop engineer |
@@ -27,10 +27,12 @@ Row numbers are stable identifiers — they do not change when docs are reorgani
 
 | # | Topic | Summary |
 |---|---|---|
-| 27 | [The Loop Contract](docs/27-loop-contract.md) | TRIGGER/SCOPE/ACTION/BUDGET/STOP/REPORT — six properties; two quality gates; experience encoding between cycles |
+| 27 | [The Loop Contract](docs/27-loop-contract.md) | TRIGGER/SCOPE/ACTION/BUDGET/STOP/REPORT; job-description framing; Event Modeling; two quality gates; experience encoding |
+| 30 | [Goal Engineering](docs/30-goal-engineering.md) | Goals vs. Loops decision framework; four Goal Primitives (Objective, Verifier, GOAL.md State, Budget) |
 | 24 | [Harness Patterns](docs/24-harness-patterns.md) | Harness vs. Loop layers; three-agent full-stack harness; sprint contracts; load-bearing vs. optional components; EDA and serverless |
 | 3 | [The Six Building Blocks](docs/03-building-blocks.md) | Automations, Worktrees, Skills, Connectors, Sub-agents, Memory; Routines for cloud execution |
 | 28 | [Routines](docs/28-routines.md) | Cloud-hosted loop execution: Schedule / API / GitHub triggers — no local machine needed |
+| 31 | [Claude Tag](docs/31-claude-tag.md) | Ambient loops in Slack: channel-scoped identity, self-scheduling, org-wide context; the third LLM paradigm |
 | 15 | [Explore → Plan → Implement → Commit](docs/15-explore-plan-implement.md) | The four-phase workflow for complex tasks |
 
 ### Components
@@ -48,7 +50,7 @@ Row numbers are stable identifiers — they do not change when docs are reorgani
 
 | # | Topic | Summary |
 |---|---|---|
-| 13 | [Context Management](docs/13-context-management.md) | `/clear`, `/compact`, subagents for investigation |
+| 13 | [Context Management](docs/13-context-management.md) | `/clear`, `/compact`, context resets vs. compaction, context anxiety; subagents for investigation |
 | 16 | [Memory Patterns](docs/16-memory-patterns.md) | Progress files, GitHub Issues as task queue, spec-driven loops |
 | 25 | [Long-Running Agents](docs/25-long-running-agents.md) | Ralph loop, planner-worker-judge, Inner/Outer Dual Loop, git-based recovery |
 | 29 | [Background Agents](docs/29-background-agents.md) | `--bg` detached sessions, agent view, fan-out pattern, worktree isolation |
@@ -57,8 +59,8 @@ Row numbers are stable identifiers — they do not change when docs are reorgani
 
 | # | Topic | Summary |
 |---|---|---|
-| 4 | [Verification](docs/04-verification.md) | The non-negotiable foundation — always give Claude a check it can run |
-| 17 | [Common Failure Patterns](docs/17-failure-patterns.md) | Cognitive surrender, orchestration tax, reward hacking, context pollution, context drift, dark factory, circuit breakers, and more |
+| 4 | [Verification](docs/04-verification.md) | The non-negotiable foundation — strategies, subjective criteria, Firefox case study (423 fixes) |
+| 17 | [Common Failure Patterns](docs/17-failure-patterns.md) | Cognitive surrender, orchestration tax, reward hacking, context pollution, amplification effect, cognitive dependency, and more |
 | 14 | [Human-in-the-Loop Escalation](docs/14-human-in-the-loop.md) | When to pause and ask for human input |
 | 11 | [Cost & Turn Control](docs/11-cost-control.md) | `--max-turns`, `--max-budget-usd`, effort levels; token multipliers + real project benchmarks ($9 broken → $200 working) |
 | 19 | [MCP Security](docs/19-mcp-security.md) | AgentJacking and indirect prompt injection via MCP connectors |

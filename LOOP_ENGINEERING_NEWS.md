@@ -5,6 +5,61 @@ Sources are defined in [`SOURCES.md`](SOURCES.md).
 
 ---
 
+## 2026-06-24 05:20 UTC (run)
+
+### New findings
+
+| Tier | Source | Title | URL | Summary |
+|---|---|---|---|---|
+| 1 | @Sabrina_Ramonov | "routine + /goal = agent — you don't need to write code to build your first autonomous agent" | [link](https://x.com/Sabrina_Ramonov/status/2069642423165129193) | Frames Routines as the no-code entry point to loop engineering; routine + /goal = the minimal autonomous loop definition. |
+| 1 | @Sabrina_Ramonov | "ppl think the hard part of autonomous agents is specifying the task... the hard part is defining the finish line" | [link](https://x.com/Sabrina_Ramonov/status/2069528925286375454) | New iteration of stopping-condition thesis: finish line precision determines whether the loop knows when to stop. |
+| 1 | @Sabrina_Ramonov | "you're not supposed to prompt Claude — mine ran 4 hours straight fixing my AI support agent" | [link](https://x.com/Sabrina_Ramonov/status/2069522130551652447) | Real-world loop run: /goal ran unattended 4 hours fixing an AI support agent; concrete shift-from-prompting example. |
+| 2 | Cobus Greyling (Substack) | "Goal Engineering" | [link](https://cobusgreyling.substack.com/p/goal-engineering) | Introduces Goals vs. Loops distinction ("Loops discover work. Goals finish it.") and four Goal Primitives (Objective, Verifier, GOAL.md State, Budget). |
+| 2 | @Sabrina_Ramonov | "buzz word 'loop engineering' has 6 parts" | [link](https://x.com/Sabrina_Ramonov/status/2069597628908655003) | Concise community definition: loop engineering = automations + worktrees + skills + connectors + sub-agents + memory — the six building blocks. |
+| 2 | Armin Ronacher | "The Coming Loop" | [link](https://lucumr.pocoo.org/2026/6/23/the-coming-loop/) | Flask creator names amplification effect (iterations accumulate defensive complexity) and cognitive dependency (codebases become unmaintainable without AI); also defines where loops genuinely work. |
+| 2 | @roanbrasil | "Loop Engineering: Designing the Execution Harness Around an LLM" | [link](https://medium.com/p/loop-engineering-designing-the-execution-harness-around-an-llm-936afeb6a72d) | Quantifies single-turn failure: 10 steps at 90% per-step accuracy = 35% end-to-end success (0.9^10); "the performance ceiling is set by the loop, not the model." |
+| 2 | Martin Dilger (LinkedIn) | "Loop Engineering: Why You Should Never Argue with an Agent" | [link](https://www.linkedin.com/pulse/loop-engineering-why-you-should-never-argue-agent-martin-dilger-uql8e/) | Never Argue rule, Event Modeling for task decomposition (status-transition slices), context reset mandate: "clean iterations with recorded learnings outperform long polluted conversations." |
+| 2 | Lenny's Newsletter | "How I AI: How to write AI agent loops in Claude Code and Codex" | [link](https://www.lennysnewsletter.com/p/how-i-ai-how-to-write-ai-agent-loops) | Job-description framing: write loop prompts as employee onboarding specs (frequency, output format, escalation contacts) rather than technical specifications. |
+| 2 | Lenny's Newsletter | "How Claude Mythos found a 15-year-old bug in Mozilla Firefox" | [link](https://www.lennysnewsletter.com/p/how-claude-mythos-found-a-15-year) | Harness case study: LLM file prioritization → score→fix→verify pipeline → dedicated verifier subagent → 423 security fixes in one month; harness credited with ~50% of results alongside the model. |
+| 2 | The New Stack | "OpenClaw and Hermes agree on what an agent is. They disagree on what controls it." | [link](https://thenewstack.io/openclaw-harness-agent-harness/) | Contrasts OpenClaw and Hermes harness governance; surfaces runtime control, memory, and supervision architecture as the live design debate. |
+| 3 | @karpathy | "This is the 3rd major redesign of LLM UIUX — a self-contained, persistent, asynchronous entity with org-wide tools" | [link](https://x.com/karpathy/status/2069547676849557725) | Karpathy frames Claude Tag as the third LLM paradigm: website → app → persistent asynchronous entity with org-wide context. |
+| 3 | ChatPRD | "Build an AI agentic harness for automated security bug hunting" | [link](https://www.chatprd.ai/how-i-ai/workflows/build-an-ai-agentic-harness-for-automated-security-bug-hunting) | Directive-based prompting ("We know there's a security bug here"), hypothesis-test-iterate cycle, tool feedback drives the next agent reasoning step. |
+| 3 | The New Stack | "Developers are now validating code they didn't write — and may not understand" | [link](https://thenewstack.io/gitlab-ai-code-governance/) | GitLab survey of 1,500 developers: AI has shifted the bottleneck from writing to reviewing; verification is the new engineering bottleneck. |
+| 3 | Chetan Kerhalkar (LinkedIn) | "The Next Big Skill in Enterprise AI Is Not Prompt Engineering. It Is Loop Engineering." | [link](https://www.linkedin.com/pulse/next-big-skill-enterprise-ai-prompt-engineering-loop-chetan-kerhalkar-ypodc/) | Enterprise loop architecture: six loop types (Retrieval/Tool/Evaluation/Human Approval/Memory/Governance), four feedback types, accuracy formula. |
+| 3 | Lushbinary | "Loop Engineering: The Guide for AI Agents" | [link](https://lushbinary.com/blog/loop-engineering-ai-coding-agents-guide/) | Event loop starvation prevention via OS watchdogs; max_consecutive_failures and max_runtime_min as concrete safety boundaries alongside token caps. |
+| 4 | @bcherny | "We're launching Claude Tag today — Claude schedules tasks for itself, pursuing a project over hours or days" | [link](https://x.com/bcherny/status/2069474681749754272) | Boris Cherny launches Claude Tag: Claude Code as persistent Slack agent with channel-scoped identity, self-scheduling, ambient context; 65% of Anthropic product team's code via internal version. |
+| 4 | Anthropic | "Introducing Claude Tag" | [link](https://www.anthropic.com/news/introducing-claude-tag) | Official article: task decomposition, self-scheduling, ambient context from Slack history, token limits per org/channel, audit logging; "the beginning of an evolution of Claude Code." |
+
+### No new content
+- @AndrewYNg — no new posts
+- @swyx — no keyword-matching posts
+- @steipete — no new posts
+- Anthropic RSS — 404 (ongoing)
+- Addy Osmani RSS — no new posts since Jun 16
+- Simon Willison RSS — no keyword-matching posts Jun 23–24
+- OpenAI news — no relevant content
+- swyx.io — no new posts since May 17
+- Sabrina.dev — no new posts since Jun 19
+- cobusgreyling/loop-engineering GitHub — no new commits
+- The Rundown AI RSS — 403 (ongoing)
+- TLDR AI RSS — 404 (ongoing)
+- Ben's Bites RSS — 404 (ongoing)
+- AI Breakfast RSS — 404 (ongoing)
+
+### Docs updated this run
+- `docs/30-goal-engineering.md` — NEW: Goals vs. Loops + Four Goal Primitives (Cobus Greyling, Jun 2026)
+- `docs/31-claude-tag.md` — NEW: Claude Tag architecture, Claude Everywhere, third LLM paradigm (Anthropic + Karpathy, Jun 2026)
+- `docs/01-paradigm-shift.md` — Added: 0.9^10 compound probability; historical era framing; "performance ceiling set by loop"
+- `docs/17-failure-patterns.md` — Added: amplification effect; cognitive dependency (Ronacher, Jun 2026)
+- `docs/04-verification.md` — Added: Mozilla Firefox case study (423 fixes, score→fix→verify, LLM file prioritization)
+- `docs/27-loop-contract.md` — Added: job-description framing; Event Modeling for task decomposition (Dilger, Jun 2026)
+
+### Sources to consider adding to SOURCES.md
+- Armin Ronacher (lucumr.pocoo.org) — Flask creator, 1 substantive piece; watch for follow-up before adding
+- @roanbrasil (Medium) — 1 quantitative loop engineering piece; no sustained publishing pattern yet
+
+---
+
 ## 2026-06-23 05:12 UTC (run)
 
 ### New findings

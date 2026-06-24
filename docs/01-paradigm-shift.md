@@ -33,6 +33,26 @@ The formula implies two things:
 
 (Sabrina Ramonov, "AI Loop Engineering", Jun 2026.)
 
+## Why Loops Beat Single Turns — The Compound Probability Argument
+
+A task requiring 10 sequential correct decisions, each at 90% individual accuracy,
+has only **35% end-to-end success probability** (0.9^10 ≈ 0.35). As tasks grow more
+complex, single-turn invocations fail not because the model is bad at any single step
+but because compound error rates make reliability impossible without a correction loop.
+
+> "The performance ceiling of any LLM-based system is not set by model quality —
+> it is set by the quality of the loop surrounding the model." — @roanbrasil, Jun 2026
+
+> "A mediocre model inside a well-engineered loop outperforms a frontier model invoked once."
+
+| Era | Paradigm |
+|---|---|
+| 2022 | `f(prompt) → answer` — single-turn, no correction |
+| 2023 | Agent loop (LangChain era) — ReAct scaffolding, but unstable |
+| 2024–2026 | Stabilised harness architecture — the loop is the primary engineering surface |
+
+(@roanbrasil, "Loop Engineering: Designing the Execution Harness Around an LLM", Jun 2026.)
+
 ## The New Software Lifecycle
 
 AI agents have collapsed implementation speed. This changes where engineering

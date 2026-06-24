@@ -75,6 +75,60 @@ Goal Contract → Execution → Evidence Gate → Stopping Condition → Experie
 Skipping Experience Encoding means the loop accumulates runtime progress but no
 institutional knowledge. The skills file stays empty; the same mistakes recur.
 
+## Job-Description Framing
+
+Rather than writing a loop prompt as a technical specification, write it as an
+employee onboarding document. A new employee needs:
+
+| Onboarding element | Loop Contract property |
+|---|---|
+| Job title and scope | TRIGGER + SCOPE |
+| Output deliverables | ACTION + REPORT |
+| Working hours / frequency | TRIGGER schedule |
+| Escalation path | Human-in-the-Loop gate — when to ask a human |
+| Performance standard | STOP condition |
+| Budget authority | BUDGET cap |
+
+The framing shift matters because onboarding documents describe *intent* and
+*judgment boundaries* — exactly what a loop needs to act autonomously without
+constant supervision. See [Human-in-the-Loop Escalation](14-human-in-the-loop.md).
+
+(Claire Vo, Lenny's Newsletter, "How I AI: How to write AI agent loops", Jun 2026.)
+
+## Event Modeling — Task Decomposition for Loop Contracts
+
+Event Modeling (Martin Dilger, Jun 2026) applies the Loop Contract to individual
+feature slices rather than to the whole task:
+
+1. **Slice** the work into discrete functionality units — each slice has clear status
+   transitions: `Planned → In Progress → Blocked → Done`
+2. **Assign** each slice to one agent invocation — the slice is the unit of work for
+   one context window; prevents confusion between tasks
+3. **Subscribe** agents to board changes so they automatically claim available slices
+4. **Prevent concurrency** — once a slice is `In Progress`, no second agent can claim it
+
+The critical rule: **never argue with an agent mid-task.** Corrections accumulate as
+"decision noise" — the agent does not learn from them, it just agrees and carries the
+confusion forward. Instead:
+
+```
+1. Define tasks clearly before launching the agent
+2. Execute one slice per clean context window
+3. Record learnings in GOAL.md / CLAUDE.md after completion
+4. Clear context completely
+5. Start the next slice from a clean window with recorded learnings
+```
+
+> "Clean iterations with recorded learnings will outperform long, polluted
+> conversations every single time." — Martin Dilger, Jun 2026
+
+## Relationship to Goal Engineering
+
+When a loop's STOP condition is deterministic and the task is non-recurring, the
+loop degenerates into a **Goal** — a bounded task with a single verifiable completion
+state. The [Goal Engineering](30-goal-engineering.md) doc covers the four Goal
+Primitives and the GOAL.md persistent state file in detail.
+
 ## Relationship to the Factory Model
 
 The Loop Contract is the specification document for a factory model workflow. Just
