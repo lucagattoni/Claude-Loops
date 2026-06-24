@@ -363,34 +363,53 @@ table and list all sources under "No new content". Never skip the section.
 
 8. Close any Chrome tabs opened during this run.
 
-## Phase 4b — Doc coherence review
+## Phase 4b — Devil's Advocate KB Review
 
-After all per-finding doc writes are done, reason about the overall state of the
-knowledge base **as a whole**. This is not about individual findings — it is about
-whether the docs still form a coherent, well-structured body of knowledge given
-the evolution of loop engineering thinking.
+After all per-finding doc writes are done, apply a **devil's advocate** lens to the
+knowledge base — assume each change you just made could be wrong, incomplete, or
+subtly inconsistent, and look for evidence of that.
 
-**Ask these questions each run:**
+This is not about individual findings — it is about whether the docs still form a
+coherent, well-structured, internally-consistent body of knowledge.
 
-1. **Grouping**: Does `LOOP_ENGINEERING.md` still organise topics logically? If
-   new docs were added this run, do they belong in an existing section or do they
-   warrant a new section header?
+### Devil's advocate questions
 
-2. **Overlap and redundancy**: Do any two docs now cover the same concept from
-   different angles without cross-referencing each other? Add a `See also:` line
-   to each overlapping doc pointing to the other.
+**Assume each doc update is wrong. Ask:**
 
-3. **Staleness**: Do any existing doc summaries in the index no longer reflect the
-   doc's current content (because it was extended this run)? Update the summary
-   in `LOOP_ENGINEERING.md`.
+1. **Internal contradictions** — Does anything written this run conflict with claims
+   in other docs? (Example: a new token cost number that differs from a figure in
+   docs/11; a new failure pattern that is the same as an existing one under a
+   different name.) Fix the contradiction; prefer the more specific, cited source.
 
-4. **Progression**: Does the ordering within each section still reflect the logical
-   reading sequence — from foundational to advanced? Reorder rows within a section
-   if a new doc belongs earlier.
+2. **Missing cross-references** — Is there any doc that now references a concept
+   that lives in another doc, without a link? A reader who needs the concept should
+   never have to search for it. Add the link.
 
-5. **Fragmentation**: Is any concept now split across 3+ docs in a way that makes
-   it hard to find? Consider whether two short docs should be merged, or whether
-   one doc should become the canonical page with the others as thin cross-references.
+3. **Unverifiable claims** — Did any edit introduce a pattern, metric, or technique
+   attributed to a repo or post, but the source does not actually say this? Remove
+   or flag it.
+
+4. **Better placement** — Is there content now in doc X that belongs more naturally
+   in doc Y (which already covers the parent topic)? A well-structured KB has one
+   canonical place per concept.
+
+5. **Redundancy** — Is any new section nearly identical to existing content in
+   another doc? If yes, consolidate: keep the canonical version, replace the
+   duplicate with a cross-reference.
+
+**Structural coherence:**
+
+6. **Grouping**: Does `LOOP_ENGINEERING.md` still organise topics logically? New
+   docs added this run — do they belong in an existing section or warrant a new one?
+
+7. **Staleness**: Do any existing doc summaries in the index no longer reflect the
+   doc's current content (because it was extended this run)? Update the summary.
+
+8. **Progression**: Does the ordering within each section still reflect the logical
+   reading sequence — from foundational to advanced? Reorder if needed.
+
+9. **Fragmentation**: Is any concept now split across 3+ docs without a canonical
+   home? Consider merging thin docs or designating one as primary.
 
 **Apply the minimum change that resolves each issue found.** Restructuring the index
 counts as a MAJOR release (see Phase 5). Adding cross-reference lines or updating

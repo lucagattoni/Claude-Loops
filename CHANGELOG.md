@@ -11,6 +11,13 @@ Versioning follows [Semantic Versioning](https://semver.org/):
 
 ---
 
+## [2.3.3] — 2026-06-24
+
+### Changed
+- `.claude/skills/fetch-loop-news/SKILL.md` — Renamed Phase 4b from "Doc coherence review" to "Devil's Advocate KB Review"; expanded from 5 structural questions to 9 questions across two categories: (1) adversarial content review (internal contradictions, missing cross-refs, unverifiable claims, better placement, redundancy) and (2) structural coherence (grouping, staleness, progression, fragmentation)
+
+---
+
 ## [2.3.2] — 2026-06-24
 
 ### Changed
