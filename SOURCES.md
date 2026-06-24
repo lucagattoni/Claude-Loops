@@ -86,8 +86,8 @@ substantively relevant to loop engineering practice (not just a passing mention)
 | X search — loop engineering | x-search | https://x.com/search?q=loop%20engineering&src=typed_query&f=live | Live keyword search; dynamically loaded — scroll ≥3 times to surface 20+ posts |
 | LinkedIn search — loop engineering | linkedin | https://www.linkedin.com/search/results/content/?keywords=loop+engineering | Professional community posts; dynamically loaded — scroll ≥3 times to surface 20+ posts |
 | Harness Books (AgentWay) | html | https://harness-books.agentway.dev | Essay collection on harness design theory — unstable components, ledger closure, input governance, reactive compact |
-| GitHub search — loop engineering claude | github-search | https://github.com/search?q=%22loop+engineering%22+claude&type=repositories&sort=updated | Search GitHub repos combining "loop engineering" + claude; find new implementations and patterns |
-| GitHub search — claude code harness | github-search | https://github.com/search?q=%22claude+code%22+harness&type=repositories&sort=updated | Search GitHub repos combining "claude code" + harness; surface new harness design repos |
+| GitHub search — loop engineering claude | github-search | https://api.github.com/search/repositories?q=%22loop+engineering%22+claude&sort=updated | Search GitHub repos combining "loop engineering" + claude; returns JSON — no auth needed (10 req/hr limit); find new implementations |
+| GitHub search — claude code harness | github-search | https://api.github.com/search/repositories?q=%22claude+code%22+harness&sort=updated | Search GitHub repos combining "claude code" + harness; returns JSON — surface new harness design repos |
 
 ---
 
@@ -101,7 +101,7 @@ substantively relevant to loop engineering practice (not just a passing mention)
 | `github` | WebFetch repo URL + `/commits/main` → score new commits since `last_run_date`; also check `/releases` for tagged releases |
 | `x-search` | Chrome → navigate to the search URL → scroll down ≥3 times to load 20+ posts → read all posts → score against keyword tiers |
 | `linkedin` | Chrome → navigate to the search URL → scroll down ≥3 times to load 20+ posts → use JavaScript to extract post text → score against keyword tiers; WebFetch any linked Pulse articles for Tier 1/2 matches |
-| `github-search` | WebFetch the search URL → parse repo titles, descriptions, star counts → score against keyword tiers → for high-scoring repos WebFetch README for summary; also check if repo was updated since `last_run_date` |
+| `github-search` | WebFetch the GitHub API URL (returns JSON) → parse `items[].full_name`, `description`, `updated_at`, `stargazers_count` → score against keyword tiers → for high-scoring repos WebFetch the raw README URL and summarise; check `updated_at > last_run_date` to flag new/recently-active repos |
 
 ---
 

@@ -6,6 +6,12 @@ any repo using the standard six primitives.
 
 (Cobus Greyling, cobusgreyling/loop-engineering, Jun 2026.)
 
+**Note on readiness vs. developer maturity:** Loop readiness levels (L1/L2/L3) classify
+each individual loop's operational trust. They are distinct from the 14-step developer
+maturity progression in [Loop Maturity Model](20-loop-maturity-model.md), which
+classifies the *engineer's* capability. A step-14 loop engineer still starts every new
+loop at L1.
+
 ## Loop Readiness Levels
 
 Before deploying any pattern, assign it a readiness level:

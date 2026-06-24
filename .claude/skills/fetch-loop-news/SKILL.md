@@ -158,29 +158,28 @@ LinkedIn search results are dynamically loaded. A single page read returns very 
 
 ### For `type: github-search` sources
 
-These are GitHub search URLs that surface repositories matching keywords.
+These are GitHub API search URLs that surface repositories matching keywords.
+The API returns clean JSON — no browser needed, no JS rendering.
 
-1. WebFetch the search URL from SOURCES.md. GitHub returns HTML with repo cards;
-   extract: repo name, owner, description, star count, last updated date.
-2. Score each repo against the keyword tiers (name + description).
+1. WebFetch the API URL from SOURCES.md.
+   The response is JSON with an `items` array. For each item extract:
+   `full_name`, `description`, `html_url`, `updated_at`, `stargazers_count`.
+2. Score each repo against the keyword tiers (`full_name` + `description`).
 3. For every Tier 1 or Tier 2 repo:
-   - Check whether `last_updated` is newer than `last_run_date`; if not, de-prioritise
-     but still include if highly relevant to KB gaps
-   - WebFetch `<repo-url>/blob/main/README.md` (or `/blob/master/README.md`) to read
-     the full README
+   - Check whether `updated_at > last_run_date`; flag as new/recently-active
+   - WebFetch the raw README: `https://raw.githubusercontent.com/<full_name>/main/README.md`
+     (try `master` if `main` 404s)
    - Summarise the README's key patterns, techniques, or data points against the KB
    - Check whether the repo is already tracked as a `github` source in SOURCES.md;
      if not and it has ≥2 relevant contributions, note it in "Sources to consider"
-4. Collect matching items: repo name, URL, last-updated date, summary.
-5. **KB-gap targeting**: Before fetching, read the current `docs/` index and note any
-   topics that are thin or missing. Prefer repos that address those gaps over repos
-   that duplicate well-covered topics.
+4. Collect matching items: repo name, URL (`html_url`), `updated_at`, summary.
+5. **KB-gap targeting**: Before fetching, read `KB_GAPS.md` if it exists. Prefer
+   repos that address documented gaps over repos duplicating well-covered topics.
 
-**Iterative keyword refinement:** The keywords in each `github-search` source row
-should be updated over time as the KB evolves. After each run, if the search returns
-low-relevance repos (≤1 Tier 1-2 match), note the search in "Sources to consider"
-with a suggested keyword refinement. The coordinator will update the SOURCES.md row
-on the next relevant commit.
+**Low-yield signal:** If a github-search URL returns ≤1 Tier 1-2 result this run,
+note it in "Sources to consider" with a suggested keyword refinement for the next
+commit (e.g. `q=%22claude+loops%22+harness` may yield better results than
+`q=%22claude+code%22+harness`).
 
 ---
 
@@ -331,9 +330,38 @@ table and list all sources under "No new content". Never skip the section.
    f. Record any reading list changes in "Docs updated this run":
       `- docs/32-reading-list.md — added "<title>"; removed "<title>" (replaced)`
 
-6. Update `CHANGELOG.md` under `[Unreleased]` for any doc additions or changes.
+6. **KB gap tracking** — after all doc writes, update `KB_GAPS.md` to record which
+   areas of the KB are currently thin or missing:
 
-7. Close any Chrome tabs opened during this run.
+   a. Read `KB_GAPS.md` (create it if it doesn't exist).
+   b. Review all existing `docs/*.md` for completeness. Topics that are thin:
+      - Only 1-2 sentences on a concept that warrants deeper coverage
+      - Cross-references that say "see X" but X is thin too
+      - A failure pattern that lacks a concrete fix mechanism
+   c. For each gap, write one line in `KB_GAPS.md`:
+      ```
+      - <topic>: <what's missing> — search keywords: <2-3 specific keyword phrases>
+      ```
+   d. Remove gaps that were filled by this run's doc writes.
+   e. **These keywords are inputs to future github-search and web search queries.**
+      The goal is iterative deepening: each run identifies what's still thin and
+      provides targeted keywords so the next run searches more specifically.
+
+   Example `KB_GAPS.md` entry:
+   ```markdown
+   # KB Gaps — topics needing deeper coverage
+   
+   - Fleet coordination protocols: STATE.md multi-loop coordination needs an
+     example implementation — search keywords: "state machine" "agent coordination"
+     "claude code" fleet
+   - Verifier tuning techniques: criteria for distinguishing Verifier Theater from
+     genuine passing — search keywords: "agent evaluator" "verification criteria"
+     "LLM judge" calibration
+   ```
+
+7. Update `CHANGELOG.md` under `[Unreleased]` for any doc additions or changes.
+
+8. Close any Chrome tabs opened during this run.
 
 ## Phase 4b — Doc coherence review
 

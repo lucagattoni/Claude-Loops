@@ -88,6 +88,18 @@ both are inside the process. The watchdog operates outside it.
 
 See [Long-Running Agents](25-long-running-agents.md) for state recovery patterns.
 
+## Relationship to Permissions & Allowlists
+
+The [Permissions & Auto Mode](08-permissions.md) doc covers the software-layer companion
+to OS-level hardening: risk-tiered authorization by consequence (read/write/irreversible),
+`allow`/`deny`/`ask` lists in `.claude/settings.json`, and the safety path denylist
+for sensitive file paths.
+
+OS-user isolation and software-layer permissions enforce the same boundary from
+different layers: OS rules prevent kernel-level escape; permission lists prevent
+the model from taking in-process actions it was never meant to take. Both are needed;
+neither alone is sufficient.
+
 ## Relationship to MCP Security
 
 [MCP Security](19-mcp-security.md) covers AgentJacking and prompt injection via MCP

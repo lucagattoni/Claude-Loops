@@ -11,11 +11,17 @@ Versioning follows [Semantic Versioning](https://semver.org/):
 
 ---
 
-## [Unreleased]
+## [2.3.1] — 2026-06-24
 
 ### Added
+- `KB_GAPS.md` — new file: iterative gap tracker; each daily run reads and updates this file to record thin KB areas and their targeted search keywords; drives convergent deepening across runs
 
 ### Changed
+- `docs/17-failure-patterns.md` — Added: Infinite Fix Loop pattern (loop retries indefinitely without attempt cap; fix: hard cap of N attempts + escalation to human inbox)
+- `docs/33-agent-security-hardening.md` — Added cross-reference to docs/08 (permissions/allowlists) as the software-layer companion to OS-level security
+- `docs/34-loop-patterns.md` — Added note distinguishing loop readiness levels (per-loop operational trust) from developer maturity model (docs/20)
+- `SOURCES.md` — Changed github-search URLs from HTML scrape to GitHub API JSON endpoints; updated type-reference description for github-search
+- `.claude/skills/fetch-loop-news/SKILL.md` — Updated github-search handler to use JSON API; added step 6 KB gap tracking (create/update KB_GAPS.md each run; use gap keywords to drive targeted searches)
 
 ---
 
