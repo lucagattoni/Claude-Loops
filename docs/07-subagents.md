@@ -95,7 +95,9 @@ propagating noise upstream:
 
 - A reviewer audits deliverables across a defined set of dimensions
 - Each finding is scored for confidence (0–100%)
-- Only findings at **≥80% confidence** surface to the orchestrator or user
+- Only findings above a confidence threshold surface to the orchestrator or user
+  (the session-orchestrator uses **≥80%** as its threshold; calibrate to your
+  verifier's false-positive rate)
 - Low-confidence findings are logged but suppressed — they do not block or notify
 
 Use confidence scoring for heuristic checks (code quality, design coherence) where

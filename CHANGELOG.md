@@ -11,6 +11,13 @@ Versioning follows [Semantic Versioning](https://semver.org/):
 
 ---
 
+## [2.3.4] — 2026-06-24
+
+### Changed
+- `docs/07-subagents.md` — Confidence gate threshold (≥80%) reframed as a calibratable parameter, not a universal rule; note that 80% is the session-orchestrator reference implementation value
+
+---
+
 ## [2.3.3] — 2026-06-24
 
 ### Changed
