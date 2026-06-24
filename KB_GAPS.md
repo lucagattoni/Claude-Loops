@@ -36,6 +36,12 @@ Updated by each `fetch-loop-news` run. Gap keywords drive targeted GitHub and we
   not rotating them mid-session or on credential expiry — search keywords:
   `"secret rotation" agent`, `credential refresh` agentic, `claude code` secrets
 
+- **SECURITY_MATRIX.md implementation mechanism**: docs/33 says the agent "reads
+  SECURITY_MATRIX.md at startup and self-assesses" but doesn't specify the loading
+  mechanism (CLAUDE.md import vs. SessionStart hook vs. system prompt) — search
+  keywords: `SECURITY_MATRIX.md` implementation, `agent security policy` loader,
+  `claude code` startup file loading
+
 ---
 
 ## Recently Filled (archive — keep last 2 entries; remove older ones)

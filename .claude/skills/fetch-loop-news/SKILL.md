@@ -295,7 +295,9 @@ table and list all sources under "No new content". Never skip the section.
 
    a. Read `docs/32-reading-list.md` to understand the current entries and groups.
 
-   b. For each new finding that is a **full article** (not an X post or a short thread):
+   b. For each new finding that is a **full article or GitHub repo** (not an X post
+      or a short thread); GitHub repos with substantial documentation count and go
+      into the *Reference Implementations* group:
       - Determine which reading list group it fits. Current groups:
         *Why Loops* / *Getting Started* / *Harness Design & Architecture* /
         *Goal Engineering & Stopping Conditions* / *Loops in Production* /

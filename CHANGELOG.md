@@ -11,6 +11,14 @@ Versioning follows [Semantic Versioning](https://semver.org/):
 
 ---
 
+## [2.3.6] — 2026-06-24
+
+### Changed
+- `.claude/skills/fetch-loop-news/SKILL.md` — Reading list step 5b: explicitly cover GitHub repos with substantial documentation as eligible for the Reference Implementations group (was silently excluded by "full article" language)
+- `KB_GAPS.md` — Added: SECURITY_MATRIX.md implementation mechanism gap (how does the agent load it at startup?)
+
+---
+
 ## [2.3.5] — 2026-06-24
 
 ### Changed
