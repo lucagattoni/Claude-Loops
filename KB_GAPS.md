@@ -38,7 +38,7 @@ Updated by each `fetch-loop-news` run. Gap keywords drive targeted GitHub and we
 
 ---
 
-## Recently Filled (keep for reference, 2 most recent)
+## Recently Filled (archive — keep last 2 entries; remove older ones)
 
 - ~~**L1/L2/L3 readiness levels**~~ — filled 2026-06-24 by docs/34 (cobusgreyling)
 - ~~**Multi-loop collision detection**~~ — filled 2026-06-24 by docs/34 and docs/10

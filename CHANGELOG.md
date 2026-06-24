@@ -11,6 +11,15 @@ Versioning follows [Semantic Versioning](https://semver.org/):
 
 ---
 
+## [2.3.5] — 2026-06-24
+
+### Changed
+- `.claude/skills/fetch-loop-news/SKILL.md` — Reading list curation: updated group list to include "Reference Implementations" (prevents duplicate group creation on next run); note that repos belong there, not in article groups
+- `docs/24-harness-patterns.md` — Ledger Closure: added applicability note (relevant for custom API orchestrators that manage the message array directly; not applicable to Claude Code CLI)
+- `KB_GAPS.md` — Clarified "Recently Filled" archive label
+
+---
+
 ## [2.3.4] — 2026-06-24
 
 ### Changed

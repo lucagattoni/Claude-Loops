@@ -47,6 +47,11 @@ session can be considered consistently closed. An interrupted session that leave
 a `tool_use` without a matching `tool_result` produces an uninterpretable trace —
 orchestrators that resume from this state make decisions based on corrupted input.
 
+**Applicability note:** Ledger closure is primarily relevant for orchestrators that
+directly construct Claude API message arrays (custom harness, not CLI). Claude Code
+CLI sessions do not expose the raw message array; this pattern applies when you
+manage the conversation turn sequence programmatically.
+
 Interrupt handling pattern:
 1. Detect the interruption (timeout, crash, explicit stop)
 2. Emit a `tool_result` for the pending `tool_use` with an error payload
