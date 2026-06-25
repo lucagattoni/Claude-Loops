@@ -142,6 +142,24 @@ replace scoped allowlists.
 
 (cobusgreyling/loop-engineering, Jun 2026.)
 
+## Agent Trust Ramp
+
+Before granting any loop write permissions, build trust incrementally:
+
+| Stage | Mode | What the loop can do |
+|---|---|---|
+| **1. Read-only** | `plan` permission mode | Read files, analyse state, report findings — no writes |
+| **2. Summarise** | Auto mode + read + summarise | Write summaries to a dedicated output file; no code edits |
+| **3. Hard limits** | Auto mode + allow list | Write code in specified paths only; hard denylist for infra/secrets |
+| **4. Loop cap** | Full auto mode | Standard unattended loop with BUDGET cap and escalation path |
+
+Start every new loop at Stage 1, regardless of engineer experience. Advance only after one
+full week of zero unexpected actions at the current stage. These stages align with the
+[per-loop readiness levels](20-loop-maturity-model.md) (L1 report-only → L2 assisted → L3 autonomous)
+— the trust ramp is the permission configuration that makes each readiness level operational.
+
+> "before you trust an agent to run on its own, do these 4 things" — @Sabrina_Ramonov, Jun 2026
+
 ## Relationship to Agent Security Hardening
 
 The [Agent Security Hardening](33-agent-security-hardening.md) doc covers the OS-layer

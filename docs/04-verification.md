@@ -91,6 +91,86 @@ PROGRESS.md task statuses, and any cached API responses.
 
 (wquguru/harness-books, AgentWay, Jun 2026.)
 
+## Verification Classification: Type A vs. Type B Work
+
+Before designing a verifier, classify the work being verified:
+
+| Type | Definition | Verification approach |
+|---|---|---|
+| **Type A** | Fully automatable mechanics — dispatch, execution, evidence collection, commit, index update | Machine-checkable gates (CI, exit codes, diff counts) — no human needed |
+| **Type B** | Human judgment gates — design decisions, ambiguity resolution, irreversible actions requiring context | Mandatory human approval; cannot be delegated to an automated verifier |
+
+The loop's job is to automate Type A completely and route Type B to humans reliably. A loop that tries to auto-verify Type B work (using LLM judges to approve irreversible actions) introduces [Verifier Theater](17-failure-patterns.md).
+
+(void2610/loop, Jun 2026.)
+
+## Loop Verdict Taxonomy
+
+Every loop run should produce one of six verdicts — not just pass/fail:
+
+| Verdict | Meaning | Next action |
+|---|---|---|
+| **pass** | All done conditions met; evidence present | Merge / deploy / close |
+| **fail** | Done conditions not met; retryable | Retry with attempt cap |
+| **handoff** | Type B work reached; human judgment required | Route to human inbox |
+| **timeout** | Turn or budget cap hit before completion | Resume or escalate |
+| **stopped** | Hard stop triggered (security gate, denial hook) | Investigate root cause |
+| **awaiting-merge** | Completion gated on an external event | Monitor; do not retry yet |
+
+A loop that only outputs pass/fail misses the handoff, timeout, and stopped states that require different downstream responses.
+
+(void2610/loop, Jun 2026.)
+
+## Cross-Run Verification Patterns
+
+Standard verification re-runs the same checks each loop iteration. Three patterns extend verification across independent runs:
+
+**Clean-Room Review:** The reviewer agent runs in a fresh session with no access to the implementer's reasoning — only the output artifact (diff, PR, test results). This prevents the reviewer from reasoning from the same context as the implementer and catching failures the implementer reasoned itself into.
+
+**Held-Out Test Layer:** A set of perturbed inputs is generated before coding begins and kept hidden from the implementing agent. After implementation, the held-out tests run. A passing implementation that fails on held-out perturbations reveals over-fitting to the expected examples.
+
+**Cross-Task Defect Ledger:** When a run produces a defect (test failure, type error, security finding), the defect is logged to a shared ledger with root-cause category. Subsequent runs read the ledger before starting and explicitly check for the same root-cause categories. Defects stop being repeated rather than just fixed.
+
+(JeremyW1990/loop-engineering-skill, Jun 2026.)
+
+## Belief State Machine for Claim Verification
+
+When agent output contains factual claims (about APIs, configurations, security posture), classify each claim before acting on it:
+
+| State | What it means | Required evidence |
+|---|---|---|
+| **source_prior** | Claim comes directly from a cited source (doc, test, API response) | Source URL or command output |
+| **bounded_claim** | Claim is agent-generated but grounded in cited source_prior evidence | Explicit derivation from source_prior |
+| **validated** | Claim has been independently checked by a deterministic verifier | Test result, grep, CI output |
+
+Never act on a claim that remains in the `source_prior` or `bounded_claim` state for irreversible actions (deploys, security changes, data migrations). Require `validated` evidence.
+
+**R0–R5 Risk Classification** — score tasks at intake before execution:
+
+| Level | Risk | Policy |
+|---|---|---|
+| R0 | Read-only | Auto-approve; no verifier required |
+| R1 | Reversible write | Auto-approve; commit-level evidence required |
+| R2 | Merge-gated | Human review gate; test suite must pass |
+| R3 | Prod-adjacent | Human review gate + second reviewer |
+| R4 | Irreversible (data, secrets) | Explicit human approval before execution |
+| R5 | Security-critical | SECURITY_MATRIX.md gate + security reviewer (see [Agent Security Hardening](33-agent-security-hardening.md)) |
+
+(qimen039-code/claim-boundary-harness, Jun 2026.)
+
+## A/A Baseline for Verifier Calibration
+
+Before trusting a verifier's verdicts, establish a noise floor using A/A testing:
+
+1. **Baseline run:** run the verifier on two identical implementations — it should produce identical verdicts; any disagreement is pure noise
+2. **Noise floor:** if the verifier disagrees on ≥5% of identical cases, its signal is too noisy to trust for pass/fail gates
+3. **Only deterministic graders** for binary gates: test exit codes, diff line counts, grep match counts — never LLM-generated scores
+4. **Bootstrap confidence intervals:** when comparing two configurations, require ≥95% CI overlap to confirm a real improvement vs. noise
+
+Verifiers calibrated only on happy-path inputs will fail on the edge cases that matter most — the A/A baseline catches this before deployment.
+
+(thalys/agent-ab, Jun 2026.)
+
 ## Real-world case study: Mozilla Firefox security harness
 
 Brian Grinstead (Anthropic, Jun 2026) built a security bug-finding harness for
