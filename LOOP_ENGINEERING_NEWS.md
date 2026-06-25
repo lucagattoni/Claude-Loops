@@ -5,6 +5,63 @@ Sources are defined in [`SOURCES.md`](SOURCES.md).
 
 ---
 
+## 2026-06-25 06:41 UTC (run)
+
+### New findings
+
+| Tier | Source | Title | URL | Summary |
+|---|---|---|---|---|
+| 1 | @Sabrina_Ramonov | "if you don't design the loop, you ARE the loop" | [link](https://x.com/Sabrina_Ramonov/status/2070004810888171537) | Tier-1 framing: designing the loop vs. being the loop is the practitioner-vs-amateur divide in loop engineering. |
+| 1 | @Sabrina_Ramonov | "the people pulling ahead aren't writing better prompts — they're designing loops" | [link](https://x.com/Sabrina_Ramonov/status/2069960016929366247) | Loop engineers outperform prompt writers; loop engineering is about removing yourself as the bottleneck. |
+| 2 | Cobus Greyling (Substack) | "Fleet Engineering" | [link](https://cobusgreyling.substack.com/p/fleet-engineering) | Introduces Fleet Four Pillars (Delegate/Improve/Approve/Connect), F0-F3 fleet maturity rollout, Fleet Economics for cost attribution, and Claw vs. Assistant identity choice for unattended agents. |
+| 2 | cobusgreyling/goal-engineering (GitHub) | "goal-engineering — Reference Implementation" | [link](https://github.com/cobusgreyling/goal-engineering) | Six canonical GOAL.md patterns (Tests Green, Migrate Module, Fix Bug, etc.), G0-G3 readiness scoring tool, and goal-cost token estimator; fills the GOAL.md schema KB gap. |
+| 2 | cobusgreyling/fleet-engineering (GitHub) | "fleet-engineering — Reference Implementation" | [link](https://github.com/cobusgreyling/fleet-engineering) | Six production fleet governance patterns including Fleet Budget Guard and Cross-Agent Audit; Fleet Economics for cost attribution in multi-agent systems. |
+| 2 | X search — loop engineering | "A senior Anthropic engineer just released an 11-page paper on Loop Engineering" | [link](https://x.com/hrswatigupta/status/2070034230625874011) | Thread summarising Anthropic's loop engineering practices: 5-step self-discovery cycle (Schedule→Discover→Build→Verify→Repeat), agents find work from failing CI and open issues, each task isolated in its own git worktree. |
+| 2 | Lenny's Newsletter | "How to design AI agent loops: schedules, goals, and subagents in Claude Code and Codex" | [link](https://www.youtube.com/watch?v=JoXbk2fm7jM) | Practical walkthrough of goal-based loops and subagent spawning in Claude Code and Codex; schedule vs. goal type distinctions. |
+| 2 | LinkedIn | "Loop Engineering: Architecture Shift Every AI Developer Should Know" — Dhiraj Amin | [link](https://www.linkedin.com/pulse/loop-engineering-architecture-shift-every-ai-developer-dhiraj-amin-bekee/) | Five-phase agent loop, five required production components, Stanford data point: AI accuracy peaks at medium token spending — excessive loops degrade results while costing 30-100× more. |
+| 2 | LinkedIn | "Loop Engineering Is Just Software. We Have a Name." — Mike Piccolo | [link](https://www.linkedin.com/pulse/loop-engineering-just-software-we-have-name-mike-piccolo-yb73c/) | 4-level loop architecture (agent / verification / event-driven / hill-climbing), distributed systems analogues (circuit breakers, at-least-once delivery), and the iii Worker/Trigger/Function framework. |
+| 2 | LinkedIn | "Loop Engineering? I Think You Mean Outcome Engineering" — Ryan Nadel | [link](https://www.linkedin.com/pulse/loop-engineering-i-think-you-mean-outcome-ryan-nadel-svj4c/) | Provocative reframe: the real discipline is designing for verifiable outcomes; introduces the Deterministic Shell Model and semantic reasoning as a new primitive replacing human judgment for ambiguity. |
+| 2 | @Sabrina_Ramonov | "before you trust an agent to run on its own, do these 4 things" | [link](https://x.com/Sabrina_Ramonov/status/2069960016929366247) | 4-step agent trust ramp (read-only → summarise → hard limits → loop cap) before granting full autonomy. |
+| 2 | github-search: loop engineering claude | "eugenelim/agent-ready-repo" | [link](https://github.com/eugenelim/agent-ready-repo) | Loop engineering pack with harness-agnostic projection (.apm/ → Claude Code/Codex/Copilot/Cursor/Gemini/Kiro) and security review at specification stage, not post-implementation. |
+| 2 | github-search: loop engineering claude | "JeremyW1990/loop-engineering-skill" | [link](https://github.com/JeremyW1990/loop-engineering-skill) | Autonomous sprint skill with three novel verification safeguards: clean-room review, held-out test layer, and cross-task defect ledger that feeds failures forward across tasks. |
+| 2 | github-search: claude code harness | "omnigent-ai/omnigent" | [link](https://github.com/omnigent-ai/omnigent) | Meta-harness (4771★): 3-tier governance hierarchy (server/agent/session), harness-swap without state loss, cross-device session continuity. |
+| 2 | github-search: claude code harness | "JeiKeiLim/tenet" | [link](https://github.com/JeiKeiLim/tenet) | 8-phase DAG harness for 12+ hour cycles with 3-critic pipeline (fresh context per critic) and steer message taxonomy (context/directive/emergency) for mid-run redirection without loop breakage. |
+| 2 | github-search: loop engineering claude | "faisalishfaq2005/loopflow" | [link](https://github.com/faisalishfaq2005/loopflow) | YAML-declarative loop definition with VERDICT: PASS gate protocol and 2-layer budget ceiling (loop-level + per-step). |
+| 2 | github-search: claude code harness | "thalys/agent-ab" | [link](https://github.com/thalys/agent-ab) | A/B testing framework for Claude Code configurations: A/A baseline for noise floor, deterministic-only graders (no LLM judges), bootstrap confidence intervals. Fills verifier calibration KB gap. |
+| 2 | github-search: claude code harness | "qimen039-code/claim-boundary-harness" | [link](https://github.com/qimen039-code/claim-boundary-harness) | Belief state machine (source_prior → bounded_claim → validated) with R0-R5 risk classification at task intake and mandatory evidence metadata fields. |
+| 3 | github-search: loop engineering claude | "void2610/loop" | [link](https://github.com/void2610/loop) | Type A vs. Type B work separation (fully automated mechanics vs. irreducible human judgment) with a 6-verdict taxonomy (pass/fail/handoff/timeout/stopped/awaiting-merge). |
+| 4 | @steipete (repost of @openclaw) | "OpenClaw 2026.6.10 release" | [link](https://github.com/openclaw/openclaw/releases/tag/2026.6.10) | OpenClaw maintenance release adding auto mode improvements and trusted policy enforcement. |
+
+### No new content
+- @bcherny — no new keyword-matching posts since Jun 24
+- @karpathy — no new keyword-matching posts since Jun 22
+- @AndrewYNg — no recent relevant posts
+- @swyx — no keyword-matching posts
+- Anthropic RSS — 404 (ongoing)
+- Addy Osmani — all Jun articles already in digest
+- Simon Willison — Jun 11 article already in digest
+- The New Stack OpenClaw/Hermes — already in Jun 24 digest
+- Ben's Bites RSS — 404 (ongoing)
+- TLDR AI RSS — 404 (ongoing)
+- AI Breakfast RSS — 404 (ongoing)
+- The Rundown AI RSS — 403 (ongoing)
+
+### Docs updated this run
+- `docs/23-fleet-engineering.md` — added: Fleet Four Pillars, F0-F3 maturity, Fleet Economics, Claw vs. Assistant identity (Cobus Greyling, Jun 2026)
+- `docs/30-goal-engineering.md` — added: GOAL.md schema, six canonical goal patterns, G0-G3 readiness scoring (cobusgreyling/goal-engineering, Jun 2026)
+- `docs/04-verification.md` — added: Type A/B work classification, verdict taxonomy, clean-room review, held-out test layer, cross-task defect ledger, belief state machine + R0-R5, A/A baseline for verifier calibration (Jun 2026)
+- `docs/24-harness-patterns.md` — added: harness-agnostic projection + security at spec stage, 8-phase DAG + steer messages, meta-harness 3-tier policy hierarchy + harness-swap (Jun 2026)
+- `docs/27-loop-contract.md` — added: YAML-declarative loop definition, VERDICT: PASS gate, 2-layer budget ceiling, self-discovery pattern (Jun 2026)
+- `docs/08-permissions.md` — added: agent trust ramp (4-stage: read-only → summarise → hard limits → loop cap)
+- `docs/32-reading-list.md` — added cobusgreyling/goal-engineering and cobusgreyling/fleet-engineering to Reference Implementations; fixed duplicate "Loops in Production" section
+
+### Sources to consider adding to SOURCES.md
+- @GeoffreyHuntley — credited by community as early loop engineering proponent; check profile for ≥2 substantive pieces before adding
+- JeiKeiLim/tenet — already added to reading candidate list; significant implementation
+- thalys/agent-ab — verifier calibration framework; addresses documented KB gap
+
+---
+
 ## 2026-06-24 05:20 UTC (run)
 
 ### New findings

@@ -11,6 +11,29 @@ Versioning follows [Semantic Versioning](https://semver.org/):
 
 ---
 
+## [Unreleased]
+
+### Added
+### Changed
+
+---
+
+## [2.3.7] — 2026-06-25
+
+### Changed
+- `docs/23-fleet-engineering.md` — Added: Fleet Four Pillars (Delegate/Improve/Approve/Connect), F0-F3 fleet maturity levels, Fleet Economics cost attribution, Claw vs. Assistant identity choice (Cobus Greyling, Jun 2026)
+- `docs/30-goal-engineering.md` — Added: GOAL.md schema, six canonical goal patterns (Tests Green, Migrate Module, Fix Bug, Refactor, Docs Update, Security Scan), G0-G3 readiness scoring (cobusgreyling/goal-engineering, Jun 2026)
+- `docs/04-verification.md` — Added: Type A vs. Type B work classification, loop verdict taxonomy (6 verdicts), cross-run patterns (clean-room review, held-out test layer, cross-task defect ledger), belief state machine + R0-R5 risk levels, A/A baseline for verifier calibration (Jun 2026)
+- `docs/24-harness-patterns.md` — Added: harness-agnostic projection + security-at-specification-stage, 8-phase DAG execution model + steer message taxonomy, meta-harness 3-tier policy hierarchy + harness-swap (Jun 2026)
+- `docs/27-loop-contract.md` — Added: YAML-declarative loop definition, VERDICT: PASS gate, 2-layer budget ceiling, self-discovery loop pattern (Schedule→Discover→Build→Verify→Repeat) (Jun 2026)
+- `docs/08-permissions.md` — Added: agent trust ramp (4-stage: read-only → summarise → hard limits → loop cap)
+- `docs/32-reading-list.md` — Added cobusgreyling/goal-engineering and cobusgreyling/fleet-engineering to Reference Implementations; removed duplicate "Loops in Production" section
+- `KB_GAPS.md` — Marked filled: verifier calibration (thalys/agent-ab), loop correctness testing (void2610, JeremyW1990); added new gaps: agentskills.io format, F0-F3 indicators, goal-cost estimation
+- `SOURCES.md` — Added: cobusgreyling/goal-engineering, cobusgreyling/fleet-engineering, omnigent-ai/omnigent (github type); added acting_on claude loop github-search for multi-loop STATE.md coordination gap
+- `LOOP_ENGINEERING_NEWS.md` — 2026-06-25 run: 20 new findings across 6 sources
+
+---
+
 ## [2.3.6] — 2026-06-24
 
 ### Changed

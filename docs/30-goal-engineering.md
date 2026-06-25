@@ -69,6 +69,63 @@ A goal without a budget is a runaway process with a polished objective.
 
 See [Loop Contract](27-loop-contract.md) for the full BUDGET property.
 
+## GOAL.md Schema
+
+A minimal GOAL.md for a well-formed goal:
+
+```markdown
+# Goal: <name>
+
+## Objective
+<One bounded, verifiable statement of what done looks like.>
+
+## Done conditions
+- [ ] <Condition 1 — machine-checkable>
+- [ ] <Condition 2 — machine-checkable>
+
+## Guardrails
+- Must not touch: <list restricted paths or systems>
+- Budget: --max-turns N --max-budget-usd $M
+
+## Execution log
+<!-- Agent writes here at each milestone -->
+- [YYYY-MM-DD HH:MM] <What was attempted / discovered / completed>
+```
+
+**Write rules:** update the log at meaningful milestones (not every micro-step); check Done conditions before each write; never delete log entries. This file is the recovery mechanism — it must be self-explanatory to a fresh agent starting mid-goal.
+
+(cobusgreyling/goal-engineering reference implementation, Jun 2026.)
+
+## Six Canonical Goal Patterns
+
+Reference patterns for common goal types (cobusgreyling/goal-engineering, Jun 2026):
+
+| Pattern | Objective | Natural Verifier |
+|---|---|---|
+| **Tests Green** | All tests in \<scope\> pass | CI exit code |
+| **Migrate Module** | \<module\> migrated; zero legacy imports remain | grep for old import paths |
+| **Fix Bug** | \<issue #N\> closed; regression test present | Test suite + issue state |
+| **Refactor** | Code simplification pass complete; no new test failures | Test suite + diff line count |
+| **Docs Update** | All referenced APIs present in docs; no broken links | link checker + grep |
+| **Security Scan** | \<scope\> scanned; all findings triaged or resolved | Scan report exit code |
+
+Use these as starting points — always replace the objective with a concrete bounded statement before launching.
+
+## G0–G3 Goal Readiness Scoring
+
+Before launching a goal, score its readiness across four axes (0 = not met, 1 = met):
+
+| Axis | Score 0 | Score 1 |
+|---|---|---|
+| **Objective clarity** | "Improve X" — vague | Concrete, verifiable: "all /auth tests pass" |
+| **Verifier independence** | Same agent grades own output | Separate agent, CI check, or test suite |
+| **State file** | No GOAL.md | GOAL.md in repo, agent can read/write it |
+| **Budget defined** | No turn/cost cap | Explicit --max-turns and --max-budget-usd |
+
+**G0** (0/4) — do not launch; clarify first. **G1** (1-2/4) — high failure risk; address gaps before launching. **G2** (3/4) — acceptable for non-critical goals. **G3** (4/4) — production-ready goal.
+
+(cobusgreyling/goal-engineering, Jun 2026.)
+
 ## Relationship to the Loop Contract
 
 A goal is a single non-recurring iteration with a deterministic stopping condition.

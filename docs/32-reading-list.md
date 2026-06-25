@@ -265,6 +265,37 @@ Curated for depth of design and breadth of patterns covered — not for populari
 
 ---
 
+### [goal-engineering](https://github.com/cobusgreyling/goal-engineering) — Cobus Greyling
+**Added:** 2026-06-25 · **Published:** Jun 2026
+
+**Why here:** The only reference implementation that provides both a GOAL.md schema
+and a readiness scoring tool (G0–G3). Fills the gap between the "write a good stopping
+condition" principle and a reproducible implementation pattern with six canonical goal templates.
+
+**Summary:** Six canonical goal patterns (Tests Green, Migrate Module, Fix Bug, Refactor,
+Docs Update, Security Scan) each with a typed GOAL.md template, done conditions, and natural
+verifier. Includes a G0–G3 readiness scoring tool (run before launching a goal to verify
+objective clarity, verifier independence, state file presence, and budget definition) and
+a goal-cost estimator that predicts token spend from objective scope.
+
+---
+
+### [fleet-engineering](https://github.com/cobusgreyling/fleet-engineering) — Cobus Greyling
+**Added:** 2026-06-25 · **Published:** Jun 2026
+
+**Why here:** The only published reference implementation for fleet-level governance. The
+six production patterns and Fleet Economics cost attribution framework are not documented at
+this level of operational detail elsewhere — including F0–F3 maturity gates, Claw vs.
+Assistant identity choice, and fleet-budget.md as a first-class artefact.
+
+**Summary:** Six production fleet patterns: Team Registry, Shared Inbox HITL, Hierarchical
+Delegation, Fleet Budget Guard, Cross-Agent Audit, and Fleet Economics. The Fleet Budget Guard
+pattern implements per-agent and per-fleet spend ceilings with automatic rollback on breach.
+Fleet Economics introduces cost attribution as a fleet primitive — identifying which agent
+generated a runaway cost event is a prerequisite for F2 governance, not an optional feature.
+
+---
+
 ### [session-orchestrator](https://github.com/Kanevry/session-orchestrator) — Kanevry
 **Added:** 2026-06-24 · **Published:** Jun 2026
 
@@ -303,3 +334,5 @@ bottleneck becomes confirming output correctness. A separate model must grade re
 before the loop exits. Covers verification architecture patterns: independent evaluator
 agents, evidence-based stopping (test results, not assertions), and the cost of the
 "looks done" failure mode in production systems.
+
+---

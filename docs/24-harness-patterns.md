@@ -189,6 +189,79 @@ and how much authority you need to encode upfront before the loop runs.
 
 (wquguru/harness-books, AgentWay, Jun 2026.)
 
+## Harness-Agnostic Projection
+
+A harness-agnostic design separates loop logic from the CLI or platform it runs on.
+The pattern: define all agent roles, tools, and workflows in a single source directory
+(`.apm/` or equivalent), then compile that source to the layout required by each target
+harness (Claude Code, Codex, Copilot, Cursor, Gemini, Kiro).
+
+Benefits:
+- Portfolio-level consistency: same security, verification, and escalation policies apply across all harnesses
+- Avoid lock-in: swap or add harness targets without rewriting loop logic
+- Specialist agents (adversarial reviewer, security analyst) ship as portable units usable in any target harness
+
+**Security review at specification stage:** In a harness-agnostic design, a dedicated security agent
+reviews the compiled harness specification *before* any implementation begins — not after.
+Fixing a security gap at specification costs 1×; fixing it post-implementation costs 10×+.
+
+(eugenelim/agent-ready-repo, Jun 2026.)
+
+## 8-Phase DAG Execution Model (Tenet)
+
+An extension of the five-wave model for harnesses covering 12+ hour development cycles:
+
+| Phase | Role |
+|---|---|
+| 1. Bootstrap | Load goal, context, and existing state |
+| 2. Interview | Clarify ambiguities; gather constraints before any code is written |
+| 3. Spec | Produce a typed, reviewable specification (not code) |
+| 4. Visuals | Design/mockup pass if UI is in scope |
+| 5. Decomposition | Break spec into DAG of parallelisable tasks |
+| 6. Execution | Implement tasks; each task assigned to one agent context |
+| 7. Evaluation | Independent critic pass per deliverable |
+| 8. Agile | Retrospective; carry incomplete items forward as first-class work units |
+
+**3-Critic Pipeline:** The evaluation phase deploys three independent critics, each running
+in a fresh context window with no access to the original implementer's reasoning — only the
+output artifact. Fresh context prevents critics from reasoning from the same anchors as the
+implementer. Each critic scores independently; disagreements surface boundary conditions.
+
+**Steer Message Taxonomy:** Mid-run course corrections use a typed taxonomy rather than
+freeform messages, to prevent loop breakage:
+
+| Type | When to use | Effect |
+|---|---|---|
+| `context` | New information the agent needs (API changed, requirement clarified) | Adds context; does not redirect |
+| `directive` | Explicit redirect to a different approach | Cancels current subtask; redirects |
+| `emergency` | Safety or security concern requiring immediate halt | Stops current execution; escalates |
+
+Never inject a `directive` steer mid-subtask without first completing or cancelling the in-progress work.
+Injecting a directive into a write operation without a task boundary risks ledger corruption.
+
+(JeiKeiLim/tenet, Jun 2026.)
+
+## Meta-Harness: 3-Tier Policy Hierarchy
+
+A meta-harness governs multiple sub-harnesses (Claude Code, Codex, Cursor) under a unified
+policy layer. Policies are layered in three tiers, with later tiers overriding earlier ones:
+
+| Tier | Scope | Typical controls |
+|---|---|---|
+| **Server** | Organisation-wide | Spend limits, denied tool categories, audit logging policy |
+| **Agent** | Per-agent-type | Allowed tools, permission mode, model selection |
+| **Session** | Per-invocation | Task-specific overrides, context injection, budget adjustment |
+
+**Harness-swap without state loss:** Switch the underlying CLI (Claude Code → Codex, or vice versa)
+mid-project by externalising all state to standard files (GOAL.md, STATE.md, CLAUDE.md) that any
+harness can read. The agent's context resets; the project state persists.
+
+**Cross-device session continuity:** Serialize the session ID and connection parameters at the start
+of each run. Any device or runner that has the session ID can resume the session without
+re-establishing context from scratch.
+
+(omnigent-ai/omnigent, Jun 2026.)
+
 ## Alternative Harness Architectures
 
 The default pattern is a persistent orchestration graph (LangGraph, custom state

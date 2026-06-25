@@ -88,6 +88,10 @@ substantively relevant to loop engineering practice (not just a passing mention)
 | Harness Books (AgentWay) | html | https://harness-books.agentway.dev | Essay collection on harness design theory — unstable components, ledger closure, input governance, reactive compact |
 | GitHub search — loop engineering claude | github-search | https://api.github.com/search/repositories?q=%22loop+engineering%22+claude&sort=updated | Search GitHub repos combining "loop engineering" + claude; returns JSON — no auth needed (10 req/hr limit); find new implementations |
 | GitHub search — claude code harness | github-search | https://api.github.com/search/repositories?q=%22claude+code%22+harness&sort=updated | Search GitHub repos combining "claude code" + harness; returns JSON — surface new harness design repos |
+| cobusgreyling/goal-engineering | github | https://github.com/cobusgreyling/goal-engineering | Reference implementation: GOAL.md schema, six canonical goal patterns, G0-G3 readiness scoring tool (Jun 2026) |
+| cobusgreyling/fleet-engineering | github | https://github.com/cobusgreyling/fleet-engineering | Reference implementation: six fleet governance patterns, Fleet Economics cost attribution, F0-F3 maturity (Jun 2026) |
+| omnigent-ai/omnigent | github | https://github.com/omnigent-ai/omnigent | Meta-harness (4771★): 3-tier governance, harness-swap, cross-device session continuity (Jun 2026) |
+| GitHub search — agent coordination state claude | github-search | https://api.github.com/search/repositories?q=%22acting_on%22+claude+loop&sort=updated | KB gap: multi-loop STATE.md coordination example; find implementations using acting_on field |
 
 ---
 

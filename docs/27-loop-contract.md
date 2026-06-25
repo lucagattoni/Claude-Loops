@@ -148,6 +148,65 @@ The review gate for each proposal:
 
 (session-orchestrator — Kanevry/session-orchestrator, Jun 2026.)
 
+## YAML-Declarative Loop Definition
+
+Loops can be specified declaratively (rather than as imperative scripts), making the contract
+machine-readable and auditable:
+
+```yaml
+# loop.yaml — VERDICT: PASS gate protocol
+name: PR Babysitter
+trigger:
+  type: cron
+  schedule: "*/15 * * * *"
+scope:
+  - src/
+  - tests/
+budget:
+  max_usd: 1.00
+  max_turns: 40
+stop:
+  verdict: PASS          # Missing verdict = FAIL; ambiguous completion = FAIL
+  evidence: required     # Loop cannot exit without including test output or diff
+escalation:
+  after_attempts: 3      # After 3 failed verdict attempts, route to human inbox
+```
+
+**VERDICT: PASS gate:** a loop iteration is not done until it explicitly outputs `VERDICT: PASS`
+with supporting evidence. An iteration that ends without a verdict is treated as `VERDICT: FAIL`.
+This eliminates "looks done" exits where the agent ran out of turns mid-task.
+
+**2-Layer Budget Ceiling:** loop-level cap (total run cost) AND per-step cap (cost per agent
+invocation within the loop):
+
+```yaml
+budget:
+  loop_max_usd: 2.00        # If exceeded: loop terminates and escalates
+  step_max_budget_usd: 0.50 # Per-agent-invocation limit; passed as --max-budget-usd
+```
+
+(faisalishfaq2005/loopflow, Jun 2026.)
+
+## Self-Discovery Loop Pattern
+
+Rather than relying on external work queues, a self-discovering loop finds its own tasks
+from live system signals each run:
+
+```
+Schedule → Discover → Build → Verify → Repeat
+```
+
+1. **Schedule** — fire on cron or event; always exit early if nothing to discover
+2. **Discover** — scan failing CI runs, open issues with matching labels, recent commits that touched scope files; produce a ranked task list
+3. **Build** — each task runs in its own isolated git worktree; tasks are independent and can parallelise
+4. **Verify** — CI or dedicated verifier agent confirms the fix before merge
+5. **Repeat** — write learnings to GOAL.md / CLAUDE.md; next scheduled run starts from the updated state
+
+Self-discovery eliminates the manual queue maintenance step: the loop knows what to work on
+because it reads the same signals a human engineer would check in morning triage.
+
+(Anthropic engineering practices, Jun 2026.)
+
 ## Relationship to Goal Engineering
 
 When a loop's STOP condition is deterministic and the task is non-recurring, the

@@ -27,9 +27,9 @@ Row numbers are stable identifiers — they do not change when docs are reorgani
 
 | # | Topic | Summary |
 |---|---|---|
-| 27 | [The Loop Contract](docs/27-loop-contract.md) | TRIGGER/SCOPE/ACTION/BUDGET/STOP/REPORT; job-description framing; Event Modeling; two quality gates; experience encoding; governed cross-session learning |
-| 30 | [Goal Engineering](docs/30-goal-engineering.md) | Goals vs. Loops decision framework; four Goal Primitives (Objective, Verifier, GOAL.md State, Budget) |
-| 24 | [Harness Patterns](docs/24-harness-patterns.md) | Harness vs. Loop layers; three-agent full-stack harness; unstable components axiom; ledger closure; five-wave model; runtime republic vs. constitutional control plane |
+| 27 | [The Loop Contract](docs/27-loop-contract.md) | TRIGGER/SCOPE/ACTION/BUDGET/STOP/REPORT; job-description framing; Event Modeling; two quality gates; experience encoding; governed cross-session learning; YAML-declarative loop definition + VERDICT: PASS gate; 2-layer budget ceiling; self-discovery pattern (Schedule→Discover→Build→Verify→Repeat) |
+| 30 | [Goal Engineering](docs/30-goal-engineering.md) | Goals vs. Loops decision framework; four Goal Primitives; GOAL.md schema; six canonical goal patterns; G0-G3 readiness scoring (cobusgreyling, Jun 2026) |
+| 24 | [Harness Patterns](docs/24-harness-patterns.md) | Harness vs. Loop layers; three-agent full-stack harness; unstable components axiom; ledger closure; five-wave model; runtime republic vs. constitutional control plane; harness-agnostic projection; 8-phase DAG + steer messages; meta-harness 3-tier policy hierarchy |
 | 34 | [Loop Patterns Catalog](docs/34-loop-patterns.md) | Seven named loop patterns (Daily Triage, PR Babysitter, CI Sweeper, Dependency Sweeper, Post-Merge Cleanup, Changelog Drafter, Issue Triage); L1/L2/L3 readiness levels; token costs; multi-loop coordination (cobusgreyling, Jun 2026) |
 | 3 | [The Six Building Blocks](docs/03-building-blocks.md) | Automations, Worktrees, Skills, Connectors, Sub-agents, Memory; Routines for cloud execution |
 | 28 | [Routines](docs/28-routines.md) | Cloud-hosted loop execution: Schedule / API / GitHub triggers — no local machine needed |
@@ -44,7 +44,7 @@ Row numbers are stable identifiers — they do not change when docs are reorgani
 | 6 | [Skills](docs/06-skills.md) | Reusable on-demand workflows; SDLC phases as non-skippable skill steps |
 | 7 | [Subagents](docs/07-subagents.md) | Keep main context clean; DOER/CHECKER; synthesis as non-delegable bottleneck; confidence-scored quality gates (≥80%) |
 | 12 | [Hooks](docs/12-hooks.md) | Deterministic loop control — types, JSON output API, asyncRewake circuit breaker; exit code safety contract (never exit 1 in denial hooks) |
-| 8 | [Permissions & Auto Mode](docs/08-permissions.md) | Allow/deny/ask lists, auto mode, risk-tiered authorization by consequence, safety path denylist |
+| 8 | [Permissions & Auto Mode](docs/08-permissions.md) | Allow/deny/ask lists, auto mode, risk-tiered authorization by consequence, safety path denylist, agent trust ramp (4-stage: read-only → summarise → hard limits → loop cap) |
 | 9 | [Headless & Non-Interactive Mode](docs/09-headless-mode.md) | `claude -p` — headless automation, session continuation, background sessions, CI flags |
 
 ### State & Long-Running Loops
@@ -60,7 +60,7 @@ Row numbers are stable identifiers — they do not change when docs are reorgani
 
 | # | Topic | Summary |
 |---|---|---|
-| 4 | [Verification](docs/04-verification.md) | The non-negotiable foundation — strategies, subjective criteria, simplification-before-testing, memory revalidation, Firefox case study (423 fixes) |
+| 4 | [Verification](docs/04-verification.md) | The non-negotiable foundation — strategies, Type A/B classification, verdict taxonomy, cross-run patterns (clean-room review, held-out test layer, cross-task defect ledger), belief state machine + R0-R5 risk levels, A/A baseline for calibration, Firefox case study (423 fixes) |
 | 17 | [Common Failure Patterns](docs/17-failure-patterns.md) | Cognitive surrender, orchestration tax, reward hacking, context pollution, amplification effect, State Rot, Verifier Theater, Notification Fatigue, and more |
 | 14 | [Human-in-the-Loop Escalation](docs/14-human-in-the-loop.md) | When to pause and ask for human input |
 | 11 | [Cost & Turn Control](docs/11-cost-control.md) | `--max-turns`, `--max-budget-usd`, effort levels; token cost by loop pattern (noop 3-5K → action run 200-250K); early exit rule |
@@ -72,7 +72,7 @@ Row numbers are stable identifiers — they do not change when docs are reorgani
 | # | Topic | Summary |
 |---|---|---|
 | 10 | [Fan-Out](docs/10-fan-out.md) | Parallelizing at scale; scope-verified parallelism via Pre-Edit hooks; multi-loop coordination with priority ordering and collision detection |
-| 23 | [Fleet Engineering](docs/23-fleet-engineering.md) | Managing many loops at enterprise scale: governance, observability, routing |
+| 23 | [Fleet Engineering](docs/23-fleet-engineering.md) | Managing many loops at enterprise scale; Fleet Four Pillars (Delegate/Improve/Approve/Connect); F0-F3 fleet maturity; Fleet Economics cost attribution; Claw vs. Assistant identity choice (cobusgreyling, Jun 2026) |
 | 22 | [Learned Orchestration](docs/22-learned-orchestration.md) | Training the orchestrator instead of coding it — Sakana Fugu's Thinker/Worker/Verifier |
 
 ### Reference
@@ -80,7 +80,7 @@ Row numbers are stable identifiers — they do not change when docs are reorgani
 | # | Topic | Summary |
 |---|---|---|
 | 18 | [Quick Reference](docs/18-quick-reference.md) | Commands and flags cheat sheet |
-| 32 | [Reading List](docs/32-reading-list.md) | Curated best articles — grouped by Why Loops / Getting Started / Harness Design / Goal Engineering / Production / Reference Implementations |
+| 32 | [Reading List](docs/32-reading-list.md) | Curated best articles — grouped by Why Loops / Getting Started / Harness Design / Goal Engineering / Production / Reference Implementations (session-orchestrator, goal-engineering, fleet-engineering) |
 
 ---
 
