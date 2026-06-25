@@ -11,7 +11,7 @@ deserves the most engineering attention.
 The architecture of the loop — when it fires, what it monitors, how it verifies, when it stops —
 is the fundamental shift. Get the loop right and the prompts inside it are a detail.
 
-**Context engineering is primary** (@techtasium and others):
+**Context engineering is primary** ([@techtasium](https://x.com/techtasium) and others):
 What you put *into* the agent at each step — the right files, the right instructions, the right
 memory — determines output quality more than any loop structure. A well-contextualised one-shot
 beats a poorly-contextualised loop.

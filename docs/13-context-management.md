@@ -56,7 +56,7 @@ bloat from accumulating in the first place. Run these steps at session or turn s
 throughout the session; reactive compaction triggered when the window is full is
 more expensive and disruptive.
 
-(wquguru/harness-books, AgentWay, Jun 2026.)
+([wquguru/harness-books](https://github.com/wquguru/harness-books), AgentWay, Jun 2026.)
 
 ## Reactive Compact — Emergency Mid-Loop Compaction
 
@@ -79,7 +79,7 @@ context usage > (window − 13,000 tokens)
   → if 3 consecutive failures → halt + escalate to human
 ```
 
-(wquguru/harness-books, AgentWay, Jun 2026.)
+([wquguru/harness-books](https://github.com/wquguru/harness-books), AgentWay, Jun 2026.)
 
 ## What eats context fastest
 

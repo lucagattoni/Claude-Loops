@@ -113,7 +113,7 @@ Apply this framing to the `allow`/`deny`/`ask` lists in `.claude/settings.json`:
 }
 ```
 
-(wquguru/harness-books, AgentWay, Jun 2026.)
+([wquguru/harness-books](https://github.com/wquguru/harness-books), AgentWay, Jun 2026.)
 
 ## Safety Path Denylist
 
@@ -140,7 +140,7 @@ Add project-specific sensitive paths to this list in `.claude/settings.json` bef
 deploying any unattended loop. The denylist is a last-resort safety net — it does not
 replace scoped allowlists.
 
-(cobusgreyling/loop-engineering, Jun 2026.)
+([cobusgreyling/loop-engineering](https://github.com/cobusgreyling/loop-engineering), Jun 2026.)
 
 ## Reject+Replan Pattern
 
@@ -169,7 +169,7 @@ This prevents the loop from producing a silent `stopped` verdict when a gate fir
 The agent either finds an alternative path or escalates cleanly as a `handoff` — both
 are deliberate outcomes. See [Verification](04-verification.md) for the full verdict taxonomy.
 
-(@akshay_pachaar, DailyDoseofDS, Jun 2026.)
+([@akshay_pachaar](https://x.com/akshay_pachaar), DailyDoseofDS, Jun 2026.)
 
 ## Agent Trust Ramp
 
@@ -187,7 +187,7 @@ full week of zero unexpected actions at the current stage. These stages align wi
 [per-loop readiness levels](20-loop-maturity-model.md) (L1 report-only → L2 assisted → L3 autonomous)
 — the trust ramp is the permission configuration that makes each readiness level operational.
 
-> "before you trust an agent to run on its own, do these 4 things" — @Sabrina_Ramonov, Jun 2026
+> "before you trust an agent to run on its own, do these 4 things" — [@Sabrina_Ramonov](https://x.com/Sabrina_Ramonov), Jun 2026
 
 ## Relationship to Agent Security Hardening
 

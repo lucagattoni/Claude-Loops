@@ -41,7 +41,7 @@ complex, single-turn invocations fail not because the model is bad at any single
 but because compound error rates make reliability impossible without a correction loop.
 
 > "The performance ceiling of any LLM-based system is not set by model quality —
-> it is set by the quality of the loop surrounding the model." — @roanbrasil, Jun 2026
+> it is set by the quality of the loop surrounding the model." — [@roanbrasil](https://x.com/roanbrasil), Jun 2026
 
 > "A mediocre model inside a well-engineered loop outperforms a frontier model invoked once."
 
@@ -51,7 +51,7 @@ but because compound error rates make reliability impossible without a correctio
 | 2023 | Agent loop (LangChain era) — ReAct scaffolding, but unstable |
 | 2024–2026 | Stabilised harness architecture — the loop is the primary engineering surface |
 
-(@roanbrasil, "Loop Engineering: Designing the Execution Harness Around an LLM", Jun 2026.)
+([@roanbrasil](https://x.com/roanbrasil), "Loop Engineering: Designing the Execution Harness Around an LLM", Jun 2026.)
 
 ## The New Software Lifecycle
 

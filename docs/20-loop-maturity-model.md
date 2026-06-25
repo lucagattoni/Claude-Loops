@@ -52,7 +52,7 @@ The hardest part of each stage transition is defining a *verifiable* success cri
 condition the loop checks before stopping. Without it, loops either run forever or halt randomly.
 
 > "The hard part isn't prompting, it's the stop condition. A useful loop needs trace logs,
-> bounds…" — @steipete / @shivangchheda22
+> bounds…" — [@steipete](https://x.com/steipete) / [@shivangchheda22](https://x.com/shivangchheda22)
 
 ---
 
@@ -74,7 +74,7 @@ Operational trust is earned by each loop individually.
 For the seven named loop patterns with their default levels, token costs, and
 coordination rules, see [Loop Patterns](34-loop-patterns.md).
 
-(Cobus Greyling, cobusgreyling/loop-engineering, Jun 2026.)
+(Cobus Greyling, [cobusgreyling/loop-engineering](https://github.com/cobusgreyling/loop-engineering), Jun 2026.)
 
 ## Related
 

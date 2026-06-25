@@ -35,7 +35,7 @@ instructions. The consequences for harness design:
 - Stability comes from the harness, not from model capability — model improvement
   shifts the cost boundary but does not eliminate the need for containment
 
-(wquguru/harness-books, AgentWay, Jun 2026.)
+([wquguru/harness-books](https://github.com/wquguru/harness-books), AgentWay, Jun 2026.)
 
 ## Ledger Closure for Interrupted Tool Calls
 
@@ -66,7 +66,7 @@ Interrupt handling pattern:
 }
 ```
 
-(wquguru/harness-books, AgentWay, Jun 2026.)
+([wquguru/harness-books](https://github.com/wquguru/harness-books), AgentWay, Jun 2026.)
 
 ## The Two-Part Harness (Anthropic Engineering)
 
@@ -170,7 +170,7 @@ Between waves: a confidence-scored reviewer audits deliverables across multiple
 dimensions; only findings at ≥80% confidence surface. Low-confidence findings are
 logged but suppressed. (See [Subagents](07-subagents.md) for confidence-scored gates.)
 
-(session-orchestrator — Kanevry/session-orchestrator, Jun 2026.)
+(session-orchestrator — [Kanevry/session-orchestrator](https://github.com/Kanevry/session-orchestrator), Jun 2026.)
 
 ## Runtime Republic vs. Constitutional Control Plane
 
@@ -187,7 +187,7 @@ Two fundamentally different harness philosophies, each suited to different conte
 Neither is strictly better — the choice depends on how much variance you can accept
 and how much authority you need to encode upfront before the loop runs.
 
-(wquguru/harness-books, AgentWay, Jun 2026.)
+([wquguru/harness-books](https://github.com/wquguru/harness-books), AgentWay, Jun 2026.)
 
 ## Harness-Agnostic Projection
 
@@ -205,7 +205,7 @@ Benefits:
 reviews the compiled harness specification *before* any implementation begins — not after.
 Fixing a security gap at specification costs 1×; fixing it post-implementation costs 10×+.
 
-(eugenelim/agent-ready-repo, Jun 2026.)
+([eugenelim/agent-ready-repo](https://github.com/eugenelim/agent-ready-repo), Jun 2026.)
 
 ## 8-Phase DAG Execution Model (Tenet)
 
@@ -239,7 +239,7 @@ freeform messages, to prevent loop breakage:
 Never inject a `directive` steer mid-subtask without first completing or cancelling the in-progress work.
 Injecting a directive into a write operation without a task boundary risks ledger corruption.
 
-(JeiKeiLim/tenet, Jun 2026.)
+([JeiKeiLim/tenet](https://github.com/JeiKeiLim/tenet), Jun 2026.)
 
 ## Meta-Harness: 3-Tier Policy Hierarchy
 
@@ -260,7 +260,7 @@ harness can read. The agent's context resets; the project state persists.
 of each run. Any device or runner that has the session ID can resume the session without
 re-establishing context from scratch.
 
-(omnigent-ai/omnigent, Jun 2026.)
+([omnigent-ai/omnigent](https://github.com/omnigent-ai/omnigent), Jun 2026.)
 
 ## Alternative Harness Architectures
 

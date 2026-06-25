@@ -51,7 +51,7 @@ when reliability and completeness are non-negotiable.
 
 ## Token cost by loop pattern
 
-Concrete benchmarks from operating named loop patterns (Cobus Greyling, cobusgreyling/loop-engineering, Jun 2026):
+Concrete benchmarks from operating named loop patterns (Cobus Greyling, [cobusgreyling/loop-engineering](https://github.com/cobusgreyling/loop-engineering), Jun 2026):
 
 | Run type | Token cost |
 |---|---|

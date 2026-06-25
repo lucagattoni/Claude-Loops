@@ -4,7 +4,7 @@ Named, composable production loop patterns with defined cadence, risk level, and
 operational requirements. Each is a reusable blueprint that can be instantiated into
 any repo using the standard six primitives.
 
-(Cobus Greyling, cobusgreyling/loop-engineering, Jun 2026.)
+(Cobus Greyling, [cobusgreyling/loop-engineering](https://github.com/cobusgreyling/loop-engineering), Jun 2026.)
 
 **Note on readiness vs. developer maturity:** Loop readiness levels (L1/L2/L3) classify
 each individual loop's operational trust. They are distinct from the 14-step developer

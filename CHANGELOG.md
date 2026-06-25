@@ -18,6 +18,16 @@ Versioning follows [Semantic Versioning](https://semver.org/):
 
 ---
 
+## [2.3.9] — 2026-06-25
+
+### Changed
+
+- All `docs/*.md` — Added markdown hyperlinks to every external citation; all `owner/repo` attribution footers, `repo:` lines, `@handles`, and inline tool names (LangSmith Fleet, Opik, Sakana Fugu, Graphiti) now link to their official pages
+- `docs/16-memory-patterns.md` — Pattern F expanded with full Graphiti architecture (27.9k★, arXiv:2501.13956): Episodes/Entities/Facts/Custom Types model, temporal invalidation mechanism, hybrid retrieval (semantic + BM25 + graph), installation, loop integration pattern
+- `docs/32-reading-list.md` — Fixed structure: single "Loops in Production" section (Claude Tag + New Stack verification article); "Reference Implementations" at the end
+
+---
+
 ## [2.3.8] — 2026-06-25
 
 ### Changed

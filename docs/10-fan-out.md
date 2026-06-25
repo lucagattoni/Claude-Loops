@@ -50,7 +50,7 @@ session. On exit `0`, it writes the current session's claim before returning.
 This enables safe parallel fan-out without coordination overhead: each agent checks
 at the point of write, not at the point of task assignment.
 
-(session-orchestrator — Kanevry/session-orchestrator, Jun 2026.)
+(session-orchestrator — [Kanevry/session-orchestrator](https://github.com/Kanevry/session-orchestrator), Jun 2026.)
 
 ## Multi-Loop Coordination
 

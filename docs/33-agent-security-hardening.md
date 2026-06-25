@@ -5,7 +5,7 @@ protect against a compromised prompt, a leaked credential, or an agent escaping 
 intended scope. Production unattended loops require security enforced at the OS and
 network layer — below the model, not inside it.
 
-(Based on clem — jahwag/clem, Jun 2026.)
+(Based on clem — [jahwag/clem](https://github.com/jahwag/clem), Jun 2026.)
 
 ## OS-User-Per-Agent Isolation
 

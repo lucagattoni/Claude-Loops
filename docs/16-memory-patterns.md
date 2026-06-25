@@ -55,7 +55,7 @@ server:
 The advantage over a file-based queue: the task state is visible to the whole team
 in the tools they already monitor, with no separate dashboard needed.
 
-(clem — jahwag/clem, Jun 2026.)
+(clem — [jahwag/clem](https://github.com/jahwag/clem), Jun 2026.)
 
 ## Pattern E: STATE.md Wave Recovery
 
@@ -84,33 +84,86 @@ Read STATE.md
 → if STATE.md missing → this is a first run, initialise
 ```
 
-(session-orchestrator — Kanevry/session-orchestrator, Jun 2026.)
+(session-orchestrator — [Kanevry/session-orchestrator](https://github.com/Kanevry/session-orchestrator), Jun 2026.)
 
 ## Pattern F: Temporal Knowledge Graph
 
 For multi-loop deployments where stale state causes coordination failures, a temporal
 knowledge graph is a richer alternative to flat STATE.md files.
 
-**Zep's Graphiti** (open-source) automatically invalidates facts when superseded — a PR
-logged as "open" is marked stale when it merges, so the next loop run retrieves current
-entity state rather than acting on a stale snapshot. Context is returned through three
-parallel search modes in one call: vector (semantic), full-text (exact match), and graph
-traversal (entity relationships).
+**[Graphiti](https://github.com/getzep/graphiti)** (open-source, 27.9k★, [arXiv:2501.13956](https://arxiv.org/abs/2501.13956)) is a
+temporal context graph engine built for AI agents. It is the open-source core of
+[Zep](https://www.getzep.com), which runs it in production.
 
-The distinction from flat-file patterns:
+### Architecture
+
+Graphiti represents memory as four interacting components:
+
+| Component | What it stores |
+|---|---|
+| **Episodes** | Raw ingested data — the provenance layer; every derived fact traces here |
+| **Entities (nodes)** | People, PRs, tasks, concepts — with summaries that update over time |
+| **Facts (edges)** | Triplets (Entity → Relationship → Entity) with **validity windows** |
+| **Custom Types** | Developer-defined entity/edge schemas via Pydantic models |
+
+**How temporal invalidation works:** When a fact changes (PR merges, issue closes),
+the old fact is invalidated with a timestamp — not deleted. The graph always knows
+what was true *then* and what is true *now*. This is what prevents loops from acting
+on stale state.
+
+### Retrieval
+
+Hybrid search combines three modes in a single query call:
+
+```
+semantic (embeddings) + keyword (BM25) + graph traversal
+→ typically sub-second latency
+```
+
+No LLM summarization in the query path — retrieval is deterministic and fast.
+
+### Installation
+
+```bash
+pip install graphiti-core             # base; uses Neo4j 5.26+ and OpenAI by default
+pip install graphiti-core[anthropic]  # swap in Claude as the LLM provider
+```
+
+Supports alternative graph backends: FalkorDB, Kuzu, Amazon Neptune.
+Supports alternative LLMs: Anthropic, Groq, Google Gemini.
+
+### Loop integration pattern
+
+```python
+from graphiti_core import Graphiti
+
+g = Graphiti("bolt://localhost:7687", "neo4j", "password")
+
+# After each loop step — ingest the step's output as an episode
+await g.add_episode(
+    name="pr-88-merged",
+    episode_body="PR #88 merged. Auth migration complete. Branch: feature/auth-v2.",
+    source_description="CI Sweeper loop run 2026-06-25"
+)
+# Graphiti extracts entities (PR #88, branch feature/auth-v2) and facts
+# (PR #88 → status → merged) and invalidates the previous "open" fact automatically.
+
+# On next loop run — retrieve current-state context
+results = await g.search("open PRs auth migration")
+# Returns only facts within their validity window — stale "open" facts are excluded
+```
+
+### Distinction from flat-file patterns
 
 | Pattern | What it tracks |
 |---|---|
 | **Pattern E (STATE.md)** | Execution phase: which loop wave is `in_progress`, which completed. A phase tracker. |
-| **Pattern F (knowledge graph)** | Entity state: current true status of every PR, issue, branch, and task the fleet has touched. An entity state store. |
+| **Pattern F (Graphiti)** | Entity state: current true status of every PR, issue, branch, and task the fleet has touched. An entity state store. |
 
-The two complement each other in multi-loop fleets: STATE.md says "wave 3 is running";
-the knowledge graph says "the three PRs wave 3 is working on are currently open, merged,
-and stale respectively."
+The two complement each other: STATE.md says "wave 3 is running"; the knowledge graph
+says "the three PRs wave 3 is working on are currently open, merged, and stale respectively."
 
-repo: github.com/getzep/graphiti
-
-(@akshay_pachaar, DailyDoseofDS, Jun 2026.)
+([getzep/graphiti](https://github.com/getzep/graphiti), Jun 2026.)
 
 ---
 

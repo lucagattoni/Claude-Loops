@@ -70,7 +70,7 @@ the simplified code.
 
 This is Wave 4 in the five-wave execution model. See [Harness Patterns](24-harness-patterns.md).
 
-(session-orchestrator — Kanevry/session-orchestrator, Jun 2026.)
+(session-orchestrator — [Kanevry/session-orchestrator](https://github.com/Kanevry/session-orchestrator), Jun 2026.)
 
 ## Verification of Memory, Not Just Code
 
@@ -84,12 +84,12 @@ Before acting on any persistent memory record:
 3. Treat any memory record older than a defined threshold (e.g. 24h) as unverified
 
 > "Stale memory records must be revalidated against present reality before
-> recommendations." — wquguru/harness-books
+> recommendations." — [wquguru/harness-books](https://github.com/wquguru/harness-books)
 
 Apply this specifically to: STATE.md watchlists, GOAL.md execution logs,
 PROGRESS.md task statuses, and any cached API responses.
 
-(wquguru/harness-books, AgentWay, Jun 2026.)
+([wquguru/harness-books](https://github.com/wquguru/harness-books), AgentWay, Jun 2026.)
 
 ## Verification Classification: Type A vs. Type B Work
 
@@ -102,7 +102,7 @@ Before designing a verifier, classify the work being verified:
 
 The loop's job is to automate Type A completely and route Type B to humans reliably. A loop that tries to auto-verify Type B work (using LLM judges to approve irreversible actions) introduces [Verifier Theater](17-failure-patterns.md).
 
-(void2610/loop, Jun 2026.)
+([void2610/loop](https://github.com/void2610/loop), Jun 2026.)
 
 ## Loop Verdict Taxonomy
 
@@ -119,7 +119,7 @@ Every loop run should produce one of six verdicts — not just pass/fail:
 
 A loop that only outputs pass/fail misses the handoff, timeout, and stopped states that require different downstream responses.
 
-(void2610/loop, Jun 2026.)
+([void2610/loop](https://github.com/void2610/loop), Jun 2026.)
 
 ## Cross-Run Verification Patterns
 
@@ -131,7 +131,7 @@ Standard verification re-runs the same checks each loop iteration. Three pattern
 
 **Cross-Task Defect Ledger:** When a run produces a defect (test failure, type error, security finding), the defect is logged to a shared ledger with root-cause category. Subsequent runs read the ledger before starting and explicitly check for the same root-cause categories. Defects stop being repeated rather than just fixed.
 
-(JeremyW1990/loop-engineering-skill, Jun 2026.)
+([JeremyW1990/loop-engineering-skill](https://github.com/JeremyW1990/loop-engineering-skill), Jun 2026.)
 
 ## Belief State Machine for Claim Verification
 
@@ -156,7 +156,7 @@ Never act on a claim that remains in the `source_prior` or `bounded_claim` state
 | R4 | Irreversible (data, secrets) | Explicit human approval before execution |
 | R5 | Security-critical | SECURITY_MATRIX.md gate + security reviewer (see [Agent Security Hardening](33-agent-security-hardening.md)) |
 
-(qimen039-code/claim-boundary-harness, Jun 2026.)
+([qimen039-code/claim-boundary-harness](https://github.com/qimen039-code/claim-boundary-harness), Jun 2026.)
 
 ## A/A Baseline for Verifier Calibration
 
@@ -169,7 +169,7 @@ Before trusting a verifier's verdicts, establish a noise floor using A/A testing
 
 Verifiers calibrated only on happy-path inputs will fail on the edge cases that matter most — the A/A baseline catches this before deployment.
 
-(thalys/agent-ab, Jun 2026.)
+([thalys/agent-ab](https://github.com/thalys/agent-ab), Jun 2026.)
 
 ## Production Trace to Regression Test
 
@@ -180,7 +180,7 @@ loop run fails in production:
 2. Convert the trace into a deterministic regression fixture that reproduces the exact failure
 3. Add to the held-out test suite — the same failure cannot now recur silently
 
-**Comet's Opik** (open-source) implements this automatically: it traces every tool call
+**[Comet's Opik](https://github.com/comet-ml/opik)** (open-source) implements this automatically: it traces every tool call
 and, when a run produces an unexpected verdict, generates a regression fixture from the
 failing trace.
 
@@ -189,9 +189,9 @@ this pattern captures *real failure modes* from production runs, not synthetic v
 The two are complementary — the A/A baseline cleans up the verifier before deployment;
 the production trace pattern hardens it afterward.
 
-repo: github.com/comet-ml/opik
+repo: [github.com/comet-ml/opik](https://github.com/comet-ml/opik)
 
-(@akshay_pachaar, DailyDoseofDS, Jun 2026.)
+([@akshay_pachaar](https://x.com/akshay_pachaar), DailyDoseofDS, Jun 2026.)
 
 ## Real-world case study: Mozilla Firefox security harness
 

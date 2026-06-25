@@ -258,6 +258,22 @@ a full team."
 
 ---
 
+### [Loops are replacing prompts. Verification is about to be your biggest problem.](https://thenewstack.io/agent-loops-cloud-native-verification/) — The New Stack
+**Added:** 2026-06-24 · **Published:** Jun 2026
+
+**Why here:** Makes the strongest case that verification — not model quality — is the
+primary unsolved problem in production loop deployment. Useful calibration for teams
+that have working loops but haven't built a verification layer.
+
+**Summary:** Argues the shift to autonomous loops makes verification the primary
+cloud-native engineering challenge: as implementation speed approaches zero, the
+bottleneck becomes confirming output correctness. A separate model must grade results
+before the loop exits. Covers verification architecture patterns: independent evaluator
+agents, evidence-based stopping (test results, not assertions), and the cost of the
+"looks done" failure mode in production systems.
+
+---
+
 ## Reference Implementations
 
 Open-source projects demonstrating complete loop engineering implementations.
@@ -312,27 +328,5 @@ code. Inter-wave quality gates are confidence-scored (≥80% threshold). STATE.m
 tracks wave-level execution so crashes resume from the last completed wave rather than
 from the start. The /evolve + /reconcile commands enable governed cross-session pattern
 extraction where no rule auto-applies without human review.
-
----
-
-## Loops in Production
-
-Articles documenting real deployed systems using loop engineering.
-
----
-
-### [Loops are replacing prompts. Verification is about to be your biggest problem.](https://thenewstack.io/agent-loops-cloud-native-verification/) — The New Stack
-**Added:** 2026-06-24 · **Published:** Jun 2026
-
-**Why here:** Makes the strongest case that verification — not model quality — is the
-primary unsolved problem in production loop deployment. Useful calibration for teams
-that have working loops but haven't built a verification layer.
-
-**Summary:** Argues the shift to autonomous loops makes verification the primary
-cloud-native engineering challenge: as implementation speed approaches zero, the
-bottleneck becomes confirming output correctness. A separate model must grade results
-before the loop exits. Covers verification architecture patterns: independent evaluator
-agents, evidence-based stopping (test results, not assertions), and the cost of the
-"looks done" failure mode in production systems.
 
 ---

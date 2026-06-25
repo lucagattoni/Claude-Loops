@@ -9,7 +9,7 @@ Learned orchestration is a multi-agent design pattern where the orchestrator its
 sub-agent runs in which order, a learned orchestrator discovers the optimal coordination
 strategy from data.
 
-Sakana AI's **Fugu** (launched 22 June 2026) is the first production system to ship this
+[Sakana AI](https://sakana.ai)'s **[Fugu](https://sakana.ai/fugu/)** (launched 22 June 2026) is the first production system to ship this
 pattern as an API product: a 7B-parameter conductor model that learns to route tasks to a
 pool of larger LLMs, assigning Thinker / Worker / Verifier roles dynamically per task.
 
@@ -26,7 +26,7 @@ pool of larger LLMs, assigning Thinker / Worker / Verifier roles dynamically per
 
 ---
 
-## The TRINITY / Conductor architecture (Sakana Fugu)
+## The TRINITY / Conductor architecture ([Sakana Fugu](https://sakana.ai/fugu/))
 
 Two ICLR 2026 papers underpin Fugu's design:
 
@@ -59,8 +59,8 @@ handcrafted.
 
 ## Current state (June 2026)
 
-- Sakana Fugu is available as an OpenAI-compatible API (two variants: Fugu and Fugu Ultra)
-- @steipete and others are skeptical about closed-source multi-model routing performance in practice
+- [Sakana Fugu](https://sakana.ai/fugu/) is available as an OpenAI-compatible API (two variants: Fugu and Fugu Ultra)
+- [@steipete](https://x.com/steipete) and others are skeptical about closed-source multi-model routing performance in practice
 - No open-source learned orchestrator has matched Fugu Ultra's benchmark claims yet
 - This pattern is early-stage — most practitioners still use hand-designed loops
 

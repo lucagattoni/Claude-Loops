@@ -94,11 +94,11 @@ A minimal GOAL.md for a well-formed goal:
 
 **Write rules:** update the log at meaningful milestones (not every micro-step); check Done conditions before each write; never delete log entries. This file is the recovery mechanism — it must be self-explanatory to a fresh agent starting mid-goal.
 
-(cobusgreyling/goal-engineering reference implementation, Jun 2026.)
+([cobusgreyling/goal-engineering](https://github.com/cobusgreyling/goal-engineering) reference implementation, Jun 2026.)
 
 ## Six Canonical Goal Patterns
 
-Reference patterns for common goal types (cobusgreyling/goal-engineering, Jun 2026):
+Reference patterns for common goal types ([cobusgreyling/goal-engineering](https://github.com/cobusgreyling/goal-engineering), Jun 2026):
 
 | Pattern | Objective | Natural Verifier |
 |---|---|---|
@@ -124,7 +124,7 @@ Before launching a goal, score its readiness across four axes (0 = not met, 1 = 
 
 **G0** (0/4) — do not launch; clarify first. **G1** (1-2/4) — high failure risk; address gaps before launching. **G2** (3/4) — acceptable for non-critical goals. **G3** (4/4) — production-ready goal.
 
-(cobusgreyling/goal-engineering, Jun 2026.)
+([cobusgreyling/goal-engineering](https://github.com/cobusgreyling/goal-engineering), Jun 2026.)
 
 ## Relationship to the Loop Contract
 

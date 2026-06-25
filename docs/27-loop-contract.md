@@ -146,7 +146,7 @@ The review gate for each proposal:
 2. Does it conflict with any existing rule?
 3. Does it generalise correctly, or is it specific to one anomalous session?
 
-(session-orchestrator — Kanevry/session-orchestrator, Jun 2026.)
+(session-orchestrator — [Kanevry/session-orchestrator](https://github.com/Kanevry/session-orchestrator), Jun 2026.)
 
 ## YAML-Declarative Loop Definition
 
@@ -185,7 +185,7 @@ budget:
   step_max_budget_usd: 0.50 # Per-agent-invocation limit; passed as --max-budget-usd
 ```
 
-(faisalishfaq2005/loopflow, Jun 2026.)
+([faisalishfaq2005/loopflow](https://github.com/faisalishfaq2005/loopflow), Jun 2026.)
 
 ## Self-Discovery Loop Pattern
 

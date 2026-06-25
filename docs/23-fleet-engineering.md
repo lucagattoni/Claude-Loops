@@ -8,7 +8,7 @@ Fleet engineering is the discipline of managing **multiple AI agents at enterpri
 not designing individual loops, but operating the infrastructure that governs, observes,
 and routes work across a pool of them.
 
-Coined (or popularised) by Cobus Greyling (Jun 2026), building on LangSmith Fleet's
+Coined (or popularised) by Cobus Greyling (Jun 2026), building on [LangSmith Fleet](https://docs.smith.langchain.com/)'s
 enterprise rollout.
 
 ---
@@ -35,12 +35,12 @@ Fleet engineering answers these questions at the organisation level, not per-loo
 - Which agents are consuming the most tokens?
 - Where are loops failing silently?
 
-Tools like LangSmith Fleet expose agent-level telemetry across all running loops.
-**Comet's Opik** (open-source) adds a complementary layer: it traces every tool call
+Tools like [LangSmith Fleet](https://docs.smith.langchain.com/) expose agent-level telemetry across all running loops.
+**[Comet's Opik](https://github.com/comet-ml/opik)** (open-source) adds a complementary layer: it traces every tool call
 and automatically converts a failing production trace into a regression test, so the
 same production break cannot recur silently across fleet agents.
 
-repo: github.com/comet-ml/opik
+repo: [github.com/comet-ml/opik](https://github.com/comet-ml/opik)
 
 **3. Routing and role assignment**
 A fleet may have specialist agents (security reviewer, dependency updater, test writer).
@@ -106,7 +106,7 @@ fleet-budget.md entries:
 
 **Cost attribution rule:** if you cannot identify which agent generated a runaway cost event, you are below F2. Observability is a prerequisite for governance, not an enhancement.
 
-(cobusgreyling/fleet-engineering — Cobus Greyling, Jun 2026.)
+([cobusgreyling/fleet-engineering](https://github.com/cobusgreyling/fleet-engineering) — Cobus Greyling, Jun 2026.)
 
 ## Claw vs. Assistant Identity Choice
 
@@ -120,12 +120,12 @@ At F1+, each agent in the fleet must have a declared identity:
 Default all new fleet agents to Assistant until they reach L2 operational readiness.
 Promote to Claw only after the L2→L3 gate is passed and the action set is proven safe.
 
-(cobusgreyling/fleet-engineering, Jun 2026.)
+([cobusgreyling/fleet-engineering](https://github.com/cobusgreyling/fleet-engineering), Jun 2026.)
 
 ## Current state (June 2026)
 
-- cobusgreyling/fleet-engineering is the primary reference implementation with six production patterns (Team Registry, Shared Inbox HITL, Hierarchical Delegation, Fleet Budget Guard, Cross-Agent Audit)
-- LangSmith Fleet is the leading commercial observability platform
+- [cobusgreyling/fleet-engineering](https://github.com/cobusgreyling/fleet-engineering) is the primary reference implementation with six production patterns (Team Registry, Shared Inbox HITL, Hierarchical Delegation, Fleet Budget Guard, Cross-Agent Audit)
+- [LangSmith Fleet](https://docs.smith.langchain.com/) is the leading commercial observability platform
 - Most teams are still at F0–F1; F2+ governance is rare in the wild
 - The term is new; expect terminology to stabilise as the discipline matures
 

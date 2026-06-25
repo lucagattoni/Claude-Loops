@@ -59,7 +59,7 @@ fi
 exit 0  # allow
 ```
 
-(session-orchestrator — Kanevry/session-orchestrator, Jun 2026.)
+(session-orchestrator — [Kanevry/session-orchestrator](https://github.com/Kanevry/session-orchestrator), Jun 2026.)
 
 ## Key lifecycle events
 

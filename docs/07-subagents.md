@@ -86,7 +86,7 @@ If your orchestrator's output is "here are the results from agents A, B, C" — 
 is task forwarding. Synthesis looks like: "Based on A's auth race condition finding
 and B's retry logic finding, the next step is exactly X."
 
-(wquguru/harness-books, AgentWay, Jun 2026.)
+([wquguru/harness-books](https://github.com/wquguru/harness-books), AgentWay, Jun 2026.)
 
 ## Confidence-Scored Quality Gates
 
@@ -104,7 +104,7 @@ Use confidence scoring for heuristic checks (code quality, design coherence) whe
 the verifier itself has inherent uncertainty. Keep binary gates (exit 0 / exit 2) for
 deterministic checks (test pass/fail, lint errors) — those are never confidence-scored.
 
-(session-orchestrator — Kanevry/session-orchestrator, Jun 2026.)
+(session-orchestrator — [Kanevry/session-orchestrator](https://github.com/Kanevry/session-orchestrator), Jun 2026.)
 
 ## Built-in subagent types
 

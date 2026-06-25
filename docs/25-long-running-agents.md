@@ -73,7 +73,7 @@ The outer loop intervenes before the inner loop burns its budget on a stuck appr
 
 ## Real-World Scale
 
-`/goal` loops have demonstrated remarkable autonomous reach. @samwillis ran
+`/goal` loops have demonstrated remarkable autonomous reach. [@samwillis](https://x.com/samwillis) ran
 `/goal make postgres multithreaded` unattended for 10 days:
 **1,000 commits · 124,000 lines changed · 786 files modified** —
 driven entirely by a single /goal command and the loop's built-in stopping condition.
@@ -112,7 +112,7 @@ Implementation pattern (systemd or equivalent):
 This prevents zombie agents — processes that are running but producing nothing,
 neither failing nor succeeding, consuming tokens and budget indefinitely.
 
-(clem — jahwag/clem, Jun 2026.)
+(clem — [jahwag/clem](https://github.com/jahwag/clem), Jun 2026.)
 
 ## Relationship to Cost Control
 
