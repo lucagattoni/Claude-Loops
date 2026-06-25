@@ -90,3 +90,21 @@ if message.subtype == "error_max_turns":
 elif message.subtype == "error_max_budget_usd":
     alert("Budget exceeded — review and restart")
 ```
+
+## Operational Kill / Pause / Slow-Down Thresholds
+
+Define explicit decision rules for three escalation levels before deploying any production loop:
+
+| Signal | Action | Threshold example |
+|---|---|---|
+| Budget overspend mid-period | **Slow down** — reduce cadence or skip non-urgent runs | Budget >80% consumed before week mid-point |
+| High false-positive rate | **Slow down** — human reviews before loop re-runs | False positives >30% of runs in a 7-day window |
+| Production incident or schema migration | **Pause** — halt loop until incident resolved | Any active Sev-1 or open migration PR |
+| Two consecutive weeks of negative cost-to-value | **Kill** — decommission the loop | 14 days: every run costs more than the defects it catches |
+| Consistent loop failures | **Kill** | Loop fails to complete successfully 3+ times per week for 2 weeks |
+| Team disengagement | **Kill** | No human has read a loop report in 14 days |
+
+These thresholds are deployment prerequisites, not optional monitoring. Define them before
+the first production run — they cannot be calibrated after a runaway event.
+
+([cobusgreyling/loop-engineering](https://github.com/cobusgreyling/loop-engineering), Jun 2026.)

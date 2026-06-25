@@ -57,9 +57,25 @@ handcrafted.
 
 ---
 
+## Benchmarks (Fugu Ultra, June 2026)
+
+| Benchmark | Fugu Ultra | Best frontier comparison |
+|---|---|---|
+| SWE Bench Pro | 73.7% | Claude Opus 4.8: 69.2% |
+| LiveCodeBench | 93.2% | Gemini 3.1 Pro: 88.5% |
+| GPQA-D | 95.5% | Gemini 3.1 Pro: 94.3% |
+| Humanity's Last Exam | 50.0% | Claude Opus 4.8: 49.8% |
+
+## AutoResearch: a concrete loop engineering example
+
+Sakana's own **AutoResearch** system ran 123 self-improvement experiments autonomously using Fugu as the orchestrator — each iteration proposed a hypothesis, implemented a change, evaluated results, and fed findings into the next iteration. The loop ran unattended; humans reviewed summaries.
+
+This is a direct example of the self-improvement loop pattern: a loop whose primary goal is to improve the loop itself, with a learned orchestrator deciding which experiments to run next. See [The Loop Contract](27-loop-contract.md) → self-discovery pattern.
+
 ## Current state (June 2026)
 
-- [Sakana Fugu](https://sakana.ai/fugu/) is available as an OpenAI-compatible API (two variants: Fugu and Fugu Ultra)
+- [Sakana Fugu](https://sakana.ai/fugu/) is available as an **OpenAI-compatible API** (swap endpoint, no SDK change) — two variants: Fugu ($5/$30 per 1M tokens) and Fugu Ultra ($30/$... per 1M; also $20–200/mo subscription)
+- Fugu Ultra is unavailable in EU/EEA pending GDPR compliance
 - [@steipete](https://x.com/steipete) and others are skeptical about closed-source multi-model routing performance in practice
 - No open-source learned orchestrator has matched Fugu Ultra's benchmark claims yet
 - This pattern is early-stage — most practitioners still use hand-designed loops

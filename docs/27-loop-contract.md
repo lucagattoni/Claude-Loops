@@ -214,6 +214,52 @@ loop degenerates into a **Goal** — a bounded task with a single verifiable com
 state. The [Goal Engineering](30-goal-engineering.md) doc covers the four Goal
 Primitives and the GOAL.md persistent state file in detail.
 
+## Cross-Run Memory Persistence
+
+Every loop run should append a brief outcome record to a persistent memory file.
+This gives the next run the context of what the previous run found, decided, and cost —
+without requiring a human to summarise it.
+
+```markdown
+# .loopflow/memory/pr-babysitter.md  (appended after each run, prepended to next run's prompt)
+
+## Run 2026-06-25 06:41 UTC
+- **Outcome:** VERDICT: PASS — 2 stale PRs closed, 1 draft marked ready
+- **Cost:** $0.31 (headroom: 69%)
+- **Notable:** PR #88 auth migration — merge blocked on CI flake, not code
+- **Next run:** re-check PR #88 first; CI flake in auth-tests is a known issue
+```
+
+"The agent forgets; the repo doesn't."
+
+The memory file is distinct from STATE.md (execution phase) and GOAL.md (done conditions).
+It is an episodic log optimised for the *next agent invocation* — not a recovery mechanism
+but a continuity mechanism. See [Memory Patterns](16-memory-patterns.md) for storage backends.
+
+([faisalishfaq2005/loopflow](https://github.com/faisalishfaq2005/loopflow), Jun 2026.)
+
+## Gate Feedback Injection
+
+When a VERDICT gate returns FAIL, inject the rejection reason into ALL agent prompts in
+the next iteration — not just the gate step's prompt.
+
+Standard retry pattern: gate fires → same loop re-runs → gate fires again.
+
+Gate feedback injection: gate fires → rejection reason prepended to EVERY agent's system
+prompt → next iteration starts with every sub-agent aware of why the previous attempt failed.
+
+This is distinct from simply retrying. The failure context propagates laterally to agents
+that weren't involved in the failing step — preventing them from repeating setup conditions
+that contributed to the failure.
+
+Example injection:
+```
+[PREVIOUS RUN FAILED] Gate rejection: "PR description is missing the test evidence section.
+All PRs must include a test output block." — apply this constraint in all PR-related steps.
+```
+
+([faisalishfaq2005/loopflow](https://github.com/faisalishfaq2005/loopflow), Jun 2026.)
+
 ## Relationship to the Factory Model
 
 The Loop Contract is the specification document for a factory model workflow. Just

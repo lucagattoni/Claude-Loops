@@ -18,6 +18,25 @@ Versioning follows [Semantic Versioning](https://semver.org/):
 
 ---
 
+## [2.3.10] — 2026-06-25
+
+### Changed
+
+- `docs/04-verification.md` — Added: "Surface" as canonical stopping verb; verification mode discipline (TDD/goal-based/visual-manual); Oracle Problem (~6% test precision / oracle leakage); Structured Critic Finding Taxonomy (6 categories: product_bug, test_bug, harness_bug, evidence_mismatch, contention, scope_conflict)
+- `docs/07-subagents.md` — Added: Adversarial Reviewer Checklists (spec-stage 9 checks + implementation-stage 9 checks); Rationalizations Reviewers Must Refuse table
+- `docs/08-permissions.md` — Added: ASK verdict and soft warning thresholds (`ask_thresholds_usd`); session-fires-first evaluation order
+- `docs/11-cost-control.md` — Added: Operational Kill/Pause/Slow-Down Thresholds with concrete numeric criteria
+- `docs/16-memory-patterns.md` — Added: Three-Tier Document Lifecycle (.tenet/runs/ + .tenet/project/ + .tenet/knowledge/)
+- `docs/17-failure-patterns.md` — Added: Fixing flakes with code; Over-Reach; Parallel Collision failure patterns
+- `docs/24-harness-patterns.md` — Added: Agent YAML Definition Schema (Omnigent-style, 15+ harnesses); Organizational Learning Stage (4th loop stage); Harness Update File Safety Contract (.upstream companion files)
+- `docs/27-loop-contract.md` — Added: Cross-Run Memory Persistence (.loopflow/memory/); Gate Feedback Injection (failure reason to all agent prompts)
+- `docs/33-agent-security-hardening.md` — Added: credbroker credential resolution pattern (no model exposure)
+- `docs/34-loop-patterns.md` — Added: Three-Loop Onboarding Sequence (Daily Triage → PR Babysitter → Post-Merge Cleanup → CI Sweeper); Debt Audit Loop pattern; Docs Sync Loop pattern
+- `SOURCES.md` — Added: eugenelim/agent-ready-repo, JeiKeiLim/tenet, faisalishfaq2005/loopflow
+- `LOOP_ENGINEERING.md` — Updated summaries for docs 4, 7, 8, 11, 16, 17, 24, 27, 33, 34
+
+---
+
 ## [2.3.9] — 2026-06-25
 
 ### Changed

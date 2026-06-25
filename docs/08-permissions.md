@@ -199,6 +199,59 @@ Software-layer permission lists operate inside the model's execution environment
 OS-layer hardening operates outside it — enforcing boundaries that the model cannot
 override even if instructed to. The two layers are designed to be deployed together.
 
+## ASK Verdict and Soft Warning Thresholds
+
+Beyond hard ALLOW/DENY, a permission system can return a third verdict: **ASK** — "proceed
+only after human confirmation." This is distinct from DENY (blocked) and ALLOW (auto).
+
+### ASK verdict behaviour
+
+```
+Validate → Scope → Budget
+    → ALLOW   → execute immediately
+    → DENY    → reject; agent replans
+    → ASK     → pause; surface to human; wait for explicit approval
+```
+
+ASK fires when an action is within the agent's declared scope but exceeds a risk or cost
+threshold. The agent does not retry, does not replan — it waits. This is the same
+**Surface** action described in [Verification](04-verification.md): emit a situation
+report and halt until a human responds.
+
+### Soft warning thresholds (`ask_thresholds_usd`)
+
+Hard budget caps (`max_cost_usd`) block the loop when spend is exceeded. Soft warning
+thresholds trigger ASK *before* the hard cap, giving humans an interception point:
+
+```json
+// .claude/settings.json
+{
+  "budget_tokens": 50000,
+  "max_cost_usd": 2.00,
+  "ask_thresholds_usd": {
+    "single_action": 0.10,
+    "session_total": 1.50
+  }
+}
+```
+
+When any single action would cost ≥ $0.10, or the session total has reached $1.50, the loop
+surfaces for approval before continuing. The agent states: what action it wants to take,
+estimated cost, and current session total. The human approves or redirects.
+
+### Session-fires-first evaluation order
+
+When multiple threshold types apply simultaneously, evaluate in this order:
+1. **Schema / intent validation** (first; cheapest to check)
+2. **Scope** (permission list — ALLOW/DENY/ASK per action)
+3. **Single-action soft threshold** (`ask_thresholds_usd.single_action`)
+4. **Session budget** (hard `max_cost_usd` cap — fires last)
+
+A session-level cap that fires before a scope check would allow a denied action to consume
+budget before being blocked. Scope must gate before spend.
+
+([omnigent-ai/omnigent](https://github.com/omnigent-ai/omnigent), Jun 2026.)
+
 ## Settings precedence
 
 Later sources override earlier ones:

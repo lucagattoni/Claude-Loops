@@ -304,3 +304,88 @@ Use serverless when: iterations are bounded and short, state is well-defined eno
 to serialise, or you are operating in a cost-sensitive production environment.
 
 (Paramveer Singh, "Designing Autonomous AI Loops", Jun 2026.)
+
+## Agent YAML Definition Schema
+
+Rather than configuring agents through CLI flags or code, defining an agent declaratively
+as a YAML file makes it portable, auditable, and harness-agnostic:
+
+```yaml
+# github_agent.yaml (Omnigent-style)
+name: github_agent
+prompt: |
+  You are a GitHub automation agent. Triage open issues, label them,
+  and draft PR descriptions for ready branches.
+
+executor:
+  harness: claude-sdk    # or: openai-agents, codex, cursor, kiro-native, copilot, kimi,
+                         #     antigravity (Gemini), qwen, pi, hermes, ...
+  model: claude-sonnet-4-6
+  auth:
+    type: api_key
+    env: ANTHROPIC_API_KEY
+
+tools:
+  github:
+    type: mcp
+    url: https://api.githubcopilot.com/mcp/
+
+policies:
+  session_budget:
+    handler: cost.budget
+    factory_params:
+      ask_thresholds_usd: [5.00]   # ASK mid-run before hard cap
+      max_cost_usd: 10.00          # Hard DENY
+
+os_env: true        # expose local file/shell tools
+async: true         # async work tools
+cancellable: true
+```
+
+The `executor.harness` field drives which runtime executes the agent — the same YAML
+compiles to a Claude Code session, an OpenAI Agents SDK agent, a Codex CLI agent, or any
+of 15+ harnesses without changing the agent's instructions or tool definitions.
+
+([omnigent-ai/omnigent](https://github.com/omnigent-ai/omnigent), Jun 2026.)
+
+## Organizational Learning Stage
+
+A mature loop has a 4th stage beyond the standard 3 (Plan → Execute → Review):
+
+**Stage 4: Organizational Learning**
+
+When a loop completes a run, it identifies implicit conventions discovered during
+the run — patterns the team uses but has never written down. These discoveries
+are surfaced as *proposed edits to project documentation*, not automatic writes.
+
+Examples of discovered conventions:
+- "All PR descriptions in this repo end with a test output block" (discovered after 5 PRs)
+- "Migrations always run in a transaction" (discovered from existing migration files)
+- "Functions touching payments have a `# AUDIT:` comment" (discovered from grep)
+
+The loop proposes the edit; a human reviews and accepts or rejects it before it
+becomes a standing rule. This is distinct from the Cross-Task Defect Ledger
+([Verification](04-verification.md)) which tracks *failures* — Organizational Learning
+tracks *implicit conventions*.
+
+([eugenelim/agent-ready-repo](https://github.com/eugenelim/agent-ready-repo), Jun 2026.)
+
+## Harness Update File Safety Contract
+
+When the harness ships updates that modify shared files (CLAUDE.md, loop templates,
+skill definitions), a naive update would overwrite local customizations.
+
+The safe pattern: when an upstream harness change collides with a locally-modified file,
+place the upstream version as a `.upstream` companion file rather than overwriting:
+
+```
+CLAUDE.md           ← your local version (protected, never overwritten)
+CLAUDE.md.upstream  ← what the harness update wants to write
+```
+
+The human reviews the diff between the two and manually merges what they want to adopt.
+No convention, rule, or template update ever auto-applies without explicit human acceptance.
+This is especially important for CLAUDE.md and skill files, where silent overwrites would
+change the loop's behavior without a visible change in any monitored file.
+
+([eugenelim/agent-ready-repo](https://github.com/eugenelim/agent-ready-repo), Jun 2026.)

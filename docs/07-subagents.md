@@ -176,6 +176,58 @@ Disable built-in agents in headless mode only:
 CLAUDE_AGENT_SDK_DISABLE_BUILTIN_AGENTS=1 claude -p "task"
 ```
 
+## Adversarial Reviewer Checklists
+
+A reviewer subagent that works from a structured checklist catches categories of failure
+that open-ended review misses. Apply two sequential checklists: one at the spec stage
+before implementation begins, one at the implementation stage before merge.
+
+### Spec-stage checklist (9 checks)
+
+| Check | Failure signal | Fix |
+|---|---|---|
+| **Vague Objective** | Untestable outcome ("it should be fast") | Demand measurable numbers |
+| **Boundaries underspecified** | Empty Always/Ask/Never sections | Fills → scope creep guarantee |
+| **Missing Acceptance Criteria** | No done-checklist | "Done" must be enumerated items |
+| **No `Constrained by:` citation** | Unlinked ADRs/RFCs | Spec must cite constraints explicitly |
+| **Implementation detail in spec** | How, not What | Spec = outcomes; code = how |
+| **Plan/spec mismatch** | Task ↛ AC or AC ↛ task | Every task maps to an AC; every AC has a task |
+| **Contract vs. construction confusion** | Conflating interface design with module layout | Keep interface decisions in spec; layout in code |
+| **Missing `Depends on:` per task** | Implicit dependency graph | Make dependencies explicit |
+| **No verification mode per task** | Ambiguous validation intent | Name TDD / goal-based / visual-manual per task |
+
+### Implementation-stage checklist (9 checks)
+
+| Check | Failure signal | Fix |
+|---|---|---|
+| **AC coverage** | An AC has no verification artifact that would fail if broken | Add test or goal-check per AC |
+| **Edge cases** | Empty/max/malformed/concurrent/partial failure untested | Must be enumerated |
+| **Error surface** | Caller cannot distinguish error types | Name the error surface |
+| **Scope** | Out-of-scope change present | Requires `Bundled fixes:` justification |
+| **Spec drift** | Status not updated, AC not `[x]`-ed, deferred items not in backlog, broken intra-repo refs | 4 invariants must hold |
+| **Security and privacy** | No review | Explicit check required |
+| **Architectural fit** | New module boundary without ADR | Block until ADR written |
+| **Backward compatibility** | Breaking change unmarked | Must be flagged |
+| **Project anti-patterns** | Violations of `AGENTS.md` conventions | Cite the violation and block |
+
+([eugenelim/agent-ready-repo](https://github.com/eugenelim/agent-ready-repo), Jun 2026.)
+
+## Rationalizations Reviewers Must Refuse
+
+Reviewer subagents can be prompted (via context accumulation or sycophancy pressure)
+to soften verdicts. Name these rationalizations explicitly to make them blockable:
+
+| Rationalization | Rebuttal |
+|---|---|
+| "Diff looks clean — return Clean after one pass" | One pass is insufficient for critical paths. Read twice before Clean. |
+| "Spec was reviewed last PR — skip spec checks" | Spec drift is in scope every PR. |
+| "Author is senior — soften the severity" | Severity is about the change, not the author. |
+
+These must be listed in the reviewer's system prompt, not just the CLAUDE.md. A reviewer
+that wasn't told to refuse them will rationalize.
+
+([eugenelim/agent-ready-repo](https://github.com/eugenelim/agent-ready-repo), Jun 2026.)
+
 ## Related
 
 - [Background Agents](29-background-agents.md) — sessions running independently (not within a parent session)

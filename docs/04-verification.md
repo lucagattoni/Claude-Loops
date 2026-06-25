@@ -171,27 +171,31 @@ Verifiers calibrated only on happy-path inputs will fail on the edge cases that 
 
 ([thalys/agent-ab](https://github.com/thalys/agent-ab), Jun 2026.)
 
-## Production Trace to Regression Test
+## LLM-as-a-Judge Verification with Opik
 
-Production failures are the most valuable input for improving loop verification. When a
-loop run fails in production:
+**[Comet's Opik](https://github.com/comet-ml/opik)** (open-source, 40M+ traces/day) provides a verification layer
+specifically designed for LLM output quality — not just pass/fail exit codes.
 
-1. Capture the full execution trace (tool calls, inputs, outputs, error state)
-2. Convert the trace into a deterministic regression fixture that reproduces the exact failure
-3. Add to the held-out test suite — the same failure cannot now recur silently
+**Evaluation metrics** (callable via `.score()` API):
+- `hallucination` — detects factual claims not grounded in the context
+- `answer_relevance` — scores whether the agent's output addresses the actual task
+- `context_precision` — measures how precisely the context supports the answer
+- `moderation` — flags unsafe or policy-violating output
 
-**[Comet's Opik](https://github.com/comet-ml/opik)** (open-source) implements this automatically: it traces every tool call
-and, when a run produces an unexpected verdict, generates a regression fixture from the
-failing trace.
+**Online Evaluation Rules** — configure continuous scoring against a running production loop:
+a judge model monitors every run and alerts when metric scores fall below a threshold.
+This is the fleet-level equivalent of a test suite: instead of checking one run, it
+watches the whole fleet continuously.
 
-The distinction from the A/A Baseline (which establishes noise floor on passing cases):
-this pattern captures *real failure modes* from production runs, not synthetic variations.
-The two are complementary — the A/A baseline cleans up the verifier before deployment;
-the production trace pattern hardens it afterward.
+**PyTest CI/CD integration** — evaluations run in CI pipelines as part of the test suite.
+A harness that passes code tests but fails answer-relevance scores is not production-ready.
+
+The distinction from the A/A Baseline (which establishes noise floor on a verifier's
+*consistency*): Opik's metrics measure the *quality* of agent output directly.
 
 repo: [github.com/comet-ml/opik](https://github.com/comet-ml/opik)
 
-([@akshay_pachaar](https://x.com/akshay_pachaar), DailyDoseofDS, Jun 2026.)
+(Comet ML, Jun 2026.)
 
 ## Real-world case study: Mozilla Firefox security harness
 
@@ -210,6 +214,78 @@ Mozilla Firefox with explicit verification at every stage:
 
 > "The harness was responsible for roughly 50% of the results — the model alone
 > wouldn't have delivered this." — Brian Grinstead
+
+## "Surface" — the Canonical Stopping Verb
+
+When a loop reaches a point requiring human judgment, the agent's action has a precise name:
+
+**Surface** — stop the current loop, emit a short description of the situation (what happened,
+what you tried, what state things are in), and wait for human direction.
+**Do not retry, do not redispatch, do not silently reset.**
+
+This is the distinction from other verdicts:
+- `fail` — retryable; the agent should try again with attempt cap
+- `stopped` — hard gate fired; investigate root cause
+- `handoff` — human judgment required; **this is the Surface action**: emit a clear situation
+  report and halt
+
+A loop that surfaces correctly is more trustworthy than one that retries indefinitely: it
+shows the agent knows the boundary of its own competence.
+
+([eugenelim/agent-ready-repo](https://github.com/eugenelim/agent-ready-repo), Jun 2026.)
+
+## Verification Mode Discipline
+
+Before writing any test or verifier, declare which of three verification modes applies.
+A mode-mismatched test passes for the wrong reason.
+
+| Mode | When to use | Key constraint |
+|---|---|---|
+| **TDD** | Pure functions, state machines, protocols | Test must pin a real invariant — not mirror the implementation. Tests that change in lockstep with production code are mirrors, not contracts. |
+| **Goal-based check** | Verify an artifact exists or has a shape | The one-liner verification *is* the contract; no extra test file needed. |
+| **Visual / manual QA** | UI behaviour, rendering, layout | Invariants must be named (not "no crash"); input variation must be recorded or seeded reproducibly. |
+
+**Level-of-abstraction rule:** verification level must match the behavior boundary being tested.
+UI behaviors need tests that simulate the user's gesture and assert on rendered/visible state —
+not unit tests on the controller. "Mode-mismatched verification produces tests that pass for
+the wrong reason."
+
+([eugenelim/agent-ready-repo](https://github.com/eugenelim/agent-ready-repo), Jun 2026.)
+
+## Oracle Problem in AI-Generated Tests
+
+When the same agent writes both code and tests in the same session, tests exhibit
+~6% precision — they verify what the implementation *does* rather than what it *should* do.
+
+This is the **oracle leakage** problem: the agent uses its knowledge of the implementation
+to construct tests that are tautologically true. A test for `add(2, 3)` that expects `5`
+is a valid oracle; a test for `process_record(x)` that expects the same output as the
+function currently produces is a tautology, not a contract.
+
+Mitigation: the critic or verifier agent must explicitly guard against oracle leakage —
+checking that tests would still fail if the implementation returned a semantically different
+result, not just a different bit pattern.
+
+([JeiKeiLim/tenet](https://github.com/JeiKeiLim/tenet), Jun 2026.)
+
+## Structured Critic Finding Taxonomy
+
+A critic that produces a binary pass/fail verdict cannot be triaged, routed, or tracked
+over time. Critic output should use structured finding categories:
+
+| Category | Meaning | Downstream action |
+|---|---|---|
+| `product_bug` | Incorrect behaviour in the feature being built | Block merge; loop must fix |
+| `test_bug` | Test is wrong, not the implementation (oracle leakage) | Fix the test; loop continues |
+| `harness_bug` | Issue is in the loop infrastructure itself | Pause loop; human fixes harness |
+| `evidence_mismatch` | Verdict claim not supported by submitted evidence | Reject; require evidence |
+| `contention` | Two concurrent loop changes conflict with each other | Route to coordination layer |
+| `scope_conflict` | Change touches paths outside the declared scope | Reject; loop must re-scope |
+
+`harness_bug` and `contention` are non-retriable: they should surface as `handoff` verdicts
+and never trigger automatic retry.
+
+([JeiKeiLim/tenet](https://github.com/JeiKeiLim/tenet), Jun 2026.)
 
 This confirms the compound probability argument in [The Paradigm Shift](01-paradigm-shift.md):
 the verification chain converts per-step model accuracy into end-to-end reliable output.

@@ -27,10 +27,10 @@ Row numbers are stable identifiers — they do not change when docs are reorgani
 
 | # | Topic | Summary |
 |---|---|---|
-| 27 | [The Loop Contract](docs/27-loop-contract.md) | TRIGGER/SCOPE/ACTION/BUDGET/STOP/REPORT; job-description framing; Event Modeling; two quality gates; experience encoding; governed cross-session learning; YAML-declarative loop definition + VERDICT: PASS gate; 2-layer budget ceiling; self-discovery pattern (Schedule→Discover→Build→Verify→Repeat) |
+| 27 | [The Loop Contract](docs/27-loop-contract.md) | TRIGGER/SCOPE/ACTION/BUDGET/STOP/REPORT; job-description framing; Event Modeling; two quality gates; experience encoding; governed cross-session learning; YAML-declarative loop definition + VERDICT: PASS gate; 2-layer budget ceiling; self-discovery pattern; cross-run memory persistence (.loopflow/memory/); gate feedback injection to all agent prompts |
 | 30 | [Goal Engineering](docs/30-goal-engineering.md) | Goals vs. Loops decision framework; four Goal Primitives; GOAL.md schema; six canonical goal patterns; G0-G3 readiness scoring (cobusgreyling, Jun 2026) |
-| 24 | [Harness Patterns](docs/24-harness-patterns.md) | Harness vs. Loop layers; three-agent full-stack harness; unstable components axiom; ledger closure; five-wave model; runtime republic vs. constitutional control plane; harness-agnostic projection; 8-phase DAG + steer messages; meta-harness 3-tier policy hierarchy |
-| 34 | [Loop Patterns Catalog](docs/34-loop-patterns.md) | Seven named loop patterns (Daily Triage, PR Babysitter, CI Sweeper, Dependency Sweeper, Post-Merge Cleanup, Changelog Drafter, Issue Triage); L1/L2/L3 readiness levels; token costs; multi-loop coordination (cobusgreyling, Jun 2026) |
+| 24 | [Harness Patterns](docs/24-harness-patterns.md) | Harness vs. Loop layers; three-agent full-stack harness; unstable components axiom; ledger closure; five-wave model; runtime republic vs. constitutional control plane; harness-agnostic projection; 8-phase DAG + steer messages; meta-harness 3-tier policy hierarchy; agent YAML definition schema; organizational learning stage; harness update file safety contract |
+| 34 | [Loop Patterns Catalog](docs/34-loop-patterns.md) | Seven named loop patterns (Daily Triage, PR Babysitter, CI Sweeper, Dependency Sweeper, Post-Merge Cleanup, Changelog Drafter, Issue Triage); L1/L2/L3 readiness levels; token costs; multi-loop coordination; three-loop onboarding sequence; Debt Audit + Docs Sync patterns |
 | 3 | [The Six Building Blocks](docs/03-building-blocks.md) | Automations, Worktrees, Skills, Connectors, Sub-agents, Memory; Routines for cloud execution |
 | 28 | [Routines](docs/28-routines.md) | Cloud-hosted loop execution: Schedule / API / GitHub triggers — no local machine needed |
 | 31 | [Claude Tag](docs/31-claude-tag.md) | Ambient loops in Slack: channel-scoped identity, self-scheduling, org-wide context; the third LLM paradigm |
@@ -42,9 +42,9 @@ Row numbers are stable identifiers — they do not change when docs are reorgani
 |---|---|---|
 | 5 | [CLAUDE.md](docs/05-claude-md.md) | Persistent context layer — hierarchy, path-scoped rules, import syntax, HTML comments |
 | 6 | [Skills](docs/06-skills.md) | Reusable on-demand workflows; SDLC phases as non-skippable skill steps |
-| 7 | [Subagents](docs/07-subagents.md) | Keep main context clean; DOER/CHECKER; synthesis as non-delegable bottleneck; confidence-scored quality gates (≥80%) |
+| 7 | [Subagents](docs/07-subagents.md) | Keep main context clean; DOER/CHECKER; synthesis as non-delegable bottleneck; confidence-scored quality gates (≥80%); adversarial reviewer checklists (spec-stage + impl-stage); rationalizations to refuse |
 | 12 | [Hooks](docs/12-hooks.md) | Deterministic loop control — types, JSON output API, asyncRewake circuit breaker; exit code safety contract (never exit 1 in denial hooks) |
-| 8 | [Permissions & Auto Mode](docs/08-permissions.md) | Allow/deny/ask lists, auto mode, risk-tiered authorization by consequence, safety path denylist, agent trust ramp (4-stage), Reject+Replan pattern |
+| 8 | [Permissions & Auto Mode](docs/08-permissions.md) | Allow/deny/ask lists, auto mode, risk-tiered authorization by consequence, safety path denylist, agent trust ramp (4-stage), Reject+Replan pattern; ASK verdict + soft warning thresholds (`ask_thresholds_usd`); session-fires-first evaluation order |
 | 9 | [Headless & Non-Interactive Mode](docs/09-headless-mode.md) | `claude -p` — headless automation, session continuation, background sessions, CI flags |
 
 ### State & Long-Running Loops
@@ -52,7 +52,7 @@ Row numbers are stable identifiers — they do not change when docs are reorgani
 | # | Topic | Summary |
 |---|---|---|
 | 13 | [Context Management](docs/13-context-management.md) | `/clear`, `/compact`, context resets vs. compaction, context anxiety; input governance pipeline; reactive compact with circuit breaker |
-| 16 | [Memory Patterns](docs/16-memory-patterns.md) | Progress files, GitHub Issues as task queue, spec-driven loops; multi-backend task queue; STATE.md wave recovery; temporal knowledge graph (Graphiti) |
+| 16 | [Memory Patterns](docs/16-memory-patterns.md) | Progress files, GitHub Issues as task queue, spec-driven loops; multi-backend task queue; 3-tier document lifecycle (per-cycle/doctrine/knowledge); STATE.md wave recovery; temporal knowledge graph (Graphiti) |
 | 25 | [Long-Running Agents](docs/25-long-running-agents.md) | Ralph loop, planner-worker-judge, Inner/Outer Dual Loop, git-based recovery; session watchdog + 2h hard limit |
 | 29 | [Background Agents](docs/29-background-agents.md) | `--bg` detached sessions, agent view, fan-out pattern, worktree isolation |
 
@@ -60,12 +60,12 @@ Row numbers are stable identifiers — they do not change when docs are reorgani
 
 | # | Topic | Summary |
 |---|---|---|
-| 4 | [Verification](docs/04-verification.md) | The non-negotiable foundation — strategies, Type A/B classification, verdict taxonomy, cross-run patterns, belief state machine + R0-R5 risk levels, A/A baseline, production trace→regression test (Opik), Firefox case study (423 fixes) |
-| 17 | [Common Failure Patterns](docs/17-failure-patterns.md) | Cognitive surrender, orchestration tax, reward hacking, context pollution, amplification effect, State Rot, Verifier Theater, Notification Fatigue, and more |
+| 4 | [Verification](docs/04-verification.md) | The non-negotiable foundation — strategies, Type A/B classification, verdict taxonomy, cross-run patterns, belief state machine + R0-R5 risk levels, A/A baseline, LLM-as-a-judge (Opik), Firefox case study (423 fixes); "Surface" vocabulary; verification mode discipline (TDD/goal-based/visual); oracle problem (~6% precision); structured critic finding taxonomy (6 categories) |
+| 17 | [Common Failure Patterns](docs/17-failure-patterns.md) | Cognitive surrender, orchestration tax, reward hacking, context pollution, amplification effect, State Rot, Verifier Theater, Notification Fatigue, Fixing flakes with code, Over-Reach, Parallel Collision, and more |
 | 14 | [Human-in-the-Loop Escalation](docs/14-human-in-the-loop.md) | When to pause and ask for human input |
-| 11 | [Cost & Turn Control](docs/11-cost-control.md) | `--max-turns`, `--max-budget-usd`, effort levels; token cost by loop pattern (noop 3-5K → action run 200-250K); early exit rule |
+| 11 | [Cost & Turn Control](docs/11-cost-control.md) | `--max-turns`, `--max-budget-usd`, effort levels; token cost by loop pattern (noop 3-5K → action run 200-250K); early exit rule; operational kill/pause/slow-down thresholds |
 | 19 | [MCP Security](docs/19-mcp-security.md) | AgentJacking and indirect prompt injection via MCP connectors |
-| 33 | [Agent Security Hardening](docs/33-agent-security-hardening.md) | OS-user-per-agent isolation, credential broker/sidecar/firewall dispositions, SECURITY_MATRIX.md, fail-safe secret gate (clem, Jun 2026) |
+| 33 | [Agent Security Hardening](docs/33-agent-security-hardening.md) | OS-user-per-agent isolation, credential broker/sidecar/firewall dispositions, SECURITY_MATRIX.md, fail-safe secret gate; credbroker resolution pattern (no model exposure) |
 
 ### Scaling
 

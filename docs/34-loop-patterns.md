@@ -189,3 +189,52 @@ k8s/production/**, **/credentials/**
 ```
 
 Add project-specific sensitive paths to this list in CLAUDE.md before deploying any L2+ loop.
+
+## Three-Loop Onboarding Sequence
+
+When introducing loops to a new codebase or team, start with exactly three patterns and
+do not add a fourth until the first three are stable:
+
+1. **Daily Triage** — read-only morning scan; zero risk; establishes observability habits
+2. **PR Babysitter** — monitors existing PRs; limited write scope (labels, comments only at L1)
+3. **Post-Merge Cleanup** — runs after merge; bounded scope (a closed PR cannot regress)
+
+**Add CI Sweeper only after two weeks of zero collisions** in the first three loops. CI
+Sweeper is more aggressive (writes code, opens PRs) and requires the collision-detection
+infrastructure (STATE.md `acting_on` field) to already be working and trusted.
+
+Starting with CI Sweeper before the triage + babysitter + cleanup loops are stable is a
+common failure mode: the team gains no observability before the first high-risk loop runs.
+
+([cobusgreyling/loop-engineering](https://github.com/cobusgreyling/loop-engineering), Jun 2026.)
+
+## Debt Audit Loop
+
+| Property | Value |
+|---|---|
+| **Trigger** | Weekly cron (Monday 08:00) |
+| **Scope** | Entire codebase — read-only discovery pass |
+| **Action** | Identify tech debt items (dead code, deprecated deps, TODO comments, coverage gaps); append to `.loopflow/reports/debt-audit.md` — never modifies code |
+| **Cadence** | Weekly discovery; human reviews report and creates tickets manually |
+| **Token cost** | ~80,000–120,000 (report-only run across large codebase) |
+| **Readiness** | L1 only — report mode; never auto-creates issues or PRs |
+| **Stop condition** | Report written; no open PRs to check |
+
+The report file persists across runs. The loop appends new findings and marks
+previously-reported items as "still open" or "resolved", giving the team a living
+tech-debt register rather than a static weekly snapshot.
+
+([faisalishfaq2005/loopflow](https://github.com/faisalishfaq2005/loopflow), Jun 2026.)
+
+## Docs Sync Loop
+
+| Property | Value |
+|---|---|
+| **Trigger** | Post-merge webhook (any commit to `src/`) |
+| **Scope** | `docs/` only; runs in isolated git worktree |
+| **Action** | Detects drift between code and documentation (API signatures, config fields, deprecated flags); proposes doc edits as a PR |
+| **Token cost** | ~50,000–100,000 depending on diff size |
+| **Readiness** | L2 — proposes PRs but does not auto-merge; human reviews before merge |
+| **Stop condition** | `VERDICT: PASS` — all doc references match current code, or PR opened for any that don't |
+
+([faisalishfaq2005/loopflow](https://github.com/faisalishfaq2005/loopflow), Jun 2026.)

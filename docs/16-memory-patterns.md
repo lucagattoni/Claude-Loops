@@ -57,6 +57,30 @@ in the tools they already monitor, with no separate dashboard needed.
 
 (clem — [jahwag/clem](https://github.com/jahwag/clem), Jun 2026.)
 
+## Three-Tier Document Lifecycle
+
+For long-running loops that accumulate knowledge across many cycles, a flat memory file
+(Pattern A: PROGRESS.md) eventually becomes too large to prepend to every prompt. The
+solution: separate memory into three tiers with different scopes and retention policies.
+
+| Tier | Directory | What it stores | Retention |
+|---|---|---|---|
+| **Per-cycle** | `.tenet/runs/<slug>/` | Interview transcript, generated spec, cycle journal (what happened, deviations, decisions) | Retained per run; not prepended to future runs automatically |
+| **Project doctrine** | `.tenet/project/` | Architecture decisions, testing practices, module boundary rules | Persistent; always prepended to agent context |
+| **Reusable knowledge** | `.tenet/knowledge/` | Technical decisions, API contracts, cross-cycle patterns | Persistent; prepended when relevant (retrieved via similarity search) |
+
+The key insight: project doctrine (what the team has decided) and per-cycle journals (what
+happened this run) should not live in the same file. Mixing them causes the persistent
+context to grow unboundedly across cycles.
+
+**Comparison to other memory patterns in this doc:**
+- Pattern A (PROGRESS.md) = per-cycle tier only; no separation between doctrine and journals
+- Pattern E (STATE.md) = execution phase tracking, not content
+- Pattern F (Graphiti) = entity state tracking with temporal validity
+- Three-Tier Lifecycle = full knowledge management separating doctrine from per-run noise
+
+([JeiKeiLim/tenet](https://github.com/JeiKeiLim/tenet), Jun 2026.)
+
 ## Pattern E: STATE.md Wave Recovery
 
 For loops with multiple sequential phases (e.g. the five-wave execution model),

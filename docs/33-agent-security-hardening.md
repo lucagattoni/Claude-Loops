@@ -100,6 +100,30 @@ different layers: OS rules prevent kernel-level escape; permission lists prevent
 the model from taking in-process actions it was never meant to take. Both are needed;
 neither alone is sufficient.
 
+## Credential Resolution Without Model Exposure (credbroker)
+
+A common credential mistake: secrets are resolved in the prompt or system context,
+making them visible to the model. A better pattern resolves credentials entirely
+outside model context:
+
+```bash
+pip install credbroker
+```
+
+**[credbroker](https://pypi.org/project/credbroker/)** resolves credentials in this order:
+1. Environment variables
+2. OS keyring (Keychain, Windows Credential Store, libsecret)
+3. Dotfiles (`.env`, `~/.netrc`)
+
+The resolved value is injected as an environment variable that the tool reads directly.
+The model never sees the credential value — only the tool can access it.
+
+This is distinct from the provisioning pattern (generating short-lived tokens):
+credbroker handles *resolution of existing credentials* without exposure.
+Use both: provision short-lived credentials, then resolve them via credbroker.
+
+([eugenelim/agent-ready-repo](https://github.com/eugenelim/agent-ready-repo), Jun 2026.)
+
 ## Relationship to MCP Security
 
 [MCP Security](19-mcp-security.md) covers AgentJacking and prompt injection via MCP

@@ -94,6 +94,9 @@ substantively relevant to loop engineering practice (not just a passing mention)
 | GitHub search — agent coordination state claude | github-search | https://api.github.com/search/repositories?q=%22acting_on%22+claude+loop&sort=updated | KB gap: multi-loop STATE.md coordination example; find implementations using acting_on field |
 | Akshay Pachaar | x | @akshay_pachaar | Co-founder @dailydoseofds_; loop engineering internals diagrams and practitioner breakdowns (Jun 2026) |
 | getzep/graphiti | github | https://github.com/getzep/graphiti | Temporal knowledge graph for agent state layer: invalidates stale facts, multi-modal search (vector+full-text+graph) (Jun 2026) |
+| eugenelim/agent-ready-repo | github | https://github.com/eugenelim/agent-ready-repo | Agent-ready repo spec: Surface vocabulary, adversarial reviewer checklists, verification modes, org learning stage (Jun 2026) |
+| JeiKeiLim/tenet | github | https://github.com/JeiKeiLim/tenet | Structured loop critic framework: oracle problem, 3-tier document lifecycle, critic finding taxonomy (Jun 2026) |
+| faisalishfaq2005/loopflow | github | https://github.com/faisalishfaq2005/loopflow | Loop orchestration: cross-run memory persistence, gate feedback injection, debt-audit + docs-sync patterns (Jun 2026) |
 
 ---
 

@@ -8,8 +8,7 @@ Fleet engineering is the discipline of managing **multiple AI agents at enterpri
 not designing individual loops, but operating the infrastructure that governs, observes,
 and routes work across a pool of them.
 
-Coined (or popularised) by Cobus Greyling (Jun 2026), building on [LangSmith Fleet](https://docs.smith.langchain.com/)'s
-enterprise rollout.
+Coined (or popularised) by Cobus Greyling (Jun 2026).
 
 ---
 
@@ -35,12 +34,11 @@ Fleet engineering answers these questions at the organisation level, not per-loo
 - Which agents are consuming the most tokens?
 - Where are loops failing silently?
 
-Tools like [LangSmith Fleet](https://docs.smith.langchain.com/) expose agent-level telemetry across all running loops.
-**[Comet's Opik](https://github.com/comet-ml/opik)** (open-source) adds a complementary layer: it traces every tool call
-and automatically converts a failing production trace into a regression test, so the
-same production break cannot recur silently across fleet agents.
-
-repo: [github.com/comet-ml/opik](https://github.com/comet-ml/opik)
+Tools like [LangSmith](https://docs.smith.langchain.com/) expose agent-level telemetry across all running loops.
+**[Comet's Opik](https://github.com/comet-ml/opik)** (open-source) adds continuous LLM-quality scoring:
+**Online Evaluation Rules** run a judge model against every agent output in production, alerting
+when answer relevance or hallucination scores fall below threshold. This is the fleet
+equivalent of a test suite — watching quality across the whole fleet, not just per-run exits.
 
 **3. Routing and role assignment**
 A fleet may have specialist agents (security reviewer, dependency updater, test writer).
@@ -125,7 +123,7 @@ Promote to Claw only after the L2→L3 gate is passed and the action set is prov
 ## Current state (June 2026)
 
 - [cobusgreyling/fleet-engineering](https://github.com/cobusgreyling/fleet-engineering) is the primary reference implementation with six production patterns (Team Registry, Shared Inbox HITL, Hierarchical Delegation, Fleet Budget Guard, Cross-Agent Audit)
-- [LangSmith Fleet](https://docs.smith.langchain.com/) is the leading commercial observability platform
+- [LangSmith](https://docs.smith.langchain.com/) is the leading commercial observability platform
 - Most teams are still at F0–F1; F2+ governance is rare in the wild
 - The term is new; expect terminology to stabilise as the discipline matures
 
