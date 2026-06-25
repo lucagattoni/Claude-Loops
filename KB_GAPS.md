@@ -9,8 +9,10 @@ Updated by each `fetch-loop-news` run. Gap keywords drive targeted GitHub and we
 
 - **Multi-loop STATE.md coordination example**: docs/34 defines the `acting_on` field
   convention but there is no concrete example of a multi-loop STATE.md file showing
-  two loops coexisting — search keywords: `"state machine" "agent coordination" "loop"
-  claude`, `multi-agent state file`, `"acting_on" claude loop`
+  two loops coexisting. docs/16 now covers Graphiti (temporal KG approach) as an
+  alternative, but a concrete flat-file STATE.md multi-loop example is still missing
+  — search keywords: `"state machine" "agent coordination" "loop" claude`, `multi-agent
+  state file`, `"acting_on" claude loop`
 
 - **SECURITY_MATRIX.md implementation mechanism**: docs/33 says the agent "reads
   SECURITY_MATRIX.md at startup and self-assesses" but doesn't specify the loading

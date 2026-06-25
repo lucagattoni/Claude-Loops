@@ -142,6 +142,35 @@ replace scoped allowlists.
 
 (cobusgreyling/loop-engineering, Jun 2026.)
 
+## Reject+Replan Pattern
+
+When a safety gate (deny list, PermissionRequest hook, or budget cap) blocks an action,
+the loop should **replan** rather than abort. The safety layer is not a terminal error —
+it is a constraint the agent must reason around.
+
+The pipeline within a single loop turn:
+
+```
+Validate (schema, intent) → Scope (permissions, boundaries) → Budget (cost, step, rate limit)
+    → Allow  → execute
+    → Reject → return rejection reason to agent → replan the step
+```
+
+Prompt addition for loops that will encounter permission gates:
+
+```
+If a tool call is denied, treat the denial message as a constraint, not a failure.
+Replan the current step using an approach that does not require the denied action.
+If no alternative exists, produce a handoff verdict with the blocked action listed
+explicitly so a human can unblock it.
+```
+
+This prevents the loop from producing a silent `stopped` verdict when a gate fires.
+The agent either finds an alternative path or escalates cleanly as a `handoff` — both
+are deliberate outcomes. See [Verification](04-verification.md) for the full verdict taxonomy.
+
+(@akshay_pachaar, DailyDoseofDS, Jun 2026.)
+
 ## Agent Trust Ramp
 
 Before granting any loop write permissions, build trust incrementally:

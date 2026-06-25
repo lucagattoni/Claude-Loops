@@ -86,6 +86,34 @@ Read STATE.md
 
 (session-orchestrator — Kanevry/session-orchestrator, Jun 2026.)
 
+## Pattern F: Temporal Knowledge Graph
+
+For multi-loop deployments where stale state causes coordination failures, a temporal
+knowledge graph is a richer alternative to flat STATE.md files.
+
+**Zep's Graphiti** (open-source) automatically invalidates facts when superseded — a PR
+logged as "open" is marked stale when it merges, so the next loop run retrieves current
+entity state rather than acting on a stale snapshot. Context is returned through three
+parallel search modes in one call: vector (semantic), full-text (exact match), and graph
+traversal (entity relationships).
+
+The distinction from flat-file patterns:
+
+| Pattern | What it tracks |
+|---|---|
+| **Pattern E (STATE.md)** | Execution phase: which loop wave is `in_progress`, which completed. A phase tracker. |
+| **Pattern F (knowledge graph)** | Entity state: current true status of every PR, issue, branch, and task the fleet has touched. An entity state store. |
+
+The two complement each other in multi-loop fleets: STATE.md says "wave 3 is running";
+the knowledge graph says "the three PRs wave 3 is working on are currently open, merged,
+and stale respectively."
+
+repo: github.com/getzep/graphiti
+
+(@akshay_pachaar, DailyDoseofDS, Jun 2026.)
+
+---
+
 See [Long-Running Agents](25-long-running-agents.md) for the architectural pattern
 (Ralph loop / planner-worker-judge) that uses these memory strategies to coordinate
 work across multiple context windows.

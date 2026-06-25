@@ -18,6 +18,20 @@ Versioning follows [Semantic Versioning](https://semver.org/):
 
 ---
 
+## [2.3.8] — 2026-06-25
+
+### Changed
+
+- `docs/16-memory-patterns.md` — Added Pattern F: Temporal Knowledge Graph (Graphiti/Zep — temporal entity state as complement to flat STATE.md)
+- `docs/23-fleet-engineering.md` — Added Opik to Observability section (trace→regression test for fleet agents)
+- `docs/08-permissions.md` — Added Reject+Replan Pattern (when a safety gate fires, agent replans rather than aborting)
+- `docs/04-verification.md` — Added Production Trace to Regression Test section (Opik)
+- `SOURCES.md` — Added @akshay_pachaar (x) and getzep/graphiti (github)
+- `LOOP_ENGINEERING.md` — Updated summaries for rows 4, 8, 16
+- `KB_GAPS.md` — Updated multi-loop STATE.md gap to note Graphiti as partial coverage; flat-file example still missing
+
+---
+
 ## [2.3.7] — 2026-06-25
 
 ### Changed

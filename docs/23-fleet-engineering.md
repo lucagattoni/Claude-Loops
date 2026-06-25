@@ -36,6 +36,11 @@ Fleet engineering answers these questions at the organisation level, not per-loo
 - Where are loops failing silently?
 
 Tools like LangSmith Fleet expose agent-level telemetry across all running loops.
+**Comet's Opik** (open-source) adds a complementary layer: it traces every tool call
+and automatically converts a failing production trace into a regression test, so the
+same production break cannot recur silently across fleet agents.
+
+repo: github.com/comet-ml/opik
 
 **3. Routing and role assignment**
 A fleet may have specialist agents (security reviewer, dependency updater, test writer).

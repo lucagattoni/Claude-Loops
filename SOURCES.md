@@ -92,6 +92,8 @@ substantively relevant to loop engineering practice (not just a passing mention)
 | cobusgreyling/fleet-engineering | github | https://github.com/cobusgreyling/fleet-engineering | Reference implementation: six fleet governance patterns, Fleet Economics cost attribution, F0-F3 maturity (Jun 2026) |
 | omnigent-ai/omnigent | github | https://github.com/omnigent-ai/omnigent | Meta-harness (4771★): 3-tier governance, harness-swap, cross-device session continuity (Jun 2026) |
 | GitHub search — agent coordination state claude | github-search | https://api.github.com/search/repositories?q=%22acting_on%22+claude+loop&sort=updated | KB gap: multi-loop STATE.md coordination example; find implementations using acting_on field |
+| Akshay Pachaar | x | @akshay_pachaar | Co-founder @dailydoseofds_; loop engineering internals diagrams and practitioner breakdowns (Jun 2026) |
+| getzep/graphiti | github | https://github.com/getzep/graphiti | Temporal knowledge graph for agent state layer: invalidates stale facts, multi-modal search (vector+full-text+graph) (Jun 2026) |
 
 ---
 

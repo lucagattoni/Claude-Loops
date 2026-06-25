@@ -5,6 +5,23 @@ Sources are defined in [`SOURCES.md`](SOURCES.md).
 
 ---
 
+## 2026-06-25 (manual addition)
+
+### New findings
+
+| Tier | Source | Title | URL | Summary |
+|---|---|---|---|---|
+| 2 | @akshay_pachaar | "Loop Engineering internals — Trigger/Cognitive Core/Safety Layers/Memory/Tool Execution diagram" | [link](https://x.com/akshay_pachaar/status/2069769689560187027) | Clean visual breakdown of loop internals with four additions to KB: Graphiti temporal KG for state, Opik trace→regression test for fleet observability, Reject+Replan safety gate pattern, and Working/Long-Term Memory split. |
+
+### Docs updated this run
+- `docs/16-memory-patterns.md` — added Pattern F: Temporal Knowledge Graph (Graphiti, getzep)
+- `docs/23-fleet-engineering.md` — added Opik to Observability section (trace-to-regression)
+- `docs/08-permissions.md` — added Reject+Replan Pattern (safety gate → replan vs. abort)
+- `docs/04-verification.md` — added Production Trace to Regression Test section (Opik)
+- `SOURCES.md` — added @akshay_pachaar (x) and getzep/graphiti (github)
+
+---
+
 ## 2026-06-25 06:41 UTC (run)
 
 ### New findings

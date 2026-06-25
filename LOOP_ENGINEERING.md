@@ -44,7 +44,7 @@ Row numbers are stable identifiers — they do not change when docs are reorgani
 | 6 | [Skills](docs/06-skills.md) | Reusable on-demand workflows; SDLC phases as non-skippable skill steps |
 | 7 | [Subagents](docs/07-subagents.md) | Keep main context clean; DOER/CHECKER; synthesis as non-delegable bottleneck; confidence-scored quality gates (≥80%) |
 | 12 | [Hooks](docs/12-hooks.md) | Deterministic loop control — types, JSON output API, asyncRewake circuit breaker; exit code safety contract (never exit 1 in denial hooks) |
-| 8 | [Permissions & Auto Mode](docs/08-permissions.md) | Allow/deny/ask lists, auto mode, risk-tiered authorization by consequence, safety path denylist, agent trust ramp (4-stage: read-only → summarise → hard limits → loop cap) |
+| 8 | [Permissions & Auto Mode](docs/08-permissions.md) | Allow/deny/ask lists, auto mode, risk-tiered authorization by consequence, safety path denylist, agent trust ramp (4-stage), Reject+Replan pattern |
 | 9 | [Headless & Non-Interactive Mode](docs/09-headless-mode.md) | `claude -p` — headless automation, session continuation, background sessions, CI flags |
 
 ### State & Long-Running Loops
@@ -52,7 +52,7 @@ Row numbers are stable identifiers — they do not change when docs are reorgani
 | # | Topic | Summary |
 |---|---|---|
 | 13 | [Context Management](docs/13-context-management.md) | `/clear`, `/compact`, context resets vs. compaction, context anxiety; input governance pipeline; reactive compact with circuit breaker |
-| 16 | [Memory Patterns](docs/16-memory-patterns.md) | Progress files, GitHub Issues as task queue, spec-driven loops; multi-backend task queue; STATE.md wave recovery |
+| 16 | [Memory Patterns](docs/16-memory-patterns.md) | Progress files, GitHub Issues as task queue, spec-driven loops; multi-backend task queue; STATE.md wave recovery; temporal knowledge graph (Graphiti) |
 | 25 | [Long-Running Agents](docs/25-long-running-agents.md) | Ralph loop, planner-worker-judge, Inner/Outer Dual Loop, git-based recovery; session watchdog + 2h hard limit |
 | 29 | [Background Agents](docs/29-background-agents.md) | `--bg` detached sessions, agent view, fan-out pattern, worktree isolation |
 
@@ -60,7 +60,7 @@ Row numbers are stable identifiers — they do not change when docs are reorgani
 
 | # | Topic | Summary |
 |---|---|---|
-| 4 | [Verification](docs/04-verification.md) | The non-negotiable foundation — strategies, Type A/B classification, verdict taxonomy, cross-run patterns (clean-room review, held-out test layer, cross-task defect ledger), belief state machine + R0-R5 risk levels, A/A baseline for calibration, Firefox case study (423 fixes) |
+| 4 | [Verification](docs/04-verification.md) | The non-negotiable foundation — strategies, Type A/B classification, verdict taxonomy, cross-run patterns, belief state machine + R0-R5 risk levels, A/A baseline, production trace→regression test (Opik), Firefox case study (423 fixes) |
 | 17 | [Common Failure Patterns](docs/17-failure-patterns.md) | Cognitive surrender, orchestration tax, reward hacking, context pollution, amplification effect, State Rot, Verifier Theater, Notification Fatigue, and more |
 | 14 | [Human-in-the-Loop Escalation](docs/14-human-in-the-loop.md) | When to pause and ask for human input |
 | 11 | [Cost & Turn Control](docs/11-cost-control.md) | `--max-turns`, `--max-budget-usd`, effort levels; token cost by loop pattern (noop 3-5K → action run 200-250K); early exit rule |

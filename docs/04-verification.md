@@ -171,6 +171,28 @@ Verifiers calibrated only on happy-path inputs will fail on the edge cases that 
 
 (thalys/agent-ab, Jun 2026.)
 
+## Production Trace to Regression Test
+
+Production failures are the most valuable input for improving loop verification. When a
+loop run fails in production:
+
+1. Capture the full execution trace (tool calls, inputs, outputs, error state)
+2. Convert the trace into a deterministic regression fixture that reproduces the exact failure
+3. Add to the held-out test suite — the same failure cannot now recur silently
+
+**Comet's Opik** (open-source) implements this automatically: it traces every tool call
+and, when a run produces an unexpected verdict, generates a regression fixture from the
+failing trace.
+
+The distinction from the A/A Baseline (which establishes noise floor on passing cases):
+this pattern captures *real failure modes* from production runs, not synthetic variations.
+The two are complementary — the A/A baseline cleans up the verifier before deployment;
+the production trace pattern hardens it afterward.
+
+repo: github.com/comet-ml/opik
+
+(@akshay_pachaar, DailyDoseofDS, Jun 2026.)
+
 ## Real-world case study: Mozilla Firefox security harness
 
 Brian Grinstead (Anthropic, Jun 2026) built a security bug-finding harness for
