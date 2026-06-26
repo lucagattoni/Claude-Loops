@@ -6,13 +6,20 @@ be closed — the loop keeps running until its stopping condition is met.
 
 ## Routines vs. local headless runs
 
-| | Headless (`claude -p`) | Routines |
-|---|---|---|
-| Runs on | Your machine or CI | Anthropic cloud |
-| Survives laptop close | No | Yes |
-| Trigger types | CI event or cron | Schedule / API / GitHub event |
-| Permission prompts during run | Auto-denied | Routed to your main session |
-| Setup | Shell script / CI YAML | `/schedule` CLI command |
+| | Headless (`claude -p`) | macOS LaunchAgent | Routines |
+|---|---|---|---|
+| Runs on | Your machine or CI | Your machine | Anthropic cloud |
+| Survives laptop close | No | No | Yes |
+| Trigger types | Manual / cron / CI event | Schedule (launchd) | Schedule / API / GitHub event |
+| Chrome browser automation | Yes (if Chrome open) | Yes (if Chrome open) | No — no local Chrome |
+| Local filesystem / credentials | Yes | Yes | No — git + connectors only |
+| Permission prompts during run | Auto-denied | Auto-denied | Routed to your main session |
+| Setup | Shell script / CI YAML | plist + `launchctl load` | `/schedule` CLI command |
+
+**Rule of thumb:** use Routines for laptop-independent runs where all tools are git/API-based.
+Use a LaunchAgent when the loop needs Chrome, local credentials, or local filesystem access
+that can't be served through an MCP connector. See [Headless Mode](09-headless-mode.md)
+for LaunchAgent setup details.
 
 ## Three trigger types
 

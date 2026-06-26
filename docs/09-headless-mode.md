@@ -120,6 +120,70 @@ echo "All attempts failed."
 exit 1
 ```
 
+## Scheduling with macOS LaunchAgent
+
+For daily headless loops that require local tools (Chrome browser automation, local
+filesystem, system credentials), a LaunchAgent is more reliable than cron — it
+respects login sessions, restarts on failure, and survives reboots.
+
+```xml
+<!-- ~/Library/LaunchAgents/com.user.my-loop.plist -->
+<dict>
+    <key>Label</key>
+    <string>com.user.my-loop</string>
+
+    <key>ProgramArguments</key>
+    <array>
+        <string>/bin/bash</string>
+        <string>/path/to/repo/scripts/run-my-loop.sh</string>
+    </array>
+
+    <!-- Run at 05:00 local time daily -->
+    <key>StartCalendarInterval</key>
+    <dict>
+        <key>Hour</key><integer>5</integer>
+        <key>Minute</key><integer>0</integer>
+    </dict>
+
+    <!-- launchd has minimal PATH — supply homebrew explicitly -->
+    <key>EnvironmentVariables</key>
+    <dict>
+        <key>PATH</key>
+        <string>/opt/homebrew/bin:/usr/local/bin:/usr/bin:/bin</string>
+        <key>HOME</key>
+        <string>/Users/yourname</string>
+    </dict>
+
+    <key>WorkingDirectory</key>
+    <string>/path/to/repo</string>
+
+    <key>StandardOutPath</key>
+    <string>/path/to/repo/logs/launchd.log</string>
+    <key>StandardErrorPath</key>
+    <string>/path/to/repo/logs/launchd.log</string>
+
+    <key>RunAtLoad</key><false/>
+</dict>
+```
+
+```bash
+# Register and trigger
+launchctl load ~/Library/LaunchAgents/com.user.my-loop.plist
+launchctl start com.user.my-loop   # immediate manual run
+
+# Check status
+launchctl list com.user.my-loop
+
+# Remove
+launchctl unload ~/Library/LaunchAgents/com.user.my-loop.plist
+```
+
+**When to prefer LaunchAgent over Routines:** the loop uses `--chrome` (browser
+automation), needs local credentials, or reads files not in a git repo.
+**When to prefer Routines:** laptop needs to be off during the run, or you want
+cloud-managed infrastructure. See [Routines](28-routines.md) — but note Routines
+cannot access local Chrome sessions.
+
 ## Related
 
 - [Background Agents](29-background-agents.md) — detached, persistent sessions

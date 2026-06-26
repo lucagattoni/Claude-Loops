@@ -18,6 +18,15 @@ Versioning follows [Semantic Versioning](https://semver.org/):
 
 ---
 
+## [2.3.12] — 2026-06-26
+
+### Changed
+
+- `docs/09-headless-mode.md` — Added: macOS LaunchAgent scheduling pattern (plist template, `launchctl` commands, when to prefer over Routines)
+- `docs/28-routines.md` — Updated comparison table: added LaunchAgent as a third column alongside headless and Routines; added rule-of-thumb for choosing between them
+
+---
+
 ## [2.3.11] — 2026-06-26
 
 ### Added
