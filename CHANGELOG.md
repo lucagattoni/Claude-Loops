@@ -18,6 +18,26 @@ Versioning follows [Semantic Versioning](https://semver.org/):
 
 ---
 
+## [2.4.0] — 2026-06-26
+
+Findings-driven structural review of the KB after the 2026-06-26 news run (38 findings),
+plus codification of that review as a standing norm.
+
+### Added
+
+- `.claude/skills/fetch-loop-news/SKILL.md` — **Phase 4c — Findings-Driven Structural Review**: a mandatory post-run pass that reads the run's findings as a set and rethinks/restructures the KB (canonical-home designation, missing thesis, unrepresented primitive, centrality drift, merge/reorder). Establishes the loop-design spine (What / How / When / How much / How do you know it's done?) as the KB's central organizing principle, and instructs critically pressure-testing user direction rather than implementing it verbatim.
+- `docs/27-loop-contract.md` — **Stop Condition Taxonomy** (canonical home): four categories — completion-check (only success stop) / budget / max-iterations / no-progress; rice-cooker problem; "verification is the completion check"; runtime-vs-design-time mapping. Reframed the contract intro around the five loop-design questions.
+- `docs/02-agent-loop-cycle.md` — **Two Lenses on Loop Primitives**: functional (execution/verification/orchestration/observability) vs. mechanical (six building blocks); observability named as the prerequisite fourth primitive; runtime termination signals mapped to the stop-condition taxonomy.
+- `docs/24-harness-patterns.md` — **The Harness as an Org-Level Artifact** (Karpathy): harness design decisions propagate to every loop the org runs.
+
+### Changed
+
+- `LOOP_ENGINEERING.md` — Intro reframed to make loop design the central act (five design questions); updated summaries for docs 02, 04, 24, 27.
+- `docs/04-verification.md` — Framed verification as the completion-check stop; cross-ref to the canonical taxonomy.
+- `docs/30-goal-engineering.md` — Goal stopping condition mapped to the completion-check category; cross-ref to the canonical taxonomy.
+
+---
+
 ## [2.3.14] — 2026-06-26
 
 ### Changed

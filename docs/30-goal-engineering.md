@@ -129,8 +129,10 @@ Before launching a goal, score its readiness across four axes (0 = not met, 1 = 
 ## Relationship to the Loop Contract
 
 A goal is a single non-recurring iteration with a deterministic stopping condition.
-The [Loop Contract](27-loop-contract.md)'s STOP property maps directly to the
-Verifier primitive. The Anchor File pattern maps as follows:
+A goal's stopping condition is almost always the **completion check** in the
+[Stop Condition Taxonomy](27-loop-contract.md#stop-condition-taxonomy), backed by a
+budget safety stop. The [Loop Contract](27-loop-contract.md)'s STOP property maps
+directly to the Verifier primitive. The Anchor File pattern maps as follows:
 
 | Anchor file | Goal primitive |
 |---|---|

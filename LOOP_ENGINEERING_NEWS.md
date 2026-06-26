@@ -77,6 +77,14 @@ Sources are defined in [`SOURCES.md`](SOURCES.md).
 - `docs/32-reading-list.md` — added "Building Effective Agents" (Anthropic, Dec 2024) to Harness Design group
 - `SOURCES.md` — added MindStudio Blog (html source; 3+ loop engineering articles)
 
+### Structural review this run (Phase 4c)
+Reading the 38 findings as a set surfaced four structural issues, fixed by consolidation (no new docs):
+- **Stop conditions had no canonical home** (dominant theme: akshay, Sabrina, bojan_ai, Martin Ma, MindStudio; scattered across 13 docs) → added canonical **Stop Condition Taxonomy** to `docs/27`; cross-referenced from `docs/02`, `docs/04`, `docs/30`.
+- **Loop-design process not central** (user steer + "harness > model" evidence) → reframed `docs/27` intro and `LOOP_ENGINEERING.md` around the five design questions (What/How/When/How much/How-do-you-know-it's-done); verification elevated to a peer design question.
+- **Observability unrepresented as a primitive** (miltonheyan) → added **Two Lenses on Loop Primitives** (functional vs. mechanical) to `docs/02`.
+- **Org-level harness framing missing** (Karpathy) → added section to `docs/24`.
+- Codified this whole pass as **Phase 4c** in the `fetch-loop-news` skill so it runs after every future run.
+
 ### Sources to consider adding to SOURCES.md
 - chatprd.ai — now has 3 articles in digest; consider adding as html source (https://www.chatprd.ai/how-i-ai)
 - Agent Factory / Panaversity (agentfactory.panaversity.org) — 1 article found; verify more before adding

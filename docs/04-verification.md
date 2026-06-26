@@ -5,6 +5,12 @@
 Without verification, the loop has no stopping condition — it either halts too early
 ("looks done") or spins forever. **Always give Claude a check it can run.**
 
+Verification *is* the loop's success stop: it is the **completion check** in the
+[Stop Condition Taxonomy](27-loop-contract.md#stop-condition-taxonomy). Budget,
+max-iteration, and no-progress stops only contain a loop; the completion check is the
+only one that lets it succeed — and it is exactly as trustworthy as the verifier behind
+it. "An agent loop without a verifier just compounds its own mistakes on a schedule."
+
 A check is anything that returns a pass/fail signal Claude can read:
 
 - Test suite (`npm test`, `pytest`, `cargo test`)

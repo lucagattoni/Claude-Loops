@@ -15,6 +15,23 @@ The harness is prerequisite infrastructure; the loop is the control plane above 
 A well-designed loop depends on well-designed harnesses — but the loop's job is
 coordination and termination, not execution.
 
+### The Harness as an Org-Level Artifact
+
+At scale the harness stops being a per-developer convenience and becomes the primary
+*organizational* artifact — the shared substrate that defines how every agent in a
+company behaves, what it may touch, and how its work is verified.
+
+> "It is an org-level harness. The difference will become clearer over time."
+> ([@karpathy](https://x.com/karpathy/status/2069822834160124091) on Claude Tag, Jun 2026)
+
+The implication: harness design decisions (permission posture, verification gates,
+credential handling) are no longer local choices — they propagate to every loop the
+org runs. This is why the harness, not the model, is the leverage point ("the harness
+now matters more than the model" — see [The Paradigm Shift](01-paradigm-shift.md)).
+The org-level harness is realised concretely as per-thread/per-channel agent instances
+with their own memory and permissions — see [Claude Tag](31-claude-tag.md) — and
+governed across many loops via [Fleet Engineering](23-fleet-engineering.md).
+
 ## Harness vs. Environment Engineering
 
 Two complementary safety layers operating at different levels of the stack:

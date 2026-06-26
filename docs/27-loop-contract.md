@@ -1,11 +1,34 @@
 # The Loop Contract
 
-Before launching any loop, define six properties explicitly. A loop without a
-complete contract is guaranteed to under-deliver or over-spend.
+**Designing the loop is the central act of loop engineering.** Before any code runs,
+you answer five questions about the loop itself:
+
+| Design question | What it decides | Contract property |
+|---|---|---|
+| **What?** | The purpose and what the loop may touch | SCOPE |
+| **How?** | What the loop actually does each time it fires | ACTION |
+| **When?** | What starts it — schedule, event, or signal | TRIGGER |
+| **How much?** | The cost and runtime it is allowed to spend | BUDGET |
+| **How do you know it's done?** | What "done" looks like and the verifier that confirms it | STOP + verifier |
+
+The fifth question is a peer, not a footnote of "what." Knowing — and *checking* —
+when the loop is done is the hardest and most-failed design decision: it is what the
+[Stop Condition Taxonomy](#stop-condition-taxonomy) below and all of
+[Verification](04-verification.md) exist to answer. A sixth property, **REPORT**, says
+what the loop tells you when it finishes.
+
+The Loop Contract is the concrete instrument for answering these. Get the design right
+and execution is mechanical; get it wrong and no amount of model quality rescues it.
+**A loop without a complete contract is guaranteed to under-deliver or over-spend.**
+This design step — not the prompting, not the model choice — is where loop engineering
+lives. ("The harness now matters more than the model" — see [The Paradigm Shift](01-paradigm-shift.md).)
 
 (Source: explainx.ai, "Loop Engineering: How to Design Coding Agent Loops That Run While You Sleep", Jun 2026.)
 
 ## The Six Properties
+
+Each property answers one of the design questions above. Define all six explicitly
+before launching:
 
 | Property | Question it answers | Example |
 |---|---|---|
@@ -54,6 +77,43 @@ what enforces it at runtime — without objective evidence, the loop cannot know
 whether STOP has been met.
 
 (Wooheum Xin, "Stop Writing Prompts: The True Nature of Loop Engineering", Zenn, Jun 2026.)
+
+## Stop Condition Taxonomy
+
+The STOP property is the single most-cited failure point in loop engineering. A loop
+that cannot say what "done" looks like stops too early (undercooked), runs forever
+(overcooked), or never reports (forgotten) — the **rice-cooker problem**.
+(Martin Ma, ["What the Hell Is Loop Engineering?"](https://www.linkedin.com/pulse/what-hell-loop-engineering-martin-ma-roipc/), Jun 2026.)
+
+Every STOP property is built from one or more of four stop-condition categories. This
+is the **canonical taxonomy** — other docs reference it rather than re-defining it.
+
+| Category | Fires when | Role |
+|---|---|---|
+| **Completion check** | A verifier confirms the objective is met (tests pass, `VERDICT: PASS`, checklist complete) | The only *success* stop |
+| **Budget exhausted** | `--max-budget-usd` or `--max-turns` cap reached | Safety stop — contain cost |
+| **Max iterations** | Fixed iteration count reached (e.g. `/goal` stop-after-N: rename 25, CSV 30, PDF 40 turns) | Safety stop — bound runtime |
+| **No-progress (stall)** | N consecutive iterations produce no measurable change (no new passing test, no diff) | Safety stop — detect dead-ends |
+
+**Only the completion check means success.** The other three are *safety* stops: they
+prevent a runaway but leave the work incomplete, so they must escalate to a human or a
+retry — never report PASS. A production loop pairs a completion check (success) with at
+least one safety stop (containment); a loop with only safety stops can never succeed,
+and a loop with only a completion check can never be contained.
+
+**Verification *is* the completion check.** "An agent loop without a verifier just
+compounds its own mistakes on a schedule." ([@bojan_ai](https://x.com/bojan_ai/status/2070433693957558636), Jun 2026.)
+The completion-check stop is only as trustworthy as the verifier behind it — see
+[Verification](04-verification.md) for building a verifier the STOP property can rely
+on, and the maker/checker separation that stops the agent grading its own work.
+
+The runtime termination signals in [The Core Agent Loop Cycle](02-agent-loop-cycle.md)
+(`success`, `error_max_turns`, `error_max_budget_usd`, Stop-hook rejection) are the
+mechanical events that *enforce* these design-time categories: `success` enforces the
+completion check; `error_max_turns` / `error_max_budget_usd` enforce the budget and
+max-iteration stops.
+
+(Stop-condition categories: Akshay Pachaar, ["Loop Engineering Clearly Explained"](https://x.com/akshay_pachaar/status/2069118430582866051), Jun 2026; bounded N-turn examples: [Sabrina Ramonov](https://x.com/Sabrina_Ramonov/status/2070125608013648082), Jun 2026; three-checkpoint model: [MindStudio](https://www.mindstudio.ai/blog/how-to-build-agentic-loop-claude-code), Jun 2026.)
 
 ## Experience Encoding — The Loop's Learning Step
 
