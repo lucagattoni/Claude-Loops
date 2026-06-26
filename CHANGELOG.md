@@ -18,6 +18,14 @@ Versioning follows [Semantic Versioning](https://semver.org/):
 
 ---
 
+## [2.3.11] — 2026-06-26
+
+### Added
+
+- `scripts/com.luca.loop-news.plist` — macOS LaunchAgent that runs `run-loop-news.sh` daily at 05:00 local (= 04:00 UTC); registered via `launchctl load ~/Library/LaunchAgents/com.luca.loop-news.plist`
+
+---
+
 ## [2.3.10] — 2026-06-25
 
 ### Changed

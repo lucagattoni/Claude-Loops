@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+
+    <key>Label</key>
+    <string>com.luca.loop-news</string>
+
+    <key>ProgramArguments</key>
+    <array>
+        <string>/bin/bash</string>
+        <string>/Users/luca/Code/repos/github_lucagattoni/Claude-Loops/scripts/run-loop-news.sh</string>
+    </array>
+
+    <!-- 05:00 local (IST/UTC+1 summer) = 04:00 UTC -->
+    <key>StartCalendarInterval</key>
+    <dict>
+        <key>Hour</key>
+        <integer>5</integer>
+        <key>Minute</key>
+        <integer>0</integer>
+    </dict>
+
+    <!-- launchd has a minimal PATH; supply homebrew + system paths explicitly -->
+    <key>EnvironmentVariables</key>
+    <dict>
+        <key>PATH</key>
+        <string>/opt/homebrew/bin:/opt/homebrew/sbin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin</string>
+        <key>HOME</key>
+        <string>/Users/luca</string>
+    </dict>
+
+    <key>WorkingDirectory</key>
+    <string>/Users/luca/Code/repos/github_lucagattoni/Claude-Loops</string>
+
+    <!-- catch-all for anything the script itself doesn't redirect -->
+    <key>StandardOutPath</key>
+    <string>/Users/luca/Code/repos/github_lucagattoni/Claude-Loops/logs/launchd.log</string>
+    <key>StandardErrorPath</key>
+    <string>/Users/luca/Code/repos/github_lucagattoni/Claude-Loops/logs/launchd.log</string>
+
+    <key>RunAtLoad</key>
+    <false/>
+
+</dict>
+</plist>
