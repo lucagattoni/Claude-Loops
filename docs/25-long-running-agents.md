@@ -69,6 +69,11 @@ If inner loop fails N consecutive times:
 The key insight: repeated failure is a signal about the *strategy*, not the execution.
 The outer loop intervenes before the inner loop burns its budget on a stuck approach.
 
+This is a different axis from the [Three Feedback Loops](14-human-in-the-loop.md#the-three-feedback-loops):
+the Dual Loop nests *execution inside strategy* (both can be automated); the three
+feedback loops nest *agent inside developer inside user* by who supplies the correcting
+signal and at what cadence.
+
 (Data Science Dojo, "Agentic Loops: From ReAct to Loop Engineering", 2026.)
 
 ## Real-World Scale

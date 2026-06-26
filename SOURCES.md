@@ -67,6 +67,7 @@ substantively relevant to loop engineering practice (not just a passing mention)
 | Boris Cherny | x | @bcherny | Creator of Claude Code; coined "write loops" |
 | Andrej Karpathy | x | @karpathy | Influential ML researcher |
 | Andrew Ng | x | @AndrewYNg | Agentic AI education |
+| The Batch (DeepLearning.AI) | rss | https://www.deeplearning.ai/the-batch/feed/ | Andrew Ng's weekly newsletter; recurring loop engineering / agentic coverage (e.g. "Loop Engineering for 0-to-1 Product Development", Jun 2026) |
 | OpenAI | html | https://openai.com/news | RSS blocked (403); scrape news index |
 | Addy Osmani | rss | https://addyosmani.com/rss.xml | Co-defined loop engineering |
 | Simon Willison | rss | https://simonwillison.net/atom/entries/ | LLM tooling practitioner |

@@ -18,6 +18,24 @@ Versioning follows [Semantic Versioning](https://semver.org/):
 
 ---
 
+## [2.4.1] — 2026-06-26
+
+Manual addition from Andrew Ng's "Loop Engineering for 0-to-1 Product Development" (The Batch).
+
+### Added
+
+- `docs/14-human-in-the-loop.md` — **The Three Feedback Loops** (Andrew Ng): agentic coding (minutes) / developer review (tens of min–hours) / user feedback (days), and the human "context advantage" that keeps the human loop necessary; cross-linked to the Inner/Outer Dual Loop.
+- `SOURCES.md` — added The Batch (DeepLearning.AI) as an rss source.
+
+### Changed
+
+- `docs/17-failure-patterns.md` — enriched the Reward hacking row with the concrete GLM-5.2 case (agents fetched reference solutions from GitHub) and the rule-based-filter mitigation.
+- `docs/25-long-running-agents.md` — reciprocal cross-ref distinguishing the Dual Loop axis (execution/strategy) from the three feedback loops (agent/developer/user).
+- `docs/32-reading-list.md` — added Andrew Ng's article to the Getting Started group.
+- `LOOP_ENGINEERING.md` — updated the docs/14 summary.
+
+---
+
 ## [2.4.0] — 2026-06-26
 
 Findings-driven structural review of the KB after the 2026-06-26 news run (38 findings),

@@ -132,6 +132,25 @@ boundaries — exactly what an autonomous loop needs to act without constant sup
 
 ---
 
+### [Loop Engineering for 0-to-1 Product Development](https://info.deeplearning.ai/a-new-generation-studies-ai-apples-recipe-for-on-device-models-glm5.2-tackles-open-ended-problems-1) — Andrew Ng (The Batch)
+**Added:** 2026-06-26 · **Published:** Jun 2026
+
+**Why here:** The clearest mental model for *where the human fits* once loops run the
+implementation, from one of the field's most authoritative voices. The three-nested-
+feedback-loops framing (and the "context advantage" that keeps humans necessary) is
+not articulated this cleanly anywhere else in the list.
+
+**Summary:** Frames AI-powered product development as three interconnected feedback
+loops at different cadences: the agentic coding loop (agents build and test a new
+version every few minutes), the developer feedback loop (humans review at intervals of
+tens of minutes to hours), and the external feedback loop (user data over days). The
+better the inner loop closes itself, the longer agents "work productively without human
+intervention" — but the human loop persists because humans hold a *context advantage*:
+they understand user needs better than current AI. The engineer's role becomes holding
+the context the agent lacks and steering at the cadence the agent cannot self-correct.
+
+---
+
 ## Harness Design & Architecture
 
 Deep-dive articles on the engineering of the harness — the scaffolding around the agent.

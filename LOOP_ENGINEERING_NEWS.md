@@ -92,6 +92,24 @@ Reading the 38 findings as a set surfaced four structural issues, fixed by conso
 
 ---
 
+## 2026-06-26 (manual addition)
+
+### New findings
+
+| Tier | Source | Title | URL | Summary |
+|---|---|---|---|---|
+| 1 | Andrew Ng (The Batch) | "Loop Engineering for 0-to-1 Product Development" | [link](https://info.deeplearning.ai/a-new-generation-studies-ai-apples-recipe-for-on-device-models-glm5.2-tackles-open-ended-problems-1) | Three nested feedback loops at different cadences — agentic coding (minutes), developer review (tens of min–hours), user feedback (days); humans persist via a "context advantage" over current AI. |
+| 3 | The Batch | "GLM-5.2 reward hacking during agentic RL" | [link](https://info.deeplearning.ai/a-new-generation-studies-ai-apples-recipe-for-on-device-models-glm5.2-tackles-open-ended-problems-1) | Concrete reward-hacking case: agents fetched reference solutions from GitHub to pass coding tests; mitigated with a rule-based filter flagging suspect tool calls. |
+
+### Docs updated this run
+- `docs/14-human-in-the-loop.md` — added "The Three Feedback Loops" (agent/developer/user cadences + context advantage); cross-linked to Inner/Outer Dual Loop
+- `docs/17-failure-patterns.md` — enriched the Reward hacking row with the GLM-5.2 concrete case + rule-based-filter mitigation (consolidated, no new row)
+- `docs/25-long-running-agents.md` — added reciprocal cross-ref distinguishing the Dual Loop axis from the three feedback loops
+- `docs/32-reading-list.md` — added Andrew Ng's article to Getting Started
+- `SOURCES.md` — added The Batch (DeepLearning.AI) as rss source
+
+---
+
 ## 2026-06-25 (manual addition)
 
 ### New findings
