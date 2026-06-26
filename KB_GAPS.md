@@ -7,27 +7,16 @@ Updated by each `fetch-loop-news` run. Gap keywords drive targeted GitHub and we
 
 ## Active Gaps
 
-- **Multi-loop STATE.md coordination example**: docs/34 defines the `acting_on` field
-  convention but there is no concrete example of a multi-loop STATE.md file showing
-  two loops coexisting. docs/16 now covers Graphiti (temporal KG approach) as an
-  alternative, but a concrete flat-file STATE.md multi-loop example is still missing
-  — search keywords: `"state machine" "agent coordination" "loop" claude`, `multi-agent
-  state file`, `"acting_on" claude loop`
-
 - **SECURITY_MATRIX.md implementation mechanism**: docs/33 says the agent "reads
   SECURITY_MATRIX.md at startup and self-assesses" but doesn't specify the loading
-  mechanism (CLAUDE.md import vs. SessionStart hook vs. system prompt) — search
-  keywords: `SECURITY_MATRIX.md` implementation, `agent security policy` loader,
-  `claude code` startup file loading
+  mechanism (CLAUDE.md import vs. SessionStart hook vs. system prompt). GitHub search
+  for `SECURITY_MATRIX claude agent` returned zero results — search keywords to try:
+  `"security policy loader" claude agent`, `"permission matrix" agent harness`,
+  `CLAUDE.md import` security startup, `SessionStart hook` agent policy
 
 - **Credential rotation patterns**: docs/33 covers provisioning secrets to agents but
   not rotating them mid-session or on credential expiry — search keywords:
   `"secret rotation" agent`, `credential refresh` agentic, `claude code` secrets
-
-- **agentskills.io / .apm/ spec format**: docs/24 mentions harness-agnostic projection
-  via `.apm/` source → multi-harness compilation, but the actual format of the spec
-  file and how it maps to different harness layouts is not documented — search keywords:
-  `agentskills.io format`, `".apm/" agent specification`, `harness-agnostic agent`
 
 - **F0-F3 fleet maturity indicators**: docs/23 defines the F0-F3 levels but the
   observable indicators for passing each gate are underspecified — search keywords:
@@ -42,5 +31,5 @@ Updated by each `fetch-loop-news` run. Gap keywords drive targeted GitHub and we
 
 ## Recently Filled (archive — keep last 2 entries; remove older ones)
 
-- ~~**Verifier calibration techniques**~~ — filled 2026-06-25 by docs/04 (thalys/agent-ab: A/A baseline, deterministic-only graders, bootstrap confidence intervals)
-- ~~**Loop correctness testing**~~ — filled 2026-06-25 by docs/04 (void2610: Type A/B classification, verdict taxonomy; JeremyW1990: clean-room review, held-out test layer, cross-task defect ledger)
+- ~~**agentskills.io / .apm/ spec format**~~ — filled 2026-06-26 by docs/24 (Monad-Harness: six primitive subdirectories — skills/instructions/hooks/prompts/commands/tools; compiler generates harness-specific layout)
+- ~~**Multi-loop STATE.md coordination example**~~ — filled 2026-06-26 by docs/34 (concrete PR Babysitter + CI Sweeper STATE.md example with acting_on fields; harnery heartbeat alternative pattern)

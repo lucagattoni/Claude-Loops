@@ -252,6 +252,22 @@ the wrong reason."
 
 ([eugenelim/agent-ready-repo](https://github.com/eugenelim/agent-ready-repo), Jun 2026.)
 
+## Self-Coverage Gate
+
+A formal stopping condition that requires every item in the loop's declared scope to have at least one verification artifact before the loop can exit (eugenelim/agent-ready-repo, RFC-0051, Jun 2026).
+
+**The gate asks:** for every scope item, does a corresponding artifact exist (test, goal-check, visual proof)? If not, the loop is incomplete — it has missing coverage, not just failing tests.
+
+The self-coverage check differs from test pass/fail:
+- Test failure → implementation is wrong; retry
+- Coverage failure → the verification layer itself is incomplete; the loop must write the missing check before it can exit
+
+**Implementation:** a Stop hook reads SCOPE.md and checks every scope item against the current test/check index. Items without coverage artifacts fail the gate and prevent the turn from closing. See [Hooks](12-hooks.md) for the Stop hook exit code contract.
+
+**Traceability-lint** — a related gate checking that every output artifact carries a traceable chain from scope item → task → implementation → verification → done evidence. A traceability-lint failure means the evidence chain is broken: the artifact exists, but its link to the original scope requirement is missing. Implemented as a pre-commit hook that validates task metadata.
+
+([eugenelim/agent-ready-repo](https://github.com/eugenelim/agent-ready-repo), RFC-0048/RFC-0051, Jun 2026.)
+
 ## Oracle Problem in AI-Generated Tests
 
 When the same agent writes both code and tests in the same session, tests exhibit

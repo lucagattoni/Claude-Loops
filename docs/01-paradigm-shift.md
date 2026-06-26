@@ -71,3 +71,21 @@ specifying work precisely, and verifying output rigorously — not those who typ
 The harness and the spec are now first-class engineering artefacts. "Vibe coding"
 (accepting plausible-looking output without verification) is the new technical debt.
 (Addy Osmani, "The New Software Lifecycle", Jun 2026.)
+
+## Loop Engineering at Anthropic
+
+> "More than 80% of Anthropic engineers now build with self-improving loops." — Anthropic engineer, Jun 2026
+
+Anthropic published five canonical agent workflow patterns that underpin their internal loop engineering practice:
+
+| Pattern | Description |
+|---|---|
+| **Prompt chaining** | Sequential steps where each model call processes the output of the previous |
+| **Routing** | A classifier determines which specialised sub-pipeline handles each input |
+| **Parallelization** | Independent sub-tasks run in parallel; outputs are aggregated |
+| **Orchestrator-workers** | A coordinator breaks the task down; worker agents execute sub-tasks |
+| **Evaluator-optimizer** | Generator and evaluator alternate; evaluator feedback drives the next generation |
+
+The **evaluator-optimizer** is the canonical implementation of the maker/checker verification loop: the generator produces an artifact, the evaluator judges it against defined criteria, and the result drives the next generation. The loop exits when the evaluator's criteria are met — this is loop engineering's stopping condition in practice. See [Subagents](07-subagents.md) for the DOER/CHECKER pattern and evaluator tuning.
+
+(Anthropic, ["Building Effective Agents"](https://www.anthropic.com/news/building-effective-agents), Dec 2024.)

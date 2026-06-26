@@ -15,6 +15,34 @@ The harness is prerequisite infrastructure; the loop is the control plane above 
 A well-designed loop depends on well-designed harnesses — but the loop's job is
 coordination and termination, not execution.
 
+## Harness vs. Environment Engineering
+
+Two complementary safety layers operating at different levels of the stack:
+
+| Layer | Scope | Controls |
+|---|---|---|
+| **Harness engineering** | In-process | settings.json permissions, lifecycle hooks (PreToolUse/PostToolUse), MCP gates, CLAUDE.md rules |
+| **Environment engineering** | Out-of-process | OS user per agent, container isolation, network filtering, credential broker |
+
+The distinction matters for defense-in-depth:
+
+- **Harness controls** are enforced by the Claude Code runtime — effective against autonomous bad decisions, but inside the same process as the agent.
+- **Environment controls** are enforced by the OS or infrastructure — they limit what the agent *can* do regardless of what the model decides, and cannot be overridden by the model.
+
+**Three reference deployment patterns:**
+
+| Pattern | Harness posture | Environment posture | Use when |
+|---|---|---|---|
+| **Approval-First** | All file writes in ask list | Standard OS user | New loop, unknown scope |
+| **Curated Allow-list** | Explicit allow list; everything else denied | Standard OS user | Loop scope is well-understood |
+| **Sandboxed Full-Auto** | Auto mode, full tool access | Isolated container + network filter | Fully autonomous production loop |
+
+Rule: start every new loop at Approval-First; advance to a higher pattern only after two weeks of zero policy violations at the current level.
+
+See [Permissions & Auto Mode](08-permissions.md) for the full harness-layer control reference (allow/deny/ask lists, risk-tiered authorization, agent trust ramp).
+
+(hidekazu-konishi, ["Claude Code Harness and Environment Engineering"](https://hidekazu-konishi.com/entry/claude_code_harness_and_environment_engineering_guide.html), Apr 2026.)
+
 > "Verification closure creates reliability; reliability creates scalability."
 
 Verification built into the harness (a separate verifier agent, objective evidence
@@ -205,6 +233,21 @@ Benefits:
 reviews the compiled harness specification *before* any implementation begins — not after.
 Fixing a security gap at specification costs 1×; fixing it post-implementation costs 10×+.
 
+**The `.apm/` primitive manifest** — the canonical source format for a harness-agnostic agent stores six primitive types in separate subdirectories:
+
+| Subdirectory | Contents |
+|---|---|
+| `skills/` | Reusable workflow files (SKILL.md schemas) |
+| `instructions/` | Role-specific system prompts and CLAUDE.md fragments |
+| `hooks/` | PreToolUse/PostToolUse/Stop hook scripts |
+| `prompts/` | Reusable prompt templates |
+| `commands/` | Slash-command definitions |
+| `tools/` | MCP tool configurations and API definitions |
+
+The compiler reads `.apm/` and generates the harness-specific layout (`.claude/` for Claude Code, `.codex/` for Codex, etc.). Primitive files contain no CLI-specific directives — portability is enforced by convention, not tooling.
+
+(sergiocarvalhosa/[Monad-Harness](https://github.com/sergiocarvalhosa/Monad-Harness), Jun 2026.)
+
 ([eugenelim/agent-ready-repo](https://github.com/eugenelim/agent-ready-repo), Jun 2026.)
 
 ## 8-Phase DAG Execution Model (Tenet)
@@ -259,6 +302,10 @@ harness can read. The agent's context resets; the project state persists.
 **Cross-device session continuity:** Serialize the session ID and connection parameters at the start
 of each run. Any device or runner that has the session ID can resume the session without
 re-establishing context from scratch.
+
+**Compaction persistence** — context compaction events are persisted alongside the session state. When a session resumes (`claude --resume`), the harness replays the compaction log to reconstruct the effective context without requiring the agent to re-read all prior files — reducing resume latency significantly on long sessions.
+
+**Spec reconstruction on resolve-miss** — if the agent spec file is missing when the harness tries to resume, the harness reconstructs it from the stored session event log rather than aborting. This prevents crash-loop failures caused by missing config files.
 
 ([omnigent-ai/omnigent](https://github.com/omnigent-ai/omnigent), Jun 2026.)
 

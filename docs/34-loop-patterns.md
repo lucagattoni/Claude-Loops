@@ -167,6 +167,49 @@ item that is already claimed**. Rule: one owner per branch per hour.
 When a conflict cannot be resolved automatically, the loop writes to a human inbox
 section in STATE.md and notifies rather than acting.
 
+### Concrete Multi-Loop STATE.md Example
+
+Two loops coexisting on the same repo — PR Babysitter and CI Sweeper — with non-overlapping claimed work:
+
+```markdown
+# STATE.md
+
+## CI Sweeper
+acting_on: fix/auth-token-race
+locked_at: 2026-06-26T09:12Z
+attempt: 1 of 3
+
+## PR Babysitter
+acting_on: pr-1048
+locked_at: 2026-06-26T09:14Z
+status: awaiting-ci
+```
+
+Each loop writes its own `## <loop-name>` section and reads **all** sections before claiming work. If `acting_on` under any section matches the branch/PR a loop was about to claim, that loop skips the item and moves to the next candidate.
+
+### Per-Agent Heartbeat Alternative (Harnery Pattern)
+
+An alternative to a shared STATE.md — each agent writes a heartbeat file to `.harnery/active/<agent-id>.json` while it holds a claim:
+
+```json
+{
+  "acting_on": "fix/auth-token-race",
+  "claimed_at": "2026-06-26T09:12:00Z",
+  "ttl_seconds": 300,
+  "status": "running"
+}
+```
+
+Coordination rules:
+1. **Claim gate** — write the file before starting any work
+2. **Commit gate** — rewrite with `"status": "committing"` before any write operations
+3. **Release** — delete the file after commit, or on failure add a `"failure_reason"` field
+4. **Stale claims** — any file older than `ttl_seconds` is treated as abandoned; other agents may re-claim
+
+Benefits over shared STATE.md: no merge conflict risk (separate files per agent), atomic via filesystem rename semantics, TTL prevents orphaned claims after crashes.
+
+([ryanjkelly/harnery](https://github.com/ryanjkelly/harnery), Jun 2026.)
+
 See [Fan-Out](10-fan-out.md) for scope-verified parallelism at the hook layer.
 
 ## Safety Defaults

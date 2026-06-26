@@ -209,6 +209,15 @@ Essential reading once you have working harnesses and want to make them producti
 
 ---
 
+### [Building Effective Agents](https://www.anthropic.com/news/building-effective-agents) — Anthropic
+**Added:** 2026-06-26 · **Published:** Dec 2024
+
+**Why here:** The canonical first-party reference for agent workflow architecture. The five patterns defined here — evaluator-optimizer especially — are the vocabulary the entire field now uses, regardless of whether practitioners trace it back to this document. Pre-dates "loop engineering" as a named discipline but is the foundational design reference every serious practitioner converges on.
+
+**Summary:** Defines five composable patterns for multi-step agent systems: prompt chaining (sequential processing where each call processes the previous output), routing (a classifier directs each input to a specialised sub-pipeline), parallelization (independent sub-tasks fan out in parallel, outputs aggregated), orchestrator-workers (coordinator breaks the task down; specialist agents execute sub-tasks), and evaluator-optimizer (generator and evaluator alternate until the evaluator's criteria are met — the canonical maker/checker loop). Includes guidance on when not to use agentic frameworks and how to design for reliability in each pattern.
+
+---
+
 ## Goal Engineering & Stopping Conditions
 
 The stopping condition is where most loops fail. These articles address it directly.

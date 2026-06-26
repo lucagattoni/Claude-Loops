@@ -17,7 +17,7 @@ Row numbers are stable identifiers — they do not change when docs are reorgani
 
 | # | Topic | Summary |
 |---|---|---|
-| 1 | [The Paradigm Shift](docs/01-paradigm-shift.md) | Old-way prompting vs. loops; compound probability argument (0.9^10 = 35%); the New Software Lifecycle |
+| 1 | [The Paradigm Shift](docs/01-paradigm-shift.md) | Old-way prompting vs. loops; compound probability argument (0.9^10 = 35%); the New Software Lifecycle; five Anthropic canonical patterns; >80% Anthropic engineers use self-improving loops |
 | 26 | [The Factory Model](docs/26-factory-model.md) | Orchestrating agent factories — spec quality and verification replace coding speed |
 | 2 | [The Core Agent Loop Cycle](docs/02-agent-loop-cycle.md) | Observe → Reason → Plan → Act → Verify; Universal Agent Thesis |
 | 20 | [Loop Maturity Model](docs/20-loop-maturity-model.md) | 14-step progression from manual prompter to loop engineer; per-loop L1/L2/L3 operational readiness levels |
@@ -29,8 +29,8 @@ Row numbers are stable identifiers — they do not change when docs are reorgani
 |---|---|---|
 | 27 | [The Loop Contract](docs/27-loop-contract.md) | TRIGGER/SCOPE/ACTION/BUDGET/STOP/REPORT; job-description framing; Event Modeling; two quality gates; experience encoding; governed cross-session learning; YAML-declarative loop definition + VERDICT: PASS gate; 2-layer budget ceiling; self-discovery pattern; cross-run memory persistence (.loopflow/memory/); gate feedback injection to all agent prompts |
 | 30 | [Goal Engineering](docs/30-goal-engineering.md) | Goals vs. Loops decision framework; four Goal Primitives; GOAL.md schema; six canonical goal patterns; G0-G3 readiness scoring (cobusgreyling, Jun 2026) |
-| 24 | [Harness Patterns](docs/24-harness-patterns.md) | Harness vs. Loop layers; three-agent full-stack harness; unstable components axiom; ledger closure; five-wave model; runtime republic vs. constitutional control plane; harness-agnostic projection; 8-phase DAG + steer messages; meta-harness 3-tier policy hierarchy; agent YAML definition schema; organizational learning stage; harness update file safety contract |
-| 34 | [Loop Patterns Catalog](docs/34-loop-patterns.md) | Seven named loop patterns (Daily Triage, PR Babysitter, CI Sweeper, Dependency Sweeper, Post-Merge Cleanup, Changelog Drafter, Issue Triage); L1/L2/L3 readiness levels; token costs; multi-loop coordination; three-loop onboarding sequence; Debt Audit + Docs Sync patterns |
+| 24 | [Harness Patterns](docs/24-harness-patterns.md) | Harness vs. Loop layers; harness vs. environment engineering (in-process vs. OS-level controls); three deployment patterns (Approval-First/Allow-list/Sandboxed); three-agent full-stack harness; unstable components axiom; ledger closure; five-wave model; runtime republic vs. constitutional control plane; harness-agnostic projection + .apm/ primitive manifest; 8-phase DAG + steer messages; meta-harness 3-tier policy hierarchy + compaction persistence + resume; agent YAML definition schema; organizational learning stage; harness update file safety contract |
+| 34 | [Loop Patterns Catalog](docs/34-loop-patterns.md) | Seven named loop patterns (Daily Triage, PR Babysitter, CI Sweeper, Dependency Sweeper, Post-Merge Cleanup, Changelog Drafter, Issue Triage); L1/L2/L3 readiness levels; token costs; multi-loop coordination with concrete STATE.md example; per-agent heartbeat coordination (harnery pattern); three-loop onboarding sequence; Debt Audit + Docs Sync patterns |
 | 3 | [The Six Building Blocks](docs/03-building-blocks.md) | Automations, Worktrees, Skills, Connectors, Sub-agents, Memory; Routines for cloud execution |
 | 28 | [Routines](docs/28-routines.md) | Cloud-hosted loop execution: Schedule / API / GitHub triggers — no local machine needed |
 | 31 | [Claude Tag](docs/31-claude-tag.md) | Ambient loops in Slack: channel-scoped identity, self-scheduling, org-wide context; the third LLM paradigm |
@@ -60,7 +60,7 @@ Row numbers are stable identifiers — they do not change when docs are reorgani
 
 | # | Topic | Summary |
 |---|---|---|
-| 4 | [Verification](docs/04-verification.md) | The non-negotiable foundation — strategies, Type A/B classification, verdict taxonomy, cross-run patterns, belief state machine + R0-R5 risk levels, A/A baseline, LLM-as-a-judge (Opik), Firefox case study (423 fixes); "Surface" vocabulary; verification mode discipline (TDD/goal-based/visual); oracle problem (~6% precision); structured critic finding taxonomy (6 categories) |
+| 4 | [Verification](docs/04-verification.md) | The non-negotiable foundation — strategies, Type A/B classification, verdict taxonomy, cross-run patterns, belief state machine + R0-R5 risk levels, A/A baseline, LLM-as-a-judge (Opik), Firefox case study (423 fixes); "Surface" vocabulary; verification mode discipline (TDD/goal-based/visual); self-coverage gate (RFC-0051); traceability-lint; oracle problem (~6% precision); structured critic finding taxonomy (6 categories) |
 | 17 | [Common Failure Patterns](docs/17-failure-patterns.md) | Cognitive surrender, orchestration tax, reward hacking, context pollution, amplification effect, State Rot, Verifier Theater, Notification Fatigue, Fixing flakes with code, Over-Reach, Parallel Collision, and more |
 | 14 | [Human-in-the-Loop Escalation](docs/14-human-in-the-loop.md) | When to pause and ask for human input |
 | 11 | [Cost & Turn Control](docs/11-cost-control.md) | `--max-turns`, `--max-budget-usd`, effort levels; token cost by loop pattern (noop 3-5K → action run 200-250K); early exit rule; operational kill/pause/slow-down thresholds |

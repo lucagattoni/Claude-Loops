@@ -18,6 +18,21 @@ Versioning follows [Semantic Versioning](https://semver.org/):
 
 ---
 
+## [2.3.14] — 2026-06-26
+
+### Changed
+
+- `docs/24-harness-patterns.md` — Added: Harness vs. Environment Engineering section (in-process vs. out-of-process controls; Approval-First / Curated Allow-list / Sandboxed Full-Auto patterns); extended Harness-Agnostic Projection with .apm/ primitive manifest (6 subdirectory types); extended omnigent section with compaction persistence, --resume, and spec reconstruction on resolve-miss
+- `docs/04-verification.md` — Added: Self-Coverage Gate (RFC-0051, every scope item must have a verification artifact) and Traceability-Lint (scope→task→artifact evidence chain gate)
+- `docs/34-loop-patterns.md` — Added: concrete STATE.md multi-loop example (PR Babysitter + CI Sweeper coexisting with acting_on fields); Per-Agent Heartbeat Coordination pattern (harnery .harnery/active/ with claim/commit/TTL guards)
+- `docs/01-paradigm-shift.md` — Added: >80% Anthropic engineers on self-improving loops; five canonical agent workflow patterns (prompt chaining, routing, parallelization, orchestrator-workers, evaluator-optimizer)
+- `docs/32-reading-list.md` — Added "Building Effective Agents" (Anthropic, Dec 2024) to Harness Design group
+- `SOURCES.md` — Added MindStudio Blog as html source
+- `KB_GAPS.md` — Marked .apm/ spec format and multi-loop STATE.md coordination as filled; updated SECURITY_MATRIX search keywords
+- `LOOP_ENGINEERING_NEWS.md` — 38 new findings (run 2026-06-26 09:04 UTC)
+
+---
+
 ## [2.3.13] — 2026-06-26
 
 ### Changed

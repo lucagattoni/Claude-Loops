@@ -5,6 +5,85 @@ Sources are defined in [`SOURCES.md`](SOURCES.md).
 
 ---
 
+## 2026-06-26 09:04 UTC (run)
+
+### New findings
+
+| Tier | Source | Title | URL | Summary |
+|---|---|---|---|---|
+| 1 | @Sabrina_Ramonov | "5 Claude Code slash commands i use daily: /goal runs it autonomously until the goal is met" | [link](https://x.com/Sabrina_Ramonov/status/2070246907532677588) | Catalogues five loop-control slash commands including /goal (autonomous until done), /btw (mid-run question injection), and /clear (context reset) — enumerating the loop-control primitive set in Claude Code. |
+| 1 | @Sabrina_Ramonov | "3 boring jobs i hand to one /goal command — stop after N turns" | [link](https://x.com/Sabrina_Ramonov/status/2070125608013648082) | Demonstrates /goal as a bounded autonomous loop: rename files (25 turns), fill CSV (30 turns), summarise PDFs (40 turns) — concrete pattern for stop-after-N-turns loops. |
+| 1 | @akshay_pachaar | "Loop Engineering Clearly Explained — the harness now matters more than the model" | [link](https://x.com/akshay_pachaar/status/2069118430582866051) | Comprehensive breakdown: stop condition categories (max-iters, budget, no-progress, completion check), context rot + compaction, idempotent tool writes, agent-readable errors, maker/checker separation — most detailed practitioner synthesis this run. |
+| 1 | X Trending | "Anthropic's Playbook Details AI Agent Loop Engineering — >80% of Anthropic engineers build with self-improving loops" | [link](https://x.com/i/trending/2070248250767012231) | X trending story (1,520+ posts) covering Anthropic's eBook on five agent loop patterns; >80% stat confirms loop engineering as mainstream internal Anthropic practice. |
+| 1 | Data Science Collective | "How To Build a Claude Loop Engineering Better Than 99% of People" | [link](https://medium.com/data-science-collective/how-to-build-a-claude-loop-engineering-better-than-99-of-people-3ab8701d176c) | Frames loop engineering as inverting human-in-the-loop: humans design the decision architecture instead of occupying the loop; the engineering challenge shifts from supervision to specification quality. |
+| 2 | omnigent-ai/omnigent | "New commits Jun 26: compaction persistence, resume via --resume, spec reconstruction on resolve-miss" | [link](https://github.com/omnigent-ai/omnigent) | Three new harness resilience patterns: compaction log persistence across resumes, --resume flag for session recovery, spec reconstruction from event log on resolve-miss. |
+| 2 | eugenelim/agent-ready-repo | "New commits Jun 26: RFC-0051 self-coverage gate, traceability-lint spec, RFC-0052 multi-adapter install" | [link](https://github.com/eugenelim/agent-ready-repo) | Self-coverage gate formalises the stopping condition (every scope item must have a verification artifact); traceability-lint validates the scope→task→artifact evidence chain; RFC-0052 adds multi-harness deployment spec. |
+| 2 | Happenmass/Cliclaw | "tmux-based loop orchestration: parallel Claude+Codex, cross-vendor maker/checker, shared tasks.txt/progress.txt" | [link](https://github.com/Happenmass/Cliclaw) | 107★ repo: runs Claude Code and Codex as parallel subagents in a tmux session with auto-continue gate, cross-vendor maker/checker verification, per-agent capability scoping, and shared cross-agent handoff files. |
+| 2 | LeadGrowGTM/loop-engineer | "Goal prompt writer + planner/maker/checker harness for Claude Code" | [link](https://github.com/LeadGrowGTM/loop-engineer) | Direct factory model implementation with explicit role separation: goal prompt writer → planner → maker → checker pipeline. |
+| 2 | Kanevry/session-orchestrator | "STATE.md per-platform crash recovery, 8-dimension verification gate, cross-session pattern learning" | [link](https://github.com/Kanevry/session-orchestrator) | 38★: per-platform STATE.md (.claude/, .codex/) crash recovery; 8-dimension verification gate at ≥80% confidence; /evolve + /reconcile governed cross-session learning. |
+| 2 | ryanjkelly/harnery | "Per-agent heartbeat files + claim/commit guards, canonical event stream" | [link](https://github.com/ryanjkelly/harnery) | Multi-loop coordination via .harnery/active/<agent-id>.json heartbeats: claim gate before work, commit gate before writes, TTL-based stale claim recovery — addresses the multi-loop STATE.md KB gap. |
+| 2 | jhlee0409/claude-harness-kit | "Auto-generates harness (CLAUDE.md + architect agent + verify hook) from repo introspection" | [link](https://github.com/jhlee0409/claude-harness-kit) | Claude Code plugin that inspects the repo and generates a tailored harness configuration — harness bootstrapping as a loop pattern. |
+| 2 | sergiocarvalhosa/Monad-Harness | ".apm/ agent spec: six primitive types (skills/instructions/hooks/prompts/commands/tools)" | [link](https://github.com/sergiocarvalhosa/Monad-Harness) | Concrete .apm/ manifest format for harness-agnostic agent deployment — fills KB gap on .apm/ specification format. |
+| 2 | chatprd.ai | "Create an AI-Powered Patch and Verification Loop for Security Bugs" | [link](https://www.chatprd.ai/how-i-ai/workflows/create-an-ai-powered-patch-and-verification-loop-for-security-bugs) | Blueprint for four-stage maker-checker loop (verify exploit → generate patch → run regression → human merge) with explicit separation of concerns preventing agent self-grading. |
+| 2 | chatprd.ai | "Build a Self-Improving AI to Generate Agent Skills in Codex" | [link](https://www.chatprd.ai/how-i-ai/workflows/build-a-self-improving-ai-to-generate-agent-skills-in-codex) | Meta-loop: meta-agent identifies skill gaps, spawns goal-directed subagents for validation, integrates confirmed skills into reusable library — recursive skill generation loop pattern. |
+| 2 | MindStudio Blog | "What Is Loop Engineering? The New Meta for AI Coding Agents" | [link](https://www.mindstudio.ai/blog/what-is-loop-engineering-ai-coding-agents) | Explains loop engineering as ReAct's successor; argues agent quality depends more on loop design than model selection; covers error handling, context management, and termination conditions. |
+| 2 | Anthropic Engineering | "Scaling Managed Agents: Decoupling the brain from the hands" | [link](https://www.anthropic.com/engineering/managed-agents) | Virtualizing sessions as durable event logs outside Claude's context window; credential vaulting to prevent prompt injection; 60% improvement in time-to-first-token via resource sharing. |
+| 2 | hidekazu-konishi.com | "Claude Code Harness and Environment Engineering: Designing the Frontline Where Local AI Agents Actually Live" | [link](https://hidekazu-konishi.com/entry/claude_code_harness_and_environment_engineering_guide.html) | Distinguishes in-process harness controls (hooks, permissions) from out-of-process environment controls (OS user, container, network); three reference patterns: Approval-First, Curated Allow-list, Sandboxed Full-Auto. |
+| 2 | MindStudio Blog | "What Is an Agent Harness? The Architecture Behind Claude Code, Codex, and Cursor" | [link](https://www.mindstudio.ai/blog/what-is-agent-harness-architecture-explained) | Nine harness components; contrasts Claude Code (explicit approval gates), Codex (model-integrated), and Cursor (code-indexing for context) harness design tradeoffs. |
+| 2 | Cobus Greyling (Medium) | "Loop Engineering Playbook: Where loops live, how to run your first one" | [link](https://cobusgreyling.medium.com/loop-engineering-playbook-4460e01e88d8) | Maps loop deployment tiers (solo terminal, production with audit, editor-integrated); "reasoning alone does not close the loop — agents must execute and observe"; introduces comprehension debt as a technical liability. |
+| 2 | MindStudio Blog | "How to Build an Agentic Loop with Claude Code: Verification, Cost, and Stopping Criteria" | [link](https://www.mindstudio.ai/blog/how-to-build-agentic-loop-claude-code) | Plan-Act-Observe cycle; three verification checkpoints (action, iteration, terminal); three stopping condition categories; cost management via lighter models for routine steps. |
+| 2 | Agent Factory / Panaversity | "Loop Engineering: A Crash Course" | [link](https://agentfactory.panaversity.org/docs/loop-engineering-crash-course) | Six-part loop architecture (heartbeat, worktree, skill, sub-agents, connectors, state/memory); four heartbeat types from in-session to fully unattended; maker-checker with Claude Code / OpenCode examples. |
+| 2 | @bcherny | "Claude Tag: one instance per Slack thread, own memory and permissions per channel" | [link](https://x.com/bcherny/status/2069474689819480394) | Claude Tag's per-thread sandbox architecture: each thread spawns an agent with its own credentials, clones repo, runs code, sandbox discarded when done — loop isolation at OS level. |
+| 2 | @bcherny | "Just landed nested subagent support in Claude Code — capped at depth=5" | [link](https://x.com/bcherny/status/2064327225504403752) | Primary source confirming the depth=5 cap on nested subagents in Claude Code. |
+| 2 | @karpathy | "It is an org-level harness. The difference will become clearer over time." | [link](https://x.com/karpathy/status/2069822834160124091) | Karpathy frames Claude Tag as "org-level harness engineering" — the harness as the primary organizational artifact at scale. |
+| 2 | @0xMovez | "Anthropic engineer: 'my agentic loops can run for hours without spending hundreds of $$$'" | [link](https://x.com/0xMovez/status/2070181700861137222) | Efficient long-running loops; references the spec-first stack (Loop + plan + PRDs + spec + markdown) as the production loop design formula. |
+| 2 | @bojan_ai | "An agent loop without a verifier just compounds its own mistakes on a schedule" | [link](https://x.com/bojan_ai/status/2070433693957558636) | Verification is the loop's stopping condition: the unlock in agent autonomy is building autonomy that checks its own work before shipping. |
+| 2 | @miltonheyan | "loop engineering is the right frame — execution, verification, orchestration are the primitives" | [link](https://x.com/miltonheyan/status/2070432513307357388) | Three loop engineering primitives (execution, verification, orchestration) + observability as fourth prerequisite: without it you can't diagnose which layer failed. |
+| 2 | LinkedIn / GitHub | "Understanding Loop Engineering — LinkedIn Live event, 85 attendees, 273 reactions" | [link](https://www.linkedin.com/events/7475849625292320769/) | GitHub hosted a 61-minute LinkedIn Live on loop engineering — signals GitHub's official entry into the discourse. |
+| 2 | LinkedIn / Martin Ma | "What the Hell Is Loop Engineering?" | [link](https://www.linkedin.com/pulse/what-hell-loop-engineering-martin-ma-roipc/) | Rice-cooker metaphor for the stop-condition problem (undercook/overcook/forget); machine-verifiable completion criteria must be defined before execution begins. |
+| 2 | Anthropic | "Building Effective Agents" | [link](https://www.anthropic.com/news/building-effective-agents) | Five canonical agent workflow patterns: prompt chaining, routing, parallelization, orchestrator-workers, evaluator-optimizer — the evaluator-optimizer is the canonical maker/checker loop implementation. |
+| 3 | travisbreaks/coding-agent-evals | "Behavioral eval harness for Claude Code, real headless runs scored across six dimensions" | [link](https://github.com/travisbreaks/coding-agent-evals) | Behavioral evaluation harness running actual Claude Code loops scored across six quality dimensions — relevant to stopping condition measurement and verifier calibration. |
+| 3 | @akshay_pachaar | "AI security goes far beyond AI — production agent harness needs infrastructure-layer controls" | [link](https://x.com/akshay_pachaar/status/2070076814089990560) | Harness security requires infrastructure-layer controls (IAM, VPC, CloudTrail) alongside prompt filtering — multi-layer security boundary framing. |
+| 3 | @ClaudeDevs | "Claude Tag is the next evolution of agents — proactive, multiplayer, with memory and identity" | [link](https://x.com/ClaudeDevs/status/2070235730295865661) | Claude Tag as an always-on loop triggered by @-mentions: per-thread identity, persistent memory, own credentials. |
+| 3 | @swyx | "Cursor/Graphite's Origin: git competitor scalable for agent workloads, extensible with MCP" | [link](https://x.com/swyx/status/2066928345246470204) | Origin is a git system purpose-built for agent workloads with MCP extensibility and co-failure agent resolution. |
+| 3 | The New Stack | "Code should be regenerated, not maintained: Codeplain makes the case for spec-driven development" | [link](https://thenewstack.io/codeplain-spec-driven-regenerative-code/) | Code as disposable output of spec loops rather than a maintained artifact — factory model applied to the full software lifecycle. |
+| 3 | The New Stack | "Agent Toolkit for AWS includes 20+ agent skills, but your agent might not load them without this one file" | [link](https://thenewstack.io/aws-agent-toolkit-rules-file/) | AWS agent toolkit's 20+ skills require a rules file to activate — relevant to skill loading patterns and MCP connector configuration in production loops. |
+| 4 | Simon Willison | "Porting the Moebius 0.2B image inpainting model to run in the browser with Claude Code" | [link](https://simonwillison.net/2026/Jun/22/porting-moebius/) | Headless Claude Code loop with notes.md/plan.md state persistence and explicit subagent delegation for context preservation. |
+
+### No new content
+- Anthropic RSS — 404 (ongoing)
+- The Rundown AI RSS — 403 (ongoing)
+- TLDR AI RSS — 404 (ongoing)
+- Ben's Bites RSS — 404 (ongoing)
+- AI Breakfast RSS — 404 (ongoing)
+- OpenAI news — 403 (ongoing)
+- Harness Books (agentway.dev) — 403 (ongoing)
+- cobusgreyling/loop-engineering — automated daily triage commit only, no substantive new content
+- cobusgreyling/goal-engineering — no new commits since Jun 23
+- cobusgreyling/fleet-engineering — no new commits since Jun 25
+- getzep/graphiti — no new commits since Jun 23
+- faisalishfaq2005/loopflow — no new commits since Jun 24
+- JeiKeiLim/tenet — no new commits since Jun 25
+- @AndrewYNg — no new posts
+- @steipete — no new keyword-matching posts
+- GitHub search (acting_on claude loop) — zero results; suggested: `"state machine" claude agent coordination`
+- GitHub search (SECURITY_MATRIX claude agent) — zero results; suggested: `"security policy loader" claude agent`
+
+### Docs updated this run
+- `docs/24-harness-patterns.md` — added: Harness vs. Environment Engineering section (in-process vs. out-of-process controls; three deployment patterns: Approval-First / Curated Allow-list / Sandboxed Full-Auto); extended Harness-Agnostic Projection with .apm/ primitive manifest (six subdirectory types); extended omnigent section with compaction persistence, --resume support, spec reconstruction on resolve-miss
+- `docs/04-verification.md` — added: Self-Coverage Gate (RFC-0051) + Traceability-Lint (scope→task→artifact evidence chain)
+- `docs/34-loop-patterns.md` — added: concrete STATE.md multi-loop example (PR Babysitter + CI Sweeper coexisting); Per-Agent Heartbeat Coordination (harnery .harnery/active/ pattern)
+- `docs/01-paradigm-shift.md` — added: >80% Anthropic engineers on self-improving loops stat; five canonical patterns section (prompt chaining, routing, parallelization, orchestrator-workers, evaluator-optimizer)
+- `docs/32-reading-list.md` — added "Building Effective Agents" (Anthropic, Dec 2024) to Harness Design group
+- `SOURCES.md` — added MindStudio Blog (html source; 3+ loop engineering articles)
+
+### Sources to consider adding to SOURCES.md
+- chatprd.ai — now has 3 articles in digest; consider adding as html source (https://www.chatprd.ai/how-i-ai)
+- Agent Factory / Panaversity (agentfactory.panaversity.org) — 1 article found; verify more before adding
+- sergiocarvalhosa/Monad-Harness — added this run as github source
+
+---
+
 ## 2026-06-25 (manual addition)
 
 ### New findings
