@@ -18,6 +18,14 @@ Versioning follows [Semantic Versioning](https://semver.org/):
 
 ---
 
+## [2.3.13] — 2026-06-26
+
+### Changed
+
+- `scripts/run-loop-news.sh` — Use `script -q -a` to allocate a PTY, forcing `claude -p` to flush output line-by-line; enables `tail -f logs/loop-news-YYYYMMDD.log` to show live progress
+
+---
+
 ## [2.3.12] — 2026-06-26
 
 ### Changed
