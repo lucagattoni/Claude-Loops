@@ -50,6 +50,28 @@ criteria creates a signal the generator can actually improve against. This is
 analogous to the GAN (Generative Adversarial Network) training dynamic: the
 generator improves because the discriminator provides real pressure.
 
+### "Strong Eyes, Cheap Hands" — cost-asymmetric role allocation
+
+The DOER and CHECKER do not need the same model. Because judgment is rarer and
+higher-stakes than typing, allocate models by role rather than uniformly:
+
+| Role | Job | Model class |
+|---|---|---|
+| **Cheap hands** | Write code, author tests, execute — constrained by deterministic rails | Cheapest capable model (e.g. local Ollama) |
+| **Throughput middle** | Orchestrate, route, high token volume | Mid model (e.g. Sonnet) for throughput, not deep judgment |
+| **Strong eyes** | Plan, review the plan, adversary, security — the decision points | Most capable model (e.g. Opus), used *only at the gates* |
+
+> "Cheap orchestration at high volume, expensive reasoning only at the edges."
+
+The economics: the expensive model makes rare, critical decisions while the cheap
+model does high-volume work — and crucially, **"the cheaper the orchestrator, the more
+the deterministic rails must carry the judgment."** A cheap DOER is only safe when the
+verifier and gates around it are strong (frozen tests, external checks — see
+[Verifier Integrity](04-verification.md#verifier-integrity-keeping-the-check-unfakeable)).
+This pairs the maker/checker split with the cost discipline in [Cost & Turn Control](11-cost-control.md).
+
+([orobsonn/claude-harness](https://github.com/orobsonn/claude-harness), Jun 2026.)
+
 ### Tuning evaluator agents
 
 Out-of-the-box, Claude exhibits poor QA discipline in evaluator roles:

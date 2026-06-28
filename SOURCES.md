@@ -99,6 +99,8 @@ substantively relevant to loop engineering practice (not just a passing mention)
 | eugenelim/agent-ready-repo | github | https://github.com/eugenelim/agent-ready-repo | Agent-ready repo spec: Surface vocabulary, adversarial reviewer checklists, verification modes, org learning stage (Jun 2026) |
 | JeiKeiLim/tenet | github | https://github.com/JeiKeiLim/tenet | Structured loop critic framework: oracle problem, 3-tier document lifecycle, critic finding taxonomy (Jun 2026) |
 | faisalishfaq2005/loopflow | github | https://github.com/faisalishfaq2005/loopflow | Loop orchestration: cross-run memory persistence, gate feedback injection, debt-audit + docs-sync patterns (Jun 2026) |
+| uppifyagency/loop-kernel | github | https://github.com/uppifyagency/loop-kernel | Provably-halting loop kernel: three exit-code stops (0/2/3), external unfakeable verifier, score=<fraction> contract, LEDGER across compaction (Jun 2026) |
+| orobsonn/claude-harness | github | https://github.com/orobsonn/claude-harness | "Strong eyes, cheap hands" cost-asymmetric maker/checker (Ollama writes, Opus judges); content-hashed frozen tests before impl; independent completion capture (Jun 2026) |
 
 ---
 

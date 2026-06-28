@@ -358,3 +358,22 @@ from the start. The /evolve + /reconcile commands enable governed cross-session 
 extraction where no rule auto-applies without human review.
 
 ---
+
+### [loop-kernel](https://github.com/uppifyagency/loop-kernel) — uppifyagency
+**Added:** 2026-06-28 · **Published:** Jun 2026
+
+**Why here:** The smallest reference implementation that makes the stopping-condition
+taxonomy concrete and *provable*. Where other repos describe stop conditions, this one
+ships them as three deterministic exit codes with an external, unfakeable verifier —
+the cleanest illustration of "the control system is fixed; the worker is swappable."
+
+**Summary:** An autonomous loop that provably halts via three hard stops: success
+(`exit 0`, the real check passes), no-progress (`exit 3`, the objective score stays
+flat for K iterations), and cap (`exit 2`, hard iteration ceiling). Two ideas stand
+out: the kernel runs the real check every iteration so the worker cannot fake
+completion, and progress is defined as *the score moving* (a `score=<fraction>`
+contract), not files changing — "a busy-but-stuck agent still halts." A LEDGER keeps
+the judge's checklist alive across context compaction, and every wave must paste proof
+("an unproven wave never counts").
+
+---

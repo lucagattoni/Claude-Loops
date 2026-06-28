@@ -177,6 +177,46 @@ Verifiers calibrated only on happy-path inputs will fail on the edge cases that 
 
 ([thalys/agent-ab](https://github.com/thalys/agent-ab), Jun 2026.)
 
+## Verifier Integrity: Keeping the Check Unfakeable
+
+A verifier only protects the loop if the agent cannot quietly defeat it. Three
+patterns, converging across independent Claude-Code loop harnesses (Jun 2026), keep
+the check honest:
+
+**1. The external verifier — the loop runs the check, not the agent.** In the
+`loop-kernel` design the control loop itself executes the real check command every
+iteration and reads the exit code; the worker never reports its own success.
+"The kernel runs your REAL check every iteration (worker can't fake)" and "editing or
+skipping your tests changes nothing — the kernel re-runs the real command every
+iteration." The principle: **the control system is fixed and deterministic; the worker
+is stochastic and swappable.** This is the architectural cure for [Verifier Theater](17-failure-patterns.md)
+— the agent cannot approve itself because approval lives outside the agent.
+([uppifyagency/loop-kernel](https://github.com/uppifyagency/loop-kernel), Jun 2026.)
+
+**2. Mechanical gates vs. adjudicators — two kinds of check, kept separate.**
+
+| Check type | Observes | Example |
+|---|---|---|
+| **Mechanical gate** | Runtime properties only the environment can see | `gate.sh` exit code, build, test suite, CI |
+| **Adjudicator** | Whether a diff satisfies discrete acceptance criteria | read-only judge agent emitting structured JSON |
+
+Keeping them separate is what prevents infinite loops: "adjudicators cannot mistake
+weakened tests for correctness; gates catch what agents cannot verify structurally."
+Correctness rests on `git + exit codes + structured JSON contracts`, decoupled from
+the agent's output format. ([firegnu/herdr-loop-lab](https://github.com/firegnu/herdr-loop-lab), Jun 2026.)
+
+**3. Frozen tests — pin the contract before the implementer can touch it.** A separate
+role authors the test, it is pinned by **content-hash** and made read-only, and only
+then does the implementing agent write code against it. The implementer "writes against
+a read-only test it cannot touch," so it cannot pass by weakening the assertion.
+Completion is reconstructed independently (`git diff` from the freeze commit + a real
+test re-run), "not reported by the model."
+
+This is complementary to [Simplification Before Testing](#simplification-before-testing),
+not in conflict with it: simplification decides *what shape* the code and test should
+take (and may run first); freezing decides *who may change the test afterwards* (the
+implementer may not). ([orobsonn/claude-harness](https://github.com/orobsonn/claude-harness), Jun 2026.)
+
 ## LLM-as-a-Judge Verification with Opik
 
 **[Comet's Opik](https://github.com/comet-ml/opik)** (open-source, 40M+ traces/day) provides a verification layer

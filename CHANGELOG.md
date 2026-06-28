@@ -18,6 +18,26 @@ Versioning follows [Semantic Versioning](https://semver.org/):
 
 ---
 
+## [2.4.2] — 2026-06-28
+
+Loop news run 2026-06-28 16:25 UTC — 14 findings (GitHub-dominated: a wave of new Claude-Code loop harnesses converging on stop-condition rigor + verifier integrity).
+
+### Added
+
+- `docs/04-verification.md` — **Verifier Integrity: Keeping the Check Unfakeable**: external verifier (loop-kernel — the loop runs the real check, worker can't fake), mechanical gates vs. adjudicators (herdr-loop-lab), frozen content-hashed tests before implementation (claude-harness).
+- `docs/07-subagents.md` — **"Strong Eyes, Cheap Hands"**: cost-asymmetric DOER/CHECKER model allocation (cheap models write, top model judges at gates; the cheaper the orchestrator, the more the deterministic rails must carry the judgment).
+- `docs/17-failure-patterns.md` — **Verdict oscillation** failure pattern (checker flip-flops / contradictory jurors) + oscillation-guard mitigation (jje).
+- `SOURCES.md` — added uppifyagency/loop-kernel and orobsonn/claude-harness as github sources.
+
+### Changed
+
+- `docs/27-loop-contract.md` — extended the canonical Stop Condition Taxonomy with the three-exit-code reference implementation (loop-kernel: 0=pass / 3=score-flat / 2=cap) and the "score the goal, not the activity" refinement to the no-progress stop.
+- `docs/32-reading-list.md` — added loop-kernel to Reference Implementations.
+- `LOOP_ENGINEERING.md` — updated summaries for docs 04, 07, 17, 27.
+- `KB_GAPS.md` — annotated the SECURITY_MATRIX and goal-cost gaps with this run's partial advances and refreshed search keywords.
+
+---
+
 ## [2.4.1] — 2026-06-26
 
 Manual addition from Andrew Ng's "Loop Engineering for 0-to-1 Product Development" (The Batch).

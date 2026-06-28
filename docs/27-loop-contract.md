@@ -115,6 +115,30 @@ max-iteration stops.
 
 (Stop-condition categories: Akshay Pachaar, ["Loop Engineering Clearly Explained"](https://x.com/akshay_pachaar/status/2069118430582866051), Jun 2026; bounded N-turn examples: [Sabrina Ramonov](https://x.com/Sabrina_Ramonov/status/2070125608013648082), Jun 2026; three-checkpoint model: [MindStudio](https://www.mindstudio.ai/blog/how-to-build-agentic-loop-claude-code), Jun 2026.)
 
+### Reference implementation: the three exit codes
+
+A minimal loop that *provably halts* maps the taxonomy onto three deterministic exit
+codes, with the check run by the loop itself (not the agent — see
+[Verifier Integrity](04-verification.md#verifier-integrity-keeping-the-check-unfakeable)):
+
+| Exit | Category | Fires when |
+|---|---|---|
+| `0` | Completion check | the real check passes |
+| `3` | No-progress | the objective score stays flat for K iterations |
+| `2` | Max iterations | a hard iteration ceiling is hit |
+
+Two design points sharpen the taxonomy:
+
+- **Score the goal, not the activity.** No-progress is measured by an objective
+  `score=<fraction>` line, where the scorer "exits 0 iff the goal is met." "Progress is
+  the score moving, not 'did files change' — a busy-but-stuck agent still halts." A
+  loop that watches for file edits or token spend mistakes motion for progress.
+- **The verifier is external.** The loop runs the real check every iteration, so the
+  worker cannot fake completion; the control system is fixed and deterministic while
+  the worker is stochastic and swappable.
+
+([uppifyagency/loop-kernel](https://github.com/uppifyagency/loop-kernel), Jun 2026; the same `0`/`2`/`3` contract appears independently in [firegnu/herdr-loop-lab](https://github.com/firegnu/herdr-loop-lab), Jun 2026.)
+
 ## Experience Encoding — The Loop's Learning Step
 
 After each iteration completes and before context is cleared, encode what was learned

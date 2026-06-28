@@ -5,6 +5,60 @@ Sources are defined in [`SOURCES.md`](SOURCES.md).
 
 ---
 
+## 2026-06-28 16:25 UTC (run)
+
+GitHub-dominated run: the live searches surfaced a wave of small Claude-Code loop
+harnesses (Jun 27–28) converging on the same patterns — exit-code stops, external
+verifiers, frozen tests, maker/checker isolation. The convergence itself is the
+signal: the patterns this KB documents are now the de-facto community standard.
+
+### New findings
+
+| Tier | Source | Title | URL | Summary |
+|---|---|---|---|---|
+| 1 | uppifyagency/loop-kernel | "Simplest autonomous loop that provably halts" | [link](https://github.com/uppifyagency/loop-kernel) | Three deterministic exit-code stops (0=pass / 3=score flat K iters / 2=cap), external unfakeable verifier, `score=<fraction>` contract; "progress is the score moving, not did-files-change". |
+| 1 | @mateclawai / mateaix/loope | "Loope — open-source Loop Engineering workspace for AI coding" | [link](https://github.com/mateaix/loope) | Cross-model maker/checker: Claude implements, Codex reviews; parallel read-only reviewers emit PASS/BLOCK, converge when verify passes & no blocker (max-iters 3); agents isolated via `--isolate-home`. |
+| 1 | shumatsumonobu/loop-engineering-playbook | "Ralph-pattern loop playbook" | [link](https://github.com/shumatsumonobu/loop-engineering-playbook) | Ralph pattern (fresh context each cycle, state in `.claude/loop/TASKS.md` + git + tests) with a Stop-hook hard floor blocking completion while tests fail; verifier `verdict.json` separation. |
+| 1 | VioletScar-Hui/Build_Great_Loop | "Composable 5-skill loop group" | [link](https://github.com/VioletScar-Hui/Build_Great_Loop) | Five composable skills (loop-spec/engineering/eval/review/ops) producing paste-ready loop prompts; crash-safe idempotent resumption; machine-checkable success standards. |
+| 2 | orobsonn/claude-harness | "Barbell 'strong eyes, cheap hands' delivery" | [link](https://github.com/orobsonn/claude-harness) | Cheap Ollama models write code, Opus judges at gates, Sonnet orchestrates for throughput; tests content-hashed & frozen before impl; completion verified independently (git diff + real test run). |
+| 2 | firegnu/herdr-loop-lab | "Verification-driven bounded-convergence toolkit" | [link](https://github.com/firegnu/herdr-loop-lab) | Three-tier nested loops (inner adjudicated / fleet across worktrees / epic auto-merge); mechanical gates kept separate from adjudicators; correctness rests on git + exit codes + JSON contracts. |
+| 2 | KranzL/jje | "Planner/Executor/Jury/Judge generator-critic harness" | [link](https://github.com/KranzL/jje) | Tool-backed independent juries (gitleaks/semgrep/pytest); **oscillation guard** escalates on recurring/contradictory findings (repeat_threshold 2); PreToolUse commit gate enforcing accept + green CI. |
+| 2 | ruvnet/agent-harness-generator | "MetaHarness — meta-harness factory" | [link](https://github.com/ruvnet/agent-harness-generator) | Generates branded harnesses with cost-aware model routing learned from eval logs, Darwin self-mutating configs, default-deny MCP governance, Ed25519/SLSA-L2 signed provenance. |
+| 2 | BicaMindLabs/FuguNano | "Repo-native multi-agent harness (Sakana Fugu reimpl)" | [link](https://github.com/BicaMindLabs/FuguNano) | Provider-neutral routing with a self-harness learning loop that mines failed runs and promotes only non-regressing harness edits (model frozen); join-barrier non-convergence detection. |
+| 2 | adha9990/dev-workflows | "7-stage closed-loop dev workflow" | [link](https://github.com/adha9990/dev-workflows) | dispatch→goal→explore→plan→build→verify→iterate; decision-point gating pauses only on genuine choices to conserve budget; red-green test/impl separation; iteration cap 3. |
+| 2 | Llicklair/forja | "Claude Code autonomous loop plugin" | [link](https://github.com/Llicklair/forja) | Class-wide scanning hard gate (fix all instances with proof), allowlist-by-command-name gate execution, sandbox mode for untrusted repos, "forja max 300k" token-budget stop. |
+| 2 | eugenelim/agent-ready-repo | "RFC-0055 correction convention + R10 sidecar privacy boundary" | [link](https://github.com/eugenelim/agent-ready-repo) | New RFC/ADR governance for correcting accepted specs (Errata/Amendments) and a privacy boundary for sidecar data; extends the traceability model already in KB. |
+| 2 | Kanevry/session-orchestrator | "v3.10.0 — repeatable session loops" | [link](https://github.com/Kanevry/session-orchestrator) | Five typed waves with inter-wave session-reviewer gates, `blocked-commands.json` policy file, STATE.md crash recovery across Claude Code/Codex/Cursor/Pi. |
+| 3 | @Sabrina_Ramonov | "Claude posts to social media for me now" | [link](https://x.com/Sabrina_Ramonov) | Applied headless content loop in Claude Code: write → grade for virality → check brand voice → post; a checker gate before the irreversible publish step. |
+| 4 | omnigent-ai/omnigent | "Authoritative per-session cost_usd" | [link](https://github.com/omnigent-ai/omnigent) | Surfaces authoritative AI-credit cost as `cost_usd` per session (#1486) — a concrete cost-tracking mechanism relevant to the goal-cost estimation gap. |
+
+### No new content
+- Anthropic RSS / The Rundown AI / TLDR AI / Ben's Bites / AI Breakfast / The Batch — RSS 404/403 (ongoing; The Batch feed URL needs revisiting)
+- OpenAI news / Harness Books (agentway.dev) — 403 (ongoing)
+- @bcherny — newest matching post is Jun 23 (Claude Everywhere, already in KB); nothing after last_run
+- @AndrewYNg, @swyx, @steipete, Addy Osmani, Simon Willison, Cobus Greyling, Lenny's, Sabrina.dev, MindStudio — nothing dated after 2026-06-26 (newest items predate last run / already in KB)
+- cobusgreyling/goal-engineering, fleet-engineering, getzep/graphiti, JeiKeiLim/tenet, faisalishfaq2005/loopflow, Monad-Harness — no substantive new commits since last run
+- GitHub search (`acting_on` claude loop) — 0 results; suggested: `"stopping condition" claude loop`
+- GitHub search (SECURITY_MATRIX claude agent) — 0 results; suggested: `"default-deny" MCP policy agent`
+
+### Docs updated this run
+- `docs/04-verification.md` — added **Verifier Integrity: Keeping the Check Unfakeable** (consolidated, canonical home): external verifier (loop-kernel), mechanical gates vs. adjudicators (herdr-loop-lab), frozen content-hashed tests (claude-harness)
+- `docs/27-loop-contract.md` — extended the canonical Stop Condition Taxonomy with the three-exit-code reference implementation (loop-kernel) and the "score the goal, not the activity" refinement to the no-progress stop
+- `docs/07-subagents.md` — added **"Strong Eyes, Cheap Hands"** cost-asymmetric DOER/CHECKER model allocation (claude-harness)
+- `docs/17-failure-patterns.md` — added **Verdict oscillation** failure pattern + oscillation-guard mitigation (jje)
+- `docs/32-reading-list.md` — added loop-kernel to Reference Implementations
+- `SOURCES.md` — added uppifyagency/loop-kernel and orobsonn/claude-harness as github sources
+
+### Structural review this run (Phase 4c)
+Reading the finding-set as a whole, the dominant theme was **stopping-condition rigor + verifier integrity** (loop-kernel, herdr-loop-lab, jje, claude-harness all center on provable halting and unfakeable checks). This *reinforced* the canonical homes established 2026-06-26 rather than fragmenting them: the stop-condition material consolidated into `docs/27` and the verifier-integrity sub-theme into a single new section in `docs/04`. No new docs, no index restructure — the existing design spine absorbed the run cleanly.
+
+### Sources to consider adding to SOURCES.md
+- The New Stack — two Jun 27 Tier-3 candidates (runtime verification of coding agents; vibe-coding "context debt"); article bodies were not retrievable via WebFetch, so excluded pending verification
+- "How to actually master loop engineering" — an X Article surfaced in the live search (Plan→Act→Learn `/loop` diagram); URL not captured this run — re-check next run
+- Several new harness repos not yet tracked individually: firegnu/herdr-loop-lab, KranzL/jje, mateaix/loope, ruvnet/agent-harness-generator (MetaHarness) — monitor for ≥2 substantive contributions before adding as standing sources
+
+---
+
 ## 2026-06-26 09:04 UTC (run)
 
 ### New findings

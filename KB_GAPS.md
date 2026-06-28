@@ -10,9 +10,10 @@ Updated by each `fetch-loop-news` run. Gap keywords drive targeted GitHub and we
 - **SECURITY_MATRIX.md implementation mechanism**: docs/33 says the agent "reads
   SECURITY_MATRIX.md at startup and self-assesses" but doesn't specify the loading
   mechanism (CLAUDE.md import vs. SessionStart hook vs. system prompt). GitHub search
-  for `SECURITY_MATRIX claude agent` returned zero results — search keywords to try:
-  `"security policy loader" claude agent`, `"permission matrix" agent harness`,
-  `CLAUDE.md import` security startup, `SessionStart hook` agent policy
+  for `SECURITY_MATRIX claude agent` returned zero results (2026-06-28, retry) — the
+  closest public pattern is **default-deny MCP governance** (ruvnet/agent-harness-generator
+  `harness mcp-scan`). Search keywords to try next: `"default-deny" MCP policy agent`,
+  `"mcp-scan" agent harness`, `"security policy loader" claude agent`, `SessionStart hook` agent policy
 
 - **Credential rotation patterns**: docs/33 covers provisioning secrets to agents but
   not rotating them mid-session or on credential expiry — search keywords:
@@ -23,9 +24,11 @@ Updated by each `fetch-loop-news` run. Gap keywords drive targeted GitHub and we
   `fleet engineering maturity`, `"F0" "F1" fleet agent`, `agent fleet governance metrics`
 
 - **Goal-cost token estimation**: docs/30 mentions a goal-cost token estimator in the
-  cobusgreyling/goal-engineering repo but does not describe the estimation method —
-  search keywords: `"goal cost" estimation token`, `agent loop token prediction`, `"GOAL.md"
-  token budget`
+  cobusgreyling/goal-engineering repo but does not describe the estimation method.
+  Partially advanced 2026-06-28 — omnigent surfaces authoritative *post-hoc* per-session
+  `cost_usd`, and MetaHarness routes models by cost learned from eval logs — but neither
+  gives an *a-priori* estimate from objective scope. Search keywords: `"goal cost" estimation
+  token`, `agent loop token prediction`, `"GOAL.md" token budget`, `cost routing eval logs agent`
 
 ---
 
