@@ -145,6 +145,32 @@ fi
 Use exponential-ish backoff (30s, 90s) so a brief provider blip does not lose the
 whole scheduled run. The production version of this is `scripts/run-loop-news.sh`.
 
+**Only retry when a retry is safe.** Blind retries are dangerous when the loop has
+side effects (file writes, commits, releases): a fresh re-run can duplicate work or
+hit a tag/release collision. A retry wrapper should refuse to make things worse:
+
+- **Cap the cost** — pass `--max-budget-usd` so 3 attempts can't become an unbounded bill.
+- **Retry only on a clean, traceless failure.** Before retrying, check that the failed
+  attempt left no durable trace: the tracked tree is still clean **and** `HEAD` has not
+  moved. If it already committed or made partial edits, *stop and notify a human* instead
+  of re-running.
+- **Notify on give-up.** A silent `exit 1` to a log nobody reads is how a daily loop dies
+  unnoticed. Emit a notification (e.g. macOS `osascript -e 'display notification …'`) on
+  final failure.
+
+```bash
+head_before="$(git rev-parse HEAD)"
+run_attempt || {
+  [[ "$(git rev-parse HEAD)" != "$head_before" ]] && { notify "failed after commit"; exit 1; }
+  git diff --quiet && git diff --cached --quiet || { notify "partial edits"; exit 1; }
+  # clean + HEAD unchanged → safe to back off and retry
+}
+```
+
+The deeper fix for true safe-to-retry is *idempotency inside the loop itself* (e.g. a
+digest section keyed by date that is updated rather than appended, and the commit as the
+single final atomic step) — the wrapper guard above only refuses to compound damage.
+
 ## Scheduling with macOS LaunchAgent
 
 For daily headless loops that require local tools (Chrome browser automation, local

@@ -18,7 +18,12 @@ Versioning follows [Semantic Versioning](https://semver.org/):
 
 ---
 
-## [2.4.3] — 2026-06-28
+## [2.4.4] — 2026-06-28
+
+### Changed
+
+- `scripts/run-loop-news.sh` — Hardened the retry logic so it can't make things worse: (1) added `--max-budget-usd 8` so retries can't become an unbounded bill; (2) **safe-to-retry guard** — only retry when the failed attempt left no durable trace (tracked tree clean **and** `HEAD` unchanged); if it already committed or made partial edits, stop and notify rather than re-running (avoids duplicate commits / tag-release collisions); (3) **desktop notification** (`osascript`) on final give-up and on every no-retry abort, so a failed daily run is never silent. Verified against clean-retry, HEAD-moved-abort, dirty-tree-abort, and all-fail paths.
+- `docs/09-headless-mode.md` — Documented "only retry when a retry is safe" (cost cap, traceless-failure check, notify-on-give-up) and noted that true safe-to-retry requires idempotency inside the loop itself.
 
 ### Changed
 

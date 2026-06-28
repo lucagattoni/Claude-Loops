@@ -14,6 +14,10 @@ MAX_ATTEMPTS=3
 # index 1 before attempt 3. (The wait after the final attempt is never used.)
 BACKOFF_SECONDS=(30 90 180)
 
+# Generous cost ceiling per attempt. Set high enough that a normal run never trips
+# it (a budget-trip would itself fail the attempt) but low enough to bound a runaway.
+MAX_BUDGET_USD=8
+
 # Connection-level error markers that indicate a TRANSIENT failure worth retrying.
 # macOS script(1) does not reliably propagate the child exit code, so we also
 # scan the attempt's output for these — this is how the real failures surfaced
@@ -21,6 +25,20 @@ BACKOFF_SECONDS=(30 90 180)
 ERROR_REGEX='API Error:|ECONNRESET|ETIMEDOUT|Unable to connect to API|Connection closed mid-response|socket hang up|overloaded_error|529 |503 Service'
 
 stamp() { date -u +%Y-%m-%dT%H:%M:%SZ; }
+
+# Best-effort desktop notification + log line. Never fails the script.
+notify() {
+  local msg="$1"
+  echo "[$(stamp)] NOTIFY: ${msg}" | tee -a "$LOG_FILE"
+  osascript -e "display notification \"${msg}\" with title \"loop-news tracker\"" >/dev/null 2>&1 || true
+}
+
+# True (0) only when the working tree has no pending changes to TRACKED files.
+# Uses `git diff` (not `git status`) so untracked dirs like memory/ and the
+# gitignored logs/ never count as dirty.
+tree_clean() {
+  git diff --quiet && git diff --cached --quiet
+}
 
 run_attempt() {
   local attempt="$1"
@@ -38,6 +56,7 @@ run_attempt() {
       --permission-mode auto \
       --chrome \
       --max-turns 40 \
+      --max-budget-usd "$MAX_BUDGET_USD" \
       --allowedTools "Read,Edit,WebFetch,mcp__claude-in-chrome__*" \
       -p "/fetch-loop-news"
   local exit_code=$?
@@ -62,18 +81,35 @@ echo "[$(stamp)] Starting fetch-loop-news run" | tee -a "$LOG_FILE"
 
 attempt=1
 while (( attempt <= MAX_ATTEMPTS )); do
+  head_before="$(git rev-parse HEAD 2>/dev/null || echo unknown)"
+
   if run_attempt "$attempt"; then
     echo "[$(stamp)] Run complete (succeeded on attempt ${attempt})" | tee -a "$LOG_FILE"
     exit 0
   fi
 
+  # Conservative safety guard: only retry when the failed attempt left NO durable
+  # trace. If it already committed (HEAD moved) or made partial edits to tracked
+  # files, a fresh re-run could duplicate work or hit a tag/release collision —
+  # so we stop and ask a human instead. (Full safe-to-retry idempotency belongs
+  # in the skill itself; this wrapper just refuses to make things worse.)
+  head_after="$(git rev-parse HEAD 2>/dev/null || echo unknown)"
+  if [[ "$head_after" != "$head_before" ]]; then
+    notify "Attempt ${attempt} failed AFTER committing (HEAD moved) — not retrying; check repo state."
+    exit 1
+  fi
+  if ! tree_clean; then
+    notify "Attempt ${attempt} failed with partial uncommitted edits — not retrying; run 'git status' and clean up."
+    exit 1
+  fi
+
   if (( attempt < MAX_ATTEMPTS )); then
     wait_s="${BACKOFF_SECONDS[$((attempt - 1))]}"
-    echo "[$(stamp)] Backing off ${wait_s}s before retry" | tee -a "$LOG_FILE"
+    echo "[$(stamp)] Clean failure (no durable changes) — backing off ${wait_s}s before retry" | tee -a "$LOG_FILE"
     sleep "$wait_s"
   fi
   (( attempt++ ))
 done
 
-echo "[$(stamp)] All ${MAX_ATTEMPTS} attempts failed — giving up" | tee -a "$LOG_FILE"
+notify "All ${MAX_ATTEMPTS} attempts failed (transient/connection errors) — no digest today. Re-run manually when the API is healthy."
 exit 1
