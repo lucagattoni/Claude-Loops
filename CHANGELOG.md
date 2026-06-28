@@ -18,7 +18,12 @@ Versioning follows [Semantic Versioning](https://semver.org/):
 
 ---
 
-## [2.4.2] — 2026-06-28
+## [2.4.3] — 2026-06-28
+
+### Changed
+
+- `scripts/run-loop-news.sh` — Added retry-with-backoff (3 attempts, 30s→90s) so a transient API drop (`ECONNRESET`/`overloaded`) no longer loses the whole scheduled run. An attempt counts as failed if the exit code is non-zero **or** a connection-level error marker appears in its output — covering the macOS `script(1)` quirk where the child exit code is masked to 0. Each attempt is captured to its own typescript for error-scanning, then folded into the day log (live PTY tail preserved).
+- `docs/09-headless-mode.md` — Documented the "exit code alone is not enough — scan the output too" hardening lesson (PTY masks exit code; transient drops print to output) with a retry snippet.
 
 Loop news run 2026-06-28 16:25 UTC — 14 findings (GitHub-dominated: a wave of new Claude-Code loop harnesses converging on stop-condition rigor + verifier integrity).
 

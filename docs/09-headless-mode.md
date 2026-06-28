@@ -120,6 +120,31 @@ echo "All attempts failed."
 exit 1
 ```
 
+**Exit code alone is not enough — scan the output too.** Two cases break the simple
+`&& exit 0` pattern above:
+
+1. **PTY wrappers mask the exit code.** If you wrap the call in `script` (to force
+   live, unbuffered logging — see above), macOS `script(1)` does **not** reliably
+   propagate the child's exit code; it often returns `0` even when `claude` failed.
+2. **Transient API drops** (`API Error: ... ECONNRESET`, `socket hang up`,
+   `overloaded_error`) are exactly the failures worth retrying, and they print to the
+   output stream.
+
+So treat an attempt as failed if the exit code is non-zero **or** a transient-error
+marker appears in that attempt's output:
+
+```bash
+ERROR_REGEX='API Error:|ECONNRESET|ETIMEDOUT|Unable to connect to API|socket hang up|overloaded_error|529 |503 Service'
+script -q "$tmp" /opt/homebrew/bin/claude --permission-mode auto -p "/my-loop"; code=$?
+if [[ $code -eq 0 ]] && ! grep -Eq "$ERROR_REGEX" "$tmp"; then
+  echo "success"; exit 0
+fi
+# else: back off (e.g. 30s → 90s) and retry
+```
+
+Use exponential-ish backoff (30s, 90s) so a brief provider blip does not lose the
+whole scheduled run. The production version of this is `scripts/run-loop-news.sh`.
+
 ## Scheduling with macOS LaunchAgent
 
 For daily headless loops that require local tools (Chrome browser automation, local
