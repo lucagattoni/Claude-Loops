@@ -377,3 +377,22 @@ the judge's checklist alive across context compaction, and every wave must paste
 ("an unproven wave never counts").
 
 ---
+
+### [Strive_Engineering](https://github.com/krishddd/Strive_Engineering) — krishddd
+**Added:** 2026-06-29 · **Published:** Jun 2026
+
+**Why here:** Where loop-kernel makes the *check* unfakeable, this repo makes the
+*report* unfakeable — the cleanest implementation of provenance-bound verification, a
+technique none of the other reference implementations demonstrate. It answers the
+failure where an agent fabricates evidence ("fixed at commit X") that no artifact backs.
+
+**Summary:** A loop-engineering runtime built on an L0-L3 autonomy ladder where every
+finding must cite a real git SHA, and a guard (`loopguard`) re-verifies the citation
+against the object store via `git cat-file` before accepting the claim — a citation that
+points at no matching artifact is rejected automatically. Layered on top: diff-integrity
+and prompt-injection scanning, and a `majority_vote` across independent judges so no
+single grader the worker could collude with can wave work through. Together these
+generalise the external-verifier idea from "re-run the check" to "bind every claim to an
+inspectable, unforgeable artifact and have more than one judge confirm it."
+
+---

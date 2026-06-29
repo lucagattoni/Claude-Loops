@@ -18,6 +18,22 @@ Versioning follows [Semantic Versioning](https://semver.org/):
 
 ---
 
+## [2.4.5] — 2026-06-29
+
+Loop news run 2026-06-29 04:02 UTC — 18 findings (a second GitHub-dominated wave of fresh Claude-Code loop harnesses converging again on verifier integrity + anti-self-grading).
+
+### Added
+
+- `SOURCES.md` — added krishddd/Strive_Engineering as a github source (provenance-bound SHA-citation verifier pattern).
+- `docs/32-reading-list.md` — added Strive_Engineering to Reference Implementations (provenance-bound verification; group now at the 5-entry cap).
+
+### Changed
+
+- `docs/04-verification.md` — added a 4th **Verifier Integrity** pattern: **provenance-bound claims** — every assertion must cite a git SHA re-checked via `git cat-file`, plus a majority-vote monitor council to block self-grading (krishddd/Strive_Engineering, kok1eee/flywheel, grapheneaffiliate/Harness); added a closing synthesis tying all four patterns to the Verifier-Theater cure.
+- `LOOP_ENGINEERING.md` — updated the docs/04 index summary to list provenance-bound claims + majority-vote council.
+
+---
+
 ## [2.4.4] — 2026-06-28
 
 ### Changed

@@ -217,6 +217,25 @@ not in conflict with it: simplification decides *what shape* the code and test s
 take (and may run first); freezing decides *who may change the test afterwards* (the
 implementer may not). ([orobsonn/claude-harness](https://github.com/orobsonn/claude-harness), Jun 2026.)
 
+**4. Provenance-bound claims — every assertion must cite a verifiable artifact.** The
+three patterns above keep the *check* honest; this one keeps the *report* honest. The
+agent does not get to say "done" in prose — every finding or completion claim must cite
+a git SHA, and a separate guard re-verifies the citation against the object store
+(`git cat-file`) before the claim is accepted. A claim that points at no real artifact,
+or at an artifact whose content does not match, is rejected automatically. Layered on
+top: a **majority-vote / monitor council** — several independent read-only judges score
+the same diff and completion is gated on their agreement, never on a single grader the
+worker could collude with. Together these defeat the failure where an agent fabricates
+evidence ("tests pass", "bug fixed at commit X") that no artifact supports. The
+principle generalises the external-verifier idea from "re-run the check" to **"bind every
+claim to an inspectable, unforgeable artifact and have more than one judge confirm it."**
+([krishddd/Strive_Engineering](https://github.com/krishddd/Strive_Engineering), Jun 2026.)
+
+These four together — external verifier, mechanical-gate/adjudicator split, frozen tests,
+and provenance-bound claims — are the converging community answer to
+[Verifier Theater](17-failure-patterns.md): the verifier, the contract, and the evidence
+all live outside the agent's reach, and no single judge can wave work through.
+
 ## LLM-as-a-Judge Verification with Opik
 
 **[Comet's Opik](https://github.com/comet-ml/opik)** (open-source, 40M+ traces/day) provides a verification layer

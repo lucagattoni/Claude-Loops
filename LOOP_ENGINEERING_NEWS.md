@@ -5,6 +5,78 @@ Sources are defined in [`SOURCES.md`](SOURCES.md).
 
 ---
 
+## 2026-06-29 04:02 UTC (run)
+
+Another GitHub-dominated run. The live repo searches surfaced a *second* wave of
+fresh Claude-Code loop harnesses (all updated Jun 29) converging — again — on
+**verifier integrity and anti-self-grading**: SHA-cited "ungameable" verifiers,
+adversarial read-only verifier agents, eval-gate + independent monitor councils, and
+reject-until-proven reviewers. The genuinely new mechanism this run is
+**provenance-bound claims** (every assertion must cite a git SHA re-checked via
+`git cat-file`, plus majority-vote to block collusion) — canonised as a 4th pattern in
+the Verifier Integrity section of `docs/04`. The article sources (Slashdot, O'Reilly,
+The Innermost Loop) restated the now-familiar thesis and added the
+"model-harness-sandbox-eval **flywheel**" framing, but introduced no concept the KB
+lacks.
+
+### New findings
+
+| Tier | Source | Title | URL | Summary |
+|---|---|---|---|---|
+| 1 | krishddd/Strive_Engineering | "SHA-cited ungameable verifier + L0-L3 autonomy ladder" | [link](https://github.com/krishddd/Strive_Engineering) | Every finding must cite a git SHA verified by `loopguard` via `git cat-file`; diff-integrity + injection scanning; `majority_vote` blocks self-grading — **provenance-bound claims** as a new verifier-integrity mechanism. |
+| 1 | grapheneaffiliate/Harness | "The RIG — deterministic read→pick→dispatch→verify→record loop" | [link](https://github.com/grapheneaffiliate/Harness) | Adversarial read-only verifier agent + `verify.sh` source-of-truth exit-0 gate; iteration caps (RIG_MAX_ITERS/STOPS); Stop gate won't release until the tree is clean and pushed. |
+| 1 | kok1eee/flywheel | "Sensors-first loop engine" | [link](https://github.com/kok1eee/flywheel) | Hooks observe natural tool use to advance phases; gates physically block implementation until design validates; completion requires both an eval exit-code gate AND an independent monitor council (cap 8) — never model self-assessment. |
+| 2 | patrick-toulme/harnessgym | "Capability-gap reflection → one reusable artifact per iteration" | [link](https://github.com/patrick-toulme/harnessgym) | Runs agents on hard tasks, reflects on missing capabilities, builds one reusable artifact (skill/MCP/test) per iteration, qualifies it in a clean workspace, restarts fresh with accumulated harness context; failed artifacts quarantine with evidence. |
+| 2 | manok4/ensemble | "Documentation-as-truth maker/checker harness" | [link](https://github.com/manok4/ensemble) | Independent read-only reviewers (correctness/testing/maintainability/standards) return structured findings; two verification gates around each build unit; 6-verdict triage before merge. |
+| 2 | vibhasdutta/loop-engineer | "7-agent team iterating to verified done" | [link](https://github.com/vibhasdutta/loop-engineer) | Scaffolds tool-scout/researcher/developer/QA/verifier/auditor/memory-keeper iterating until all tasks pass or a 20-turn budget exhausts; verifiers default to "reject until proven"; auto-skip on repeated failure. |
+| 2 | happy-ryo/loop-agent | "Embeddable loop with five injection seams + dual termination" | [link](https://github.com/happy-ryo/loop-agent) | Fixed orchestration with gather/act/verify/conditions/gate seams; a dual-termination model combining goal achievement with synthetic stop conditions to guarantee halt; swappable providers via an ActHook protocol. |
+| 2 | iamraven-tw/loop-engineering | "Claude Code skill teaching ten reusable loop patterns" | [link](https://github.com/iamraven-tw/loop-engineering) | Ten patterns (retry/reflection/evaluation/planning/tool-calling/research/memory/multi-agent/human-in-the-loop/continuous-improvement) unified by iterate-with-checkpoints-until-success-or-termination. |
+| 1 | Slashdot | "Forget Prompt Engineering: 'Loop Engineering' Is All the Rage Now" | [link](https://developers.slashdot.org/story/26/06/25/0546238/forget-prompt-engineering-loop-engineering-is-all-the-rage-now) | Boris Cherny says Claude now writes his prompts; Peter Steinberger urges engineers to design the loops that prompt the agents — mainstream press confirming the discipline. |
+| 1 | O'Reilly Radar | "Loop Engineering" — Addy Osmani | [link](https://www.oreilly.com/radar/loop-engineering/) | Definitional piece: self-directed loops from automations/worktrees/skills/MCP connectors + a verifier subagent and a measurable stop condition; warns against cognitive surrender. |
+| 2 | The Innermost Loop | "Welcome to June 28, 2026" | [link](https://theinnermostloop.substack.com/p/welcome-to-june-28-2026) | Frames every enterprise as spinning its own **model-harness-sandbox-eval flywheel**; notes loop engineering has gone so far Claude Code's creator lets Claude write his prompts. |
+| 2 | via Innermost Loop | "Aravind Srinivas on the model-harness-sandbox-eval flywheel" | [link](https://x.com/aravsrinivas/status/2070938739350900944) | Perplexity's CEO frames each enterprise's flywheel as tuned for token value per watt — the flywheel thesis from an operator. |
+| 1 | via Lenny's Newsletter | "How Mozilla Fixed 500 Security Bugs with Mythos" | [link](https://www.chatprd.ai/how-i-ai/how-mozilla-fixed-500-security-bugs-with-mythos) | Mozilla's Mythos combines relentless analysis loops with verification + patching agents to find/patch ~500 Firefox bugs — the harness, not the model, is the leverage (extends the Firefox case study already in docs/04). |
+| 2 | MindStudio Blog | "What Is a Loop of Loops?" | [link](https://www.mindstudio.ai/blog/what-is-loop-of-loops-ai-agents-recurring-work) | Coordinator agent manages multiple child agents on recurring cycles, sharing context and handling dependencies — restates multi-loop coordination already in docs/34. |
+| 2 | omnigent-ai/omnigent | "Emit CompactionComplete on SDK context compaction (#1505)" | [link](https://github.com/omnigent-ai/omnigent/commit/a8157fa) | Cross-harness event-propagation: emit CompactionComplete (summary + post-compaction token count + model) before TurnComplete so resumed sessions use the compacted summary, not a full transcript replay. |
+| 3 | The New Stack | "Runtime verification of coding agents" | [link](https://thenewstack.io/runtime-verification-coding-agents/) | Greptile/Cursor/Devin agree agents should run their code before handoff; sandboxes miss integration bugs, making *what code runs against* the key design choice. |
+| 3 | The Batch (DeepLearning.AI) | "Agentic tests beyond the bug hunt (DeepSWE / ProgramBench / ITBench-AA)" | [link](https://www.deeplearning.ai/the-batch/agentic-tests-beyond-the-bug-hunt) | New benchmarks stress agent harnesses on feature implementation, program-from-scratch, and root-cause diagnosis — harder than SWE-bench bug-fixing. |
+| 3 | JeiKeiLim/tenet | "gzip db snapshots by default with auto-detecting restore" | [link](https://github.com/JeiKeiLim/tenet/commit/069d562) | Git-safe agent-state snapshots: gzip the SQLite snapshot (70-90% smaller to stay under GitHub's 100MB limit), auto-detect via magic bytes (0x1f 0x8b) on restore. |
+
+### No new content
+- Anthropic RSS (404, recovered via search — foundational pieces predate last run), The Rundown AI (403), Ben's Bites / AI Breakfast (beehiiv 404), Harness Books (agentway.dev 403), OpenAI news (403) — all ongoing feed/access issues; nothing new surfaced
+- @bcherny, @AndrewYNg, @swyx, @steipete, @karpathy, @Sabrina_Ramonov, @akshay_pachaar — no posts after last run matching keywords (newest matches already in KB)
+- Simon Willison, swyx.io — only incidental Claude/Codex mentions, not loop-engineering practice
+- X live keyword search — mostly non-English promo / trivial Claude Code mentions; the one "loop engineering" hit was a 1-view throwaway, excluded
+- cobusgreyling/loop-engineering, goal-engineering, fleet-engineering, getzep/graphiti, faisalishfaq2005/loopflow, uppifyagency/loop-kernel, orobsonn/claude-harness — no substantive commits strictly after 2026-06-28
+- GitHub search (`acting_on` claude loop, `stopping condition` claude loop) — 0 results each; suggested refinements: `"halt condition" claude loop`, broader `"gather" "verify" "gate" claude loop`
+
+### Docs updated this run
+- `docs/04-verification.md` — added **4th Verifier Integrity pattern: provenance-bound claims** (every assertion cites a git SHA re-checked via `git cat-file`; majority-vote monitor council blocks self-grading) + a closing synthesis tying all four patterns to the Verifier-Theater cure (krishddd/Strive_Engineering, kok1eee/flywheel, grapheneaffiliate/Harness)
+- `LOOP_ENGINEERING.md` — updated the docs/04 index summary to list provenance-bound claims + majority-vote council
+- `SOURCES.md` — added krishddd/Strive_Engineering as a github source (novel SHA-citation verifier pattern canonised this run)
+- `docs/32-reading-list.md` — added Strive_Engineering to Reference Implementations (provenance-bound verification — a technique no other reference impl demonstrates; group now at the 5-entry cap)
+
+### Structural review this run (Phase 4c)
+Reading the finding-set as a whole, the dominant theme is — for the second consecutive
+run — **verifier integrity and anti-self-grading** (Strive, The RIG, flywheel, ensemble,
+loop-engineer all centre on unfakeable checks and independent judges). This *reinforced*
+the canonical home established 2026-06-26/28 rather than fragmenting it: the one new
+mechanism (provenance-bound claims) slotted in as a 4th pattern inside the existing
+`docs/04` Verifier Integrity section, and a closing synthesis now states the converging
+thesis outright. The secondary theme — the "model-harness-sandbox-eval **flywheel**"
+framing (Innermost Loop, Aravind Srinivas) — is already covered by the
+[Factory Model](docs/26-factory-model.md) and [Harness Patterns](docs/24-harness-patterns.md)
+docs (harness > model thesis); it added vocabulary, not a missing primitive, so no
+structural change. No new docs, no index restructure — the design spine absorbed the run
+cleanly.
+
+### Sources to consider adding to SOURCES.md
+- grapheneaffiliate/Harness ("The RIG") and kok1eee/flywheel — strong Tier-1 verifier-integrity designs; monitor for ≥2 substantive contributions before adding as standing sources
+- The Innermost Loop (theinnermostloop.substack.com) — newsletter with the flywheel framing; watch for a second on-topic issue before tracking
+- MindStudio is already tracked; its Jun-25 cluster (loop-of-loops, /goal+/routines, G Stack) was high-volume but restated covered concepts
+
+---
+
 ## 2026-06-28 16:25 UTC (run)
 
 GitHub-dominated run: the live searches surfaced a wave of small Claude-Code loop
