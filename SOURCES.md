@@ -93,7 +93,7 @@ substantively relevant to loop engineering practice (not just a passing mention)
 | cobusgreyling/goal-engineering | github | https://github.com/cobusgreyling/goal-engineering | Reference implementation: GOAL.md schema, six canonical goal patterns, G0-G3 readiness scoring tool (Jun 2026) |
 | cobusgreyling/fleet-engineering | github | https://github.com/cobusgreyling/fleet-engineering | Reference implementation: six fleet governance patterns, Fleet Economics cost attribution, F0-F3 maturity (Jun 2026) |
 | omnigent-ai/omnigent | github | https://github.com/omnigent-ai/omnigent | Meta-harness (4771★): 3-tier governance, harness-swap, cross-device session continuity (Jun 2026) |
-| GitHub search — agent coordination state claude | github-search | https://api.github.com/search/repositories?q=%22acting_on%22+claude+loop&sort=updated | KB gap: multi-loop STATE.md coordination example; find implementations using acting_on field |
+| GitHub search — cross-model maker/checker | github-search | https://api.github.com/search/repositories?q=claude+codex+reviewer+loop&sort=updated | Replaced low-yield `acting_on` query (0 results; that STATE.md gap is filled). Surfaces cross-model maker/checker harnesses (Claude implements / Codex reviews) — the Jun 2026 dominant theme |
 | Akshay Pachaar | x | @akshay_pachaar | Co-founder @dailydoseofds_; loop engineering internals diagrams and practitioner breakdowns (Jun 2026) |
 | getzep/graphiti | github | https://github.com/getzep/graphiti | Temporal knowledge graph for agent state layer: invalidates stale facts, multi-modal search (vector+full-text+graph) (Jun 2026) |
 | eugenelim/agent-ready-repo | github | https://github.com/eugenelim/agent-ready-repo | Agent-ready repo spec: Surface vocabulary, adversarial reviewer checklists, verification modes, org learning stage (Jun 2026) |
@@ -101,7 +101,9 @@ substantively relevant to loop engineering practice (not just a passing mention)
 | faisalishfaq2005/loopflow | github | https://github.com/faisalishfaq2005/loopflow | Loop orchestration: cross-run memory persistence, gate feedback injection, debt-audit + docs-sync patterns (Jun 2026) |
 | uppifyagency/loop-kernel | github | https://github.com/uppifyagency/loop-kernel | Provably-halting loop kernel: three exit-code stops (0/2/3), external unfakeable verifier, score=<fraction> contract, LEDGER across compaction (Jun 2026) |
 | orobsonn/claude-harness | github | https://github.com/orobsonn/claude-harness | "Strong eyes, cheap hands" cost-asymmetric maker/checker (Ollama writes, Opus judges); content-hashed frozen tests before impl; independent completion capture (Jun 2026) |
-| krishddd/Strive_Engineering | github | https://github.com/krishddd/Strive_Engineering | Provenance-bound verification: every finding cites a git SHA re-checked via `git cat-file` (loopguard), majority_vote blocks self-grading, L0-L3 autonomy ladder (Jun 2026) |
+| krishddd/Strive_Engineering | github | https://github.com/krishddd/Strive_Engineering | Provenance-bound verification: every finding cites a git SHA re-checked via `git cat-file` (loopguard), majority_vote blocks self-grading, L0-L3 autonomy ladder; isomorphic-perturbation verifier (Jun 2026) |
+| Happenmass/Cliclaw | github | https://github.com/Happenmass/Cliclaw | Cross-model maker/checker (Claude implements / Codex reviews) over tmux; auto-continue gate model, tmux-pane state scraping (hook-free), two-tier hybrid memory; 107★ (Jun 2026) |
+| firegnu/herdr-loop-lab | github | https://github.com/firegnu/herdr-loop-lab | Three-layer (inner/fleet/epic) cross-model adversarial judge + mechanical gate; exit-code stop contracts (0/2/3), stateless worktree rounds, AC-N acceptance criteria (Jun 2026) |
 
 ---
 

@@ -50,6 +50,15 @@ criteria creates a signal the generator can actually improve against. This is
 analogous to the GAN (Generative Adversarial Network) training dynamic: the
 generator improves because the discriminator provides real pressure.
 
+**Independence has two axes, not one.** A fresh session removes *context* bias, but a
+same-model CHECKER still shares the DOER's *training* blind spots — it can rationalise the
+same mistakes because it reasons from the same priors. A growing Jun 2026 pattern adds a
+**model-diversity** axis: run the CHECKER on a *different model* (the recurring config is
+Claude implements, Codex reviews). This is distinct from the cost-asymmetry below — the goal
+here is catching what one model is systematically blind to, not saving tokens. See
+[Verifier Integrity → cross-model independence](04-verification.md#verifier-integrity-keeping-the-check-unfakeable)
+for the full pattern and its dual stop condition.
+
 ### "Strong Eyes, Cheap Hands" — cost-asymmetric role allocation
 
 The DOER and CHECKER do not need the same model. Because judgment is rarer and

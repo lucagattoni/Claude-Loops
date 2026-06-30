@@ -30,6 +30,17 @@ Updated by each `fetch-loop-news` run. Gap keywords drive targeted GitHub and we
   gives an *a-priori* estimate from objective scope. Search keywords: `"goal cost" estimation
   token`, `agent loop token prediction`, `"GOAL.md" token budget`, `cost routing eval logs agent`
 
+- **Cross-model checker arbitration**: docs/04 (pattern 5) and docs/07 now name cross-model
+  independence (Claude implements / Codex reviews), but two open questions are thin — (a) *which*
+  model to pair as checker (criteria beyond "different"), and (b) how to arbitrate when two
+  models *disagree* on a BLOCK (tie-break, escalate, third model?). Search keywords:
+  `"cross-model" reviewer agent`, `Claude Codex reviewer disagreement`, `multi-model verifier arbitration loop`
+
+- **Self-scaffolding / model-generated harness**: MindStudio's Ornith 1.0 finding (model
+  generates a discrete inspectable per-task harness instead of running inside a fixed loop) is
+  not covered in docs/22 or docs/24, which assume a human-authored harness. Search keywords:
+  `"self-scaffolding" agent harness`, `model generates own harness`, `per-task harness synthesis claude`
+
 ---
 
 ## Recently Filled (archive — keep last 2 entries; remove older ones)

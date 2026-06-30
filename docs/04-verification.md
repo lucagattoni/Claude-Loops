@@ -179,7 +179,7 @@ Verifiers calibrated only on happy-path inputs will fail on the edge cases that 
 
 ## Verifier Integrity: Keeping the Check Unfakeable
 
-A verifier only protects the loop if the agent cannot quietly defeat it. Three
+A verifier only protects the loop if the agent cannot quietly defeat it. Five
 patterns, converging across independent Claude-Code loop harnesses (Jun 2026), keep
 the check honest:
 
@@ -231,10 +231,39 @@ principle generalises the external-verifier idea from "re-run the check" to **"b
 claim to an inspectable, unforgeable artifact and have more than one judge confirm it."**
 ([krishddd/Strive_Engineering](https://github.com/krishddd/Strive_Engineering), Jun 2026.)
 
-These four together — external verifier, mechanical-gate/adjudicator split, frozen tests,
-and provenance-bound claims — are the converging community answer to
-[Verifier Theater](17-failure-patterns.md): the verifier, the contract, and the evidence
-all live outside the agent's reach, and no single judge can wave work through.
+**Isomorphic-perturbation checks (anti single-predicate reward-hacking).** A refinement
+from the same harness: validate each claim under *two independent-but-equivalent* checks
+(e.g. a literal `git cat-file -e` existence test **plus** a full object-ID re-derivation).
+A gap that passes one check but fails its logical equivalent has found a single-predicate
+shortcut — it is reward-hacking the specific predicate rather than genuinely satisfying the
+goal — and the verifier exits non-zero. This generalises the [A/A baseline](#aa-baseline-for-verifier-calibration)
+idea from "run the same check twice" to "run two equivalent checks once each; demand they
+agree." ([krishddd/Strive_Engineering](https://github.com/krishddd/Strive_Engineering), Jun 2026.)
+
+**5. Cross-model independence — the checker runs a different model than the maker.** The
+first four patterns keep the checker *structurally* independent (fresh context, separate
+role, external command). This pattern adds a **model-diversity** axis: the reviewer runs on
+a *different model* from the implementer, so the two do not share training blind spots or
+failure modes. The recurring Jun 2026 configuration is **Claude implements, Codex reviews** —
+the implementer writes broad multi-file changes and a separate reviewer model independently
+inspects the diff, with roles often not fixed (either model can implement or review). The
+argument: a same-model checker, however fresh its context, can rationalise the same mistakes
+the maker made because it reasons from the same priors; a *different* model is likelier to
+catch what the first is systematically blind to, and the two models' disagreement becomes the
+productive tension that drives another iteration. These harnesses pair the cross-model
+reviewer with a **structured verdict schema** that separates blocking from non-blocking
+findings — reviewers emit `VERDICT: PASS` / `VERDICT: BLOCK` plus advisory `SUGGEST:` lines —
+and gate completion on a **dual stop condition**: the loop terminates only when the mechanical
+test command exits 0 **and** the reviewer raises no `BLOCK`. Multiple reviewers on the same
+workspace aggregate by "any blocker ⇒ blocked." ([Happenmass/Cliclaw](https://github.com/Happenmass/Cliclaw),
+[mateaix/loope](https://github.com/mateaix/loope), [firegnu/herdr-loop-lab](https://github.com/firegnu/herdr-loop-lab),
+[Llicklair/forja](https://github.com/Llicklair/forja), Jun 2026.)
+
+These five together — external verifier, mechanical-gate/adjudicator split, frozen tests,
+provenance-bound claims (with isomorphic-perturbation checks), and cross-model independence —
+are the converging community answer to [Verifier Theater](17-failure-patterns.md): the
+verifier, the contract, and the evidence all live outside the agent's reach, no single judge
+can wave work through, and the judge that does check does not share the maker's blind spots.
 
 ## LLM-as-a-Judge Verification with Opik
 

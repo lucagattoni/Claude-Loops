@@ -18,6 +18,24 @@ Versioning follows [Semantic Versioning](https://semver.org/):
 
 ---
 
+## [2.4.6] — 2026-06-30
+
+Loop news run 2026-06-30 04:00 UTC — 16 findings. Third consecutive GitHub-dominated wave, converging on **cross-model maker/checker** (Claude implements / Codex reviews) with structured VERDICT + dual stop conditions.
+
+### Added
+
+- `SOURCES.md` — added Happenmass/Cliclaw (107★) and firegnu/herdr-loop-lab as github sources; replaced the low-yield `acting_on` github-search with a cross-model maker/checker query.
+- `docs/32-reading-list.md` — added Gusto "no-process / trash-can method" case study (Eddie Kim, CTO) to Loops in Production.
+- `KB_GAPS.md` — added two gaps: cross-model checker arbitration/model-selection; self-scaffolding model-generated harness (Ornith 1.0).
+
+### Changed
+
+- `docs/04-verification.md` — added **Pattern 5: cross-model independence** to Verifier Integrity (checker runs a *different* model than the maker; model-diversity defeats shared blind spots; structured `VERDICT: PASS/BLOCK` + `SUGGEST`; dual stop = test exit 0 AND no reviewer BLOCK) and the **isomorphic-perturbation check** refinement (anti single-predicate reward-hacking); updated pattern count 3→5 and synthesis to "these five together" (Cliclaw, loope, herdr-loop-lab, forja, Strive_Engineering).
+- `docs/07-subagents.md` — added "Independence has two axes" note distinguishing context-independence from model-independence, cross-linking to docs/04 Pattern 5.
+- `LOOP_ENGINEERING.md` — updated the docs/04 index summary to list isomorphic-perturbation + cross-model independence.
+
+---
+
 ## [2.4.5] — 2026-06-29
 
 Loop news run 2026-06-29 04:02 UTC — 18 findings (a second GitHub-dominated wave of fresh Claude-Code loop harnesses converging again on verifier integrity + anti-self-grading).
