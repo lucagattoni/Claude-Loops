@@ -18,6 +18,14 @@ Versioning follows [Semantic Versioning](https://semver.org/):
 
 ---
 
+## [2.5.6] — 2026-07-01
+
+### Changed
+
+- `docs/index.md` (site home) — numbered the chapter/section list and the "Stay current" links to match the rest of the site (1. Foundations … 7. Reference, 8.x Project), so the home page content **and its table of contents** show numbers too. The home page is hand-authored and is skipped by `section-numbering.js` (it has no nav number), so these numbers are set directly in the page. Also pointed the Stay-current links to the on-site News/Sources/Changelog pages.
+
+---
+
 ## [2.5.5] — 2026-07-01
 
 ### Fixed
@@ -39,6 +47,10 @@ Versioning follows [Semantic Versioning](https://semver.org/):
 ### Added
 
 - **Numbered page titles and section headings** on the docs site — each page's H1 is prefixed with its chapter number (e.g. "1.1 The Paradigm Shift") and its sections/subsections are numbered ("1.1.1 AI Leverage Formula", "1.1.1.1 …"), derived from the nav via `docs/javascripts/section-numbering.js`. The right-hand table of contents is kept in sync. Done in JS so the source Markdown, heading anchors, and GitHub rendering stay clean; meta pages (8. Project — news/sources/changelog) get a title number but their machine-generated headings are not renumbered.
+
+---
+
+## [2.5.2] — 2026-07-01
 
 ### Added
 
