@@ -18,7 +18,25 @@ Versioning follows [Semantic Versioning](https://semver.org/):
 
 ---
 
-## [2.4.6] — 2026-07-01
+## [2.4.7] — 2026-07-01
+
+Loop news run 2026-07-01 12:35 UTC — 9 findings. A gap-driven run: filled three documented KB gaps and added the first quantified harness>model evidence.
+
+### Added
+
+- `docs/33-agent-security-hardening.md` — **Credential Rotation Mid-Session** (Credential-Sentinel: verify-before-revoke cutover — promote→repoint→verify, revoke old only after verify passes, rollback on fail; 4-state classify with default-deny on unknowns; two human gates) [fills gap] + **Runtime Policy Gating** (omnigent: blast_radius, intent_gate default-deny, phase-scoped tool access) [partial SECURITY_MATRIX fill].
+- `docs/30-goal-engineering.md` — **A-Priori Goal-Cost Estimation** (cobusgreyling `goal-cost`: pattern-keyed pre-run token/budget forecast) [fills gap].
+- `docs/14-human-in-the-loop.md` — **Where to Place a Checkpoint** (4 tests, ~80/20 split, override-rate calibration; MindStudio).
+- `docs/24-harness-patterns.md` — quantified harness>model (LangChain: Terminal-Bench Top30→Top5, harness-only) + **harness conformance testing** (omnigent harness-bench).
+- `docs/04-verification.md` — 70/30 human-LLM **blended grading** (Claire Vo) + **proof-of-work demo artifacts** (Simon Willison video-as-verification).
+- `docs/06-skills.md` — **agent-legible tools** (`--help` as embedded SKILL.md; Simon Willison).
+
+### Changed
+
+- `docs/17-failure-patterns.md` — enriched Context-drift with `detect_task_switch` (mechanical mid-run goal-change detection).
+- `LOOP_ENGINEERING.md` — updated summaries for docs 04, 06, 14, 24, 30, 33.
+- `KB_GAPS.md` — closed credential-rotation and goal-cost gaps; re-scoped SECURITY_MATRIX to the loading mechanism.
+- `SOURCES.md` — (ecc added earlier in 2.4.6).
 
 Selective integration from [affaan-m/ecc](https://github.com/affaan-m/ecc) (224k★ multi-harness agent operator system), evaluated at 14/20 — verified against the actual skill files, not the marketing README.
 

@@ -268,6 +268,27 @@ answer qualitatively.
 
 ([affaan-m/ecc](https://github.com/affaan-m/ecc) `eval-harness` skill, Jun 2026.)
 
+**Blend human and model grading with an explicit weight.** When neither a code-based
+grader nor an LLM judge alone is trustworthy, blend them at a stated ratio rather than
+picking one. One reusable model-comparison harness scores with **70% human "vibe" +
+30% LLM-judge**, using a local HTML page that exports gut-feel ratings to JSON for a
+blind comparison — the weighting is a design decision, not an accident, and it keeps a
+human majority-stake in subjective calls while still scaling. (Claire Vo, ["Sonnet 5
+review: I ran 64 generations"](https://www.lennysnewsletter.com/p/sonnet-5-review-i-ran-64-generations), Jun 2026.)
+
+## Proof-of-Work Artifacts: the Verifiable Demo
+
+Not every hand-off can be reduced to a pass/fail exit code. For UI/UX work, the
+verification artifact can be a **recorded demo the agent produces itself**: the agent
+writes a YAML "storyboard" of interaction steps, Playwright drives the browser, and the
+result is a video that shows the feature actually working — "the importance of having
+coding agents produce demos of their work." This is a *human-viewable* verification
+artifact, complementary to (not a replacement for) the machine-checked gates above:
+it closes the gap for behaviour a test suite can't fully assert, and it is what a human
+reviews at a [handoff](14-human-in-the-loop.md) checkpoint.
+
+(Simon Willison, ["shot-scraper video"](https://simonwillison.net/2026/Jun/30/shot-scraper-video/), Jun 2026.)
+
 ## LLM-as-a-Judge Verification with Opik
 
 **[Comet's Opik](https://github.com/comet-ml/opik)** (open-source, 40M+ traces/day) provides a verification layer

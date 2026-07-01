@@ -17,6 +17,31 @@ If you encounter any of the following, stop and ask for human input:
 - The classifier blocks the same action 3 consecutive times
 - Total denied actions reach 20 in a session
 
+## Where to Place a Checkpoint
+
+The question is not *whether* to keep a human in the loop but *where*. Apply four tests
+to each step; a "yes" argues for a checkpoint there:
+
+| Test | Ask | Checkpoint when |
+|---|---|---|
+| **Irreversibility** | If this output is wrong and not caught immediately, how hard is it to fix? | Hard to undo (send customer email) — not internal CRM tags |
+| **Confidence threshold** | Does this input type produce unreliable output? | Agent should flag its own low-confidence outputs for review |
+| **External visibility** | Does the action leave your internal systems? | Customer-facing email, published content, outbound API call |
+| **Context gap** | Does tacit human context materially change the decision? | Relationship history / account context the agent lacks |
+
+**Place two to three well-placed checkpoints, not many** — target roughly an **80/20
+split**: ~80% of cases handled autonomously, ~20% routed to a human. Too many
+checkpoints recreate the bottleneck loops were meant to remove.
+
+**Calibrate with the override rate.** Measure how often a reviewer actually changes
+something at each checkpoint. "If reviewers are approving everything without changes 95%
+of the time, the checkpoint is probably unnecessary" — move or remove it. A good
+checkpoint is one where reviewers *frequently catch something meaningful*; track what
+gets flagged and what reviewers change to tune placement empirically rather than by
+assumption.
+
+(MindStudio, ["Human-in-the-Loop Checkpoints for AI Agents"](https://www.mindstudio.ai/blog/human-in-the-loop-checkpoints-ai-agents), Jun 2026.)
+
 ## The Three Feedback Loops
 
 Human-in-the-loop is not one checkpoint — it is the **middle of three nested feedback

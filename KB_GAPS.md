@@ -15,24 +15,19 @@ Updated by each `fetch-loop-news` run. Gap keywords drive targeted GitHub and we
   `harness mcp-scan`). Search keywords to try next: `"default-deny" MCP policy agent`,
   `"mcp-scan" agent harness`, `"security policy loader" claude agent`, `SessionStart hook` agent policy
 
-- **Credential rotation patterns**: docs/33 covers provisioning secrets to agents but
-  not rotating them mid-session or on credential expiry — search keywords:
-  `"secret rotation" agent`, `credential refresh` agentic, `claude code` secrets
-
 - **F0-F3 fleet maturity indicators**: docs/23 defines the F0-F3 levels but the
   observable indicators for passing each gate are underspecified — search keywords:
   `fleet engineering maturity`, `"F0" "F1" fleet agent`, `agent fleet governance metrics`
 
-- **Goal-cost token estimation**: docs/30 mentions a goal-cost token estimator in the
-  cobusgreyling/goal-engineering repo but does not describe the estimation method.
-  Partially advanced 2026-06-28 — omnigent surfaces authoritative *post-hoc* per-session
-  `cost_usd`, and MetaHarness routes models by cost learned from eval logs — but neither
-  gives an *a-priori* estimate from objective scope. Search keywords: `"goal cost" estimation
-  token`, `agent loop token prediction`, `"GOAL.md" token budget`, `cost routing eval logs agent`
+- **SECURITY_MATRIX default-deny *loading mechanism***: partially advanced 2026-07-01 —
+  omnigent's runtime `intent_gate` (default-deny against stated intent) + `blast_radius`
+  policies are now in docs/33, but the *startup loading* mechanism (how a static policy
+  doc becomes an enforced gate: CLAUDE.md import vs. SessionStart hook vs. policy engine)
+  is still under-specified. Search keywords: `"policy engine" agent startup`, `SessionStart hook policy`
 
 ---
 
 ## Recently Filled (archive — keep last 2 entries; remove older ones)
 
-- ~~**agentskills.io / .apm/ spec format**~~ — filled 2026-06-26 by docs/24 (Monad-Harness: six primitive subdirectories — skills/instructions/hooks/prompts/commands/tools; compiler generates harness-specific layout)
-- ~~**Multi-loop STATE.md coordination example**~~ — filled 2026-06-26 by docs/34 (concrete PR Babysitter + CI Sweeper STATE.md example with acting_on fields; harnery heartbeat alternative pattern)
+- ~~**Credential rotation mid-session**~~ — filled 2026-07-01 by docs/33 (Credential-Sentinel: verify-before-revoke cutover — promote→repoint→verify, revoke old only after verify passes, rollback to still-valid old on fail; 4-state classify with default-deny on unknowns; two human gates)
+- ~~**Goal-cost a-priori token estimation**~~ — filled 2026-07-01 by docs/30 (cobusgreyling `goal-cost --pattern <p> --level <G>`: pattern-keyed pre-run cost forecast feeding the Budget primitive before launch)

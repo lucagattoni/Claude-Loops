@@ -5,6 +5,62 @@ Sources are defined in [`SOURCES.md`](SOURCES.md).
 
 ---
 
+## 2026-07-01 12:35 UTC (run)
+
+A **gap-driven** run, not another saturation pass. The harness-repo wave has plateaued
+(≈6–8 new-but-redundant maker/checker clones seen and skipped), but the KB-gap-targeted
+searches paid off: this run **filled three documented gaps** — mid-session credential
+rotation, a-priori goal-cost estimation, and (partially) the SECURITY_MATRIX default-deny
+mechanism — plus added the first *quantified* evidence for the harness-over-model thesis.
+
+### New findings
+
+| Tier | Source | Title | URL | Summary |
+|---|---|---|---|---|
+| 2 | LangChain | "The Anatomy of an Agent Harness" | [link](https://www.langchain.com/blog/the-anatomy-of-an-agent-harness) | **Quantified harness>model**: moved a coding agent "Top 30 → Top 5 on Terminal Bench 2.0 by only changing the harness" (Opus 4.6, model held fixed) — hardest evidence yet that harness design is the accessible leverage. |
+| 3 | rashmi1112/Credential-Sentinel | "Discover-and-rotate loop with verify-before-revoke" | [link](https://github.com/rashmi1112/Credential-Sentinel) | **Fills the credential-rotation gap**: promote→repoint→verify cutover, old credential revoked only after verify passes (rollback to still-valid old on fail); 4-state classify with default-deny on unknowns; two human gates. |
+| 2 | cobusgreyling/goal-engineering | "goal-cost CLI (v1.1.0)" | [link](https://github.com/cobusgreyling/goal-engineering) | **Fills the goal-cost gap**: `goal-cost --pattern <p> --level <G>` forecasts token/budget for a goal *pattern* before the run — a-priori, pattern-keyed, feeds the Budget primitive. |
+| 2 | omnigent-ai/omnigent | "Runtime policy engine + harness-bench" | [link](https://github.com/omnigent-ai/omnigent/commits/main) | Policy layer: `blast_radius` (bound action impact), `intent_gate` (default-deny vs. stated intent — partial SECURITY_MATRIX fill), `detect_task_switch` (mid-run goal-change detection), phase-scoped tool access; plus `harness-bench` (harness capability conformance testing — a new eval primitive). |
+| 3 | Simon Willison | "shot-scraper video" | [link](https://simonwillison.net/2026/Jun/30/shot-scraper-video/) | Two patterns: **video-as-proof-of-work** (agent writes a YAML storyboard, Playwright records a demo as a human-viewable verification artifact) and **`--help` as embedded SKILL.md** (write help detailed enough that an agent self-onboards — capability travels with the binary). |
+| 3 | MindStudio | "Human-in-the-Loop Checkpoints" | [link](https://www.mindstudio.ai/blog/human-in-the-loop-checkpoints-ai-agents) | **Where** to place checkpoints: 4 tests (irreversibility / confidence / external-visibility / context-gap), 2–3 checkpoints at ~80/20 auto:human, and the **override-rate** calibration ("approving 95% unchanged → the checkpoint is unnecessary"). |
+| 4 | Claire Vo (Lenny's) | "Sonnet 5 review: 64 generations / How I AI Bench" | [link](https://www.lennysnewsletter.com/p/sonnet-5-review-i-ran-64-generations) | Reusable eval harness built in Claude Code <45 min from stored sessions; blind model comparison scored **70% human vibe / 30% LLM-judge** with a local HTML→JSON scoring page — an explicit blended-grading weight. |
+| 3 | orobsonn/claude-harness | "Thinking-quality Stop hook + loop-design-check" | [link](https://github.com/orobsonn/claude-harness/commits/main) | A Stop hook that adjudicates *reasoning-trace* quality at session end (distinct from output-correctness gates) + a skill that lints the loop's own design. Marginal; noted. |
+| 2 | cobusgreyling/loop-engineering | "loop CLI toolchain (loop-init/audit/cost)" | [link](https://github.com/cobusgreyling/loop-engineering) | Tracked repo shipped a CLI toolchain (`loop-init` scaffold, `loop-audit` inspect agent loops, `loop-cost` track spend) + opencode/openclaw 7/7 harness coverage. |
+
+### No new content
+- Anthropic RSS / The Batch / The Rundown AI / TLDR AI / Ben's Bites / AI Breakfast — feed 404/403 (ongoing; The Batch feed URL still needs revisiting)
+- OpenAI news / Harness Books (agentway.dev) — 403 (ongoing)
+- @bcherny, @karpathy, @AndrewYNg (0-to-1 framework being re-amplified — already in KB), @swyx, @steipete, @Sabrina_Ramonov, @akshay_pachaar — no new keyword-matching posts after last run
+- swyx.io, sabrina.dev, Addy Osmani, Simon Willison (other posts), Cobus Greyling (Substack) — nothing after 2026-06-29
+- X live keyword search — promo (EverMind "Raven"), jokes, thesis restatements, and a quant-trading *application* (no new technique)
+- Tracked repos with no substantive new concept: getzep/graphiti, agent-ready-repo, loopflow, Monad-Harness, loop-kernel, JeiKeiLim/tenet (release-loop commit not yet documented — recheck next run), ecc (v0.18.x "second-eye nudge" = redundant with strong-eyes/cross-model review)
+- GitHub search — ~6–8 new maker/checker/harness clones, none novel; `"halt condition" claude loop` and `acting_on` → 0 results
+
+### Docs updated this run
+- `docs/33-agent-security-hardening.md` — added **Credential Rotation Mid-Session** (verify-before-revoke cutover; fills gap) and **Runtime Policy Gating** (blast_radius / intent_gate / phase-scoped; partial SECURITY_MATRIX default-deny fill)
+- `docs/30-goal-engineering.md` — added **A-Priori Goal-Cost Estimation** (pattern-keyed pre-run forecast; fills gap)
+- `docs/14-human-in-the-loop.md` — added **Where to Place a Checkpoint** (4 tests, 80/20, override-rate calibration)
+- `docs/24-harness-patterns.md` — added quantified harness>model evidence (LangChain Top30→Top5) + **harness conformance testing** (harness-bench)
+- `docs/04-verification.md` — added **70/30 human-LLM blended grading** and **proof-of-work demo artifacts** (video-as-verification)
+- `docs/06-skills.md` — added **agent-legible tools** (`--help` as embedded SKILL.md)
+- `docs/17-failure-patterns.md` — enriched the Context-drift row with `detect_task_switch` (mechanical mid-run goal-change detection)
+- `KB_GAPS.md` — closed credential-rotation and goal-cost gaps; re-scoped SECURITY_MATRIX to the loading mechanism
+
+### Structural review this run (Phase 4c)
+The finding-set was gap-filling, not theme-shifting: each finding landed in an existing
+canonical home (security→33, verification/eval→04, HITL→14, harness→24, goal→30, skills→06),
+so no new docs and no index restructure were needed — the design spine absorbed it. The
+one thesis-level upgrade is that "the harness matters more than the model" now carries a
+**quantified** anchor (LangChain Top30→Top5) rather than only quotes; added to docs/24
+where the thesis already lives.
+
+### Sources to consider adding to SOURCES.md
+- **arXiv** — "Self-Harness: Harnesses That Improve Themselves" (2606.09498) and "Agentic Harness Engineering" (2604.25850): self-improving harnesses with Terminal-Bench gains; pre-cutoff but not yet mined — worth a dedicated arXiv pass next run
+- LangChain blog (langchain.com/blog) — now a strong quantified harness source; consider tracking
+- jtoemion/revolver-plugin — credential rotation-on-auth-error fallback (README 404 this run; recheck via master/docs)
+
+---
+
 ## 2026-06-29 04:02 UTC (run)
 
 Another GitHub-dominated run. The live repo searches surfaced a *second* wave of

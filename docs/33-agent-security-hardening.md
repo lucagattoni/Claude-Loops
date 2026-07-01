@@ -58,6 +58,49 @@ The SECURITY_MATRIX is the adversarial counterpart to the Loop Contract: the con
 says what the loop *should* do; the matrix says what it must *refuse*, regardless of
 what any instruction — including CLAUDE.md — tells it to do.
 
+## Runtime Policy Gating (below the matrix)
+
+SECURITY_MATRIX.md is a static document the agent self-checks against. A stronger layer
+is a **runtime policy engine** that gates each action mechanically, independent of the
+model's cooperation:
+
+| Policy | Gates on | Purpose |
+|---|---|---|
+| **blast_radius** | The scope/impact a single action can have | Bound the damage any one step can do (a containment budget, not a permission list) |
+| **intent_gate** | Whether the operation matches the agent's *stated* intent | Default-deny: an action the agent never declared it would take is refused |
+| **phase-scoped tool access** | Which native tools are callable *in the current phase* | A search-phase agent cannot commit; a build-phase agent cannot deploy |
+
+`intent_gate` is the closest public mechanism to the default-deny loading the
+SECURITY_MATRIX implies: instead of enumerating attacks to refuse, it refuses anything
+outside the declared plan. `blast_radius` complements it by capping *how much* an
+allowed action may touch. ([omnigent-ai/omnigent](https://github.com/omnigent-ai/omnigent), Jul 2026.)
+
+## Credential Rotation Mid-Session
+
+Provisioning and resolving credentials (above) is not enough for long-running loops:
+credentials expire or get compromised *during* a run, and blind rotation can sever a
+live consumer. A safe in-session rotation loop is a **verify-before-revoke cutover**:
+
+```
+discover → reconcile → assess → prioritize → plan
+  → [Gate 1: approve staging] → stage
+  → [Gate 2: approve cutover] → cutover → report
+```
+
+- **Classify, and treat unknowns as unsafe.** Reconcile live credentials against managed
+  inventory into four states: *in store & rotating* → DEFER; *in store, not rotating* →
+  OWN_STALE; *absent from all stores* → OWN_UNMANAGED; *unreachable/unclassifiable* →
+  UNKNOWN → **"escalated, never assumed safe."**
+- **Never revoke before verifying the replacement.** The cutover is
+  **promote → repoint → verify**, and the old credential is revoked *only after*
+  verification passes. On verify failure, consumers repoint back to the still-valid old
+  credential and the run escalates — "nothing is lost."
+- **Stop if blast radius is unknown.** The `assess` step blocks if consumers can't be
+  fully enumerated — you cannot safely rotate a credential whose dependents you can't see
+  (this is the [blast_radius](#runtime-policy-gating-below-the-matrix) principle applied to secrets).
+
+([rashmi1112/Credential-Sentinel](https://github.com/rashmi1112/Credential-Sentinel), Jul 2026.)
+
 ## Fail-Safe Secret Exposure Gate
 
 A runtime gate that monitors agent output for potential credential leaks:

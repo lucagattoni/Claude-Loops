@@ -126,6 +126,26 @@ Before launching a goal, score its readiness across four axes (0 = not met, 1 = 
 
 ([cobusgreyling/goal-engineering](https://github.com/cobusgreyling/goal-engineering), Jun 2026.)
 
+## A-Priori Goal-Cost Estimation
+
+The Budget primitive is usually set by guesswork. Because the six canonical patterns
+each carry a characteristic cost profile, you can instead **forecast cost from the
+pattern before the run starts**:
+
+```bash
+npx @cobusgreyling/goal-cost --pattern fix-bug
+npx @cobusgreyling/goal estimate --pattern tests-green --level G2
+```
+
+The estimator is **pattern-keyed**: it maps a goal pattern (`fix-bug`, `tests-green`,
+`migrate-module`, …) — optionally refined by the G0–G3 readiness tier — to an expected
+token/turn cost, so you can set a realistic `--max-budget-usd` / `--max-turns` *before*
+launching rather than discovering the cost after a runaway. This is the a-priori
+counterpart to post-hoc cost tracking (see [Cost & Turn Control](11-cost-control.md));
+pair them — estimate from the pattern, then cap with the measured ceiling.
+
+([cobusgreyling/goal-engineering](https://github.com/cobusgreyling/goal-engineering) `goal-cost`, v1.1.0, Jun 2026.)
+
 ## Relationship to the Loop Contract
 
 A goal is a single non-recurring iteration with a deterministic stopping condition.

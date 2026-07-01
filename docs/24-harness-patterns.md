@@ -32,6 +32,23 @@ The org-level harness is realised concretely as per-thread/per-channel agent ins
 with their own memory and permissions — see [Claude Tag](31-claude-tag.md) — and
 governed across many loops via [Fleet Engineering](23-fleet-engineering.md).
 
+**The quantified version of the thesis:** LangChain reports moving their coding agent
+"from Top 30 to Top 5 on Terminal Bench 2.0 by only changing the harness" — same model
+(Opus 4.6 in Claude Code), harness-only changes. This is the hardest evidence to date
+that harness design, not model swap, is the accessible leverage: a mid-pack agent
+became top-5 with the model held fixed. (LangChain, ["The Anatomy of an Agent Harness"](https://www.langchain.com/blog/the-anatomy-of-an-agent-harness), Mar 2026.)
+
+### Harness Conformance Testing (harness-bench)
+
+If the harness is the leverage point, it needs its own tests — not just the code it
+produces. A **harness conformance suite** validates whether a given harness meets a
+standard capability contract (does it enforce stop conditions, isolate agents, gate
+tools, recover state?), turning "is this harness production-grade?" into a benchmark
+rather than a judgement call. This is a distinct evaluation primitive from output
+verification ([docs/04](04-verification.md)): output verification asks "is the *work*
+correct?"; conformance testing asks "is the *harness* capable?"
+([omnigent-ai/omnigent](https://github.com/omnigent-ai/omnigent) `harness-bench`, Jul 2026.)
+
 ## Harness vs. Environment Engineering
 
 Two complementary safety layers operating at different levels of the stack:

@@ -49,3 +49,17 @@ prevent the agent from taking shortcuts inside a loop. (Pattern from Addy Osmani
 
 The skill becomes a quality gate: each phase must complete before the next begins,
 regardless of how the agent would otherwise sequence the work.
+
+## Make Tools Agent-Legible (`--help` as embedded SKILL.md)
+
+A skill teaches the agent a workflow; the *tools* the workflow calls should teach the
+agent how to use them. Write a command's `--help` output detailed enough that an agent
+can run the tool correctly from that alone — "it works kind of like bundling a
+`SKILL.md` file directly inside the tool." The agent runs `mytool --help`, learns the
+flags and expected inputs, and uses it with no external docs.
+
+The payoff: capability travels *with the binary*. There's no separate doc to keep in
+sync, and any loop that has the tool installed can self-onboard to it. Treat agents as
+first-class users of your CLIs — design the `--help` for them, not just for humans.
+
+(Simon Willison, ["shot-scraper video"](https://simonwillison.net/2026/Jun/30/shot-scraper-video/), Jun 2026.)
