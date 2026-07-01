@@ -1,7 +1,7 @@
 # Loop Engineering News
 
 Newest-first digest. Updated by the `fetch-loop-news` skill on each run.
-Sources are defined in [`SOURCES.md`](SOURCES.md).
+Sources are defined in [`SOURCES.md`](https://lucagattoni.github.io/Claude-Loops/sources/).
 
 ---
 
@@ -197,7 +197,7 @@ mechanism (provenance-bound claims) slotted in as a 4th pattern inside the exist
 `docs/04` Verifier Integrity section, and a closing synthesis now states the converging
 thesis outright. The secondary theme — the "model-harness-sandbox-eval **flywheel**"
 framing (Innermost Loop, Aravind Srinivas) — is already covered by the
-[Factory Model](docs/26-factory-model.md) and [Harness Patterns](docs/24-harness-patterns.md)
+[Factory Model](https://lucagattoni.github.io/Claude-Loops/26-factory-model/) and [Harness Patterns](https://lucagattoni.github.io/Claude-Loops/24-harness-patterns/)
 docs (harness > model thesis); it added vocabulary, not a missing primitive, so no
 structural change. No new docs, no index restructure — the design spine absorbed the run
 cleanly.

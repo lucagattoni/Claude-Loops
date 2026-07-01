@@ -18,6 +18,24 @@ Versioning follows [Semantic Versioning](https://semver.org/):
 
 ---
 
+## [2.5.2] — 2026-07-01
+
+### Added
+
+- **Numbered navigation** on the docs site — chapters (1–8) and sub-chapters (e.g. 2.1, 2.2 …) in the left nav.
+- **News, Sources, and Changelog are now pages on the site** (`docs/news.md`, `docs/sources.md`, `docs/changelog.md` symlink the root files) under a new **8. Project** nav section, so they're readable in the 3-column layout.
+
+### Changed
+
+- **All README links now point to the Pages site** (topic index, changelog, sources, news, and starter topics); source-only files (skill, script, plans) are shown as plain paths rather than GitHub links.
+- **`LOOP_ENGINEERING.md` topic links now point to the Pages site** (35 links → `https://lucagattoni.github.io/Claude-Loops/<page>/`) so the GitHub-rendered index routes readers to the site.
+- `.claude/skills/fetch-loop-news/SKILL.md` — new index rows must link the Pages URL (not the repo path) and register the page in `mkdocs.yml` nav, keeping the index consistent as the KB grows.
+- `LOOP_ENGINEERING_NEWS.md` — fixed 3 relative links to absolute Pages URLs so the digest builds cleanly as a site page.
+
+Housekeeping: merged the stale `loop-news-2026-06-30` branch (released as 2.5.1); deleted the merged `feature/loop-news-tracker` branch; restored CHANGELOG version headers (2.4.2, 2.4.3, 2.4.5, 2.4.6, 2.4.7) that earlier sequential edits had dropped.
+
+---
+
 ## [2.5.1] — 2026-07-01
 
 Loop news run 2026-06-30 04:00 UTC — 16 findings (merged late from branch `loop-news-2026-06-30`; renumbered from the branch's 2.4.6, which today's releases had already used). Third consecutive GitHub-dominated wave, converging on **cross-model maker/checker** (Claude implements / Codex reviews) with structured VERDICT + dual stop conditions.

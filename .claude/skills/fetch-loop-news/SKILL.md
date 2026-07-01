@@ -285,9 +285,12 @@ table and list all sources under "No new content". Never skip the section.
 4. For each item in "New findings", assess whether it introduces a **new concept,
    technique, or tool** not yet present in any `docs/*.md` file:
    - Read the relevant `docs/*.md` files to check coverage
-   - New concept → create `docs/<topic>.md` and add a row to `LOOP_ENGINEERING.md`:
-     `| N | [Topic](docs/<topic>.md) | One-sentence summary |`
-   - Updates existing concept → edit only that `docs/<topic>.md`
+   - New concept → create `docs/<NN-topic>.md` and add a row to `LOOP_ENGINEERING.md`.
+     **Link to the published Pages URL, not the repo path** (the index routes readers to
+     the 3-column site): `| N | [Topic](https://lucagattoni.github.io/Claude-Loops/<NN-topic>/) | One-sentence summary |`
+     (MkDocs uses directory URLs, so `docs/04-verification.md` → `.../04-verification/`).
+     Also add the page to the `nav:` in `mkdocs.yml` under the right numbered chapter.
+   - Updates existing concept → edit only that `docs/<NN-topic>.md`
    - Already fully covered → no doc changes needed
 
 5. **Reading list curation** — after KB doc writes, evaluate new findings against

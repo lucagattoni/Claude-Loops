@@ -6,24 +6,24 @@ of designing systems that prompt Claude for you, rather than typing prompts your
 ## 📖 Read the documentation → **<https://lucagattoni.github.io/Claude-Loops/>**
 
 The knowledge base is meant to be **read on the docs site** (a 3-column layout with
-search, navigation, and light/dark themes) — not as raw Markdown here on GitHub. The
-`docs/` files below are the *source*; the [published site](https://lucagattoni.github.io/Claude-Loops/)
-is the reading experience.
+search, navigation, and light/dark themes) — not as raw Markdown here on GitHub. Every
+link below points to the [published site](https://lucagattoni.github.io/Claude-Loops/);
+the files in this repo are the *source* the site is built from.
 
 ---
 
 ## What's in this repo
 
-| Path | What it is |
+| Source file | Read it on the site |
 |---|---|
-| [`LOOP_ENGINEERING.md`](LOOP_ENGINEERING.md) | Slim index of all loop engineering topics |
-| [`docs/`](docs/) | One in-depth doc per topic, linked from the index |
-| [`CHANGELOG.md`](CHANGELOG.md) | Versioned history of changes to the knowledge base |
-| [`SOURCES.md`](SOURCES.md) | Dynamic list of news sources monitored daily |
-| [`LOOP_ENGINEERING_NEWS.md`](LOOP_ENGINEERING_NEWS.md) | Append-only daily digest of new findings |
-| [`.claude/skills/fetch-loop-news/`](.claude/skills/fetch-loop-news/SKILL.md) | Claude skill that runs the daily fetch |
-| [`scripts/run-loop-news.sh`](scripts/run-loop-news.sh) | Shell wrapper to invoke the skill headlessly |
-| [`plans/`](plans/) | Implementation plans for features in progress |
+| `docs/*.md` | [The knowledge base](https://lucagattoni.github.io/Claude-Loops/) — one page per topic |
+| `LOOP_ENGINEERING.md` | [Home / topic index](https://lucagattoni.github.io/Claude-Loops/) |
+| `CHANGELOG.md` | [Changelog](https://lucagattoni.github.io/Claude-Loops/changelog/) |
+| `SOURCES.md` | [Sources](https://lucagattoni.github.io/Claude-Loops/sources/) |
+| `LOOP_ENGINEERING_NEWS.md` | [News digest](https://lucagattoni.github.io/Claude-Loops/news/) |
+| `.claude/skills/fetch-loop-news/SKILL.md` | Claude skill that runs the daily fetch (source only) |
+| `scripts/run-loop-news.sh` | Shell wrapper to invoke the skill headlessly (source only) |
+| `plans/` | Implementation plans for features in progress (source only) |
 
 ---
 
@@ -31,26 +31,26 @@ is the reading experience.
 
 **Read it on the site: <https://lucagattoni.github.io/Claude-Loops/>** — the 3-column
 layout (nav · content · on-this-page TOC) is the intended reading experience, with search
-and cross-links that don't work in raw GitHub Markdown.
+and cross-links that don't work in raw GitHub Markdown. Start with
+[The Paradigm Shift](https://lucagattoni.github.io/Claude-Loops/01-paradigm-shift/),
+[The Loop Contract](https://lucagattoni.github.io/Claude-Loops/27-loop-contract/), and
+[Verification](https://lucagattoni.github.io/Claude-Loops/04-verification/).
 
-For a flat text overview, [`LOOP_ENGINEERING.md`](LOOP_ENGINEERING.md) is a table of all
-topics, each with a one-line summary linking to the full `docs/<topic>.md` file.
-
-The knowledge base grows automatically: when the daily loop finds a new concept not
-yet covered, it creates a new `docs/<topic>.md` and adds a row to the index.
+The knowledge base grows automatically: when the daily loop finds a new concept not yet
+covered, it adds a page and a row to the [topic index](https://lucagattoni.github.io/Claude-Loops/).
 
 ---
 
 ## Daily news tracker
 
-Every day at **05:00 UTC** a Claude loop:
+Every day a Claude loop:
 
-1. Reads [`SOURCES.md`](SOURCES.md) to get the current source list and relevance keywords
+1. Reads the [sources list](https://lucagattoni.github.io/Claude-Loops/sources/) and relevance keywords
 2. Fetches new posts from X.com profiles (via Chrome), RSS feeds, and blog pages
 3. Scores each post against the keyword list
-4. Appends a new dated entry to [`LOOP_ENGINEERING_NEWS.md`](LOOP_ENGINEERING_NEWS.md)
-5. If a finding introduces a new concept, creates or updates the relevant `docs/` file
-   and adds a row to the [`LOOP_ENGINEERING.md`](LOOP_ENGINEERING.md) index
+4. Appends a new dated entry to the [news digest](https://lucagattoni.github.io/Claude-Loops/news/)
+5. If a finding introduces a new concept, creates or updates the relevant topic page
+   and adds a row to the [index](https://lucagattoni.github.io/Claude-Loops/)
 
 ### Run it manually
 
@@ -66,7 +66,8 @@ Logs are written to `logs/loop-news-YYYYMMDD.log` (gitignored).
 
 ### Add or remove a source
 
-Edit [`SOURCES.md`](SOURCES.md) — the loop reads it fresh on every run.
+Edit the `SOURCES.md` source file (rendered as [Sources](https://lucagattoni.github.io/Claude-Loops/sources/)
+on the site) — the loop reads it fresh on every run.
 
 ```markdown
 | New Actor | rss | https://theirblog.com/feed | Why they're relevant |
@@ -76,16 +77,8 @@ Supported types: `x` (X.com profile), `rss` (RSS/Atom feed), `html` (blog index 
 
 ---
 
-## Workflow rules
-
-- `main` is the stable branch — never commit directly to it
-- Every new feature or plan gets its own branch and a PR
-- All timestamps use UTC
-
----
-
 ## Contributing
 
-1. Add a new source to [`SOURCES.md`](SOURCES.md) — no code change needed
+1. Add a new source by editing `SOURCES.md` — no code change needed (see [Sources](https://lucagattoni.github.io/Claude-Loops/sources/))
 2. For knowledge base edits, open a PR targeting `main`
-3. For new plans, add a file to [`plans/`](plans/) on a feature branch
+3. For new plans, add a file to the `plans/` directory on a feature branch
