@@ -101,6 +101,7 @@ substantively relevant to loop engineering practice (not just a passing mention)
 | faisalishfaq2005/loopflow | github | https://github.com/faisalishfaq2005/loopflow | Loop orchestration: cross-run memory persistence, gate feedback injection, debt-audit + docs-sync patterns (Jun 2026) |
 | uppifyagency/loop-kernel | github | https://github.com/uppifyagency/loop-kernel | Provably-halting loop kernel: three exit-code stops (0/2/3), external unfakeable verifier, score=<fraction> contract, LEDGER across compaction (Jun 2026) |
 | orobsonn/claude-harness | github | https://github.com/orobsonn/claude-harness | "Strong eyes, cheap hands" cost-asymmetric maker/checker (Ollama writes, Opus judges); content-hashed frozen tests before impl; independent completion capture (Jun 2026) |
+| affaan-m/ecc | github | https://github.com/affaan-m/ecc | Flagship multi-harness "agent operator system" (224k★): eval-harness (pass@k/pass^k, 3 grader types), verification-loop, /loop-start, instinct learning; watch for focused loop-engineering skills (Jun 2026) |
 | krishddd/Strive_Engineering | github | https://github.com/krishddd/Strive_Engineering | Provenance-bound verification: every finding cites a git SHA re-checked via `git cat-file` (loopguard), majority_vote blocks self-grading, L0-L3 autonomy ladder (Jun 2026) |
 
 ---

@@ -236,6 +236,38 @@ and provenance-bound claims — are the converging community answer to
 [Verifier Theater](17-failure-patterns.md): the verifier, the contract, and the evidence
 all live outside the agent's reach, and no single judge can wave work through.
 
+## Eval Metrics: pass@k vs. pass^k
+
+A single pass/fail run cannot tell you whether a loop is *reliably* correct or just
+got lucky. Because agents are stochastic, measure success across repeated trials:
+
+| Metric | Definition | Use it to answer |
+|---|---|---|
+| **pass@k** | At least one success in `k` attempts | "*Can* the loop do this?" — capability |
+| **pass^k** | *All* `k` trials succeed | "Is it safe to run *unattended*?" — reliability |
+
+`pass@1` is the raw first-attempt rate; `pass@3` allows up to two retries. A useful
+target for capability evals is **`pass@3 > 90%`**; for critical paths that must not
+fail even once, require **`pass^3 = 100%`**. The gap between a high pass@k and a low
+pass^k is exactly the flakiness a stochastic loop hides — a loop can look capable
+(pass@3 high) while being unsafe to automate (pass^3 low).
+
+Grade each trial with one of three grader types (escalating in cost and subjectivity):
+
+| Grader | Mechanism | When |
+|---|---|---|
+| **Code-based** | Deterministic — grep, test runner, build exit code | Objective, binary criteria (prefer for gates) |
+| **Model-based** | A judge model scores open-ended criteria | Subjective quality (see [Opik](#llm-as-a-judge-verification-with-opik) below) |
+| **Human** | Flagged for manual review, risk-tiered LOW/MED/HIGH | Type B / irreversible work (see [Human-in-the-Loop](14-human-in-the-loop.md)) |
+
+Only code-based graders belong in a binary pass/fail gate — this is the same
+constraint the [A/A Baseline](#aa-baseline-for-verifier-calibration) imposes: never
+gate on an LLM-generated score. pass^k on a code-based grader is the quantitative
+form of the "safe to run unattended" question the [Loop Readiness Levels](34-loop-patterns.md)
+answer qualitatively.
+
+([affaan-m/ecc](https://github.com/affaan-m/ecc) `eval-harness` skill, Jun 2026.)
+
 ## LLM-as-a-Judge Verification with Opik
 
 **[Comet's Opik](https://github.com/comet-ml/opik)** (open-source, 40M+ traces/day) provides a verification layer

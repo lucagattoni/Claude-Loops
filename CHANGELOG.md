@@ -18,7 +18,20 @@ Versioning follows [Semantic Versioning](https://semver.org/):
 
 ---
 
-## [2.4.5] — 2026-06-29
+## [2.4.6] — 2026-07-01
+
+Selective integration from [affaan-m/ecc](https://github.com/affaan-m/ecc) (224k★ multi-harness agent operator system), evaluated at 14/20 — verified against the actual skill files, not the marketing README.
+
+### Added
+
+- `docs/04-verification.md` — **Eval Metrics: pass@k vs. pass^k**: pass@k (≥1 success in k tries — capability; target pass@3 > 90%) vs. pass^k (all k succeed — unattended-safety; pass^3 = 100% for critical paths), and the three grader types (code-based / model-based / human, risk-tiered). Cross-referenced to the A/A baseline (code-based graders only for gates) and Loop Readiness Levels.
+- `SOURCES.md` — added affaan-m/ecc as a github source to track.
+
+### Changed
+
+- `LOOP_ENGINEERING.md` — updated the docs/04 summary.
+
+Not integrated (already covered / marginal): ecc's `verification-loop` (redundant with the self-verifying loop; lacks maker/checker) and `/loop-start` loop-type taxonomy (overlaps existing trigger + readiness taxonomies).
 
 Loop news run 2026-06-29 04:02 UTC — 18 findings (a second GitHub-dominated wave of fresh Claude-Code loop harnesses converging again on verifier integrity + anti-self-grading).
 
