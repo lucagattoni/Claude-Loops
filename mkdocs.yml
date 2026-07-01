@@ -1,0 +1,138 @@
+site_name: Loop Engineering
+site_description: >-
+  A knowledge base for loop engineering with Claude Code — designing autonomous
+  agent loops that observe, plan, act, verify, and iterate.
+site_url: https://lucagattoni.github.io/Claude-Loops/
+site_author: Luca Gattoni
+copyright: Loop Engineering — a Claude Code knowledge base
+
+repo_url: https://github.com/lucagattoni/Claude-Loops
+repo_name: lucagattoni/Claude-Loops
+edit_uri: edit/main/docs/
+
+# docs/ is the source; LOOP_ENGINEERING.md + README.md stay the GitHub repo landing.
+docs_dir: docs
+
+# Broken internal links/anchors warn (promoted to errors under `--strict` in CI).
+# Intentional absolute github.com links to repo files are left alone.
+validation:
+  omitted_files: warn
+  absolute_links: ignore
+  unrecognized_links: warn
+  links:
+    anchors: warn
+
+theme:
+  name: material
+  icon:
+    repo: fontawesome/brands/github
+  palette:
+    # Light
+    - media: "(prefers-color-scheme: light)"
+      scheme: default
+      primary: deep purple
+      accent: deep orange
+      toggle:
+        icon: material/weather-night
+        name: Switch to dark mode
+    # Dark
+    - media: "(prefers-color-scheme: dark)"
+      scheme: slate
+      primary: deep purple
+      accent: deep orange
+      toggle:
+        icon: material/weather-sunny
+        name: Switch to light mode
+  features:
+    # Left column — collapsible navigation tree
+    - navigation.instant
+    - navigation.instant.progress
+    - navigation.tracking
+    - navigation.top
+    - navigation.footer
+    - navigation.indexes
+    # Right column — on-this-page TOC (kept separate, NOT integrated, so it stays a 3rd column)
+    - toc.follow
+    # Search + code ergonomics
+    - search.suggest
+    - search.highlight
+    - content.code.copy
+    - content.action.edit
+
+markdown_extensions:
+  - admonition
+  - attr_list
+  - md_in_html
+  - tables
+  - footnotes
+  - pymdownx.details
+  - pymdownx.superfences
+  - pymdownx.highlight:
+      anchor_linenums: true
+  - pymdownx.inlinehilite
+  - pymdownx.tabbed:
+      alternate_style: true
+  - pymdownx.emoji:
+      emoji_index: !!python/name:material.extensions.emoji.twemoji
+      emoji_generator: !!python/name:material.extensions.emoji.to_svg
+  - toc:
+      permalink: true
+
+plugins:
+  - search
+
+# External links open in a new tab with an external-link icon (see the JS + CSS below).
+extra_css:
+  - stylesheets/external-links.css
+extra_javascript:
+  - javascripts/external-links.js
+
+extra:
+  social:
+    - icon: fontawesome/brands/github
+      link: https://github.com/lucagattoni/Claude-Loops
+
+# Left navigation — grouped as in LOOP_ENGINEERING.md (foundational → advanced).
+nav:
+  - Home: index.md
+  - Foundations:
+      - The Paradigm Shift: 01-paradigm-shift.md
+      - The Factory Model: 26-factory-model.md
+      - The Core Agent Loop Cycle: 02-agent-loop-cycle.md
+      - Loop Maturity Model: 20-loop-maturity-model.md
+      - Context vs. Loop Engineering: 21-context-vs-loop-engineering.md
+  - Designing a Loop:
+      - The Loop Contract: 27-loop-contract.md
+      - Goal Engineering: 30-goal-engineering.md
+      - Harness Patterns: 24-harness-patterns.md
+      - Loop Patterns Catalog: 34-loop-patterns.md
+      - The Six Building Blocks: 03-building-blocks.md
+      - Routines: 28-routines.md
+      - Claude Tag: 31-claude-tag.md
+      - Explore → Plan → Implement → Commit: 15-explore-plan-implement.md
+  - Components:
+      - CLAUDE.md: 05-claude-md.md
+      - Skills: 06-skills.md
+      - Subagents: 07-subagents.md
+      - Hooks: 12-hooks.md
+      - Permissions & Auto Mode: 08-permissions.md
+      - Headless & Non-Interactive Mode: 09-headless-mode.md
+  - State & Long-Running Loops:
+      - Context Management: 13-context-management.md
+      - Memory Patterns: 16-memory-patterns.md
+      - Long-Running Agents: 25-long-running-agents.md
+      - Background Agents: 29-background-agents.md
+  - Quality & Safety:
+      - Verification: 04-verification.md
+      - Common Failure Patterns: 17-failure-patterns.md
+      - Human-in-the-Loop Escalation: 14-human-in-the-loop.md
+      - Cost & Turn Control: 11-cost-control.md
+      - MCP Security: 19-mcp-security.md
+      - Agent Security Hardening: 33-agent-security-hardening.md
+  - Scaling:
+      - Fan-Out: 10-fan-out.md
+      - Fleet Engineering: 23-fleet-engineering.md
+      - Learned Orchestration: 22-learned-orchestration.md
+  - Reference:
+      - Quick Reference: 18-quick-reference.md
+      - Reading List: 32-reading-list.md

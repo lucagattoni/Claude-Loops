@@ -18,7 +18,18 @@ Versioning follows [Semantic Versioning](https://semver.org/):
 
 ---
 
-## [2.4.7] — 2026-07-01
+## [2.5.0] — 2026-07-01
+
+### Added
+
+- **Published documentation site** (MkDocs Material, 3-column layout — left nav / content / right on-this-page TOC) mirroring the Claude-Warp setup, deployed to GitHub Pages via `.github/workflows/docs.yml` (uv → `mkdocs build --strict` → Pages).
+  - `mkdocs.yml` — Material theme, deep-purple/deep-orange palette with light/dark toggle, search, full nav grouped as in `LOOP_ENGINEERING.md` (Foundations → … → Reference).
+  - `docs/index.md` — site home (intro, design spine, grouped topic links, links to the live news digest/sources/changelog).
+  - `requirements-docs.txt` — pins `mkdocs-material`.
+  - **External links open in a new tab with an external-link icon** — `docs/javascripts/external-links.js` (Material `document$` hook, survives instant navigation; adds `target=_blank` + `rel=noopener noreferrer`) and `docs/stylesheets/external-links.css` (currentColor-masked icon; internal links untouched).
+  - `site/` added to `.gitignore` (build output is generated in CI, not committed).
+
+Verified locally: `mkdocs build --strict` passes with zero warnings (all 120 intra-doc links/anchors resolve); 3-column layout and external-link new-tab+icon confirmed in-browser (23/23 external links marked, 0 internal false-positives).
 
 Loop news run 2026-07-01 12:35 UTC — 9 findings. A gap-driven run: filled three documented KB gaps and added the first quantified harness>model evidence.
 
