@@ -86,6 +86,7 @@ extra_css:
   - stylesheets/external-links.css
 extra_javascript:
   - javascripts/external-links.js
+  - javascripts/section-numbering.js
 
 extra:
   social:

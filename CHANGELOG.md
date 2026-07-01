@@ -18,7 +18,11 @@ Versioning follows [Semantic Versioning](https://semver.org/):
 
 ---
 
-## [2.5.2] — 2026-07-01
+## [2.5.3] — 2026-07-01
+
+### Added
+
+- **Numbered page titles and section headings** on the docs site — each page's H1 is prefixed with its chapter number (e.g. "1.1 The Paradigm Shift") and its sections/subsections are numbered ("1.1.1 AI Leverage Formula", "1.1.1.1 …"), derived from the nav via `docs/javascripts/section-numbering.js`. The right-hand table of contents is kept in sync. Done in JS so the source Markdown, heading anchors, and GitHub rendering stay clean; meta pages (8. Project — news/sources/changelog) get a title number but their machine-generated headings are not renumbered.
 
 ### Added
 
