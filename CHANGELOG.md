@@ -18,6 +18,14 @@ Versioning follows [Semantic Versioning](https://semver.org/):
 
 ---
 
+## [2.5.4] — 2026-07-01
+
+### Changed
+
+- `.github/workflows/docs.yml` — bumped GitHub Actions to their Node 24 majors (`actions/checkout@v5`, `astral-sh/setup-uv@v8`, `actions/upload-pages-artifact@v5`, `actions/deploy-pages@v5`), clearing the "Node.js 20 is deprecated / forced to run on Node.js 24" warnings.
+
+---
+
 ## [2.5.3] — 2026-07-01
 
 ### Added
