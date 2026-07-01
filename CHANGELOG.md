@@ -18,18 +18,40 @@ Versioning follows [Semantic Versioning](https://semver.org/):
 
 ---
 
+## [2.5.1] — 2026-07-01
+
+Loop news run 2026-06-30 04:00 UTC — 16 findings (merged late from branch `loop-news-2026-06-30`; renumbered from the branch's 2.4.6, which today's releases had already used). Third consecutive GitHub-dominated wave, converging on **cross-model maker/checker** (Claude implements / Codex reviews) with structured VERDICT + dual stop conditions.
+
+### Added
+
+- `SOURCES.md` — added Happenmass/Cliclaw (107★) and firegnu/herdr-loop-lab as github sources; replaced the low-yield `acting_on` github-search with a cross-model maker/checker query.
+- `docs/32-reading-list.md` — added Gusto "no-process / trash-can method" case study (Eddie Kim, CTO) to Loops in Production.
+- `KB_GAPS.md` — added two gaps: cross-model checker arbitration/model-selection; self-scaffolding model-generated harness (Ornith 1.0).
+
+### Changed
+
+- `docs/04-verification.md` — added **Pattern 5: cross-model independence** to Verifier Integrity (checker runs a *different* model than the maker; model-diversity defeats shared blind spots; structured `VERDICT: PASS/BLOCK` + `SUGGEST`; dual stop = test exit 0 AND no reviewer BLOCK) and the **isomorphic-perturbation check** refinement (anti single-predicate reward-hacking); updated pattern count 3→5 and synthesis to "these five together" (Cliclaw, loope, herdr-loop-lab, forja, Strive_Engineering).
+- `docs/07-subagents.md` — added "Independence has two axes" note distinguishing context-independence from model-independence, cross-linking to docs/04 Pattern 5.
+- `LOOP_ENGINEERING.md` — updated the docs/04 index summary to list isomorphic-perturbation + cross-model independence.
+
+---
+
 ## [2.5.0] — 2026-07-01
 
 ### Added
 
 - **Published documentation site** (MkDocs Material, 3-column layout — left nav / content / right on-this-page TOC) mirroring the Claude-Warp setup, deployed to GitHub Pages via `.github/workflows/docs.yml` (uv → `mkdocs build --strict` → Pages).
-  - `mkdocs.yml` — Material theme, deep-purple/deep-orange palette with light/dark toggle, search, full nav grouped as in `LOOP_ENGINEERING.md` (Foundations → … → Reference).
-  - `docs/index.md` — site home (intro, design spine, grouped topic links, links to the live news digest/sources/changelog).
-  - `requirements-docs.txt` — pins `mkdocs-material`.
-  - **External links open in a new tab with an external-link icon** — `docs/javascripts/external-links.js` (Material `document$` hook, survives instant navigation; adds `target=_blank` + `rel=noopener noreferrer`) and `docs/stylesheets/external-links.css` (currentColor-masked icon; internal links untouched).
-  - `site/` added to `.gitignore` (build output is generated in CI, not committed).
+    - `mkdocs.yml` — Material theme, deep-purple/deep-orange palette with light/dark toggle, search, full nav grouped as in `LOOP_ENGINEERING.md` (Foundations → … → Reference).
+    - `docs/index.md` — site home (intro, design spine, grouped topic links, links to the live news digest/sources/changelog).
+    - `requirements-docs.txt` — pins `mkdocs-material`.
+    - **External links open in a new tab with an external-link icon** — `docs/javascripts/external-links.js` (Material `document$` hook, survives instant navigation; adds `target=_blank` + `rel=noopener noreferrer`) and `docs/stylesheets/external-links.css` (currentColor-masked icon; internal links untouched).
+    - `site/` added to `.gitignore` (build output is generated in CI, not committed).
 
 Verified locally: `mkdocs build --strict` passes with zero warnings (all 120 intra-doc links/anchors resolve); 3-column layout and external-link new-tab+icon confirmed in-browser (23/23 external links marked, 0 internal false-positives).
+
+---
+
+## [2.4.7] — 2026-07-01
 
 Loop news run 2026-07-01 12:35 UTC — 9 findings. A gap-driven run: filled three documented KB gaps and added the first quantified harness>model evidence.
 
@@ -47,7 +69,10 @@ Loop news run 2026-07-01 12:35 UTC — 9 findings. A gap-driven run: filled thre
 - `docs/17-failure-patterns.md` — enriched Context-drift with `detect_task_switch` (mechanical mid-run goal-change detection).
 - `LOOP_ENGINEERING.md` — updated summaries for docs 04, 06, 14, 24, 30, 33.
 - `KB_GAPS.md` — closed credential-rotation and goal-cost gaps; re-scoped SECURITY_MATRIX to the loading mechanism.
-- `SOURCES.md` — (ecc added earlier in 2.4.6).
+
+---
+
+## [2.4.6] — 2026-07-01
 
 Selective integration from [affaan-m/ecc](https://github.com/affaan-m/ecc) (224k★ multi-harness agent operator system), evaluated at 14/20 — verified against the actual skill files, not the marketing README.
 
@@ -61,6 +86,10 @@ Selective integration from [affaan-m/ecc](https://github.com/affaan-m/ecc) (224k
 - `LOOP_ENGINEERING.md` — updated the docs/04 summary.
 
 Not integrated (already covered / marginal): ecc's `verification-loop` (redundant with the self-verifying loop; lacks maker/checker) and `/loop-start` loop-type taxonomy (overlaps existing trigger + readiness taxonomies).
+
+---
+
+## [2.4.5] — 2026-06-29
 
 Loop news run 2026-06-29 04:02 UTC — 18 findings (a second GitHub-dominated wave of fresh Claude-Code loop harnesses converging again on verifier integrity + anti-self-grading).
 
@@ -83,10 +112,18 @@ Loop news run 2026-06-29 04:02 UTC — 18 findings (a second GitHub-dominated wa
 - `scripts/run-loop-news.sh` — Hardened the retry logic so it can't make things worse: (1) added `--max-budget-usd 8` so retries can't become an unbounded bill; (2) **safe-to-retry guard** — only retry when the failed attempt left no durable trace (tracked tree clean **and** `HEAD` unchanged); if it already committed or made partial edits, stop and notify rather than re-running (avoids duplicate commits / tag-release collisions); (3) **desktop notification** (`osascript`) on final give-up and on every no-retry abort, so a failed daily run is never silent. Verified against clean-retry, HEAD-moved-abort, dirty-tree-abort, and all-fail paths.
 - `docs/09-headless-mode.md` — Documented "only retry when a retry is safe" (cost cap, traceless-failure check, notify-on-give-up) and noted that true safe-to-retry requires idempotency inside the loop itself.
 
+---
+
+## [2.4.3] — 2026-06-28
+
 ### Changed
 
 - `scripts/run-loop-news.sh` — Added retry-with-backoff (3 attempts, 30s→90s) so a transient API drop (`ECONNRESET`/`overloaded`) no longer loses the whole scheduled run. An attempt counts as failed if the exit code is non-zero **or** a connection-level error marker appears in its output — covering the macOS `script(1)` quirk where the child exit code is masked to 0. Each attempt is captured to its own typescript for error-scanning, then folded into the day log (live PTY tail preserved).
 - `docs/09-headless-mode.md` — Documented the "exit code alone is not enough — scan the output too" hardening lesson (PTY masks exit code; transient drops print to output) with a retry snippet.
+
+---
+
+## [2.4.2] — 2026-06-28
 
 Loop news run 2026-06-28 16:25 UTC — 14 findings (GitHub-dominated: a wave of new Claude-Code loop harnesses converging on stop-condition rigor + verifier integrity).
 

@@ -286,8 +286,22 @@ a full team."
 
 ---
 
-### [Loops are replacing prompts. Verification is about to be your biggest problem.](https://thenewstack.io/agent-loops-cloud-native-verification/) — The New Stack
-**Added:** 2026-06-24 · **Published:** Jun 2026
+### [No Figma. No Jira. No docs. How Gusto built a new product line with Claude Code](https://www.lennysnewsletter.com/p/no-figma-no-jira-no-docs-how-gusto) — Eddie Kim (Gusto CTO) / Lenny's Newsletter
+**Added:** 2026-06-30 · **Published:** Jun 2026
+
+**Why here:** The clearest case study of *process replacement* under loop engineering, with
+hard outcome data. Where the Firefox study shows a security harness at scale, this shows a
+whole product org restructured around loops — and names a concrete, reusable practice (the
+"trash-can method") that the other production entries do not.
+
+**Summary:** A five-person Gusto team shipped a tier-one AI product in ten weeks by treating
+Claude Code as a primary team member and discarding the usual process artifacts (Figma, Jira,
+spec docs). The headline practice is the **trash-can method**: Claude-generated PRs become
+*disposable product proposals* — most are closed/discarded, making failed experiments cheap
+and letting non-engineers ship features that developers later refine. Bug-fixing runs an
+eval-first loop (write a reproducing eval/test, fix, re-run as the stopping condition, gate on
+human review before commit). The lesson is organizational: the bottleneck moved from
+implementation to deciding which disposable proposal is worth keeping.
 
 **Why here:** Makes the strongest case that verification — not model quality — is the
 primary unsolved problem in production loop deployment. Useful calibration for teams

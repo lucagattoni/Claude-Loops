@@ -61,6 +61,82 @@ where the thesis already lives.
 
 ---
 
+## 2026-06-30 04:00 UTC (run)
+
+A third consecutive GitHub-dominated run, and the live repo searches converged on a
+single, sharper theme: **cross-model maker/checker** — harnesses where **Claude
+implements and a *different* model (Codex) reviews**. Four independent repos updated
+Jun 28–30 (Cliclaw, loope, herdr-loop-lab, forja) all build the same shape: the reviewer
+runs on a different model so it doesn't share the implementer's training blind spots, emits
+a structured `VERDICT: PASS / BLOCK` (+ advisory `SUGGEST`), and completion is gated on a
+**dual stop condition** — mechanical test exit 0 *and* no reviewer `BLOCK`. This is the
+genuinely new mechanism of the run: prior verifier-integrity work kept the checker
+*structurally* independent (fresh context, external command); this adds a **model-diversity**
+axis. Canonised as **Pattern 5 (cross-model independence)** in the Verifier Integrity section
+of `docs/04`, with a cross-ref from `docs/07`. Strive_Engineering also shipped a second new
+verifier mechanism — the **isomorphic-perturbation check** (validate each claim under two
+independent-but-equivalent tests; passing one but not its equivalent flags a single-predicate
+reward-hack). On the article side, Lenny's published the strongest production case study in
+weeks (Gusto's "trash-can method"), added to the reading list.
+
+### New findings
+
+| Tier | Source | Title | URL | Summary |
+|---|---|---|---|---|
+| 1 | Happenmass/Cliclaw | "Claude + Codex parallel subagents over tmux" | [link](https://github.com/Happenmass/Cliclaw) | Cross-model execute-then-review (Claude implements, Codex reviews, roles swappable); auto-continue *gate model* decides at natural stopping points whether to iterate; tmux-pane state scraping for hook-free state detection; two-tier hybrid memory (sqlite-vec + FTS5 BM25). 107★. |
+| 1 | mateaix/loope | "Claude implements, Codex reviews until code is right" | [link](https://github.com/mateaix/loope) | Clean cross-model maker/checker; **dual stop**: terminates only when test cmd exits 0 AND reviewer issues no `BLOCK`; structured `VERDICT: PASS/BLOCK` + non-blocking `SUGGEST`; parallel reviewers aggregate "any blocker ⇒ blocked"; full transcript traceability per run. |
+| 1 | firegnu/herdr-loop-lab | "Verification-driven bounded-convergence loops (inner/fleet/epic)" | [link](https://github.com/firegnu/herdr-loop-lab) | Three-layer: inner loop (writer → mechanical gate → cross-model adversarial judge), fleet layer (parallel worktree tasks), epic layer (decompose → dispatch → integrate); exit codes as contracts (0 satisfied / 2 stalled / 3 quota); stateless worktree rounds enable resume; AC-N acceptance criteria decoupled from agent output. |
+| 1 | Llicklair/forja | "Finder→Tester→Fixer→Evaluator self-correcting loop" | [link](https://github.com/Llicklair/forja) | Tester writes FAILING tests before fixes (anti false-positive); Evaluator runs the suite adversarially on a SEPARATE model to catch cross-test contamination; stop conditions = class-level exhaustion + suite integrity (no `-k` filtering) + blast-radius veto; "honesty principle": coverage% = breadth of first contact, untestable marked "correct by construction, unverified". |
+| 1 | Synaptic-Labs-AI/PACT-Plugin | "Prepare-Architect-Code-Test agentic harness" | [link](https://github.com/Synaptic-Labs-AI/PACT-Plugin) | 12 specialists + orchestrator; **concurrent Auditor** observes via `git diff` (structural evidence, not prose attestation); Conversation-Theory teachback (restate understanding before work); two-call atomic acceptance; falsifiable-by-construction (only verifies on-disk conditions); SQLite vector+graph memory + append-only JSONL journal survives compaction. 68★. |
+| 1 | Lenny's Newsletter | "No Figma. No Jira. No docs. How Gusto built a product line with Claude Code" (Eddie Kim, CTO) | [link](https://www.lennysnewsletter.com/p/no-figma-no-jira-no-docs-how-gusto) | 5-person team shipped a tier-one AI product in 10 weeks; the **trash-can method** turns Claude-generated PRs into disposable product proposals (close to discard), making failed experiments cheap; eval-first bug-fixing loop. Added to reading list (Loops in Production). |
+| 2 | krishddd/Strive_Engineering | "2026 research upgrade — isomorphic verifier, compaction, anomaly guard, authoring CLI" | [link](https://github.com/krishddd/Strive_Engineering/commit/0be1771) | **Isomorphic-perturbation verifier** (Rust `verify-iso`): validates each claim under two independent-but-equivalent checks (literal `git cat-file -e` + full OID re-derivation); passing one but not its equivalent signals a reward-hack and exits non-zero. Plus compaction+notebook durable memory, scheduler oscillation halting, spec-authoring CLI (init/cost/audit). |
+| 2 | eugenelim/agent-ready-repo | "Per-loop self-coverage tuning + design-time reviewer (RFC-0050/0053, #454–456)" | [link](https://github.com/eugenelim/agent-ready-repo/commit/525a13d) | Reframes self-coverage as a *per-loop* goal: discovery loop runs the full seven-module gate, work loop runs only a "thin" net-new slice (avoid ceremony); "resolve-vs-surface" — substitute rigorous checklists for what would escalate to a human; adds a forked-context design-time reviewer ("experience-reviewer") + "Ground Taste" to stop re-litigating preference. |
+| 2 | omnigent-ai/omnigent | "Idle-reaper window + dead-letter replay + polly visual-proof check (#1627)" | [link](https://github.com/omnigent-ai/omnigent/commit/62dd103) | Tunable harness idle-reaper (`OMNIGENT_HARNESS_IDLE_TIMEOUT_S`) as a cleanup stop-condition for long-lived sessions; dead-letter recovery classifies forwarding failures (proven-undelivered replayable / ambiguous forensic-only / permanent) for at-most-once crash recovery; polly-review now flags missing screenshots/videos on UI PRs (verifier checklist for visual proof). |
+| 2 | adha9990/dev-workflows | "7-stage closed-loop development workflow plugin" | [link](https://github.com/adha9990/dev-workflows) | dispatch → goal → explore → plan → build → verify → iterate; human-gated only at genuine decision points (routine transitions auto-advance); build uses red-green separation (test author isolated from implementer); verify deploys six parallel reviewers across distinct axes; mandatory re-verify of delta + blast radius after each fix; three-cycle iteration cap. |
+| 2 | Lenny's Newsletter | "How I AI: GLM-5.2 review & How Gusto built a new product line" | [link](https://www.lennysnewsletter.com/p/how-i-ai-glm-52-review-and-how-gusto) | Pairs a live GLM-5.2 open-weight coding-model review (~$3.36 for 6M tokens of agentic work) with the Gusto case study — framing open weights as production-grade for long-running agent loops. |
+| 2 | via Lenny's Newsletter | "How to build a new AI product in 10 weeks using the no-process method" | [link](https://www.chatprd.ai/how-i-ai/workflows/how-to-build-a-new-ai-product-in-10-weeks-using-the-no-process-method) | The trash-can method written up as a reusable workflow: disposable PRs as proposals let non-engineers ship features developers later refine — a loop-driven planning practice. |
+| 2 | MindStudio Blog | "Self-Scaffolding AI Models: How Ornith 1.0 Writes Its Own Agent Harness" | [link](https://www.mindstudio.ai/blog/self-scaffolding-ai-models-ornith-1-0) | Ornith 1.0 generates a discrete, inspectable Python harness per task (tool selection, state, branches, termination criteria) instead of running inside a fixed human-written loop — model-generated harnesses (new KB gap). |
+| 3 | via Lenny's Newsletter | "Fix bugs using an AI-powered TDD workflow" | [link](https://www.chatprd.ai/how-i-ai/workflows/how-to-fix-bugs-using-an-ai-powered-test-driven-development-tdd-workflow) | Concrete verification loop: agent writes a failing test to reproduce the bug, fixes, re-runs the test as the stopping condition, gates on human review before commit. |
+| 3 | MindStudio Blog | "Context Rot in AI Agents: Fix with Session Handoffs" | [link](https://www.mindstudio.ai/blog/context-rot-ai-agents-session-handoff-fix-2) | Long loops degrade as old instructions lose weight; session handoffs (summarize state, clear, restart) + persistent external memory (CLAUDE.md) treat context management as a deliberate infra layer (restates docs/13). |
+| 3 | MindStudio Blog | "What Is Sakana Fugu? Multi-Model Orchestrator" | [link](https://www.mindstudio.ai/blog/what-is-sakana-fugu-multi-model-orchestrator-2) | Routes prompts via a *trained classifier* (not rule heuristics) matching complexity to a model pool to optimize cost vs quality (restates docs/22 learned orchestration). |
+
+### No new content
+- Anthropic RSS (404 across rss.xml/rss/news variants), The Batch feed (404 — content reachable only via HTML index; issue-359 three-loops material already tracked v2.4.1), The Rundown AI (403), Ben's Bites / AI Breakfast (beehiiv 404), Harness Books (agentway.dev 403), OpenAI news (403) — persistent feed/access issues; nothing new
+- @bcherny, @karpathy, @AndrewYNg, @swyx, @steipete, @Sabrina_Ramonov, @akshay_pachaar — no new keyword-matching posts after last run (X live + per-handle scans not re-run this cycle; newest known matches already in KB)
+- Simon Willison — recent posts are Claude-Code-assisted project writeups (Tier 4 incidental), not loop-design practice
+- swyx.io, Sabrina.dev — no substantively new loop-engineering articles after last run
+- Addy Osmani (Loop Engineering, Orchestration Tax, Factory Model, Intent Debt) — all predate last_run and already tracked in KB
+- The New Stack runtime-verification piece — already in the 2026-06-29 digest (excluded as duplicate)
+- cobusgreyling/loop-engineering, goal-engineering, fleet-engineering, getzep/graphiti — no commits after 2026-06-29; tenet, loopflow, loop-kernel, claude-harness — latest commits on/before cutoff
+- GitHub search (`acting_on` claude loop) — 0 results; replaced with a cross-model maker/checker query in SOURCES.md. (`claude code harness` search increasingly polluted by Claude-Code reverse-engineering/snapshot repos — refinement noted)
+
+### Docs updated this run
+- `docs/04-verification.md` — added **Pattern 5: cross-model independence** to Verifier Integrity (checker runs a *different* model than the maker — Claude implements / Codex reviews; model-diversity defeats shared blind spots; structured `VERDICT: PASS/BLOCK` + `SUGGEST`; dual stop condition) and the **isomorphic-perturbation check** refinement (anti single-predicate reward-hacking); updated section count 3→5 and the closing synthesis to "these five together" (Cliclaw, loope, herdr-loop-lab, forja, Strive_Engineering)
+- `docs/07-subagents.md` — added "**Independence has two axes**" note distinguishing context-independence (fresh session) from model-independence (different model for the checker), cross-linking to docs/04 Pattern 5 — the run's findings showed model-diversity is a distinct axis the DOER/CHECKER section did not name
+- `docs/32-reading-list.md` — added Gusto "no-process / trash-can method" case study to Loops in Production (strongest process-replacement case study with hard outcome data); Reference Implementations kept stable (cross-model pattern already canonised in docs/04; existing 5 entries not clearly beaten)
+- `LOOP_ENGINEERING.md` — updated docs/04 index summary to list isomorphic-perturbation + cross-model independence
+- `SOURCES.md` — replaced low-yield `acting_on` github-search with a cross-model maker/checker query; added Happenmass/Cliclaw and firegnu/herdr-loop-lab as github sources; noted isomorphic verifier on Strive_Engineering
+- `KB_GAPS.md` — added two gaps surfaced by this run's findings (cross-model checker arbitration/model-selection; self-scaffolding model-generated harness)
+
+### Structural review this run (Phase 4c)
+Reading the finding-set as a whole, the dominant theme (≥4 findings) is **cross-model
+maker/checker**. Per the canonical-home rule, this did **not** warrant a new doc: the parent
+topic (verifier integrity / keeping the check unfakeable) already lives in `docs/04`, so the
+new mechanism was consolidated there as Pattern 5 with a single cross-ref from `docs/07`,
+keeping one canonical home rather than fragmenting. The theme *strengthens* the design spine's
+fifth question ("How do you know it's done?") by adding an independence axis (model diversity)
+the KB previously conflated with context-independence — the only structural correction needed.
+No thesis was missing (docs/01 already states the harness/verifier matters more than the
+model), no index reorder or merge was warranted, and centrality of the design spine is intact.
+Tier-3 article findings (context rot, Sakana Fugu) restated existing docs (13, 22) and were
+recorded as findings without doc edits.
+
+### Sources to consider adding to SOURCES.md
+- Synaptic-Labs-AI/PACT-Plugin (68★) and Llicklair/forja — strong cross-model/maker-checker repos; tracked via the new cross-model github-search query rather than as standalone rows (avoid SOURCES bloat); promote to dedicated rows if they ship a second distinct contribution
+- mateaix/loope, adha9990/dev-workflows — same; surfaced by the cross-model search query
+
+---
+
 ## 2026-06-29 04:02 UTC (run)
 
 Another GitHub-dominated run. The live repo searches surfaced a *second* wave of
