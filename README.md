@@ -3,6 +3,13 @@
 A living knowledge base and automated tracker for **loop engineering** — the practice
 of designing systems that prompt Claude for you, rather than typing prompts yourself.
 
+## 📖 Read the documentation → **<https://lucagattoni.github.io/Claude-Loops/>**
+
+The knowledge base is meant to be **read on the docs site** (a 3-column layout with
+search, navigation, and light/dark themes) — not as raw Markdown here on GitHub. The
+`docs/` files below are the *source*; the [published site](https://lucagattoni.github.io/Claude-Loops/)
+is the reading experience.
+
 ---
 
 ## What's in this repo
@@ -22,9 +29,12 @@ of designing systems that prompt Claude for you, rather than typing prompts your
 
 ## Reading the knowledge base
 
-Start with [`LOOP_ENGINEERING.md`](LOOP_ENGINEERING.md) — it's a table of 18 topics,
-each with a one-line summary and a link to the full `docs/<topic>.md` file. Read the
-index to navigate; open a doc when you need depth.
+**Read it on the site: <https://lucagattoni.github.io/Claude-Loops/>** — the 3-column
+layout (nav · content · on-this-page TOC) is the intended reading experience, with search
+and cross-links that don't work in raw GitHub Markdown.
+
+For a flat text overview, [`LOOP_ENGINEERING.md`](LOOP_ENGINEERING.md) is a table of all
+topics, each with a one-line summary linking to the full `docs/<topic>.md` file.
 
 The knowledge base grows automatically: when the daily loop finds a new concept not
 yet covered, it creates a new `docs/<topic>.md` and adds a row to the index.

@@ -1,5 +1,9 @@
 # Claude Code Loop Engineering — Best Practices
 
+> 📖 **Read this on the docs site: <https://lucagattoni.github.io/Claude-Loops/>** —
+> a 3-column layout with search and navigation. This file is a flat index; the site is
+> the intended reading experience.
+
 > Stop writing prompts. Start designing loops.
 
 Loop engineering is the shift from typing prompts into a coding agent to **writing the
