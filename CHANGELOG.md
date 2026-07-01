@@ -18,11 +18,19 @@ Versioning follows [Semantic Versioning](https://semver.org/):
 
 ---
 
+## [2.5.5] — 2026-07-01
+
+### Fixed
+
+- `.github/workflows/docs.yml` — the 2.5.4 build failed at action resolution because `astral-sh/setup-uv` has no floating `v8` major tag (only up to `v7`, though a `v8.2.0` point release exists). Pinned to `astral-sh/setup-uv@v7` (also Node 24). Other actions (`checkout@v5`, `upload-pages-artifact@v5`, `deploy-pages@v5`) resolve fine.
+
+---
+
 ## [2.5.4] — 2026-07-01
 
 ### Changed
 
-- `.github/workflows/docs.yml` — bumped GitHub Actions to their Node 24 majors (`actions/checkout@v5`, `astral-sh/setup-uv@v8`, `actions/upload-pages-artifact@v5`, `actions/deploy-pages@v5`), clearing the "Node.js 20 is deprecated / forced to run on Node.js 24" warnings.
+- `.github/workflows/docs.yml` — bumped GitHub Actions to their Node 24 majors (`actions/checkout@v5`, `astral-sh/setup-uv@v7`, `actions/upload-pages-artifact@v5`, `actions/deploy-pages@v5`), clearing the "Node.js 20 is deprecated / forced to run on Node.js 24" warnings. *(Superseded by 2.5.5 — the v8 pin here was invalid.)*
 
 ---
 
