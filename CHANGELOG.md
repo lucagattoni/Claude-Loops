@@ -18,6 +18,18 @@ Versioning follows [Semantic Versioning](https://semver.org/):
 
 ---
 
+## [2.5.8] — 2026-07-02 IST
+
+### Fixed
+
+- `docs/16-memory-patterns.md` — corrected a broken cross-anchor to `24-harness-patterns.md` (double-hyphen `#control-plane--execution-plane-…` → single-hyphen, matching MkDocs' slug). This broken link had **failed the 2.5.7 `--strict` build, so 2.5.7 never deployed** (the live site was stuck at 2.5.6); this release ships 2.5.7's content too.
+
+### Changed
+
+- `.github/workflows/docs.yml` — added a `concurrency: { group: pages, cancel-in-progress: false }` group on the deploy job. Rapid successive pushes now serialize: one Pages deploy at a time, a newer run supersedes an older *pending* one, and an in-flight deploy is never cancelled — so the newest commit always deploys last (no out-of-order deploys). Browser cache is unaffected; a hard refresh still shows the newest content immediately.
+
+---
+
 ## [2.5.7] — 2026-07-02 IST
 
 ### Added

@@ -209,7 +209,7 @@ that restarts mid-task resumes at the first unsolved step instead of from the be
 ([peterCheng123321/loop-engineering](https://github.com/peterCheng123321/loop-engineering), Jul 2026.)
 
 See [Context Management](13-context-management.md) for why compaction makes durable ledgers
-necessary, and [Harness Patterns](24-harness-patterns.md#control-plane--execution-plane-split-kernel-gated-mutation)
+necessary, and [Harness Patterns](24-harness-patterns.md#control-plane-execution-plane-split-kernel-gated-mutation)
 for the kernel that can be the *sole authorized writer* to such a ledger.
 
 ---

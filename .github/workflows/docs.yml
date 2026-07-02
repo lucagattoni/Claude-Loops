@@ -39,6 +39,12 @@ jobs:
     # Only publish from main, never from a PR.
     if: github.ref == 'refs/heads/main'
     needs: build
+    # Serialize Pages deploys so rapid pushes can't deploy out of order:
+    # one deploy at a time; a newer run supersedes an older *pending* one, but an
+    # in-flight deploy is never cancelled — so the newest commit always wins last.
+    concurrency:
+      group: pages
+      cancel-in-progress: false
     runs-on: ubuntu-latest
     permissions:
       pages: write
