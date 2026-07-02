@@ -49,6 +49,68 @@ verification ([docs/04](04-verification.md)): output verification asks "is the *
 correct?"; conformance testing asks "is the *harness* capable?"
 ([omnigent-ai/omnigent](https://github.com/omnigent-ai/omnigent) `harness-bench`, Jul 2026.)
 
+## Self-Improving Harnesses
+
+If the harness is the leverage point — and it can be tested
+([harness conformance](#harness-conformance-testing-harness-bench)) — the next step is a
+harness that **optimizes itself**. The 2026 research converges on a claim the rest of this
+doc only implies: the harness is not a fixed, human-authored artifact but an **optimization
+target with measurable returns**, and the optimizer can be the agent working on its own
+execution traces — no stronger external model or human engineer required.
+
+This is the disciplined answer to an under-performing loop (see
+[Failure Patterns](17-failure-patterns.md)): instead of hand-tuning prompts, mine the traces
+for the harness change that fixes the failure class. It is distinct from
+[Learned Orchestration](22-learned-orchestration.md), which *trains a model* to orchestrate —
+here the model stays fixed and the **harness config (tools, middleware, memory, control flow)**
+is what evolves.
+
+**Self-Harness — weakness mining → propose → validate.** A three-stage self-improvement loop
+that needs no external engineer:
+
+1. **Weakness Mining** — extract model-specific failure patterns from execution traces.
+2. **Harness Proposal** — generate targeted, *minimal* harness edits addressing those failures
+   (not generic prompt instructions).
+3. **Proposal Validation** — regression-test each candidate before acceptance. The validate
+   stage is itself a [verification gate](04-verification.md): a proposed harness edit is
+   unverified until a held-out run confirms it.
+
+Reported Terminal-Bench-2.0 gains, model held fixed: MiniMax M2.5 40.5%→61.9%,
+Qwen3.5-35B-A3B 23.8%→38.1%, GLM-5 42.9%→57.1% (up to +21.4pp absolute). The point:
+model-specific weaknesses become concrete, executable harness changes rather than more prose.
+([arXiv 2606.09498](https://arxiv.org/abs/2606.09498), Jun 2026.)
+
+**AHE — observability-driven evolution with verified prediction contracts.** Agentic Harness
+Engineering makes the harness auto-evolvable by building on three observability pillars:
+
+| Pillar | What it exposes |
+|---|---|
+| **Component observability** | Each editable harness element is file-level, explicit, and reversible |
+| **Experience observability** | Raw trajectories are converted into a layered evidence corpus |
+| **Decision observability** | Every edit ships a self-declared *prediction*, later verified against the next round's task outcomes |
+
+Decision observability is the key discipline: each harness edit is a **falsifiable contract**
+(a prediction a later run confirms or refutes) — the maker/checker principle applied to the
+harness's own changes. Results: Terminal-Bench 2 Pass@1 69.7%→77.0% over 10 iterations,
+*beating the human-designed Codex-CLI baseline* (71.9%); top SWE-bench-verified aggregate with
+12% fewer tokens than the seed harness; cross-family transfer +5.1 to +10.1pp. **Ablation:**
+the gains come from tools, middleware, and memory components — *not* system prompts — which
+sharpens where harness effort actually pays. ([arXiv 2604.25850](https://arxiv.org/abs/2604.25850), Apr 2026.)
+
+**HarnessX — a substitution algebra over typed primitives.** Frames runtime components as
+*typed harness primitives* over a **substitution algebra** (any primitive can be swapped for
+an equivalent), with an evolution engine (AEGIS) that refines prompts, tools, memory, and
+control flow from execution traces. Reports +14.5% average across five benchmarks (ALFWorld,
+GAIA, WebShop, and two others), up to +44.0%.
+([Cobus Greyling](https://cobusgreyling.substack.com/p/harnessx-when-the-harness-starts) / [arXiv 2606.14249](https://arxiv.org/abs/2606.14249), Jul 2026.)
+
+**The shared shape:** all three are outer loops whose *product is a better harness*, each gated
+by a verifier (regression run / prediction contract / benchmark). They validate the
+harness-conformance idea from the other direction — not "does this harness pass a fixed
+capability bar?" but "can the harness raise its own bar and prove it?" Keep the edits minimal
+and reversible (component observability) and gate every proposed edit on a held-out run — an
+un-validated harness edit is [Verifier Theater](17-failure-patterns.md) at the meta level.
+
 ## Harness vs. Environment Engineering
 
 Two complementary safety layers operating at different levels of the stack:
@@ -250,6 +312,23 @@ Neither is strictly better — the choice depends on how much variance you can a
 and how much authority you need to encode upfront before the loop runs.
 
 ([wquguru/harness-books](https://github.com/wquguru/harness-books), AgentWay, Jun 2026.)
+
+### Control-Plane / Execution-Plane Split (kernel-gated mutation)
+
+A stronger version of the constitutional control plane: rather than encoding policy in types
+the agents *should* obey, route **all state mutation through a kernel** that is the only
+authorized writer. Skill agents are **read-only** over raw state and may write *exclusively*
+through kernel subcommands; the kernel owns the state machines, budget enforcement, circuit
+breakers, integrity logging, and session handoff. A multi-phase loop
+(discovery → triage → make/review/integrate → handoff) then persists across Claude sessions via
+content-hash-anchored state and append-only event logs, with human-approval gates on
+irreversible actions.
+
+The difference from a plain allow-list: the agent physically *cannot* corrupt state because it
+has no write path except the kernel's audited subcommands — governance is enforced by the
+architecture, not by the model's compliance. This is the harness-level counterpart to the
+repo-owned durable ledger in [Memory Patterns](16-memory-patterns.md#pattern-g-repo-owned-durable-ledger).
+([Sungmin-Cho/claude-deep-loop](https://github.com/Sungmin-Cho/claude-deep-loop), Jul 2026.)
 
 ## Harness-Agnostic Projection
 

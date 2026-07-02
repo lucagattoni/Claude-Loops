@@ -210,7 +210,10 @@ role authors the test, it is pinned by **content-hash** and made read-only, and 
 then does the implementing agent write code against it. The implementer "writes against
 a read-only test it cannot touch," so it cannot pass by weakening the assertion.
 Completion is reconstructed independently (`git diff` from the freeze commit + a real
-test re-run), "not reported by the model."
+test re-run), "not reported by the model." A later hardening of the same harness anchors this
+completion capture to a **real run-record**: the capture-verified gate re-checks the recorded
+run rather than trusting a stored capture, so a stale or faked capture can no longer satisfy the
+stop — closing the gap where the *evidence of a passing run* was itself forgeable.
 
 This is complementary to [Simplification Before Testing](#simplification-before-testing),
 not in conflict with it: simplification decides *what shape* the code and test should
@@ -258,6 +261,17 @@ test command exits 0 **and** the reviewer raises no `BLOCK`. Multiple reviewers 
 workspace aggregate by "any blocker ⇒ blocked." ([Happenmass/Cliclaw](https://github.com/Happenmass/Cliclaw),
 [mateaix/loope](https://github.com/mateaix/loope), [firegnu/herdr-loop-lab](https://github.com/firegnu/herdr-loop-lab),
 [Llicklair/forja](https://github.com/Llicklair/forja), Jun 2026.)
+
+**Information asymmetry — the checker sees the output, never the maker's reasoning.** A design
+principle that sharpens patterns 2–5: deliberately withhold the implementer's reasoning trace
+from the validator, so the validator judges only the *artifact*. A checker that never sees *why*
+the maker did something cannot inherit the maker's buried assumptions, cannot collude with its
+rationalisations, and — in the source's framing — "can't lie about code it didn't write." The
+loop rejects-and-retries until every independent validator approves or the gates pass. This is
+the anti-collusion rationale behind the fresh-context critics of the
+[8-phase DAG](24-harness-patterns.md#8-phase-dag-execution-model-tenet) and the majority-vote
+council above, stated as a first-class rule rather than a side effect of fresh context.
+([the-open-engine/zeroshot](https://github.com/the-open-engine/zeroshot), Jul 2026.)
 
 These five together — external verifier, mechanical-gate/adjudicator split, frozen tests,
 provenance-bound claims (with isomorphic-perturbation checks), and cross-model independence —

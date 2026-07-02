@@ -237,6 +237,47 @@ Essential reading once you have working harnesses and want to make them producti
 
 ---
 
+## Self-Improving Harnesses
+
+Research on harnesses that optimize *themselves* — the harness as an evolvable
+artifact with measurable, benchmarked returns, not a fixed human-authored wrapper.
+
+---
+
+### [Agentic Harness Engineering: Observability-Driven Automatic Evolution of Coding-Agent Harnesses](https://arxiv.org/abs/2604.25850) — arXiv 2604.25850
+**Added:** 2026-07-02 · **Published:** Apr 2026
+
+**Why here:** The strongest evidence to date that a harness can improve itself and *beat a
+human-designed baseline* — and the only source that isolates *which* harness components carry
+the gains (ablation), which no other entry in the KB does.
+
+**Summary:** Automates harness evolution on three observability pillars: component observability
+(each editable element is file-level, explicit, reversible), experience observability (raw
+trajectories → a layered evidence corpus), and decision observability (every edit ships a
+self-declared prediction later verified against the next round's outcomes — a falsifiable
+maker/checker contract applied to the harness's own changes). Results: Terminal-Bench 2 Pass@1
+69.7%→77.0% over 10 iterations, beating the human-designed Codex-CLI baseline (71.9%); top
+SWE-bench-verified aggregate with 12% fewer tokens than the seed harness; cross-family transfer
++5.1 to +10.1pp. Ablation: gains come from tools, middleware, and memory — not system prompts.
+
+---
+
+### [Self-Harness: Harnesses That Improve Themselves](https://arxiv.org/abs/2606.09498) — arXiv 2606.09498
+**Added:** 2026-07-02 · **Published:** Jun 2026
+
+**Why here:** The cleanest statement of the self-improvement *loop* — a three-stage procedure an
+agent can run on its own traces with no stronger external model or human engineer — and the
+first to report per-model gains from turning weaknesses into executable harness edits.
+
+**Summary:** A three-stage loop: (1) Weakness Mining extracts model-specific failure patterns
+from execution traces; (2) Harness Proposal generates targeted, minimal harness edits addressing
+them; (3) Proposal Validation regression-tests each candidate before acceptance. Key claim: it
+converts model-specific weaknesses into concrete, executable harness changes rather than generic
+prompt instructions. Terminal-Bench-2.0 gains with the model held fixed: MiniMax M2.5 40.5%→61.9%,
+Qwen3.5-35B-A3B 23.8%→38.1%, GLM-5 42.9%→57.1% (up to +21.4pp absolute).
+
+---
+
 ## Goal Engineering & Stopping Conditions
 
 The stopping condition is where most loops fail. These articles address it directly.

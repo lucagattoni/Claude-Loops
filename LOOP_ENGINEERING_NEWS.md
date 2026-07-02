@@ -5,6 +5,64 @@ Sources are defined in [`SOURCES.md`](https://lucagattoni.github.io/Claude-Loops
 
 ---
 
+## 2026-07-02 04:14 UTC (run)
+
+A **theme-shifting** run, not gap-filling. Two convergent themes dominated, and the first of
+them fills a standing KB gap: **(1) self-improving harnesses** — three independent sources
+(two arXiv papers + one article/preprint) all report a harness that *evolves itself from its
+own execution traces*, model held fixed, with real Terminal-Bench numbers (one **beats a
+human-designed baseline**); and **(2) durable, repo-owned state that survives compaction** —
+progress files as dynamic-programming memo tables, `.ctxcarry/`-style repo-owned context, and a
+kernel that is the *sole authorized writer* to that state. The self-improving-harness theme
+closes the documented "self-scaffolding / model-generated harness" gap; the state theme
+sharpens the memory-vs-context boundary rather than adding a new primitive.
+
+### New findings
+
+| Tier | Source | Title | URL | Summary |
+|---|---|---|---|---|
+| 1 | arXiv | "Self-Harness: Harnesses That Improve Themselves" | [link](https://arxiv.org/abs/2606.09498) | **Self-improving harness**: 3-stage loop (Weakness Mining from traces → minimal Harness Proposal → regression Validation) with no external engineer; Terminal-Bench-2.0 gains, model fixed (MiniMax 40.5→61.9%, Qwen3.5 23.8→38.1%, GLM-5 42.9→57.1%). Fills the model-generated-harness gap. |
+| 1 | arXiv | "Agentic Harness Engineering (AHE): observability-driven evolution" | [link](https://arxiv.org/abs/2604.25850) | Harness auto-evolves via three observability pillars (component/experience/decision); each edit is a **verified prediction contract**. Pass@1 69.7→77.0% over 10 iters, **beats human Codex-CLI baseline (71.9%)**, 12% fewer tokens, cross-family transfer; **ablation: gains from tools/middleware/memory, not prompts**. |
+| 2 | Cobus Greyling | "HarnessX: When the Harness Starts Learning From Its Own Runs" (+ [arXiv 2606.14249](https://arxiv.org/abs/2606.14249)) | [link](https://cobusgreyling.substack.com/p/harnessx-when-the-harness-starts) | Third self-improving-harness source: **typed harness primitives over a substitution algebra** + AEGIS evolution engine refining prompts/tools/memory/control-flow from traces; +14.5% avg across 5 benchmarks (up to +44%). |
+| 1 | peterCheng123321/loop-engineering | "Progress-ledger as a DP memo table" | [link](https://github.com/peterCheng123321/loop-engineering) | **Durable convergence**: a checklist caches solved steps and an append-only decision log prunes failed branches, so the loop never recomputes a settled sub-problem after a context reset — convergence moves from model memory to durable artifacts. Convergence layer over /loop, ralph-loop, Agent SDK. |
+| 1 | shouryasrivastava/ctxcarry | "The repo should own your context, not the agent" | [link](https://github.com/shouryasrivastava/ctxcarry) | Local-first `.ctxcarry/` durable memory (state/events/summaries) vs. cloud transcript replay; worktree generators, evaluators-assume-broken, token-budgeted multi-tool (Claude/Codex/local) handoff. |
+| 1 | Sungmin-Cho/claude-deep-loop | "2-plane kernel control plane" | [link](https://github.com/Sungmin-Cho/claude-deep-loop) | **Control-plane/execution-plane split**: kernel is the *only* authorized writer (state machines, budget, circuit breakers, integrity log, handoff); skill agents are read-only and mutate only via kernel subcommands — governance enforced by architecture, not model compliance. |
+| 1 | MindStudio | "Claude Code Auto Mode, /goal, and Routines: Run Agents Without You" | [link](https://www.mindstudio.ai/blog/claude-code-auto-mode-goal-routines-autonomous-agents-2) | Combines auto mode + /goal + routines for hands-off scheduled runs. On-thesis for TRIGGER/BUDGET/STOP but a restatement of material already in docs/08/28/30 — no doc change. |
+| 3 | the-open-engine/zeroshot | "Blind validation / information-asymmetry reviewers" (~1.6k★) | [link](https://github.com/the-open-engine/zeroshot) | Validators receive **only outputs, never the maker's reasoning** — so they can't inherit buried assumptions or collude ("can't lie about code they didn't write"); reject-and-retry until all approve. Anti-collusion rationale, now a first-class rule in docs/04. |
+| 3 | MindStudio | "Multi-Perspective AI Research: Sub-Agents beat single-prompt" | [link](https://www.mindstudio.ai/blog/multi-perspective-ai-research-sub-agents-vs-deep-research) | Five role-differentiated expert sub-agents + a synthesis layer that maps agreements/disagreements; value from perspective *diversity*, not redundancy. Maps to existing docs/07 synthesis-bottleneck + confidence-gate coverage — no doc change. |
+| 4 | The New Stack | "OpenClaw's app doesn't run AI on your phone — that's the point" | [link](https://thenewstack.io/openclaw-persistent-agent-architecture/) | Persistent long-running agents run off-device; the phone app is just an authenticated endpoint (pattern shared by Claude Dispatch, OpenAI). Architectural context for where the loop runs; already covered by routines (docs/28). No doc change. |
+
+### No new content
+- Anthropic RSS / The Batch / The Rundown AI / TLDR AI / Ben's Bites / AI Breakfast — feed 404 (ongoing)
+- OpenAI news / Harness Books (agentway.dev) — 403 (ongoing)
+- @bcherny, @karpathy, @AndrewYNg, @swyx, @steipete (OpenClaw community banter, no new technique), @Sabrina_Ramonov (newest post Jun 27, pre-cutoff), @akshay_pachaar — no new keyword-matching posts after last run
+- swyx.io, sabrina.dev, Addy Osmani, Simon Willison, Lenny's — nothing after 2026-07-01
+- X live keyword search — only promo (StrategiX) and generic vibe-coding noise
+- Tracked repos with no substantive new concept: cobusgreyling (all three), omnigent, graphiti, tenet, loopflow, loop-kernel, ecc, Strive_Engineering, Cliclaw, herdr-loop-lab; ~7 new maker/checker clones skipped (plateaued wave)
+- orobsonn/claude-harness — new commit (run-record-anchored capture-verified gate) folded into docs/04 as a refinement, not a separate row (repo URL already in the digest)
+
+### Docs updated this run
+- `docs/24-harness-patterns.md` — **new section "Self-Improving Harnesses"** (Self-Harness / AHE / HarnessX; trace-driven evolution, verified prediction contracts, ablation — fills the model-generated-harness gap) + **"Control-Plane / Execution-Plane Split"** (kernel-gated mutation; claude-deep-loop)
+- `docs/16-memory-patterns.md` — **new "Pattern G: Repo-Owned Durable Ledger"** (ctxcarry — repo owns context; progress.md as DP memo table — peterCheng)
+- `docs/04-verification.md` — **information-asymmetry / blind validation** (zeroshot: checker never sees the maker's reasoning) + **run-record-anchored capture gate** (orobsonn refinement to frozen-tests pattern)
+- `docs/32-reading-list.md` — **new group "Self-Improving Harnesses"** with AHE (anchor — beats human baseline + ablation) and Self-Harness
+- `LOOP_ENGINEERING.md` — refreshed the docs 24 / 16 / 04 summaries and the reading-list row
+- `KB_GAPS.md` — closed "self-scaffolding / model-generated harness"; added "held-out eval construction for harness evolution"
+- `SOURCES.md` — added arXiv research feed + 4 repos (peterCheng123321/loop-engineering, Sungmin-Cho/claude-deep-loop, shouryasrivastava/ctxcarry, the-open-engine/zeroshot)
+
+### Structural review this run (Phase 4c)
+The finding-set was theme-shifting, so the review was substantive:
+- **Dominant theme with no canonical home → consolidated, not fragmented.** Self-improving harnesses recurred across 3 findings and had no home. Per the consolidation rule, it became a **named section inside docs/24** (which owns the harness parent-topic) rather than a new doc — cross-referenced to docs/22 (learned orchestration is *training a model*; self-improving harness keeps the model fixed and evolves the *config*) and docs/04 (the validate stage is a verification gate). If it keeps growing it can be promoted to its own doc later.
+- **Missing thesis added.** The three papers converge on a claim the KB only implied — *the harness is an optimization target with measurable returns, and it can optimize itself*. Stated outright at the top of the new docs/24 section, extending the existing quantified harness>model thesis.
+- **Second theme sharpened an existing boundary, no new doc.** Durable repo-owned state landed as docs/16 Pattern G, cross-linked to docs/13 (compaction) and the docs/24 kernel section (the sole-writer that governs such a ledger) — keeping the memory/context/harness spine coherent instead of spawning a "state" doc.
+- No index restructure or doc renames → not MAJOR.
+
+### Sources to consider adding to SOURCES.md
+- All four candidate repos were added this run (see Docs updated). No further additions pending.
+- Next arXiv pass: now that the arXiv feed is tracked, watch for follow-ups citing Self-Harness / AHE (held-out-eval methodology is the open question — see KB_GAPS).
+
+---
+
 ## 2026-07-01 12:35 UTC (run)
 
 A **gap-driven** run, not another saturation pass. The harness-repo wave has plateaued

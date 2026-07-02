@@ -31,14 +31,15 @@ Updated by each `fetch-loop-news` run. Gap keywords drive targeted GitHub and we
   models *disagree* on a BLOCK (tie-break, escalate, third model?). Search keywords:
   `"cross-model" reviewer agent`, `Claude Codex reviewer disagreement`, `multi-model verifier arbitration loop`
 
-- **Self-scaffolding / model-generated harness**: MindStudio's Ornith 1.0 finding (model
-  generates a discrete inspectable per-task harness instead of running inside a fixed loop) is
-  not covered in docs/22 or docs/24, which assume a human-authored harness. Search keywords:
-  `"self-scaffolding" agent harness`, `model generates own harness`, `per-task harness synthesis claude`
+- **Held-out eval construction for harness evolution**: docs/24 (Self-Improving Harnesses) now
+  says to gate every proposed harness edit on a held-out run and that gains come from
+  tools/middleware/memory not prompts (AHE ablation) — but *how* to build the held-out task set,
+  size it, and avoid overfitting the harness to its own eval is unspecified. Search keywords:
+  `harness evolution held-out eval`, `agent harness overfitting benchmark`, `Terminal-Bench harness ablation`
 
 ---
 
 ## Recently Filled (archive — keep last 2 entries; remove older ones)
 
-- ~~**Credential rotation mid-session**~~ — filled 2026-07-01 by docs/33 (Credential-Sentinel: verify-before-revoke cutover — promote→repoint→verify, revoke old only after verify passes, rollback to still-valid old on fail; 4-state classify with default-deny on unknowns; two human gates)
 - ~~**Goal-cost a-priori token estimation**~~ — filled 2026-07-01 by docs/30 (cobusgreyling `goal-cost --pattern <p> --level <G>`: pattern-keyed pre-run cost forecast feeding the Budget primitive before launch)
+- ~~**Self-scaffolding / model-generated harness**~~ — filled 2026-07-02 by docs/24 (Self-Improving Harnesses: Self-Harness weakness-mining→propose→validate; AHE observability-driven evolution with verified prediction contracts, beats human Codex-CLI baseline; HarnessX substitution algebra + AEGIS — the harness optimizes itself from execution traces, model held fixed)

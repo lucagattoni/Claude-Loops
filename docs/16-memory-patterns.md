@@ -189,6 +189,29 @@ says "the three PRs wave 3 is working on are currently open, merged, and stale r
 
 ([getzep/graphiti](https://github.com/getzep/graphiti), Jun 2026.)
 
+## Pattern G: Repo-Owned Durable Ledger
+
+The patterns above externalise memory to files; this pattern makes an explicit design claim
+about *ownership*: **the repo should own the agent's context, not the agent** (or a cloud
+transcript). Durable state lives in a versioned directory committed to the repo (`.ctxcarry/` —
+state, events, session summaries), local-first, so context survives across tools, sessions, and
+compaction without replaying a cloud transcript. Multi-tool handoff (Claude / Codex / local)
+works because each tool reads the same token-budgeted summary files (`AGENTS.md` / `CLAUDE.md`).
+([shouryasrivastava/ctxcarry](https://github.com/shouryasrivastava/ctxcarry), Jul 2026.)
+
+**The ledger as a memo table.** A refinement of Pattern A (PROGRESS.md) that turns the progress
+file into a *convergence* mechanism, not just a log. Treat a durable `progress.md` as a **memo
+table** (in the dynamic-programming sense): a checklist caches already-solved steps and an
+append-only decision log prunes failed branches, so the loop **never recomputes a settled
+sub-problem** and never re-explores a dead end after a context reset. This shifts convergence
+from implicit model memory (which compaction destroys) to explicit durable artifacts — a loop
+that restarts mid-task resumes at the first unsolved step instead of from the beginning.
+([peterCheng123321/loop-engineering](https://github.com/peterCheng123321/loop-engineering), Jul 2026.)
+
+See [Context Management](13-context-management.md) for why compaction makes durable ledgers
+necessary, and [Harness Patterns](24-harness-patterns.md#control-plane--execution-plane-split-kernel-gated-mutation)
+for the kernel that can be the *sole authorized writer* to such a ledger.
+
 ---
 
 See [Long-Running Agents](25-long-running-agents.md) for the architectural pattern

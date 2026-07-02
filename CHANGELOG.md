@@ -18,6 +18,23 @@ Versioning follows [Semantic Versioning](https://semver.org/):
 
 ---
 
+## [2.5.7] — 2026-07-02 IST
+
+### Added
+
+- `docs/24-harness-patterns.md` — **Self-Improving Harnesses** section: harness that evolves itself from its own execution traces (Self-Harness weakness-mining→propose→validate; AHE observability-driven evolution with verified prediction contracts, beating a human-designed baseline; HarnessX substitution algebra + AEGIS), with Terminal-Bench numbers and the ablation that gains come from tools/middleware/memory, not prompts. Fills the documented "self-scaffolding / model-generated harness" gap. Also added **Control-Plane / Execution-Plane Split** (kernel-gated mutation; claude-deep-loop).
+- `docs/16-memory-patterns.md` — **Pattern G: Repo-Owned Durable Ledger** (ctxcarry "the repo owns your context"; progress.md as a dynamic-programming memo table that caches solved steps and prunes failed branches across compaction).
+- `docs/32-reading-list.md` — new group **Self-Improving Harnesses** (AHE anchor + Self-Harness).
+- `SOURCES.md` — arXiv research feed + four repos (peterCheng123321/loop-engineering, Sungmin-Cho/claude-deep-loop, shouryasrivastava/ctxcarry, the-open-engine/zeroshot).
+
+### Changed
+
+- `docs/04-verification.md` — added **information-asymmetry / blind validation** (zeroshot: the checker sees only the output, never the maker's reasoning) and **run-record-anchored capture gate** (orobsonn refinement — the passing-run evidence itself is no longer forgeable).
+- `LOOP_ENGINEERING.md` — refreshed docs 24 / 16 / 04 summaries and the reading-list row.
+- `KB_GAPS.md` — closed the self-scaffolding gap; opened "held-out eval construction for harness evolution".
+
+---
+
 ## [2.5.6] — 2026-07-01
 
 ### Changed
