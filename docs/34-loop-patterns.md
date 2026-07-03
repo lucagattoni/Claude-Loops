@@ -281,3 +281,30 @@ tech-debt register rather than a static weekly snapshot.
 | **Stop condition** | `VERDICT: PASS` — all doc references match current code, or PR opened for any that don't |
 
 ([faisalishfaq2005/loopflow](https://github.com/faisalishfaq2005/loopflow), Jun 2026.)
+
+## Knowledge-Base Tracker Loop (two-stage: search → integrate)
+
+The loop that maintains *this* knowledge base is itself a pattern worth cataloguing: a
+self-writing KB whose daily run is decomposed into two single-responsibility stages behind
+an artifact handoff, run under worktree isolation.
+
+| Property | Value |
+|---|---|
+| **Trigger** | Daily cron (launchd), 05:00 local |
+| **Scope** | The KB (`docs/`, index, digest, sources, changelog); runs in a throwaway git worktree branched off `origin/main` |
+| **Action** | **Stage A (`fetch-loop-news`)** searches tracked sources + the general web, scores candidates, writes `.loop-news/findings.json`, and stops. **Stage B (`integrate-loop-news`)** consumes that artifact, writes the digest, integrates each finding into the docs, runs the structural reviews (Phase 4b/4c), cuts a release, and `push origin HEAD:main` |
+| **Cadence** | One run per day; the two stages run as two separate `claude -p` sessions sharing the worktree |
+| **Readiness** | L3 — commits and publishes to `main` autonomously; bounded by per-stage budgets and a publish-safety retry guard |
+| **Stop condition** | Digest section written for the date and pushed; a zero-finding day writes an empty section and makes no commit |
+
+**Why two stages.** Search (retrieval, external I/O, noisy, parallel) and integration
+(KB reasoning, sequential, writes) fail for unrelated reasons and need disjoint context.
+Splitting at the artifact boundary gives each a single responsibility, keeps the search
+stage's bulky retrieval context out of the reasoning stage, and enables **granular retry**
+— a failure in Stage B re-runs only B against the saved findings, never repeating the
+search. Worktree isolation makes each attempt's filesystem disposable and decouples the run
+from the primary checkout's state; because the final push is durable, the retry guard keys
+off whether `origin/main` advanced rather than the local tree (see
+[Headless Mode](09-headless-mode.md)).
+
+(This repo, [`.claude/skills/`](https://github.com/lucagattoni/Claude-Loops/tree/main/.claude/skills) + [`scripts/run-loop-news.sh`](https://github.com/lucagattoni/Claude-Loops/blob/main/scripts/run-loop-news.sh), Jul 2026.)

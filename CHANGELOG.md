@@ -14,7 +14,25 @@ Versioning follows [Semantic Versioning](https://semver.org/):
 ## [Unreleased]
 
 ### Added
+- Split the daily tracker into two single-responsibility skills: `fetch-loop-news`
+  (search → writes `.loop-news/findings.json`) hands off to a new
+  `integrate-loop-news` (integrate + restructure + commit + push).
+- `scripts/run-loop-news.sh` rewritten to run the two skills as **two sessions in one
+  isolated git worktree** branched off `origin/main`, with per-attempt tree reset,
+  **granular retry** (a Stage-B failure re-runs only B against the saved findings), and a
+  publish-safety guard keyed off `origin/main` advancing.
+- Per-stage `--model` / `--effort` / `--max-turns` / `--max-budget-usd` config at the top
+  of the wrapper, each independently overridable via `LOOP_SEARCH_*` / `LOOP_INTEGRATE_*`
+  env vars.
+- New "Knowledge-Base Tracker Loop" pattern in `docs/34`; worktree/two-session production
+  shape documented in `docs/09`.
+
 ### Changed
+- `integrate-loop-news` now stages `mkdocs.yml` in its commit (Phase 4 edits `nav:`; the
+  previous single skill omitted it, so nav additions were silently uncommitted).
+- Daily content commit no longer stages the skill's own `SKILL.md` (skills are
+  feature-managed via PR).
+- Repo convention: always work in a git worktree, never the primary checkout (CLAUDE.md).
 
 ---
 
