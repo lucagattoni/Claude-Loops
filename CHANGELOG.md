@@ -18,6 +18,21 @@ Versioning follows [Semantic Versioning](https://semver.org/):
 
 ---
 
+## [2.6.1] — 2026-07-03 IST
+
+### Changed
+- Raised `run-loop-news.sh`'s per-stage `--max-budget-usd` defaults (search $8→$30,
+  integrate $8→$20). On a Claude subscription (Pro/Max) this flag is not a real dollar
+  cost — it's a script-side runaway-session tripwire computed from API list-price-
+  equivalent token usage — and $8 for the search stage alone was too tight for a normal
+  thorough run, tripping on the live dry run.
+- Fixed a bug where a budget-exceeded failure was retried like a transient error: it's
+  deterministic (the same session hits the same wall), so retrying just re-burns the
+  budget for `MAX_ATTEMPTS` runs with no chance of success. The wrapper now detects the
+  `Exceeded USD budget` marker and stops immediately with a notification instead.
+
+---
+
 ## [2.6.0] — 2026-07-03 IST
 
 ### Added

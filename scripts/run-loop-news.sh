@@ -27,14 +27,19 @@ LOG_FILE="$REPO_ROOT/logs/loop-news-$(date +%Y%m%d).log"   # ABSOLUTE — surviv
 #   Each var falls back to an env override, so change it either by editing the default
 #   here OR by exporting the env var (e.g. in the launchd plist) — no logic change needed.
 #   Defaults reproduce prior behaviour.
+#   Note on --max-budget-usd under a Claude subscription (Pro/Max): it is NOT a real
+#   dollar cost — you're not billed per token — it's a script-side tripwire computed from
+#   API list-price-equivalent token usage, purely to stop a runaway/looping session. Set
+#   it generously; it should only ever trip on a session that is genuinely stuck, not on
+#   a normal thorough run.
 SEARCH_MODEL="${LOOP_SEARCH_MODEL:-sonnet}"              # Skill A · fetch-loop-news
 SEARCH_EFFORT="${LOOP_SEARCH_EFFORT:-high}"
 SEARCH_MAX_TURNS="${LOOP_SEARCH_MAX_TURNS:-40}"
-SEARCH_BUDGET_USD="${LOOP_SEARCH_BUDGET_USD:-8}"
+SEARCH_BUDGET_USD="${LOOP_SEARCH_BUDGET_USD:-30}"
 INTEGRATE_MODEL="${LOOP_INTEGRATE_MODEL:-sonnet}"        # Skill B · integrate-loop-news
 INTEGRATE_EFFORT="${LOOP_INTEGRATE_EFFORT:-high}"
 INTEGRATE_MAX_TURNS="${LOOP_INTEGRATE_MAX_TURNS:-40}"
-INTEGRATE_BUDGET_USD="${LOOP_INTEGRATE_BUDGET_USD:-8}"
+INTEGRATE_BUDGET_USD="${LOOP_INTEGRATE_BUDGET_USD:-20}"
 
 CLAUDE_BIN="${CLAUDE_BIN:-/opt/homebrew/bin/claude}"
 
@@ -46,6 +51,12 @@ BACKOFF_SECONDS=(30 90 180)
 # macOS script(1) does not reliably propagate the child exit code, so we also scan the
 # attempt's output for these.
 ERROR_REGEX='API Error:|ECONNRESET|ETIMEDOUT|Unable to connect to API|Connection closed mid-response|socket hang up|overloaded_error|529 |503 Service'
+
+# --max-budget-usd was exceeded. This is DETERMINISTIC, not transient — retrying re-runs
+# the exact same (now over-budget) work and hits the same wall, burning MAX_ATTEMPTS for
+# nothing. Checked separately from ERROR_REGEX so the wrapper can stop immediately instead
+# of backing off and retrying.
+BUDGET_EXCEEDED_REGEX='Exceeded USD budget'
 
 stamp() { date -u +%Y-%m-%dT%H:%M:%SZ; }
 
@@ -85,7 +96,10 @@ findings_valid() {
 
 # run_claude <label> <claude-args...> — run one session in the worktree via a PTY (so
 # claude flushes line-by-line), fold its output into the day log, and return success =
-# exit 0 AND no transient-error marker.
+# exit 0 AND no transient-error marker. Sets the global BUDGET_EXCEEDED=1 (and does NOT
+# reset it — the caller must check it right after the call) when the budget-exceeded
+# marker is seen, so the outer loop can stop instead of retrying a deterministic failure.
+BUDGET_EXCEEDED=0
 run_claude() {
   local label="$1"; shift
   local tmp; tmp="$(mktemp -t loop-news-attempt.XXXXXX)"
@@ -95,9 +109,10 @@ run_claude() {
   cat "$tmp" >> "$LOG_FILE"
   local transient="no"
   grep -Eq "$ERROR_REGEX" "$tmp" && transient="yes"
+  if grep -Eq "$BUDGET_EXCEEDED_REGEX" "$tmp"; then BUDGET_EXCEEDED=1; fi
   rm -f "$tmp"
   if [[ $code -eq 0 && $transient == "no" ]]; then return 0; fi
-  echo "[$(stamp)] ${label} failed (exit=${code}, transient=${transient})" | tee -a "$LOG_FILE"
+  echo "[$(stamp)] ${label} failed (exit=${code}, transient=${transient}, budget_exceeded=${BUDGET_EXCEEDED})" | tee -a "$LOG_FILE"
   return 1
 }
 
@@ -120,7 +135,7 @@ while (( attempt <= MAX_ATTEMPTS )); do
   git -C "$WT_DIR" reset --hard origin/main
   git -C "$WT_DIR" clean -fd            # NOT -x → keeps ignored .loop-news/
 
-  ok=1
+  ok=1; BUDGET_EXCEEDED=0
   # STAGE A — search; skipped entirely if a valid artifact already exists (B-only retry)
   if ! findings_valid; then
     run_claude "attempt ${attempt}/${MAX_ATTEMPTS} · A (search)" "${A_ARGS[@]}" || ok=0
@@ -132,6 +147,12 @@ while (( attempt <= MAX_ATTEMPTS )); do
   if (( ok )); then
     run_claude "attempt ${attempt}/${MAX_ATTEMPTS} · B (integrate)" "${B_ARGS[@]}" \
       && { success=1; break; } || ok=0
+  fi
+
+  # --- budget-exceeded is DETERMINISTIC: never retry (would just hit the same wall) ---
+  if (( BUDGET_EXCEEDED )); then
+    notify "Attempt ${attempt} exceeded its --max-budget-usd — not retrying (this always recurs). Raise LOOP_SEARCH_BUDGET_USD / LOOP_INTEGRATE_BUDGET_USD."
+    exit 1
   fi
 
   # --- failure path: publish-safety guard before any retry ---
