@@ -4,6 +4,7 @@ _Created: 2026-07-03 · v1_
 _Updated: 2026-07-03 · v2 — refine-plan pass 1: fixed per-attempt worktree lifecycle, corrected success signal (exit-code, not "main advanced"), fixed BASE_SHA timing + mktemp path + primary-alignment guard, clarified that the auto classifier (not `--allowedTools`) is the real permission gate, corrected the turn-headroom claim, added B stale-artifact date guard._
 _Updated: 2026-07-03 · v3 — refine-plan pass 2: removed A-dedupes/B-dedupes contradiction; made `LOG_FILE` absolute (relative path was lost inside the disposable worktree); wrapper now copies the findings artifact out to `logs/` before teardown (it was destroyed, falsifying the "inspectable/re-runnable" claim); specified B's `git add` list to **include `mkdocs.yml`** (Phase 4 edits nav but current stage list omits it — latent bug) and drop the daily self-add of SKILL.md._
 _Updated: 2026-07-03 · v4 — refine-plan pass 3: **HIGH** — restored the publish-safety retry guard I had wrongly dropped. Worktree isolation makes the filesystem disposable but B's `git push origin HEAD:main` is durable; if an attempt pushes then fails late, a blind retry double-commits the day's digest. Guard adapted from "primary HEAD moved" to "origin/main advanced past BASE_SHA": on failure, refuse to retry once main has advanced._
+_Updated: 2026-07-03 · v5 — critical decomposition review (no assumptions): separated "split" from "worktree isolation" as independent changes with the concrete worktree justification (daily run must not depend on the primary checkout's current branch/state); surfaced the core tension that **context isolation and a literal "A calls B" are mutually exclusive**, laid out Options 1/2/3 with a pros/cons matrix; retracted two over-confident claims (model right-sizing is quality-sensitive, not free; conditional-4c would override a documented every-run norm → made both user decisions); added granular B-only retry as a real two-session-only win._
 
 ## Goal
 
@@ -43,6 +44,108 @@ pipeline completes successfully.
   guard that refuses to retry when that happens). A worktree makes every attempt fully
   disposable: a failed attempt is discarded wholesale and retried from a clean base,
   which *simplifies* the wrapper's retry-safety logic.
+
+---
+
+## Decomposition analysis — is two the right cut, and how should the halves run?
+
+The two-way split was proposed; this section pressure-tests it — and the assumptions
+around it — against **single responsibility** and **efficiency**, taking nothing for
+granted.
+
+### First: "split" and "worktree isolation" are two independent changes
+
+The request bundled them, but they are orthogonal and should be justified separately:
+
+- **Worktree isolation** benefits the *monolith* just as much as a split — it could be
+  added today without splitting anything. Its concrete justification is **not** vague
+  "conflict with main": on a single daily machine the real hazard is that the primary
+  checkout may be on **any branch / dirty state** when the 05:00 cron fires. (Right now,
+  for instance, the checkout is on `feature/split-loop-news-skill`.) The current
+  monolith would then commit the daily digest onto **whatever branch is checked out** —
+  a genuine mess. A worktree makes the daily run **always operate on a fresh `origin/main`
+  base regardless of the primary checkout's state.** That is the real, concrete win, and
+  it stands independently of the split.
+- **The split** is justified by single-responsibility + (conditionally) efficiency, below.
+
+Because they're independent, they could even ship as two PRs. Keeping them together is a
+convenience, not a necessity — noted so the worktree work isn't held hostage to the split.
+
+### The split's single-responsibility case is sound
+
+### What are the real responsibilities?
+
+| # | Work | Nature | Failure mode | Context it needs |
+|---|---|---|---|---|
+| 1–3 | Search (load context, per-source scrape, general search) | **Retrieval** — external I/O, breadth, noisy, parallelisable, no KB writes | network / scraping / login walls | SOURCES.md, keywords, dates; accumulates **large** raw page/thread/HTML context |
+| 4–5 | Integrate (digest + per-finding doc writes, reading list, KB gaps) | **Additive writing** — merge *this run's* findings into docs | consistency of new edits | findings artifact + the docs it touches |
+| 6–7 | Restructure (4b consistency, 4c findings-driven structural review) | **Holistic reasoning** — whole-KB coherence; can force a MAJOR change | mis-structuring / over-merging | findings artifact + the just-integrated KB state |
+| 8 | Release + commit + push | **Mechanical** | git / publish | staged file list |
+
+The **cleanest single-responsibility boundary is between retrieval (1–3) and
+everything that reasons about/writes the KB (4–8)** — they fail for unrelated reasons,
+need disjoint context, and one is parallel-I/O while the other is sequential-reasoning.
+So the proposed 2-way cut is sound. The two sub-questions are **(a) 2 vs 3 skills** and
+**(b) how the two halves run**, and efficiency turns almost entirely on (b).
+
+### The core tension: context isolation ⟺ NOT a literal "A calls B"
+
+This is the crux the request's two goals collide on, and it must be decided consciously —
+I earlier assumed it away. **The only way to stop Search's bulky retrieval context (raw
+pages, expanded threads, HTML, READMEs — tens of thousands of tokens B does not need) from
+sitting in the window while B reasons is a *session/context boundary*.** But a context
+boundary means A does **not** call B in-process — something else (the wrapper, or a
+fresh-context subagent) starts B. So:
+
+> **Literal "skill A calls skill B" (one shared context) and context isolation are
+> mutually exclusive.** You can have at most one directly; the request asks for both.
+
+Three ways to resolve it — genuinely different, none strictly dominant:
+
+| Option | How A→B happens | Context isolation? | Model right-sizing? | Granular retry (B-only)? | Honors literal "A calls B"? | Cost |
+|---|---|---|---|---|---|---|
+| **1 — Single session** | A invokes B via the Skill tool, one `claude -p` | **No** — B inherits all of Search's context | No | No — a retry re-runs search too | **Yes** | Simplest; works interactively unchanged; but long session → `--max-turns`/compaction risk, higher tokens |
+| **2 — Two sessions** | Wrapper runs `claude -p` for A, then a second for B, handing off `findings.json` | **Yes** — B starts clean | Yes (different `--model` per call) | Yes — B re-runs from the saved artifact without re-scraping | **No** — the *wrapper* calls B | Extra cold start + B re-reads KB (largely unavoidable anyway); interactive use needs both run manually or a conditional |
+| **3 — Subagent** | A, as its final step, spawns B as a **fresh-context subagent** (Task tool) that follows `integrate-loop-news` | **Yes** — subagent has its own window | Yes (per-subagent model) | No (one session) | **Yes** (A literally invokes B) | Subagent doing commits/push to `main` + propagating failure/exit code back to A is unusual and needs validation; "main event as a sub-task of search" is architecturally inverted |
+
+**Reassessing the efficiency claims I made too confidently:**
+
+- **Context isolation is a real, robust win** for Options 2 and 3 — this holds.
+- **Model right-sizing is NOT free and I overstated it.** Search is not purely mechanical:
+  relevance **tiering**, thread **judgment**, and "the 3 most innovative links" **curation**
+  are quality-sensitive calls. Downgrading Search to a cheaper model risks worse findings →
+  garbage into B. So model-per-stage is *possible* but must be **quality-validated**, not
+  assumed as a saving.
+- **Granular retry** (re-run only B against the saved artifact, skipping the expensive
+  search) is a genuine, previously-unstated efficiency win — but **only Option 2 gets it.**
+
+### Why not 3 skills (search / integrate / restructure)?
+
+Splitting Integrate from Restructure sharpens SR on paper, but 4b/4c are explicitly
+*findings-driven* and operate on the **just-integrated state**; a third boundary would
+reload the KB *and* reconstruct "what changed this run," duplicating context and weakening
+the "did this run's edits stay consistent" check. The coupling cost outweighs the SR gain
+→ **keep Integrate+Restructure in one skill.**
+
+**A tempting 3-way efficiency argument — and why I'm NOT baking it in.** One could make
+the expensive whole-KB 4c run at a *lower cadence* (only on days with structural change).
+But `CLAUDE.md` and the project's memory explicitly mandate **"structural review is the
+norm after *every* run" (Phase 4c)**. Making it conditional would silently override a
+deliberate, documented user convention. That is a **user decision, not an optimisation I
+should assume** — flagged in Open decisions, not baked in.
+
+### Recommendation (with the tension surfaced, not hidden)
+
+- **2 skills**, cut at retrieval | KB-reasoning — this part is unambiguous. ✔
+- **The A→B mechanism is a genuine user decision** (Options 1/2/3 above), because it trades
+  the user's own literal "A calls B" against the user's own "efficiency" goal. My lean:
+  **Option 2 (two sessions)** — it delivers the isolation *and* granular retry that best
+  serve "efficiency," and the only thing it gives up is the *literal* phrasing of "A calls
+  B" (the pipeline still runs A→B, just wrapper-sequenced). If honoring the literal call
+  matters more, **Option 3** preserves it with isolation at the price of validating a
+  commit-and-push-from-subagent flow. **Option 1** only if simplicity/interactive-parity
+  outweighs efficiency. → surfaced in Open decision 2 for the user to settle.
+- **4c cadence stays every-run** unless the user chooses to relax it (Open decision 5).
 
 ---
 
@@ -399,16 +502,28 @@ the skill's *generated output*.) Branch: `feature/split-loop-news-skill`.
    skill-owned* via `EnterWorktree`/`git worktree` inside Skill A — self-contained and
    also isolates interactive runs, but model-driven git plumbing in headless is more
    fragile (orphan worktrees on crash) and complicates the retry guard. Pick before Step 3.
-2. **A→B mechanism — Skill tool vs. inline Read.** *Recommended: Skill tool* (native,
-   clean), with inline-Read fallback validated in Step 8. If we'd rather not depend on
-   headless Skill-chaining at all, make the **wrapper** run two sequential `claude -p`
-   calls (A then B) sharing the worktree — but that means "the wrapper calls B," not
-   literally "skill A calls B."
+2. **A→B mechanism — the core tension (see Decomposition analysis).** Context isolation
+   and a literal "skill A calls skill B" are mutually exclusive. *Recommended: Option 2
+   (two wrapper-sequenced sessions)* for isolation + granular B-only retry; *Option 3
+   (fresh-context subagent)* preserves the literal call with isolation but needs a
+   commit/push-from-subagent flow validated; *Option 1 (single session, Skill tool)* is
+   simplest and interactive-parity but forgoes the efficiency wins. **This is a genuine
+   user decision** — it pits the request's "A calls B" against its "efficiency." The
+   architecture diagram, "How A calls B," and wrapper sections below currently describe
+   the single-session shape and must be reconciled to whichever option is chosen.
 3. **Skill B name.** *Recommended: `integrate-loop-news`* (captures merge + restructure).
    Alternatives: `restructure-kb`, `merge-loop-news`.
 4. **Keep A named `fetch-loop-news`?** *Recommended: yes* — it's the entry point the
    wrapper, plist, and docs reference; renaming ripples through all of them for no
    functional gain. "fetch" still fairly describes the search half.
+5. **Phase 4c structural-review cadence — every run vs. conditional.** Today `CLAUDE.md`
+   + project memory mandate the deep whole-KB structural review after **every** run.
+   *Pros of every-run:* consistency norm the project deliberately chose; catches drift
+   early. *Cons:* the deep pass is expensive and often low-yield on 0-new-doc days.
+   *Conditional alternative* (run deep 4c only when the day produced structural change;
+   always run light 4b): cheaper, but silently weakens a documented convention.
+   *Recommended: keep every-run* unless you explicitly choose to relax it — this is your
+   convention to change, not mine to optimise away.
 
 ---
 
@@ -453,3 +568,12 @@ the skill's *generated output*.) Branch: `feature/split-loop-news-skill`.
   publishes and then fails late must not be blindly retried (double-commit). Guard retargeted
   from "primary checkout HEAD moved" to "`origin/main` advanced past `BASE_SHA`." Also
   confirmed repo is PUBLIC — plan contains no secrets/PII (PRIMARY CHECK).
+- **v5 (2026-07-03, critical decomposition review)** — Took nothing for granted per user
+  request. (1) Separated *split* from *worktree isolation* — independent changes; gave the
+  concrete worktree justification (the daily cron must not inherit the primary checkout's
+  current branch/dirty state). (2) Surfaced the **core tension**: context isolation and a
+  literal "A calls B" are mutually exclusive → Options 1 (single session), 2 (two sessions),
+  3 (subagent) with a pros/cons matrix; A→B mechanism is now an explicit user decision.
+  (3) Retracted over-confident claims: model right-sizing is quality-sensitive (not a free
+  saving); conditional-4c would override the documented every-run norm (now a user decision,
+  Open decision 5). (4) Added granular B-only retry as a two-session-only efficiency win.
