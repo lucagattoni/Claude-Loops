@@ -110,7 +110,16 @@ Three ways to resolve it — genuinely different, none strictly dominant:
 
 **Reassessing the efficiency claims I made too confidently:**
 
-- **Context isolation is a real, robust win** for Options 2 and 3 — this holds.
+- **Context isolation is a real but SMALLER win than first stated.** Phase 2's per-source
+  scraping **already runs in subagents** (each returns only a compact JSON array), so the
+  bulky raw pages/threads/HTML **never accumulate in the main session** in the first place.
+  The only search context B would inherit in a single session is **Phase 3** (the
+  general-search bonus pass, which runs in the main session) plus the accumulated findings
+  JSON — real, but tens of *thousands* of tokens, not the "all scraped pages" I implied.
+  So isolation helps Options 2/3, but it is **not** the decisive factor I made it.
+- **The stronger reason for a boundary is turn-budget + compaction.** A+B in one
+  `--max-turns` session is the most likely thing to hit the cap or compact mid-restructure;
+  B's doc-reading/editing is turn-heavy on its own.
 - **Model right-sizing is NOT free and I overstated it.** Search is not purely mechanical:
   relevance **tiering**, thread **judgment**, and "the 3 most innovative links" **curation**
   are quality-sensitive calls. Downgrading Search to a cheaper model risks worse findings →
