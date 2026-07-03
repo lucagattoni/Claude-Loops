@@ -31,6 +31,13 @@ Updated by each `fetch-loop-news` run. Gap keywords drive targeted GitHub and we
   models *disagree* on a BLOCK (tie-break, escalate, third model?). Search keywords:
   `"cross-model" reviewer agent`, `Claude Codex reviewer disagreement`, `multi-model verifier arbitration loop`
 
+- **Effort-vs-tooling budget boundary**: docs/11 now documents that reasoning effort dominates
+  tool access for *first-try reliability* on a greenfield spec'd build (arXiv 2607.02436), but the
+  finding is task-class-specific — *when does a testing tool / checker pass actually pay off* (e.g.
+  large existing codebases, regression-heavy work, long-horizon tasks) rather than just adding cost?
+  The crossover conditions are unspecified. Search keywords: `agent testing tool ROI codebase size`,
+  `"reasoning effort" vs tools agentic benchmark`, `when checker pass pays off agent`
+
 - **Held-out eval construction for harness evolution**: docs/24 (Self-Improving Harnesses) now
   says to gate every proposed harness edit on a held-out run and that gains come from
   tools/middleware/memory not prompts (AHE ablation) — but *how* to build the held-out task set,

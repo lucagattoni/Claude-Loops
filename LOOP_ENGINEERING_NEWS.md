@@ -5,6 +5,50 @@ Sources are defined in [`SOURCES.md`](https://lucagattoni.github.io/Claude-Loops
 
 ---
 
+## 2026-07-03 04:12 UTC (run)
+
+A **gap-sharpening** run. The standout is a quantified BUDGET finding that inverts a common
+instinct: a 90-run observational study shows **reasoning effort — not tool access — buys
+first-try reliability** (first-try-perfect 28%→89% for +9–29% cost; a bolted-on testing tool
+added 42–68% cost with *zero* reliability gain). It lands cleanly on the design spine's
+*how much?* question and extends `docs/11`'s effort-levels section with the counterintuitive
+rule: when reasoning is the bottleneck, spend the marginal dollar on effort before adding
+checker passes. The rest of the field is the **plateaued maker/checker + orchestrator wave**
+the last run flagged — dozens of low-star Claude-author⇄Codex-reviewer clones and orchestrators,
+plus a HarnessX-derived failure-taxonomy restatement and an incremental omnigent release — none
+adding a new primitive.
+
+### New findings
+
+| Tier | Source | Title | URL | Summary |
+|---|---|---|---|---|
+| 2 | arXiv | "Reasoning effort, not tool access, buys first-try reliability in agentic code generation" | [link](https://arxiv.org/abs/2607.02436) | **BUDGET finding (new to KB).** 90-run study (same spec'd app, 14-criterion rubric): raising effort high→xhigh lifts first-try-perfect **28%→89%** (~5× fewer corrective prompts) for **+9–29%** cost; a testing tool added **42–68%** cost with **no** functional/reliability gain. Reasoning budget beats checking mechanisms when weak reasoning is the root cause. Folded into `docs/11`. |
+| 2 | Cobus Greyling | "The Anatomy of Agent Failure" | [link](https://cobusgreyling.substack.com/p/the-anatomy-of-agent-failure) | Five *contextual* failure signatures across benchmarks (GAIA blocked-source 39%, ALFWorld search-inefficiency ~89%, WebShop attribute-mismatch, τ-Bench premature actions, SWE-bench incomplete-fix 62%); argues for trace-driven adaptation over bigger models. Derived from the HarnessX paper already in `docs/24` — restatement + data, no doc change. |
+| 1 | omnigent-ai/omnigent | "v0.4.0 — Polly fan-out orchestration, Harness Plugin SDK, model-routing judge" | [link](https://github.com/omnigent-ai/omnigent/releases/tag/v0.4.0) | Meta-harness release: fan-out across coding sub-agents; a server-side judge that picks the best harness+model per turn (a selection loop); Harness Plugin SDK packaging custom agents as installable plugins; sub-agent cost budgeting + intent-gating. Extends the already-documented meta-harness (docs/24) — no new primitive, no doc change. |
+| 3 | eugenelim/agent-ready-repo | "agentbundle show <pack> — live pack inventory (RFC-0060)" | [link](https://github.com/eugenelim/agent-ready-repo/commit/94a9dda11bbbe6526427dd6d39e530dce9ce4a19) | Derives pack contents *fresh* on each call by walking the `.apm/` source tree rather than persisting, to prevent drift between reported and actual inventory — a small "verify-don't-cache" packaging pattern. Already implied by docs/24's harness-agnostic projection; no doc change. |
+
+### No new content
+- Anthropic RSS / The Batch / The Rundown AI / TLDR AI / Ben's Bites / AI Breakfast — feed 404 (ongoing)
+- OpenAI news / Harness Books (agentway.dev) — 403 (ongoing, not re-fetched this run)
+- Tracked repos with no post-cutoff substantive commit: cobusgreyling (all three), graphiti, tenet, loopflow, loop-kernel, claude-harness, ecc, Strive_Engineering, Cliclaw, herdr-loop-lab, peterCheng, claude-deep-loop, ctxcarry, zeroshot
+- github-search — high volume but all plateaued-wave clones (maker/checker, orchestrators, eval harnesses); only harness-hub / caliper noted below
+- X profiles / X live search / LinkedIn — browser pass not run this session (budget); no X/LinkedIn findings recorded
+
+### Docs updated this run
+- `docs/11-cost-control.md` — **new "Reasoning effort is the dominant reliability lever" subsection** under Effort levels: quantified table (first-try-perfect 28%→89% for +9–29%; testing tool +42–68%, no gain) + the rule to spend on effort before checker passes when reasoning is the bottleneck; cross-linked to docs/04 so it does not read as overriding the independent-verifier mandate (arXiv 2607.02436).
+- `LOOP_ENGINEERING.md` — refreshed the docs/11 index summary.
+
+### Structural review this run (Phase 4c)
+- The finding-set was **not** theme-shifting — one genuine new data point plus restatements of already-owned themes (failure-mode taxonomy → docs/24 self-improving harnesses; meta-harness release → docs/24). No dominant theme lacking a home; no new thesis; no primitive unrepresented.
+- The reasoning-effort finding sharpens the design spine's **BUDGET / *how much?*** question and sits in its canonical home (docs/11) — a consolidation, not a fragmentation. Added exactly one cross-reference (docs/11 → docs/04) so the new "effort beats checkers" guidance can't be misread as weakening the independent-verification mandate.
+- No index restructure, doc merges, or renames → PATCH, not MAJOR.
+
+### Sources to consider adding to SOURCES.md
+- [JasonxzWen/harness-hub](https://github.com/JasonxzWen/harness-hub) (85★) — a release-oriented "harness skill hub" + CLI that analyzes repos and installs harness profiles; a *harness-distribution/marketplace* angle not yet tracked. Deep-read next run before adding.
+- [edonadei/caliper](https://github.com/edonadei/caliper) (24★) — local-first eval harness for Claude Code / Codex / Pi skills; watch as an eval-harness reference alongside affaan-m/ecc.
+
+---
+
 ## 2026-07-02 04:14 UTC (run)
 
 A **theme-shifting** run, not gap-filling. Two convergent themes dominated, and the first of

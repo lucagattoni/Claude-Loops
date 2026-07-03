@@ -18,6 +18,18 @@ Versioning follows [Semantic Versioning](https://semver.org/):
 
 ---
 
+## [2.5.9] — 2026-07-03 IST
+
+### Added
+
+- `docs/11-cost-control.md` — **"Reasoning effort is the dominant reliability lever — not tool access"** subsection under Effort levels. A 90-run observational study ([arXiv 2607.02436](https://arxiv.org/abs/2607.02436)) finds raising effort `high`→`xhigh` lifts *first-try-perfect* runs **28%→89%** (~5× fewer corrective prompts) for **+9–29%** cost, while a bolted-on testing tool added **42–68%** cost with **no** functional or reliability gain. Documents the counterintuitive rule — when weak reasoning is the root cause, spend the marginal dollar on reasoning budget before adding checker passes — cross-linked to `docs/04` so it does not read as weakening the independent-verifier mandate.
+
+### Changed
+
+- `LOOP_ENGINEERING.md` — refreshed the docs/11 index summary to mention the reasoning-effort reliability lever.
+
+---
+
 ## [2.5.8] — 2026-07-02 IST
 
 ### Fixed

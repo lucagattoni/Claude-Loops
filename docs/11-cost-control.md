@@ -81,6 +81,28 @@ typical token envelopes.
 | `xhigh` | Complex coding tasks (Fable 5 / Opus 4.7+) |
 | `max` | Multi-step problems requiring deep analysis |
 
+### Reasoning effort is the dominant reliability lever — not tool access
+
+A 90-run observational study (building the same spec'd app — a real-time retro board —
+across multiple model generations, two harnesses, two effort levels, a testing tool, and
+two design prompts; scored on a 14-criterion / 42-point rubric) found that **reasoning
+budget, not extra tooling, is what buys first-try reliability**:
+
+| Lever | Effect on *first-try-perfect* (all 14 criteria, zero corrective prompts) | Cost delta |
+|---|---|---|
+| Raise effort `high` → `xhigh` | **28% → 89%** first-try-perfect; ~5× fewer corrective prompts | **+9–29%** |
+| Add a testing tool | No improvement in functional score *or* reliability (even on interface-visible criteria) | **+42–68%** |
+
+The counterintuitive result: **checking mechanisms and tool access do not fix failures
+whose root cause is weak reasoning.** When the model's reasoning is the bottleneck, spend
+the marginal dollar on reasoning budget (or a stronger model) before adding testing tools
+or checker passes — the effort bump is both cheaper and dramatically more effective. This
+does not override the [verification](04-verification.md) mandate (an *independent* verifier
+still catches what the maker cannot self-see); it says a *self*-run testing tool bolted
+onto a weak-reasoning maker is a poor trade against simply raising effort.
+
+([*Reasoning effort, not tool access, buys first-try reliability in agentic code generation*](https://arxiv.org/abs/2607.02436), arXiv, Jul 2026.)
+
 ## Handle result subtypes
 
 ```python
