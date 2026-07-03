@@ -3,6 +3,7 @@
 _Created: 2026-07-03 · v1_
 _Updated: 2026-07-03 · v2 — refine-plan pass 1: fixed per-attempt worktree lifecycle, corrected success signal (exit-code, not "main advanced"), fixed BASE_SHA timing + mktemp path + primary-alignment guard, clarified that the auto classifier (not `--allowedTools`) is the real permission gate, corrected the turn-headroom claim, added B stale-artifact date guard._
 _Updated: 2026-07-03 · v3 — refine-plan pass 2: removed A-dedupes/B-dedupes contradiction; made `LOG_FILE` absolute (relative path was lost inside the disposable worktree); wrapper now copies the findings artifact out to `logs/` before teardown (it was destroyed, falsifying the "inspectable/re-runnable" claim); specified B's `git add` list to **include `mkdocs.yml`** (Phase 4 edits nav but current stage list omits it — latent bug) and drop the daily self-add of SKILL.md._
+_Updated: 2026-07-03 · v4 — refine-plan pass 3: **HIGH** — restored the publish-safety retry guard I had wrongly dropped. Worktree isolation makes the filesystem disposable but B's `git push origin HEAD:main` is durable; if an attempt pushes then fails late, a blind retry double-commits the day's digest. Guard adapted from "primary HEAD moved" to "origin/main advanced past BASE_SHA": on failure, refuse to retry once main has advanced._
 
 ## Goal
 
@@ -159,16 +160,25 @@ Why wrapper-owned (vs. model-driven `EnterWorktree`/`git worktree` inside the sk
 
 - **Deterministic cleanup.** A crashed model can't orphan a worktree the shell created —
   the wrapper removes it in every exit path (`trap`).
-- **Simpler, safer retries.** Full isolation means a failed attempt is discarded
-  wholesale (its worktree is thrown away), and each retry branches a **fresh** worktree
-  off the latest `origin/main`. The current guard ("refuse to retry if the tree is dirty /
-  HEAD moved in the primary checkout") is no longer needed — nothing the model does can
-  touch the primary checkout, so a retry can never make things worse. **Success is still
-  judged by the existing signal** (claude exit 0 **and** no transient-error marker in the
-  output), *not* by "did `origin/main` advance" — a legitimately zero-finding day cuts
-  tier = None and makes **no** commit, so `main` correctly does not advance yet the run
-  succeeded. "Did `origin/main` advance" is used only to decide whether the primary
-  checkout needs a fast-forward afterward, never as the retry gate.
+- **Cleaner retries — but the publish guard must stay.** Full isolation means a failed
+  attempt's *filesystem* is discarded wholesale (its worktree is thrown away), and each
+  retry branches a **fresh** worktree off the latest `origin/main`. This removes the
+  *dirty-tree* half of today's guard. It does **not** remove the *already-published* half:
+  B's `git push origin HEAD:main` is a **durable external side effect** that outlives the
+  worktree. If an attempt pushes and then claude still exits non-zero (or a transient-error
+  marker appears in the output *after* the push), a blind retry would **double-commit the
+  day's digest**. So today's guard is **adapted, not deleted**:
+  - **Success** = claude exit 0 **and** no transient-error marker → done, no retry.
+    (A zero-finding day cuts tier = None and makes **no** commit, so `main` correctly does
+    not advance yet the run succeeded — which is why success is judged by exit code, not by
+    "did `main` advance.")
+  - **Before retrying a failed attempt**, `git fetch origin main` and compare to
+    `BASE_SHA`. If `origin/main` **advanced**, a prior attempt already published →
+    **stop and notify, do not retry** (mirrors today's "failed AFTER committing — not
+    retrying"). If it did **not** advance, nothing durable happened → safe to retry with a
+    fresh worktree.
+  - The same `BASE_SHA` compare, on the success path, also decides whether the primary
+    checkout needs a fast-forward.
 - **The wrapper already owns isolation concerns** (retry, budget, transient-error scan,
   notify-on-give-up). Worktree lifecycle is the same class of concern.
 - **Model logic stays about content**, not git plumbing.
@@ -224,7 +234,13 @@ TEMP_BRANCH="loop-news-run-$(date -u +%Y%m%d-%H%M%S)-a${attempt}"
 git -C "$REPO_ROOT" worktree add -b "$TEMP_BRANCH" "$WT_DIR" origin/main
 ( cd "$WT_DIR" && run_attempt "$attempt" )     # claude runs with cwd = the worktree
 # run_attempt success = exit 0 AND no transient-error marker (UNCHANGED from today).
-# On success: break. On failure: loop (top of loop discards this worktree, retries fresh).
+# On success: break. On FAILURE, before looping, guard against double-publishing:
+git -C "$REPO_ROOT" fetch origin main
+if [[ "$(git -C "$REPO_ROOT" rev-parse origin/main)" != "$BASE_SHA" ]]; then
+  notify "Attempt ${attempt} failed AFTER publishing (origin/main advanced) — not retrying; check repo state."
+  exit 1                                        # a prior attempt already pushed → never retry
+fi
+# else: nothing durable happened → backoff and retry with a fresh worktree.
 
 # --- after the loop, if the run succeeded: ---
 git -C "$REPO_ROOT" fetch origin main
@@ -238,10 +254,12 @@ fi
 
 Changes to the `claude` invocation:
 - Runs with cwd = the worktree.
-- **Success/retry signal is unchanged:** `run_attempt` still returns success on exit 0
-  with no transient-error marker. The `BASE_SHA` compare is used **only** to decide
-  whether to fast-forward the primary checkout — never as the retry gate (a zero-finding
-  day legitimately makes no commit, so `main` won't advance yet the run succeeded).
+- **Success signal is unchanged:** `run_attempt` still returns success on exit 0 with no
+  transient-error marker (a zero-finding day legitimately makes no commit, so success is
+  judged by exit code, not by "did `main` advance"). The `BASE_SHA` compare serves two
+  guard roles: (1) on **failure**, refuse to retry if `origin/main` already advanced
+  (a prior attempt published — retrying would double-commit); (2) on **success**, decide
+  whether to fast-forward the primary checkout.
 - `--allowedTools` **defensively** adds `Write` (findings artifact), `Skill` (A→B call),
   and `Bash(git *)` (B commits + pushes), keeping `Read,Edit,WebFetch,mcp__claude-in-chrome__*`.
   Note: under `--permission-mode auto` the **auto classifier**, not `--allowedTools`, is
@@ -252,9 +270,11 @@ Changes to the `claude` invocation:
 - `--max-turns` may need raising (search + integrate in one session ≈ today's monolith +
   artifact I/O). Start at current 40; if runs hit the cap, bump to ~60. (Measured in
   Step 8, not guessed.)
-- The old retry guard (refuse-to-retry-if-dirty/HEAD-moved, which inspected the primary
-  checkout) is **removed** — with per-attempt worktrees a retry can never dirty the
-  primary checkout or duplicate a durable trace.
+- The old retry guard is **adapted, not removed.** Its dirty-tree half is dropped (the
+  worktree is disposable), but its already-published half is retargeted from "primary
+  checkout `HEAD` moved" to "`origin/main` advanced past `BASE_SHA`" — because B's push is
+  a durable side effect that survives worktree teardown, and a blind retry after a push
+  would double-commit the day's digest.
 
 `.gitignore`: add `.loop-news/` so the findings artifact is never committed. (Confirm
 `logs/` is already ignored — it is.)
@@ -327,13 +347,14 @@ the skill's *generated output*.) Branch: `feature/split-loop-news-skill`.
       `LOOP_ENGINEERING_NEWS.md LOOP_ENGINEERING.md SOURCES.md CHANGELOG.md KB_GAPS.md mkdocs.yml docs/`
       — **add `mkdocs.yml`**, and **drop the daily self-add of `.claude/skills/.../SKILL.md`**
       (skills are now feature-managed via PR, not edited by the daily content run).
-- [ ] **Step 3 — Wrapper.** Add per-attempt worktree create/teardown (`trap` +
-      `cleanup_worktree` at the top of each attempt), run `claude` with cwd = the
-      worktree, defensively extend `--allowedTools`, **remove** the old
-      dirty-tree/HEAD-moved retry guard (unneeded with isolation), keep the existing
-      exit-code + transient-scan success signal, and fast-forward the primary checkout
-      after a successful run **only if** `origin/main` advanced and the primary is on
-      `main`.
+- [ ] **Step 3 — Wrapper.** Make `LOG_FILE` absolute; add per-attempt worktree
+      create/teardown (`trap` + `cleanup_worktree` at the top of each attempt, which also
+      copies the artifact out to `logs/`), run `claude` with cwd = the worktree,
+      defensively extend `--allowedTools`, keep the existing exit-code + transient-scan
+      success signal, **adapt** the retry guard (drop the dirty-tree check; on failure
+      refuse to retry if `origin/main` advanced past `BASE_SHA`), and fast-forward the
+      primary checkout after a successful run **only if** `origin/main` advanced and the
+      primary is on `main`.
 - [ ] **Step 4 — `.gitignore`.** Add `.loop-news/`.
 - [ ] **Step 5 — Docs.** Update `docs/09`, `docs/34`, `README.md`, `CLAUDE.md`, and
       `SOURCES.md`/`docs/28` if they reference the old single-skill flow.
@@ -362,7 +383,8 @@ the skill's *generated output*.) Branch: `feature/split-loop-news-skill`.
 | One session (search + integrate) exceeds `--max-turns 40` | Measure in Step 8; raise cap to ~60; the budget guard (`--max-budget-usd 8`) still bounds cost |
 | `git push origin HEAD:main` rejected because `main` advanced during the run | On a single daily machine this shouldn't happen; wrapper fetches `origin/main` right before creating the worktree. If push is rejected, B fails loudly, the attempt is discarded, and the retry branches off the new tip |
 | Worktree left orphaned on crash | Wrapper `trap cleanup_worktree EXIT` removes it in every path; also run `git worktree prune` at start |
-| Zero-finding day misread as failure → retry loop | Success stays the exit-code + transient-scan signal; `origin/main`-advanced is used only to gate primary-checkout alignment, never as the retry decision |
+| Zero-finding day misread as failure → retry loop | Success stays the exit-code + transient-scan signal; a zero-finding day makes no commit and that is a success, not a failure |
+| Attempt pushes to `main`, then fails late → retry double-commits the day's digest | Retry guard: on failure, `git fetch origin main`; if `origin/main` advanced past `BASE_SHA`, a prior attempt already published → stop + notify, never retry |
 | Findings artifact accidentally committed | `.loop-news/` gitignored; B stages only the explicit KB file list, never `git add -A` |
 | Interactive `/fetch-loop-news` runs without isolation | Documented: isolated runs go through the wrapper. (See Open decisions for a skill-owned alternative.) |
 | B runs with an empty/missing artifact (A failed silently) | B Phase 0 aborts with a clear error if `findings.json` is absent or malformed; the wrapper's transient-error scan + exit-code check catches it |
@@ -425,3 +447,9 @@ the skill's *generated output*.) Branch: `feature/split-loop-news-skill`.
   list to **add `mkdocs.yml`** (Phase 4 edits its `nav:` but the current stage list omits
   it, so nav additions are silently uncommitted today) and to drop the daily self-add of
   the skill's own `SKILL.md`.
+- **v4 (2026-07-03, refine pass 3)** — 1 HIGH resolved. Restored the publish-safety retry
+  guard that pass-1 wrongly dropped: worktree isolation makes the *filesystem* disposable,
+  but B's `git push origin HEAD:main` is a durable external side effect, so an attempt that
+  publishes and then fails late must not be blindly retried (double-commit). Guard retargeted
+  from "primary checkout HEAD moved" to "`origin/main` advanced past `BASE_SHA`." Also
+  confirmed repo is PUBLIC — plan contains no secrets/PII (PRIMARY CHECK).
