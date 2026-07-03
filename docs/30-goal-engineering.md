@@ -6,7 +6,7 @@ A **goal** is a bounded autonomous task with a defined completion state. Unlike 
 loop (which recurs on a schedule or event), a goal runs once and terminates when
 a verifiable criterion is met.
 
-(Cobus Greyling, "Goal Engineering", Substack, Jun 2026.)
+(Cobus Greyling, ["Goal Engineering"](https://cobusgreyling.substack.com/p/goal-engineering), Substack, Jun 2026.)
 
 ## Goals vs. Loops
 

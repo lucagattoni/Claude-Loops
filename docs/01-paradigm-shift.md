@@ -31,7 +31,7 @@ The formula implies two things:
 1. **You cannot outsource clarity** — an agent given a vague brief produces vague work
 2. **Skill multiplies clarity** — a skilled engineer's precise spec produces exponentially better output than a non-engineer's vague spec, even with the same model
 
-(Sabrina Ramonov, "AI Loop Engineering", Jun 2026.)
+(Sabrina Ramonov, ["AI Loop Engineering"](https://www.sabrina.dev/p/loop-engineering-claude-code-goal-routines), Jun 2026.)
 
 ## Why Loops Beat Single Turns — The Compound Probability Argument
 
@@ -70,7 +70,7 @@ specifying work precisely, and verifying output rigorously — not those who typ
 
 The harness and the spec are now first-class engineering artefacts. "Vibe coding"
 (accepting plausible-looking output without verification) is the new technical debt.
-(Addy Osmani, "The New Software Lifecycle", Jun 2026.)
+(Addy Osmani, ["The New Software Lifecycle"](https://addyosmani.com/blog/new-sdlc-vibe-coding/), Jun 2026.)
 
 ## Loop Engineering at Anthropic
 

@@ -4,7 +4,7 @@ Claude Tag is Claude Code deployed as a persistent, ambient agent inside Slack.
 Rather than a scheduled cron or a manually triggered terminal session, the loop
 lives inside the communication layer where the team already works.
 
-(Anthropic, "Introducing Claude Tag", Jun 2026.)
+(Anthropic, ["Introducing Claude Tag"](https://www.anthropic.com/news/introducing-claude-tag), Jun 2026.)
 
 ## Architecture
 

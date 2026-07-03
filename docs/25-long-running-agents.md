@@ -74,7 +74,7 @@ the Dual Loop nests *execution inside strategy* (both can be automated); the thr
 feedback loops nest *agent inside developer inside user* by who supplies the correcting
 signal and at what cadence.
 
-(Data Science Dojo, "Agentic Loops: From ReAct to Loop Engineering", 2026.)
+(Data Science Dojo, ["Agentic Loops: From ReAct to Loop Engineering"](https://datasciencedojo.com/blog/agentic-loops-explained-from-react-to-loop-engineering-2026-guide/), 2026.)
 
 ## Real-World Scale
 
