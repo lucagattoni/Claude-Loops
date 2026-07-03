@@ -2,6 +2,7 @@
 
 _Created: 2026-07-03 · v1_
 _Updated: 2026-07-03 · v2 — refine-plan pass 1: fixed per-attempt worktree lifecycle, corrected success signal (exit-code, not "main advanced"), fixed BASE_SHA timing + mktemp path + primary-alignment guard, clarified that the auto classifier (not `--allowedTools`) is the real permission gate, corrected the turn-headroom claim, added B stale-artifact date guard._
+_Updated: 2026-07-03 · v3 — refine-plan pass 2: removed A-dedupes/B-dedupes contradiction; made `LOG_FILE` absolute (relative path was lost inside the disposable worktree); wrapper now copies the findings artifact out to `logs/` before teardown (it was destroyed, falsifying the "inspectable/re-runnable" claim); specified B's `git add` list to **include `mkdocs.yml`** (Phase 4 edits nav but current stage list omits it — latent bug) and drop the daily self-add of SKILL.md._
 
 ## Goal
 
@@ -11,8 +12,9 @@ runs two structural-review passes, cuts a release, and commits. Split it into tw
 focused skills:
 
 1. **`fetch-loop-news` (Search)** — searches the tracked sources + general web for
-   relevant news, scores/dedupes candidates, and produces a structured **findings
-   artifact**. No KB reasoning, no doc edits, no commit.
+   relevant news, scores candidates, and produces a structured **findings artifact**.
+   No dedup (that needs the news file — B's domain), no KB reasoning, no doc edits, no
+   commit.
 2. **`integrate-loop-news` (Integrate & Restructure)** — consumes the findings
    artifact, reasons about how to merge each finding into the KB, restructures the KB
    for coherence (the two review passes), determines the release tier, updates the
@@ -100,8 +102,11 @@ restructuring).
 
 ### Handoff contract — `.loop-news/findings.json`
 
-A writes, B reads. Kept in a **gitignored** `.loop-news/` dir inside the worktree so it
-never gets committed and is inspectable in logs.
+A writes, B reads — both at `./.loop-news/findings.json` relative to the shared worktree
+cwd. `.loop-news/` is **gitignored** so it never gets committed. Because the worktree is
+torn down after the run, the wrapper **copies the artifact out to the primary checkout's
+`logs/findings-<date>.json`** before teardown (in every exit path), so it survives for
+post-mortem inspection and for re-running B against a fixed file.
 
 ```json
 {
@@ -128,9 +133,9 @@ never gets committed and is inspectable in logs.
   never re-derives time and both halves agree on the digest header.
 
 The artifact is the **primary** handoff. Because A and B share one model session, the
-findings are also already in context — the artifact is belt-and-suspenders that (a)
-makes B independently re-runnable against a saved file and (b) survives context
-compaction on a long run.
+findings are also already in context — the artifact is belt-and-suspenders that (a) lets
+B be re-run independently against the copied-out `logs/findings-<date>.json` and (b)
+survives context compaction on a long run.
 
 ### How A calls B
 
@@ -181,8 +186,17 @@ Wrap **each attempt** in its own fresh worktree (so a discarded attempt leaves n
 behind and the next retry starts from the latest `origin/main`). Sketch (integrates with
 current `set -uo pipefail`, `MAX_ATTEMPTS`, backoff, transient-error scan, `notify`):
 
+**Two path fixes the cd-into-worktree makes mandatory:** the current script sets
+`LOG_FILE="logs/loop-news-….log"` (relative) and `cd`s to `$REPO_ROOT`. Once claude runs
+in the worktree, any relative `logs/` path resolves *inside the disposable worktree* and
+is destroyed on teardown. So (a) make `LOG_FILE` an **absolute** path under
+`$REPO_ROOT/logs/` before any `cd`, and (b) have the wrapper copy the findings artifact
+out of the worktree before removing it.
+
 ```bash
 REPO_ROOT="$(cd "$(dirname "$0")/.." && pwd)"
+mkdir -p "$REPO_ROOT/logs"
+LOG_FILE="$REPO_ROOT/logs/loop-news-$(date +%Y%m%d).log"   # ABSOLUTE — survives teardown
 git -C "$REPO_ROOT" worktree prune            # clear any orphan from a prior crash
 
 # Capture the base ONCE, before any attempt, so the post-run "did main advance?"
@@ -192,6 +206,9 @@ BASE_SHA="$(git -C "$REPO_ROOT" rev-parse origin/main)"
 
 WT_DIR=""; TEMP_BRANCH=""
 cleanup_worktree() {                          # tears down THIS attempt's worktree
+  # Preserve the artifact for post-mortem before the worktree vanishes.
+  [[ -n "$WT_DIR" && -f "$WT_DIR/.loop-news/findings.json" ]] && \
+    cp "$WT_DIR/.loop-news/findings.json" "$REPO_ROOT/logs/findings-$(date +%Y%m%d).json" 2>/dev/null || true
   [[ -n "$WT_DIR" ]] && { git -C "$REPO_ROOT" worktree remove --force "$WT_DIR" 2>/dev/null || rm -rf "$WT_DIR"; }
   [[ -n "$TEMP_BRANCH" ]] && git -C "$REPO_ROOT" branch -D "$TEMP_BRANCH" 2>/dev/null || true
   WT_DIR=""; TEMP_BRANCH=""
@@ -301,6 +318,15 @@ the skill's *generated output*.) Branch: `feature/split-loop-news-skill`.
       Phase 5c: `git add` the explicit KB file list (never `git add -A`), commit with the
       existing message format, then `git push origin HEAD:main`. Phase 5a's tier = None
       case still makes **no** commit (a zero-finding day is a legitimate no-op).
+
+      **Correct the stage list while porting.** The current Phase 5c stages
+      `LOOP_ENGINEERING_NEWS.md LOOP_ENGINEERING.md SOURCES.md CHANGELOG.md KB_GAPS.md docs/`
+      plus its own `SKILL.md`, but **omits `mkdocs.yml`** — even though Phase 4 edits the
+      `nav:` there, so today those nav additions are silently left uncommitted (a latent
+      bug). B's list must be:
+      `LOOP_ENGINEERING_NEWS.md LOOP_ENGINEERING.md SOURCES.md CHANGELOG.md KB_GAPS.md mkdocs.yml docs/`
+      — **add `mkdocs.yml`**, and **drop the daily self-add of `.claude/skills/.../SKILL.md`**
+      (skills are now feature-managed via PR, not edited by the daily content run).
 - [ ] **Step 3 — Wrapper.** Add per-attempt worktree create/teardown (`trap` +
       `cleanup_worktree` at the top of each attempt), run `claude` with cwd = the
       worktree, defensively extend `--allowedTools`, **remove** the old
@@ -390,3 +416,12 @@ the skill's *generated output*.) Branch: `feature/split-loop-news-skill`.
   classifier — not `--allowedTools` — is the real permission gate. Corrected the
   turn-headroom motivation (doesn't hold for single-session). Added B Phase-0 stale-artifact
   date guard.
+- **v3 (2026-07-03, refine pass 2)** — 4 MEDIUM resolved. Removed the A-dedupes vs
+  B-dedupes contradiction (dedup is B's; it needs the news file). Made `LOG_FILE` absolute
+  — a relative `logs/` path resolves inside the disposable worktree after the `cd` and is
+  lost on teardown. Wrapper now copies `.loop-news/findings.json` out to
+  `logs/findings-<date>.json` before teardown (it was being destroyed, contradicting the
+  "inspectable / independently re-runnable" motivation). Specified B's explicit `git add`
+  list to **add `mkdocs.yml`** (Phase 4 edits its `nav:` but the current stage list omits
+  it, so nav additions are silently uncommitted today) and to drop the daily self-add of
+  the skill's own `SKILL.md`.
