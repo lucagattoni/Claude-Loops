@@ -5,6 +5,7 @@ _Updated: 2026-07-03 · v2 — refine-plan pass 1: fixed per-attempt worktree li
 _Updated: 2026-07-03 · v3 — refine-plan pass 2: removed A-dedupes/B-dedupes contradiction; made `LOG_FILE` absolute (relative path was lost inside the disposable worktree); wrapper now copies the findings artifact out to `logs/` before teardown (it was destroyed, falsifying the "inspectable/re-runnable" claim); specified B's `git add` list to **include `mkdocs.yml`** (Phase 4 edits nav but current stage list omits it — latent bug) and drop the daily self-add of SKILL.md._
 _Updated: 2026-07-03 · v4 — refine-plan pass 3: **HIGH** — restored the publish-safety retry guard I had wrongly dropped. Worktree isolation makes the filesystem disposable but B's `git push origin HEAD:main` is durable; if an attempt pushes then fails late, a blind retry double-commits the day's digest. Guard adapted from "primary HEAD moved" to "origin/main advanced past BASE_SHA": on failure, refuse to retry once main has advanced._
 _Updated: 2026-07-03 · v5 — critical decomposition review (no assumptions): separated "split" from "worktree isolation" as independent changes with the concrete worktree justification (daily run must not depend on the primary checkout's current branch/state); surfaced the core tension that **context isolation and a literal "A calls B" are mutually exclusive**, laid out Options 1/2/3 with a pros/cons matrix; retracted two over-confident claims (model right-sizing is quality-sensitive, not free; conditional-4c would override a documented every-run norm → made both user decisions); added granular B-only retry as a real two-session-only win._
+_Updated: 2026-07-03 · v6 — user settled the decisions: **Option 2 (two wrapper-sequenced sessions) + every-run 4c**. Reconciled the whole plan to that shape — architecture diagram, handoff, worktree-ownership, and the wrapper sketch rewritten for two sessions in one worktree with reset-between-attempts and granular (B-only) retry; A now writes the artifact and stops (no in-skill call to B); per-stage `--allowedTools`/`--max-turns`; model-per-stage deferred as a future tuning lever; corrected the "shared context" handoff note; risks/steps/decisions updated._
 
 ## Goal
 
@@ -143,18 +144,16 @@ norm after *every* run" (Phase 4c)**. Making it conditional would silently overr
 deliberate, documented user convention. That is a **user decision, not an optimisation I
 should assume** — flagged in Open decisions, not baked in.
 
-### Recommendation (with the tension surfaced, not hidden)
+### Decision (settled by the user, 2026-07-03)
 
-- **2 skills**, cut at retrieval | KB-reasoning — this part is unambiguous. ✔
-- **The A→B mechanism is a genuine user decision** (Options 1/2/3 above), because it trades
-  the user's own literal "A calls B" against the user's own "efficiency" goal. My lean:
-  **Option 2 (two sessions)** — it delivers the isolation *and* granular retry that best
-  serve "efficiency," and the only thing it gives up is the *literal* phrasing of "A calls
-  B" (the pipeline still runs A→B, just wrapper-sequenced). If honoring the literal call
-  matters more, **Option 3** preserves it with isolation at the price of validating a
-  commit-and-push-from-subagent flow. **Option 1** only if simplicity/interactive-parity
-  outweighs efficiency. → surfaced in Open decision 2 for the user to settle.
-- **4c cadence stays every-run** unless the user chooses to relax it (Open decision 5).
+- **2 skills**, cut at retrieval | KB-reasoning. ✔
+- **Option 2 — two wrapper-sequenced sessions** (A then B, handoff via `findings.json`).
+  Chosen for context isolation + **granular retry** (the flaky search half and the
+  deterministic reasoning half retry independently), accepting that the *wrapper*
+  mechanizes the A→B handoff rather than a literal in-skill call — which still honors the
+  intent "B runs after A, consuming its output." The rest of this plan is written to this
+  shape.
+- **4c cadence: every run** (the documented norm kept; not relaxed).
 
 ---
 
@@ -171,29 +170,42 @@ should assume** — flagged in Open decisions, not baked in.
 
 ## Proposed architecture
 
+**Two wrapper-sequenced sessions in one shared worktree.** The wrapper owns the worktree
+and runs A and B as **separate `claude -p` invocations**; `findings.json` is the handoff.
+
 ```
 run-loop-news.sh (wrapper)
-  │  per attempt:
-  ├─ git worktree add <wt> <temp-branch>   ← branch off freshly-fetched origin/main
-  ├─ cd <wt>
-  ├─ claude -p "/fetch-loop-news"          ← ONE session, inside the worktree
-  │     │
-  │     ├─ Skill A: fetch-loop-news (Search)
-  │     │     Phase 1  load context (SOURCES.md, last_run_date, today, run_time)
-  │     │     Phase 2  per-source search (subagents)
-  │     │     Phase 3  general search + dynamic source expansion
-  │     │     → writes .loop-news/findings.json (findings + run metadata)
-  │     │     → invokes Skill B via the Skill tool
-  │     │
-  │     └─ Skill B: integrate-loop-news (Integrate & Restructure)
-  │           Phase 4   read findings.json → write digest + per-finding doc integration
-  │           Phase 4b  devil's-advocate KB review
-  │           Phase 4c  findings-driven structural review
-  │           Phase 5   release tier + changelog + commit + push origin HEAD:main
+  ├─ git worktree add <wt> <temp-branch>     ← branch off freshly-fetched origin/main (ONE per run)
   │
-  ├─ (on success) remove worktree, delete temp branch, fast-forward primary checkout
-  └─ (on failure) remove worktree + temp branch, recreate fresh, retry
+  ├─ attempt loop (≤ MAX_ATTEMPTS), each attempt in <wt>:
+  │    ├─ reset <wt> hard to latest origin/main   (discards a failed attempt's partial edits;
+  │    │                                            gitignored .loop-news/ survives)
+  │    │
+  │    ├─ SESSION A  (only if no valid findings.json yet — so a B-only retry SKIPS search)
+  │    │    claude -p "/fetch-loop-news"   ← Skill A: Search
+  │    │      Phase 1 load context · Phase 2 per-source search (subagents) ·
+  │    │      Phase 3 general search + dynamic source expansion
+  │    │      → writes .loop-news/findings.json (findings + run metadata), then STOPS
+  │    │    (A failed → attempt fails, skip B)
+  │    │
+  │    └─ SESSION B  (fresh context — inherits none of A's search context)
+  │         claude -p "/integrate-loop-news"   ← Skill B: Integrate & Restructure
+  │           Phase 0 read findings.json (abort if missing/stale) ·
+  │           Phase 4 digest + per-finding doc integration ·
+  │           Phase 4b devil's-advocate review · Phase 4c structural review (EVERY run) ·
+  │           Phase 5 release tier + changelog + commit + push origin HEAD:main
+  │
+  │    on failure, before retrying: if origin/main advanced past BASE_SHA → a prior
+  │      attempt already published → STOP + notify (never double-commit)
+  │
+  ├─ (any exit) copy <wt>/.loop-news/findings.json → logs/ ; worktree remove ; branch -D
+  └─ (on success, if origin/main advanced & primary is on main) primary: pull --ff-only
 ```
+
+The worktree is created **once per run** (not per attempt) so `findings.json` persists
+across attempts — that is what lets a B-only retry reuse A's search. Isolation between
+attempts is provided by the hard reset to `origin/main` at the top of each attempt, which
+discards any partial tracked edits while leaving the gitignored artifact intact.
 
 ### The split line
 
@@ -245,151 +257,163 @@ post-mortem inspection and for re-running B against a fixed file.
 - Run metadata (`today`, `run_time`, `last_run_date`) travels in the artifact so B
   never re-derives time and both halves agree on the digest header.
 
-The artifact is the **primary** handoff. Because A and B share one model session, the
-findings are also already in context — the artifact is belt-and-suspenders that (a) lets
-B be re-run independently against the copied-out `logs/findings-<date>.json` and (b)
-survives context compaction on a long run.
+The artifact is the **sole** handoff. Because A and B are **separate sessions**, B does
+**not** inherit A's findings in context — it reads them from `findings.json`. This is the
+point of the two-session design: B starts clean, and B can be re-run independently against
+the copied-out `logs/findings-<date>.json` without re-scraping. The schema must therefore
+be self-sufficient (everything B needs, including run metadata, lives in the file).
 
-### How A calls B
+### How A hands off to B (two sessions)
 
-At the end of A's Phase 3, A invokes **`Skill(skill: integrate-loop-news)`**. This
-keeps everything in one session and one worktree (satisfying "the two skills work in
-the same worktree"). Requires `Skill` in the wrapper's `--allowedTools`.
+A does **not** call B in-process. A's final Phase writes `.loop-news/findings.json` and
+**stops**; the wrapper then launches B as a separate `claude -p "/integrate-loop-news"`
+in the same worktree. B's Phase 0 reads the artifact. Both skills run in the same
+worktree (satisfying "the two skills work in the same worktree"); the session boundary is
+what gives B a clean context and independent retry.
 
-**Fallback if Skill-tool chaining is unreliable in headless `-p`:** A's final
-instruction is to `Read` `.claude/skills/integrate-loop-news/SKILL.md` and follow it
-inline. Same session, same context, no dependency on the Skill tool. The plan validates
-the primary path in Step 8 and falls back only if it fails.
+This means **each skill is independently invocable and testable**: you can run
+`/integrate-loop-news` by hand against a saved `findings.json` without re-scraping. A's
+SKILL header states "hands off to `integrate-loop-news` via `.loop-news/findings.json`";
+B's header states "consumes `.loop-news/findings.json` produced by `fetch-loop-news`" —
+the artifact schema is the only contract between them.
 
-### Worktree ownership — the wrapper owns the lifecycle (recommended)
+### Worktree ownership — the wrapper owns the lifecycle
 
-The **wrapper** (`run-loop-news.sh`), not the model, creates and tears down the
-worktree. **Skill B** does the semantic `git commit` (it owns the release tier + message
-format) and the `git push origin HEAD:main`; the wrapper owns worktree create, teardown,
-retry, and primary-checkout alignment.
+The **wrapper** (`run-loop-news.sh`), not the model, creates and tears down the worktree
+and sequences the two sessions. **Skill B** does the semantic `git commit` (it owns the
+release tier + message format) and the `git push origin HEAD:main`; the wrapper owns
+worktree create/reset/teardown, the A→B sequencing, retry, and primary-checkout alignment.
 
-Why wrapper-owned (vs. model-driven `EnterWorktree`/`git worktree` inside the skill):
+Why wrapper-owned (vs. model-driven `EnterWorktree`/`git worktree` inside a skill):
 
 - **Deterministic cleanup.** A crashed model can't orphan a worktree the shell created —
   the wrapper removes it in every exit path (`trap`).
-- **Cleaner retries — but the publish guard must stay.** Full isolation means a failed
-  attempt's *filesystem* is discarded wholesale (its worktree is thrown away), and each
-  retry branches a **fresh** worktree off the latest `origin/main`. This removes the
-  *dirty-tree* half of today's guard. It does **not** remove the *already-published* half:
-  B's `git push origin HEAD:main` is a **durable external side effect** that outlives the
-  worktree. If an attempt pushes and then claude still exits non-zero (or a transient-error
-  marker appears in the output *after* the push), a blind retry would **double-commit the
-  day's digest**. So today's guard is **adapted, not deleted**:
+- **It's the natural sequencer.** Two sessions must be launched by *something* outside
+  both; the wrapper already owns run orchestration.
+- **Isolation between attempts without losing the artifact.** The worktree is created
+  **once per run**; at the top of each attempt the wrapper hard-resets the tree to the
+  latest `origin/main` (discarding a failed attempt's partial tracked edits) while the
+  gitignored `.loop-news/findings.json` survives — so a B-only retry reuses A's search.
+- **The publish guard stays (adapted).** B's `git push origin HEAD:main` is a **durable
+  external side effect** that outlives any tree reset. So:
   - **Success** = claude exit 0 **and** no transient-error marker → done, no retry.
     (A zero-finding day cuts tier = None and makes **no** commit, so `main` correctly does
-    not advance yet the run succeeded — which is why success is judged by exit code, not by
-    "did `main` advance.")
+    not advance yet the run succeeded — success is judged by exit code, not "did `main`
+    advance.")
   - **Before retrying a failed attempt**, `git fetch origin main` and compare to
     `BASE_SHA`. If `origin/main` **advanced**, a prior attempt already published →
     **stop and notify, do not retry** (mirrors today's "failed AFTER committing — not
-    retrying"). If it did **not** advance, nothing durable happened → safe to retry with a
-    fresh worktree.
-  - The same `BASE_SHA` compare, on the success path, also decides whether the primary
-    checkout needs a fast-forward.
-- **The wrapper already owns isolation concerns** (retry, budget, transient-error scan,
-  notify-on-give-up). Worktree lifecycle is the same class of concern.
+    retrying"). If it did **not** advance, nothing durable happened → reset the tree and
+    retry (search is skipped if `findings.json` is still valid).
+  - The same `BASE_SHA` compare, on the success path, decides whether the primary checkout
+    needs a fast-forward.
 - **Model logic stays about content**, not git plumbing.
 
-Trade-off: an **interactive** `/fetch-loop-news` (a human typing it in the primary
-checkout, no wrapper) would not get a worktree. Mitigation: the daily automated path is
-the one that matters for isolation; the skill header documents "for isolated runs, invoke
-via `scripts/run-loop-news.sh`." (Alternative designs are logged under *Open decisions*.)
+Trade-off (unchanged): an **interactive** `/fetch-loop-news` typed by a human gets no
+worktree and no B sequencing — they'd run A then B by hand. The daily automated path is
+the one that matters for isolation; the skill headers note "for an isolated end-to-end run,
+use `scripts/run-loop-news.sh`."
 
 ---
 
 ## Wrapper changes (`scripts/run-loop-news.sh`)
 
-Wrap **each attempt** in its own fresh worktree (so a discarded attempt leaves nothing
-behind and the next retry starts from the latest `origin/main`). Sketch (integrates with
-current `set -uo pipefail`, `MAX_ATTEMPTS`, backoff, transient-error scan, `notify`):
+The wrapper creates **one worktree per run**, then runs **two claude sessions** (A then
+B) inside it, resetting the tree between attempts. Sketch (integrates with the current
+`set -uo pipefail`, `MAX_ATTEMPTS`, backoff, transient-error scan, `notify`; `run_claude`
+generalises today's `run_attempt` to take a prompt and run it in `$WT_DIR` via a PTY, and
+returns success = exit 0 **and** no transient-error marker):
 
-**Two path fixes the cd-into-worktree makes mandatory:** the current script sets
-`LOG_FILE="logs/loop-news-….log"` (relative) and `cd`s to `$REPO_ROOT`. Once claude runs
-in the worktree, any relative `logs/` path resolves *inside the disposable worktree* and
-is destroyed on teardown. So (a) make `LOG_FILE` an **absolute** path under
-`$REPO_ROOT/logs/` before any `cd`, and (b) have the wrapper copy the findings artifact
-out of the worktree before removing it.
+**Path fix the worktree makes mandatory:** the current script sets
+`LOG_FILE="logs/loop-news-….log"` (relative). Runs happen in the worktree, so a relative
+`logs/` path would resolve *inside the disposable worktree* and be lost. Make `LOG_FILE`
+an **absolute** path under `$REPO_ROOT/logs/`, and have the wrapper copy the artifact out
+before teardown.
 
 ```bash
 REPO_ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 mkdir -p "$REPO_ROOT/logs"
 LOG_FILE="$REPO_ROOT/logs/loop-news-$(date +%Y%m%d).log"   # ABSOLUTE — survives teardown
-git -C "$REPO_ROOT" worktree prune            # clear any orphan from a prior crash
 
-# Capture the base ONCE, before any attempt, so the post-run "did main advance?"
-# comparison is meaningful.
+git -C "$REPO_ROOT" worktree prune                          # clear any orphan from a crash
 git -C "$REPO_ROOT" fetch origin main
-BASE_SHA="$(git -C "$REPO_ROOT" rev-parse origin/main)"
+BASE_SHA="$(git -C "$REPO_ROOT" rev-parse origin/main)"     # captured ONCE, before any attempt
 
-WT_DIR=""; TEMP_BRANCH=""
-cleanup_worktree() {                          # tears down THIS attempt's worktree
-  # Preserve the artifact for post-mortem before the worktree vanishes.
-  [[ -n "$WT_DIR" && -f "$WT_DIR/.loop-news/findings.json" ]] && \
+# --- ONE worktree for the whole run (so findings.json survives across attempts) ---
+WT_PARENT="$(mktemp -d -t loop-news-wt.XXXXXX)"; WT_DIR="$WT_PARENT/wt"  # add needs a non-existent leaf
+TEMP_BRANCH="loop-news-run-$(date -u +%Y%m%d-%H%M%S)"
+cleanup() {
+  [[ -f "$WT_DIR/.loop-news/findings.json" ]] && \
     cp "$WT_DIR/.loop-news/findings.json" "$REPO_ROOT/logs/findings-$(date +%Y%m%d).json" 2>/dev/null || true
-  [[ -n "$WT_DIR" ]] && { git -C "$REPO_ROOT" worktree remove --force "$WT_DIR" 2>/dev/null || rm -rf "$WT_DIR"; }
-  [[ -n "$TEMP_BRANCH" ]] && git -C "$REPO_ROOT" branch -D "$TEMP_BRANCH" 2>/dev/null || true
-  WT_DIR=""; TEMP_BRANCH=""
+  git -C "$REPO_ROOT" worktree remove --force "$WT_DIR" 2>/dev/null || rm -rf "$WT_PARENT"
+  git -C "$REPO_ROOT" branch -D "$TEMP_BRANCH" 2>/dev/null || true
 }
-trap cleanup_worktree EXIT                     # backstop if the script dies mid-attempt
-
-# --- inside the attempt loop, per attempt: ---
-cleanup_worktree                               # discard a failed previous attempt
-git -C "$REPO_ROOT" fetch origin main          # each retry branches off the latest tip
-WT_PARENT="$(mktemp -d -t loop-news-wt.XXXXXX)"   # git worktree add needs a NON-existent
-WT_DIR="$WT_PARENT/wt"                             # leaf path, so nest under the temp dir
-TEMP_BRANCH="loop-news-run-$(date -u +%Y%m%d-%H%M%S)-a${attempt}"
+trap cleanup EXIT
 git -C "$REPO_ROOT" worktree add -b "$TEMP_BRANCH" "$WT_DIR" origin/main
-( cd "$WT_DIR" && run_attempt "$attempt" )     # claude runs with cwd = the worktree
-# run_attempt success = exit 0 AND no transient-error marker (UNCHANGED from today).
-# On success: break. On FAILURE, before looping, guard against double-publishing:
-git -C "$REPO_ROOT" fetch origin main
-if [[ "$(git -C "$REPO_ROOT" rev-parse origin/main)" != "$BASE_SHA" ]]; then
-  notify "Attempt ${attempt} failed AFTER publishing (origin/main advanced) — not retrying; check repo state."
-  exit 1                                        # a prior attempt already pushed → never retry
-fi
-# else: nothing durable happened → backoff and retry with a fresh worktree.
 
-# --- after the loop, if the run succeeded: ---
-git -C "$REPO_ROOT" fetch origin main
-if [[ "$(git -C "$REPO_ROOT" rev-parse origin/main)" != "$BASE_SHA" ]]; then
-  # B pushed a commit → align the primary checkout, but only if it's actually on main
-  if [[ "$(git -C "$REPO_ROOT" symbolic-ref --quiet --short HEAD)" == "main" ]]; then
-    git -C "$REPO_ROOT" pull --ff-only origin main
+findings_valid() {   # exists AND its "today" matches the current UTC date
+  local f="$WT_DIR/.loop-news/findings.json"
+  # python3 (already relied on elsewhere) avoids a hard jq dependency:
+  [[ -f "$f" ]] && [[ "$(python3 -c 'import json,sys;print(json.load(open(sys.argv[1])).get("today",""))' "$f" 2>/dev/null)" == "$(date -u +%Y-%m-%d)" ]]
+}
+
+attempt=1
+while (( attempt <= MAX_ATTEMPTS )); do
+  # Isolate this attempt: discard a failed attempt's partial TRACKED edits; the gitignored
+  # .loop-news/ (findings.json) is untracked+ignored, so reset/clean leave it intact.
+  git -C "$WT_DIR" fetch origin main
+  git -C "$WT_DIR" reset --hard origin/main
+  git -C "$WT_DIR" clean -fd            # NOT -x → keeps ignored .loop-news/
+
+  ok=1
+  # STAGE A — search; skipped entirely if a valid artifact already exists (B-only retry)
+  if ! findings_valid; then
+    run_claude "$attempt-A" "/fetch-loop-news" || ok=0
+    findings_valid || ok=0             # A must have produced a usable artifact
   fi
+  # STAGE B — integrate + restructure + commit + push (only if A stage is good)
+  if (( ok )); then
+    run_claude "$attempt-B" "/integrate-loop-news" && break || ok=0
+  fi
+
+  # --- failure path: publish-safety guard before any retry ---
+  git -C "$REPO_ROOT" fetch origin main
+  if [[ "$(git -C "$REPO_ROOT" rev-parse origin/main)" != "$BASE_SHA" ]]; then
+    notify "Attempt ${attempt} failed AFTER publishing (origin/main advanced) — not retrying."
+    exit 1                              # B already pushed → never retry (would double-commit)
+  fi
+  (( attempt < MAX_ATTEMPTS )) && sleep "${BACKOFF_SECONDS[$((attempt-1))]}"
+  (( attempt++ ))
+done
+
+# --- success path: align the primary checkout if B published and it's on main ---
+git -C "$REPO_ROOT" fetch origin main
+if [[ "$(git -C "$REPO_ROOT" rev-parse origin/main)" != "$BASE_SHA" ]] && \
+   [[ "$(git -C "$REPO_ROOT" symbolic-ref --quiet --short HEAD)" == "main" ]]; then
+  git -C "$REPO_ROOT" pull --ff-only origin main
 fi
 ```
 
-Changes to the `claude` invocation:
-- Runs with cwd = the worktree.
-- **Success signal is unchanged:** `run_attempt` still returns success on exit 0 with no
-  transient-error marker (a zero-finding day legitimately makes no commit, so success is
-  judged by exit code, not by "did `main` advance"). The `BASE_SHA` compare serves two
-  guard roles: (1) on **failure**, refuse to retry if `origin/main` already advanced
-  (a prior attempt published — retrying would double-commit); (2) on **success**, decide
-  whether to fast-forward the primary checkout.
-- `--allowedTools` **defensively** adds `Write` (findings artifact), `Skill` (A→B call),
-  and `Bash(git *)` (B commits + pushes), keeping `Read,Edit,WebFetch,mcp__claude-in-chrome__*`.
-  Note: under `--permission-mode auto` the **auto classifier**, not `--allowedTools`, is
-  the real gate — the current skill already runs `git add/commit/push` with none of
-  `Bash`/`git` in its allowlist. Extending the allowlist is a fast-path, not a hard
-  requirement; Step 8 confirms the classifier approves `Write`, `Skill`, and the
-  `git worktree`/`git push` calls in practice.
-- `--max-turns` may need raising (search + integrate in one session ≈ today's monolith +
-  artifact I/O). Start at current 40; if runs hit the cap, bump to ~60. (Measured in
-  Step 8, not guessed.)
-- The old retry guard is **adapted, not removed.** Its dirty-tree half is dropped (the
-  worktree is disposable), but its already-published half is retargeted from "primary
-  checkout `HEAD` moved" to "`origin/main` advanced past `BASE_SHA`" — because B's push is
-  a durable side effect that survives worktree teardown, and a blind retry after a push
-  would double-commit the day's digest.
+Notes on the two `claude` invocations (both run in `$WT_DIR`):
+- **`--allowedTools`** — A needs `Read,Edit,Write,WebFetch,mcp__claude-in-chrome__*`
+  (Write for the artifact; A no longer needs git or Skill). B needs
+  `Read,Edit,Write,WebFetch,Bash(git *)` (commit+push; no Chrome). Note: under
+  `--permission-mode auto` the **auto classifier**, not `--allowedTools`, is the real gate
+  — today's skill already runs `git add/commit/push` with no `Bash`/`git` in its allowlist
+  — so these lists are a defensive fast-path, confirmed in Step 8, not a hard requirement.
+- **`--max-turns`** — now measured **per stage**, not for a combined run. Search and
+  integrate each get the full budget; start both at 40 and adjust from Step 8 measurements.
+- **Optional `--model` per stage** — the two-session split *enables* running Search on a
+  cheaper/faster model, but only after validating it doesn't degrade finding quality
+  (relevance tiering / link curation are judgment calls). **Not in the initial build** —
+  both stages stay on the default model; model-per-stage is a later tuning lever.
+- **Retry guard** is adapted, not removed: the dirty-tree half becomes the per-attempt
+  `reset --hard` + `clean`; the already-published half becomes the `origin/main`-advanced
+  check (B's push is durable and survives the reset, so retrying after a push would
+  double-commit).
 
-`.gitignore`: add `.loop-news/` so the findings artifact is never committed. (Confirm
-`logs/` is already ignored — it is.)
+`.gitignore`: add `.loop-news/` so the artifact is never committed. (`logs/` is already
+ignored.)
 
 ---
 
@@ -397,9 +421,9 @@ Changes to the `claude` invocation:
 
 | File | Action |
 |---|---|
-| `.claude/skills/fetch-loop-news/SKILL.md` | **Rewrite** → Search only (Phases 1–3), writes `.loop-news/findings.json`, invokes Skill B. Update `description:` frontmatter. |
-| `.claude/skills/integrate-loop-news/SKILL.md` | **Create** → Integrate & Restructure (Phases 4/4b/4c/5), reads the artifact. |
-| `scripts/run-loop-news.sh` | **Edit** → worktree lifecycle, `--allowedTools`, simplified retry guard. |
+| `.claude/skills/fetch-loop-news/SKILL.md` | **Rewrite** → Search only (Phases 1–3); final phase writes `.loop-news/findings.json` and **stops** (no in-skill call to B). Update `description:` frontmatter. |
+| `.claude/skills/integrate-loop-news/SKILL.md` | **Create** → Integrate & Restructure (Phases 4/4b/4c/5); Phase 0 reads the artifact. |
+| `scripts/run-loop-news.sh` | **Edit** → one worktree/run + reset-between-attempts, sequence two sessions (A then B), per-stage `--allowedTools`, granular retry + publish guard. |
 | `.gitignore` | **Edit** → add `.loop-news/`. |
 | `README.md` | **Edit** → repo map: two skills, note the pipeline + worktree isolation. |
 | `CLAUDE.md` | **Edit** → repository map + "Git workflow" (automated content now runs in a worktree and publishes to `main` on completion); "Structural review" note points at `integrate-loop-news` as Phase 4c's home. |
@@ -439,9 +463,10 @@ the skill's *generated output*.) Branch: `feature/split-loop-news-skill`.
 
 - [ ] **Step 1 — Extract Skill A.** Rewrite `fetch-loop-news/SKILL.md` down to Phases
       1–3. Add a final "Phase 4 — Hand off" section: write `.loop-news/findings.json`
-      (schema above), then invoke `Skill(skill: integrate-loop-news)`. Update
-      `description:` to "search only." Move the JSON-array per-subagent return spec into
-      A; keep the keyword-tier rubric in A.
+      (schema above) and **stop** — A does not call B (the wrapper launches B next). Update
+      `description:` to "search only," and add a header line: "hands off to
+      `integrate-loop-news` via `.loop-news/findings.json`." Move the JSON-array per-subagent
+      return spec into A; keep the keyword-tier rubric in A.
 - [ ] **Step 2 — Create Skill B.** New `integrate-loop-news/SKILL.md`. Phase 0: read
       `.loop-news/findings.json` — abort with a clear error if it is absent, malformed,
       or its `today` field does not match the current UTC date (guards against consuming
@@ -459,13 +484,14 @@ the skill's *generated output*.) Branch: `feature/split-loop-news-skill`.
       `LOOP_ENGINEERING_NEWS.md LOOP_ENGINEERING.md SOURCES.md CHANGELOG.md KB_GAPS.md mkdocs.yml docs/`
       — **add `mkdocs.yml`**, and **drop the daily self-add of `.claude/skills/.../SKILL.md`**
       (skills are now feature-managed via PR, not edited by the daily content run).
-- [ ] **Step 3 — Wrapper.** Make `LOG_FILE` absolute; add per-attempt worktree
-      create/teardown (`trap` + `cleanup_worktree` at the top of each attempt, which also
-      copies the artifact out to `logs/`), run `claude` with cwd = the worktree,
-      defensively extend `--allowedTools`, keep the existing exit-code + transient-scan
-      success signal, **adapt** the retry guard (drop the dirty-tree check; on failure
-      refuse to retry if `origin/main` advanced past `BASE_SHA`), and fast-forward the
-      primary checkout after a successful run **only if** `origin/main` advanced and the
+- [ ] **Step 3 — Wrapper.** Make `LOG_FILE` absolute; create **one worktree per run**
+      (trap-cleanup copies the artifact out to `logs/` then removes the worktree + temp
+      branch); generalise `run_attempt`→`run_claude <label> <prompt>` (PTY + transient scan);
+      loop attempts with a `reset --hard origin/main` + `clean -fd` at the top of each;
+      **Stage A** runs `/fetch-loop-news` only when `findings_valid` is false (granular retry
+      skips search), **Stage B** runs `/integrate-loop-news`; per-stage `--allowedTools`;
+      publish guard on failure (refuse to retry once `origin/main` advanced past `BASE_SHA`);
+      fast-forward the primary checkout on success only if `origin/main` advanced and the
       primary is on `main`.
 - [ ] **Step 4 — `.gitignore`.** Add `.loop-news/`.
 - [ ] **Step 5 — Docs.** Update `docs/09`, `docs/34`, `README.md`, `CLAUDE.md`, and
@@ -476,12 +502,15 @@ the skill's *generated output*.) Branch: `feature/split-loop-news-skill`.
       SKILL.md files end-to-end for a clean A→artifact→B contract (no dangling references
       to phases that moved).
 - [ ] **Step 8 — End-to-end dry run.** Run `scripts/run-loop-news.sh` once by hand.
-      Verify: worktree created off `origin/main`; A wrote `findings.json`; B consumed it,
-      integrated, committed, pushed to `main`; worktree + temp branch removed; primary
-      checkout fast-forwarded. Measure turns used (adjust `--max-turns` if near cap) and
-      confirm the Skill-tool A→B call worked (else switch to the Read-the-SKILL fallback).
-- [ ] **Step 9 — Failure-path check.** Force a mid-run failure (e.g. kill during A) and
-      confirm: worktree removed, `main` untouched, next attempt starts from a clean base.
+      Verify: worktree created off `origin/main`; **Session A** wrote a valid `findings.json`
+      and exited; **Session B** (fresh context) consumed it, integrated, committed, pushed to
+      `main`; artifact copied to `logs/`; worktree + temp branch removed; primary checkout
+      fast-forwarded. Measure per-stage turns/cost (adjust each `--max-turns` if near cap).
+- [ ] **Step 9 — Failure-path checks.** (a) Kill during **A** → worktree intact for next
+      attempt, `main` untouched, attempt 2 re-runs A. (b) Make **B** fail before pushing →
+      attempt 2 resets the tree, `findings_valid` is true so **search is skipped** and only B
+      re-runs (granular retry). (c) Simulate B failing *after* pushing (advance `origin/main`)
+      → wrapper refuses to retry and notifies (no double-commit).
 - [ ] **Step 10 — PR.** Open `feature/split-loop-news-skill` → `main`; after merge, tag
       + GitHub release; re-align local checkout.
 
@@ -491,48 +520,39 @@ the skill's *generated output*.) Branch: `feature/split-loop-news-skill`.
 
 | Risk | Mitigation |
 |---|---|
-| Skill-tool `Skill(...)` chaining doesn't fire in headless `-p` | Validated in Step 8; documented fallback is A `Read`s + follows B's SKILL.md inline (same session/context) |
-| One session (search + integrate) exceeds `--max-turns 40` | Measure in Step 8; raise cap to ~60; the budget guard (`--max-budget-usd 8`) still bounds cost |
-| `git push origin HEAD:main` rejected because `main` advanced during the run | On a single daily machine this shouldn't happen; wrapper fetches `origin/main` right before creating the worktree. If push is rejected, B fails loudly, the attempt is discarded, and the retry branches off the new tip |
-| Worktree left orphaned on crash | Wrapper `trap cleanup_worktree EXIT` removes it in every path; also run `git worktree prune` at start |
-| Zero-finding day misread as failure → retry loop | Success stays the exit-code + transient-scan signal; a zero-finding day makes no commit and that is a success, not a failure |
-| Attempt pushes to `main`, then fails late → retry double-commits the day's digest | Retry guard: on failure, `git fetch origin main`; if `origin/main` advanced past `BASE_SHA`, a prior attempt already published → stop + notify, never retry |
-| Findings artifact accidentally committed | `.loop-news/` gitignored; B stages only the explicit KB file list, never `git add -A` |
-| Interactive `/fetch-loop-news` runs without isolation | Documented: isolated runs go through the wrapper. (See Open decisions for a skill-owned alternative.) |
-| B runs with an empty/missing artifact (A failed silently) | B Phase 0 aborts with a clear error if `findings.json` is absent or malformed; the wrapper's transient-error scan + exit-code check catches it |
+| A stage exceeds `--max-turns` (search is broad) | Per-stage budget now — A gets its own 40; measure in Step 8; `--max-budget-usd` still bounds cost |
+| B stage exceeds `--max-turns` (integrate + full 4c every run) | Per-stage budget — B gets its own 40; if the every-run 4c pushes B near the cap, raise B's cap specifically |
+| `reset --hard` / `clean -fd` between attempts destroys `findings.json` | It won't: `.loop-news/` is gitignored and untracked, so `reset --hard` (tracked only) and `clean -fd` (no `-x` → skips ignored) both leave it intact — verified in Step 9(b) |
+| `git push origin HEAD:main` rejected because `main` advanced during the run | Single daily machine; wrapper fetches `origin/main` before the run. If rejected, B fails loudly; the publish guard then sees `origin/main` advanced only if a *prior attempt* pushed, else the reset+retry re-bases on the new tip |
+| Worktree left orphaned on crash | `trap cleanup EXIT` removes it in every path; `git worktree prune` at start |
+| Zero-finding day misread as failure → retry loop | Success is the exit-code + transient-scan signal; a zero-finding day makes no commit and that is a success, not a failure |
+| B pushes to `main`, then fails late → retry double-commits the day's digest | Publish guard: on failure, `git fetch origin main`; if `origin/main` advanced past `BASE_SHA`, stop + notify, never retry (Step 9c) |
+| Findings artifact accidentally committed | `.loop-news/` gitignored; B stages only the explicit KB file list (incl. `mkdocs.yml`), never `git add -A` |
+| Interactive `/fetch-loop-news` runs without isolation | Documented: for an isolated end-to-end run use the wrapper; interactive A then B is a manual dev path |
+| B runs with an empty/stale artifact (A failed silently) | Two guards: the wrapper's `findings_valid` gate won't launch B unless the artifact exists with today's date; B's Phase 0 re-checks and aborts with a clear error otherwise |
+| `python3`/`jq` unavailable for `findings_valid` | Sketch uses `python3` (already relied on for other repo tasks); if absent, B's own Phase-0 validation is the backstop |
 | Two SKILL.md files drift out of sync (shared conventions) | Keep the artifact schema as the single contract; cross-link the two SKILL headers ("A produces / B consumes `.loop-news/findings.json`") |
 
 ---
 
-## Open decisions (surface to user; recommendation marked)
+## Decisions log (settled) & remaining open items
 
-1. **Worktree ownership — wrapper vs. skill.** *Recommended: wrapper-owned* (above:
-   deterministic cleanup, simpler retries, model stays about content). *Alternative:
-   skill-owned* via `EnterWorktree`/`git worktree` inside Skill A — self-contained and
-   also isolates interactive runs, but model-driven git plumbing in headless is more
-   fragile (orphan worktrees on crash) and complicates the retry guard. Pick before Step 3.
-2. **A→B mechanism — the core tension (see Decomposition analysis).** Context isolation
-   and a literal "skill A calls skill B" are mutually exclusive. *Recommended: Option 2
-   (two wrapper-sequenced sessions)* for isolation + granular B-only retry; *Option 3
-   (fresh-context subagent)* preserves the literal call with isolation but needs a
-   commit/push-from-subagent flow validated; *Option 1 (single session, Skill tool)* is
-   simplest and interactive-parity but forgoes the efficiency wins. **This is a genuine
-   user decision** — it pits the request's "A calls B" against its "efficiency." The
-   architecture diagram, "How A calls B," and wrapper sections below currently describe
-   the single-session shape and must be reconciled to whichever option is chosen.
+**Settled by the user (2026-07-03):**
+
+1. **Worktree ownership → wrapper-owned.** ✅ Deterministic cleanup; the wrapper is the
+   natural sequencer of the two sessions.
+2. **A→B mechanism → Option 2 (two wrapper-sequenced sessions).** ✅ Chosen for context
+   isolation + granular B-only retry, accepting that the wrapper (not an in-skill call)
+   mechanizes the handoff. The whole plan is now written to this shape.
+5. **Phase 4c cadence → every run.** ✅ The documented norm kept; not relaxed.
+
+**Still open (low-stakes; safe to settle at implementation time):**
+
 3. **Skill B name.** *Recommended: `integrate-loop-news`* (captures merge + restructure).
    Alternatives: `restructure-kb`, `merge-loop-news`.
 4. **Keep A named `fetch-loop-news`?** *Recommended: yes* — it's the entry point the
    wrapper, plist, and docs reference; renaming ripples through all of them for no
    functional gain. "fetch" still fairly describes the search half.
-5. **Phase 4c structural-review cadence — every run vs. conditional.** Today `CLAUDE.md`
-   + project memory mandate the deep whole-KB structural review after **every** run.
-   *Pros of every-run:* consistency norm the project deliberately chose; catches drift
-   early. *Cons:* the deep pass is expensive and often low-yield on 0-new-doc days.
-   *Conditional alternative* (run deep 4c only when the day produced structural change;
-   always run light 4b): cheaper, but silently weakens a documented convention.
-   *Recommended: keep every-run* unless you explicitly choose to relax it — this is your
-   convention to change, not mine to optimise away.
 
 ---
 
@@ -586,3 +606,14 @@ the skill's *generated output*.) Branch: `feature/split-loop-news-skill`.
   (3) Retracted over-confident claims: model right-sizing is quality-sensitive (not a free
   saving); conditional-4c would override the documented every-run norm (now a user decision,
   Open decision 5). (4) Added granular B-only retry as a two-session-only efficiency win.
+  Also corrected an overstated context-isolation claim: Phase 2 scraping already runs in
+  subagents, so the main session never accumulates raw pages — the boundary's real value is
+  turn-budget + granular retry, not raw-context savings.
+- **v6 (2026-07-03, user decisions settled)** — User chose **Option 2 (two sessions) +
+  every-run 4c**. Reconciled the entire plan to that shape: two wrapper-sequenced `claude -p`
+  sessions (A → B) in **one worktree per run** with `reset --hard`+`clean` between attempts
+  (findings.json survives as it's gitignored); **granular retry** skips search when a valid
+  artifact exists; A writes the artifact and stops (no in-skill call); per-stage
+  `--allowedTools`/`--max-turns`; model-per-stage deferred; publish-safety guard retained.
+  Architecture diagram, handoff, worktree-ownership, wrapper sketch, risks, steps, and the
+  decisions log all updated; the single-session Skill-tool references are gone.
