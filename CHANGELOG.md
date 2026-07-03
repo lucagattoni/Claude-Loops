@@ -14,6 +14,13 @@ Versioning follows [Semantic Versioning](https://semver.org/):
 ## [Unreleased]
 
 ### Added
+### Changed
+
+---
+
+## [2.6.0] — 2026-07-03 IST
+
+### Added
 - Split the daily tracker into two single-responsibility skills: `fetch-loop-news`
   (search → writes `.loop-news/findings.json`) hands off to a new
   `integrate-loop-news` (integrate + restructure + commit + push).
