@@ -171,6 +171,41 @@ The deeper fix for true safe-to-retry is *idempotency inside the loop itself* (e
 digest section keyed by date that is updated rather than appended, and the commit as the
 single final atomic step) — the wrapper guard above only refuses to compound damage.
 
+### Worktree isolation + a two-session pipeline (the production shape)
+
+`scripts/run-loop-news.sh` evolved past the single-checkout guard above into a shape worth
+copying for any self-writing daily loop:
+
+1. **Run in a throwaway git worktree branched off `origin/main`.** The daily cron must not
+   inherit whatever branch or dirty state the primary checkout happens to be in. A worktree
+   (`git worktree add -b <temp> <wt> origin/main`) gives every run a clean, isolated base
+   and makes a failed attempt's filesystem fully disposable. A `trap cleanup EXIT` removes
+   it in every path.
+
+2. **Split the loop into two sessions with an artifact handoff.** The search half
+   (`fetch-loop-news`) writes a compact `.loop-news/findings.json` and stops; the KB half
+   (`integrate-loop-news`) starts a *fresh* session that consumes only that artifact,
+   integrates, and pushes. The session boundary keeps the search stage's bulky retrieval
+   context out of the reasoning stage, and makes each half independently testable and
+   retryable.
+
+3. **Granular retry via a per-attempt tree reset.** The worktree is created once per run;
+   each attempt `git reset --hard origin/main` + `git clean -fd` first. Because the artifact
+   lives in the *gitignored* `.loop-news/`, it survives the reset — so a failure in the KB
+   half re-runs **only** that half against the saved findings, never repeating the expensive
+   search.
+
+4. **Adapt the retry guard to the durable side effect.** Worktree isolation makes the tree
+   disposable, but the final `git push origin HEAD:main` is durable and outlives the
+   worktree. So the guard is retargeted from "primary `HEAD` moved" to "**`origin/main`
+   advanced past the base SHA**": on failure, if `origin/main` moved, a prior attempt already
+   published → stop and notify, never retry (a blind retry would double-commit the digest).
+   A zero-finding day makes no commit, so success stays judged by exit code, not by whether
+   `main` advanced.
+
+On success the wrapper fast-forwards the primary checkout (`git pull --ff-only`) only if it
+is on `main`, so the local checkout tracks the published run without disturbing other work.
+
 ## Scheduling with macOS LaunchAgent
 
 For daily headless loops that require local tools (Chrome browser automation, local

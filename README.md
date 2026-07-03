@@ -21,8 +21,9 @@ the files in this repo are the *source* the site is built from.
 | `CHANGELOG.md` | [Changelog](https://lucagattoni.github.io/Claude-Loops/changelog/) |
 | `SOURCES.md` | [Sources](https://lucagattoni.github.io/Claude-Loops/sources/) |
 | `LOOP_ENGINEERING_NEWS.md` | [News digest](https://lucagattoni.github.io/Claude-Loops/news/) |
-| `.claude/skills/fetch-loop-news/SKILL.md` | Claude skill that runs the daily fetch (source only) |
-| `scripts/run-loop-news.sh` | Shell wrapper to invoke the skill headlessly (source only) |
+| `.claude/skills/fetch-loop-news/SKILL.md` | Search skill — finds news, writes the findings artifact (source only) |
+| `.claude/skills/integrate-loop-news/SKILL.md` | KB skill — integrates + restructures + publishes (source only) |
+| `scripts/run-loop-news.sh` | Shell wrapper — runs both skills as two sessions in one worktree (source only) |
 | `plans/` | Implementation plans for features in progress (source only) |
 
 ---
@@ -55,14 +56,22 @@ Every day a Claude loop:
 ### Run it manually
 
 ```bash
-# Inside a Claude Code session
-/fetch-loop-news
+# Inside a Claude Code session — run the two halves in order:
+/fetch-loop-news        # search → writes .loop-news/findings.json
+/integrate-loop-news    # integrate + restructure + commit + push
 
-# Headless (from terminal)
+# Headless, isolated end-to-end (from terminal) — recommended:
 bash scripts/run-loop-news.sh
 ```
 
-Logs are written to `logs/loop-news-YYYYMMDD.log` (gitignored).
+The wrapper runs both skills as two sessions inside one throwaway git worktree branched
+off `origin/main`, so a run never disturbs your working checkout. Logs are written to
+`logs/loop-news-YYYYMMDD.log` and the findings artifact is copied to
+`logs/findings-YYYYMMDD.json` (both gitignored).
+
+Per-stage model, effort, max-turns and budget are set at the top of
+`scripts/run-loop-news.sh` (each overridable via `LOOP_SEARCH_*` / `LOOP_INTEGRATE_*`
+env vars).
 
 ### Add or remove a source
 
