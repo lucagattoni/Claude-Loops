@@ -6,7 +6,7 @@ _Updated: 2026-07-03 · v3 — refine-plan pass 2: removed A-dedupes/B-dedupes c
 _Updated: 2026-07-03 · v4 — refine-plan pass 3: **HIGH** — restored the publish-safety retry guard I had wrongly dropped. Worktree isolation makes the filesystem disposable but B's `git push origin HEAD:main` is durable; if an attempt pushes then fails late, a blind retry double-commits the day's digest. Guard adapted from "primary HEAD moved" to "origin/main advanced past BASE_SHA": on failure, refuse to retry once main has advanced._
 _Updated: 2026-07-03 · v5 — critical decomposition review (no assumptions): separated "split" from "worktree isolation" as independent changes with the concrete worktree justification (daily run must not depend on the primary checkout's current branch/state); surfaced the core tension that **context isolation and a literal "A calls B" are mutually exclusive**, laid out Options 1/2/3 with a pros/cons matrix; retracted two over-confident claims (model right-sizing is quality-sensitive, not free; conditional-4c would override a documented every-run norm → made both user decisions); added granular B-only retry as a real two-session-only win._
 _Updated: 2026-07-03 · v6 — user settled the decisions: **Option 2 (two wrapper-sequenced sessions) + every-run 4c**. Reconciled the whole plan to that shape — architecture diagram, handoff, worktree-ownership, and the wrapper sketch rewritten for two sessions in one worktree with reset-between-attempts and granular (B-only) retry; A now writes the artifact and stops (no in-skill call to B); per-stage `--allowedTools`/`--max-turns`; model-per-stage deferred as a future tuning lever; corrected the "shared context" handoff note; risks/steps/decisions updated._
-_Updated: 2026-07-03 · v7 — validation pass restored the total-failure notify/exit the v6 rewrite dropped. v8 — added explicit, independently editable per-stage `--model` + `--effort` config (env-overridable; defaults `sonnet`/`high`)._
+_Updated: 2026-07-03 · v7 — validation pass restored the total-failure notify/exit the v6 rewrite dropped. v8 — added explicit, independently editable per-stage `--model` + `--effort` config (env-overridable; defaults `sonnet`/`high`). v9 — added per-stage `--max-turns` + `--max-budget-usd` to the same config block; folded all per-stage flags into `A_ARGS`/`B_ARGS` arrays._
 
 ## Goal
 
@@ -322,9 +322,9 @@ use `scripts/run-loop-news.sh`."
 The wrapper creates **one worktree per run**, then runs **two claude sessions** (A then
 B) inside it, resetting the tree between attempts. Sketch (integrates with the current
 `set -uo pipefail`, `MAX_ATTEMPTS`, backoff, transient-error scan, `notify`; `run_claude`
-generalises today's `run_attempt` to take `<label> <prompt> <model> <effort>`, run it in
-`$WT_DIR` via a PTY with `--model "$3" --effort "$4"`, and return success = exit 0 **and**
-no transient-error marker):
+generalises today's `run_attempt` to take `<label>` followed by the stage's full claude arg
+list, run `claude --permission-mode auto "${@:2}"` in `$WT_DIR` via a PTY, and return
+success = exit 0 **and** no transient-error marker):
 
 **Path fix the worktree makes mandatory:** the current script sets
 `LOG_FILE="logs/loop-news-….log"` (relative). Runs happen in the worktree, so a relative
@@ -337,16 +337,20 @@ REPO_ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 mkdir -p "$REPO_ROOT/logs"
 LOG_FILE="$REPO_ROOT/logs/loop-news-$(date +%Y%m%d).log"   # ABSOLUTE — survives teardown
 
-# ── Per-stage model + effort — the ONE place to change either, independently ──
+# ── Per-stage tuning — the ONE place to change any of it, independently ───────
 #   --model : alias (sonnet|opus|fable) or a full id (e.g. claude-sonnet-5)
 #   --effort: low | medium | high | xhigh | max
 #   Each var falls back to an env override, so you can change it either by editing
 #   the default here OR by exporting the env var (e.g. in the launchd plist) — no
 #   need to touch the invocation logic. Defaults reproduce today's behaviour.
-SEARCH_MODEL="${LOOP_SEARCH_MODEL:-sonnet}"        # Skill A · fetch-loop-news
+SEARCH_MODEL="${LOOP_SEARCH_MODEL:-sonnet}"              # Skill A · fetch-loop-news
 SEARCH_EFFORT="${LOOP_SEARCH_EFFORT:-high}"
-INTEGRATE_MODEL="${LOOP_INTEGRATE_MODEL:-sonnet}"  # Skill B · integrate-loop-news
+SEARCH_MAX_TURNS="${LOOP_SEARCH_MAX_TURNS:-40}"
+SEARCH_BUDGET_USD="${LOOP_SEARCH_BUDGET_USD:-8}"
+INTEGRATE_MODEL="${LOOP_INTEGRATE_MODEL:-sonnet}"        # Skill B · integrate-loop-news
 INTEGRATE_EFFORT="${LOOP_INTEGRATE_EFFORT:-high}"
+INTEGRATE_MAX_TURNS="${LOOP_INTEGRATE_MAX_TURNS:-40}"
+INTEGRATE_BUDGET_USD="${LOOP_INTEGRATE_BUDGET_USD:-8}"
 
 git -C "$REPO_ROOT" worktree prune                          # clear any orphan from a crash
 git -C "$REPO_ROOT" fetch origin main
@@ -378,16 +382,24 @@ while (( attempt <= MAX_ATTEMPTS )); do
   git -C "$WT_DIR" reset --hard origin/main
   git -C "$WT_DIR" clean -fd            # NOT -x → keeps ignored .loop-news/
 
+  # Per-stage claude arg arrays — all per-stage differences (model/effort/turns/budget,
+  # plus A-uses-Chrome vs B-uses-git) live here; run_claude just wraps PTY + transient scan.
+  A_ARGS=(--model "$SEARCH_MODEL" --effort "$SEARCH_EFFORT"
+          --max-turns "$SEARCH_MAX_TURNS" --max-budget-usd "$SEARCH_BUDGET_USD" --chrome
+          --allowedTools "Read,Edit,Write,WebFetch,mcp__claude-in-chrome__*" -p "/fetch-loop-news")
+  B_ARGS=(--model "$INTEGRATE_MODEL" --effort "$INTEGRATE_EFFORT"
+          --max-turns "$INTEGRATE_MAX_TURNS" --max-budget-usd "$INTEGRATE_BUDGET_USD"
+          --allowedTools "Read,Edit,Write,WebFetch,Bash(git *)" -p "/integrate-loop-news")
+
   ok=1
   # STAGE A — search; skipped entirely if a valid artifact already exists (B-only retry)
   if ! findings_valid; then
-    run_claude "$attempt-A" "/fetch-loop-news" "$SEARCH_MODEL" "$SEARCH_EFFORT" || ok=0
+    run_claude "$attempt-A" "${A_ARGS[@]}" || ok=0
     findings_valid || ok=0             # A must have produced a usable artifact
   fi
   # STAGE B — integrate + restructure + commit + push (only if A stage is good)
   if (( ok )); then
-    run_claude "$attempt-B" "/integrate-loop-news" "$INTEGRATE_MODEL" "$INTEGRATE_EFFORT" \
-      && { success=1; break; } || ok=0
+    run_claude "$attempt-B" "${B_ARGS[@]}" && { success=1; break; } || ok=0
   fi
 
   # --- failure path: publish-safety guard before any retry ---
@@ -413,24 +425,23 @@ if [[ "$(git -C "$REPO_ROOT" rev-parse origin/main)" != "$BASE_SHA" ]] && \
 fi
 ```
 
-Notes on the two `claude` invocations (both run in `$WT_DIR`):
-- **`--allowedTools`** — A needs `Read,Edit,Write,WebFetch,mcp__claude-in-chrome__*`
-  (Write for the artifact; A no longer needs git or Skill). B needs
-  `Read,Edit,Write,WebFetch,Bash(git *)` (commit+push; no Chrome). Note: under
-  `--permission-mode auto` the **auto classifier**, not `--allowedTools`, is the real gate
-  — today's skill already runs `git add/commit/push` with no `Bash`/`git` in its allowlist
-  — so these lists are a defensive fast-path, confirmed in Step 8, not a hard requirement.
-- **`--model` + `--effort` per stage (first-class config).** Each stage is launched with
-  its own `--model` and `--effort`, sourced from the `SEARCH_*` / `INTEGRATE_*` variables
-  at the top of the script (each env-overridable). Defaults are `sonnet` / `high` for both
-  — reproducing today's behaviour — so changing either stage later is a one-line edit (or an
-  env var in the plist), fully independent per skill. Note: running Search on a cheaper
-  model is now trivial to try, but validate it doesn't degrade finding quality (relevance
-  tiering / link curation are judgment calls) before making it the default.
-- **`--max-turns`** — measured **per stage**, not for a combined run. Search and integrate
-  each get their own budget; start both at 40 and adjust from Step 8 measurements. (If you
-  want these editable too, add `SEARCH_MAX_TURNS`/`INTEGRATE_MAX_TURNS` in the same config
-  block — same pattern as model/effort.)
+Notes on the two `claude` invocations (both run in `$WT_DIR`, both get `--permission-mode
+auto` from `run_claude`):
+- **All per-stage flags live in the `A_ARGS` / `B_ARGS` arrays**, sourced from the config
+  block at the top — so `--model`, `--effort`, `--max-turns`, and `--max-budget-usd` are
+  each set **independently per skill** and each is env-overridable (edit the default or
+  export `LOOP_SEARCH_*` / `LOOP_INTEGRATE_*`, e.g. in the launchd plist — no logic change).
+  Defaults reproduce today's behaviour (`sonnet` / `high` / 40 turns / $8).
+- **`--allowedTools` differs by stage** and is baked into each array: A gets
+  `Read,Edit,Write,WebFetch,mcp__claude-in-chrome__*` + `--chrome`; B gets
+  `Read,Edit,Write,WebFetch,Bash(git *)` (commit+push, no Chrome). Under `--permission-mode
+  auto` the **auto classifier**, not `--allowedTools`, is the real gate — today's skill
+  already runs `git add/commit/push` with no `Bash`/`git` in its allowlist — so these lists
+  are a defensive fast-path (confirmed in Step 8), not a hard requirement.
+- **Tuning guidance:** budgets/turns are per stage now, so a heavy every-run 4c in B can
+  get more headroom than A without inflating A. Running Search on a cheaper model is trivial
+  to try (just change `SEARCH_MODEL`), but validate it doesn't degrade finding quality
+  (relevance tiering / link curation are judgment calls) before making it the default.
 - **Retry guard** is adapted, not removed: the dirty-tree half becomes the per-attempt
   `reset --hard` + `clean`; the already-published half becomes the `origin/main`-advanced
   check (B's push is durable and survives the reset, so retrying after a push would
@@ -512,8 +523,9 @@ the skill's *generated output*.) Branch: `feature/split-loop-news-skill`.
       (trap-cleanup copies the artifact out to `logs/` then removes the worktree + temp
       branch); generalise `run_attempt`→`run_claude <label> <prompt>` (PTY + transient scan);
       loop attempts with a `reset --hard origin/main` + `clean -fd` at the top of each;
-      add the per-stage `SEARCH_MODEL/EFFORT` + `INTEGRATE_MODEL/EFFORT` config block
-      (env-overridable, default `sonnet`/`high`) and have `run_claude` pass `--model`/`--effort`;
+      add the per-stage config block (`SEARCH_*` / `INTEGRATE_*` for model, effort,
+      max-turns, budget — env-overridable; defaults `sonnet`/`high`/40/$8, replacing the
+      old global `MAX_BUDGET_USD`) and build `A_ARGS`/`B_ARGS` arrays that `run_claude` runs;
       **Stage A** runs `/fetch-loop-news` only when `findings_valid` is false (granular retry
       skips search), **Stage B** runs `/integrate-loop-news`; per-stage `--allowedTools`;
       publish guard on failure (refuse to retry once `origin/main` advanced past `BASE_SHA`);
@@ -654,3 +666,10 @@ the skill's *generated output*.) Branch: `feature/split-loop-news-skill`.
   behaviour). `run_claude` now takes `<label> <prompt> <model> <effort>` and passes
   `--model`/`--effort`. Verified the flags exist: `--model <alias|id>`, `--effort
   low|medium|high|xhigh|max`. Noted the same pattern extends to per-stage max-turns if wanted.
+- **v9 (2026-07-03, per-stage turns + budget)** — Extended the config block with
+  `SEARCH_MAX_TURNS`/`SEARCH_BUDGET_USD` and `INTEGRATE_MAX_TURNS`/`INTEGRATE_BUDGET_USD`
+  (env-overridable; defaults 40 / $8, replacing the old single global `MAX_BUDGET_USD`).
+  Refactored the two invocations into per-stage `A_ARGS`/`B_ARGS` arrays so every per-stage
+  difference (model, effort, turns, budget, `--chrome`, `--allowedTools`) lives in one place;
+  `run_claude` now takes `<label>` + the stage's full arg list. Arg-array expansion + env
+  overrides syntax-checked.
