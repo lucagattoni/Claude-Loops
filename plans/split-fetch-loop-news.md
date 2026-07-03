@@ -357,7 +357,7 @@ findings_valid() {   # exists AND its "today" matches the current UTC date
   [[ -f "$f" ]] && [[ "$(python3 -c 'import json,sys;print(json.load(open(sys.argv[1])).get("today",""))' "$f" 2>/dev/null)" == "$(date -u +%Y-%m-%d)" ]]
 }
 
-attempt=1
+attempt=1; success=0
 while (( attempt <= MAX_ATTEMPTS )); do
   # Isolate this attempt: discard a failed attempt's partial TRACKED edits; the gitignored
   # .loop-news/ (findings.json) is untracked+ignored, so reset/clean leave it intact.
@@ -373,7 +373,7 @@ while (( attempt <= MAX_ATTEMPTS )); do
   fi
   # STAGE B — integrate + restructure + commit + push (only if A stage is good)
   if (( ok )); then
-    run_claude "$attempt-B" "/integrate-loop-news" && break || ok=0
+    run_claude "$attempt-B" "/integrate-loop-news" && { success=1; break; } || ok=0
   fi
 
   # --- failure path: publish-safety guard before any retry ---
@@ -385,6 +385,11 @@ while (( attempt <= MAX_ATTEMPTS )); do
   (( attempt < MAX_ATTEMPTS )) && sleep "${BACKOFF_SECONDS[$((attempt-1))]}"
   (( attempt++ ))
 done
+
+if (( ! success )); then
+  notify "All ${MAX_ATTEMPTS} attempts failed — no digest today. Re-run when healthy."
+  exit 1
+fi
 
 # --- success path: align the primary checkout if B published and it's on main ---
 git -C "$REPO_ROOT" fetch origin main
@@ -617,3 +622,8 @@ the skill's *generated output*.) Branch: `feature/split-loop-news-skill`.
   `--allowedTools`/`--max-turns`; model-per-stage deferred; publish-safety guard retained.
   Architecture diagram, handoff, worktree-ownership, wrapper sketch, risks, steps, and the
   decisions log all updated; the single-session Skill-tool references are gone.
+- **v7 (2026-07-03, validation pass on the rewrite)** — 1 MEDIUM. The v6 wrapper rewrite
+  dropped the total-failure exit: if every attempt failed (B never published), the loop fell
+  through to the success/align path and exited 0 silently. Added a `success` flag
+  (set on B's success/break) and a post-loop `notify + exit 1` when it's still unset —
+  restoring the original script's give-up notification. Control-flow skeleton syntax-checked.
