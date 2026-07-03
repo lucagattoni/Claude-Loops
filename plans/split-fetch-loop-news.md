@@ -1,5 +1,8 @@
 # Plan: Split `fetch-loop-news` into Search + Integrate skills, with worktree isolation
 
+_Created: 2026-07-03 · v1_
+_Updated: 2026-07-03 · v2 — refine-plan pass 1: fixed per-attempt worktree lifecycle, corrected success signal (exit-code, not "main advanced"), fixed BASE_SHA timing + mktemp path + primary-alignment guard, clarified that the auto classifier (not `--allowedTools`) is the real permission gate, corrected the turn-headroom claim, added B stale-artifact date guard._
+
 ## Goal
 
 The `fetch-loop-news` skill currently does too much in one 25 KB procedure: it
@@ -26,9 +29,12 @@ pipeline completes successfully.
   for different reasons (network/scraping vs. KB-consistency logic). Splitting lets each
   be re-run and debugged independently, and lets `integrate-loop-news` be exercised
   against a fixed findings file without re-scraping X/RSS.
-- **Turn/budget headroom.** One 40-turn session currently has to hold search *and* deep
-  KB restructuring. Two skills give each phase its own budget and keep each SKILL.md
-  focused enough to follow reliably.
+- **Focused, followable procedures.** Each SKILL.md shrinks to one concern, which the
+  model follows more reliably than one 25 KB monolith. (Note: in the recommended
+  *single-session* design — A calls B in the same `claude -p` run — the **combined** turn
+  count is roughly the monolith's plus a little artifact I/O; per-phase turn *headroom*
+  only materialises in the two-separate-sessions variant under Open decision 2. The split
+  is justified by clarity/testability/isolation, not by cutting turns.)
 - **Isolation.** Today the loop edits and commits directly in the primary checkout on
   `main`. A crash mid-run can leave the working tree dirty (the wrapper already has a
   guard that refuses to retry when that happens). A worktree makes every attempt fully
@@ -149,9 +155,15 @@ Why wrapper-owned (vs. model-driven `EnterWorktree`/`git worktree` inside the sk
 - **Deterministic cleanup.** A crashed model can't orphan a worktree the shell created —
   the wrapper removes it in every exit path (`trap`).
 - **Simpler, safer retries.** Full isolation means a failed attempt is discarded
-  wholesale. The current guard ("refuse to retry if the tree is dirty / HEAD moved in the
-  primary checkout") is replaced by: *did `origin/main` advance?* If not, nothing durable
-  happened → recreate a fresh worktree and retry. If yes → the run succeeded.
+  wholesale (its worktree is thrown away), and each retry branches a **fresh** worktree
+  off the latest `origin/main`. The current guard ("refuse to retry if the tree is dirty /
+  HEAD moved in the primary checkout") is no longer needed — nothing the model does can
+  touch the primary checkout, so a retry can never make things worse. **Success is still
+  judged by the existing signal** (claude exit 0 **and** no transient-error marker in the
+  output), *not* by "did `origin/main` advance" — a legitimately zero-finding day cuts
+  tier = None and makes **no** commit, so `main` correctly does not advance yet the run
+  succeeded. "Did `origin/main` advance" is used only to decide whether the primary
+  checkout needs a fast-forward afterward, never as the retry gate.
 - **The wrapper already owns isolation concerns** (retry, budget, transient-error scan,
   notify-on-give-up). Worktree lifecycle is the same class of concern.
 - **Model logic stays about content**, not git plumbing.
@@ -165,45 +177,67 @@ via `scripts/run-loop-news.sh`." (Alternative designs are logged under *Open dec
 
 ## Wrapper changes (`scripts/run-loop-news.sh`)
 
-Add worktree lifecycle around the existing retry loop. Sketch (integrates with current
-`set -uo pipefail`, `MAX_ATTEMPTS`, backoff, transient-error scan, `notify`):
+Wrap **each attempt** in its own fresh worktree (so a discarded attempt leaves nothing
+behind and the next retry starts from the latest `origin/main`). Sketch (integrates with
+current `set -uo pipefail`, `MAX_ATTEMPTS`, backoff, transient-error scan, `notify`):
 
 ```bash
 REPO_ROOT="$(cd "$(dirname "$0")/.." && pwd)"
-WT_DIR="$(mktemp -d -t loop-news-wt.XXXXXX)"   # outside the repo tree
-TEMP_BRANCH="loop-news-run-$(date -u +%Y%m%d-%H%M%S)"
+git -C "$REPO_ROOT" worktree prune            # clear any orphan from a prior crash
 
-cleanup_worktree() {
-  git -C "$REPO_ROOT" worktree remove --force "$WT_DIR" 2>/dev/null || rm -rf "$WT_DIR"
-  git -C "$REPO_ROOT" branch -D "$TEMP_BRANCH" 2>/dev/null || true
-}
-trap cleanup_worktree EXIT
-
+# Capture the base ONCE, before any attempt, so the post-run "did main advance?"
+# comparison is meaningful.
 git -C "$REPO_ROOT" fetch origin main
-git -C "$REPO_ROOT" worktree add -b "$TEMP_BRANCH" "$WT_DIR" origin/main
-cd "$WT_DIR"
-
-# ... existing attempt loop, but claude runs here in $WT_DIR ...
-#   claude ... --allowedTools "Read,Edit,Write,WebFetch,Skill,Bash(git *),mcp__claude-in-chrome__*" -p "/fetch-loop-news"
-
-# success detection: origin/main advanced past the base we branched from
 BASE_SHA="$(git -C "$REPO_ROOT" rev-parse origin/main)"
-# after a successful attempt:
+
+WT_DIR=""; TEMP_BRANCH=""
+cleanup_worktree() {                          # tears down THIS attempt's worktree
+  [[ -n "$WT_DIR" ]] && { git -C "$REPO_ROOT" worktree remove --force "$WT_DIR" 2>/dev/null || rm -rf "$WT_DIR"; }
+  [[ -n "$TEMP_BRANCH" ]] && git -C "$REPO_ROOT" branch -D "$TEMP_BRANCH" 2>/dev/null || true
+  WT_DIR=""; TEMP_BRANCH=""
+}
+trap cleanup_worktree EXIT                     # backstop if the script dies mid-attempt
+
+# --- inside the attempt loop, per attempt: ---
+cleanup_worktree                               # discard a failed previous attempt
+git -C "$REPO_ROOT" fetch origin main          # each retry branches off the latest tip
+WT_PARENT="$(mktemp -d -t loop-news-wt.XXXXXX)"   # git worktree add needs a NON-existent
+WT_DIR="$WT_PARENT/wt"                             # leaf path, so nest under the temp dir
+TEMP_BRANCH="loop-news-run-$(date -u +%Y%m%d-%H%M%S)-a${attempt}"
+git -C "$REPO_ROOT" worktree add -b "$TEMP_BRANCH" "$WT_DIR" origin/main
+( cd "$WT_DIR" && run_attempt "$attempt" )     # claude runs with cwd = the worktree
+# run_attempt success = exit 0 AND no transient-error marker (UNCHANGED from today).
+# On success: break. On failure: loop (top of loop discards this worktree, retries fresh).
+
+# --- after the loop, if the run succeeded: ---
 git -C "$REPO_ROOT" fetch origin main
 if [[ "$(git -C "$REPO_ROOT" rev-parse origin/main)" != "$BASE_SHA" ]]; then
-  # published — align the primary checkout so it doesn't drift
-  git -C "$REPO_ROOT" pull --ff-only origin main
+  # B pushed a commit → align the primary checkout, but only if it's actually on main
+  if [[ "$(git -C "$REPO_ROOT" symbolic-ref --quiet --short HEAD)" == "main" ]]; then
+    git -C "$REPO_ROOT" pull --ff-only origin main
+  fi
 fi
 ```
 
 Changes to the `claude` invocation:
 - Runs with cwd = the worktree.
-- `--allowedTools` gains `Write` (findings artifact), `Skill` (A→B call), and
-  `Bash(git *)` (B commits + pushes). Keep `Read,Edit,WebFetch,mcp__claude-in-chrome__*`.
-- `--max-turns` may need raising (search + integrate in one session). Start at current
-  40; if runs hit the cap, bump to ~60. (Measured in Step 8, not guessed.)
-- Retry guard simplified per above: retry only when `origin/main` did **not** advance;
-  each retry recreates a fresh worktree from the latest `origin/main`.
+- **Success/retry signal is unchanged:** `run_attempt` still returns success on exit 0
+  with no transient-error marker. The `BASE_SHA` compare is used **only** to decide
+  whether to fast-forward the primary checkout — never as the retry gate (a zero-finding
+  day legitimately makes no commit, so `main` won't advance yet the run succeeded).
+- `--allowedTools` **defensively** adds `Write` (findings artifact), `Skill` (A→B call),
+  and `Bash(git *)` (B commits + pushes), keeping `Read,Edit,WebFetch,mcp__claude-in-chrome__*`.
+  Note: under `--permission-mode auto` the **auto classifier**, not `--allowedTools`, is
+  the real gate — the current skill already runs `git add/commit/push` with none of
+  `Bash`/`git` in its allowlist. Extending the allowlist is a fast-path, not a hard
+  requirement; Step 8 confirms the classifier approves `Write`, `Skill`, and the
+  `git worktree`/`git push` calls in practice.
+- `--max-turns` may need raising (search + integrate in one session ≈ today's monolith +
+  artifact I/O). Start at current 40; if runs hit the cap, bump to ~60. (Measured in
+  Step 8, not guessed.)
+- The old retry guard (refuse-to-retry-if-dirty/HEAD-moved, which inspected the primary
+  checkout) is **removed** — with per-attempt worktrees a retry can never dirty the
+  primary checkout or duplicate a durable trace.
 
 `.gitignore`: add `.loop-news/` so the findings artifact is never committed. (Confirm
 `logs/` is already ignored — it is.)
@@ -260,14 +294,20 @@ the skill's *generated output*.) Branch: `feature/split-loop-news-skill`.
       `description:` to "search only." Move the JSON-array per-subagent return spec into
       A; keep the keyword-tier rubric in A.
 - [ ] **Step 2 — Create Skill B.** New `integrate-loop-news/SKILL.md`. Phase 0: read
-      `.loop-news/findings.json` (fail loudly with a clear message if absent/empty).
-      Then port Phases 4, 4b, 4c, 5 verbatim, retargeting "the findings" to the artifact
-      and using `run_time`/`today` from it. Phase 5c: `git add` the KB files, commit with
-      the existing message format, then `git push origin HEAD:main`.
-- [ ] **Step 3 — Wrapper.** Add worktree create/teardown (`trap`), run `claude` in the
-      worktree, extend `--allowedTools`, replace the dirty-tree/HEAD-moved retry guard
-      with the `origin/main`-advanced check, add primary-checkout `pull --ff-only` on
-      success.
+      `.loop-news/findings.json` — abort with a clear error if it is absent, malformed,
+      or its `today` field does not match the current UTC date (guards against consuming
+      a stale artifact from a prior attempt). Then port Phases 4, 4b, 4c, 5 verbatim,
+      retargeting "the findings" to the artifact and using `run_time`/`today` from it.
+      Phase 5c: `git add` the explicit KB file list (never `git add -A`), commit with the
+      existing message format, then `git push origin HEAD:main`. Phase 5a's tier = None
+      case still makes **no** commit (a zero-finding day is a legitimate no-op).
+- [ ] **Step 3 — Wrapper.** Add per-attempt worktree create/teardown (`trap` +
+      `cleanup_worktree` at the top of each attempt), run `claude` with cwd = the
+      worktree, defensively extend `--allowedTools`, **remove** the old
+      dirty-tree/HEAD-moved retry guard (unneeded with isolation), keep the existing
+      exit-code + transient-scan success signal, and fast-forward the primary checkout
+      after a successful run **only if** `origin/main` advanced and the primary is on
+      `main`.
 - [ ] **Step 4 — `.gitignore`.** Add `.loop-news/`.
 - [ ] **Step 5 — Docs.** Update `docs/09`, `docs/34`, `README.md`, `CLAUDE.md`, and
       `SOURCES.md`/`docs/28` if they reference the old single-skill flow.
@@ -296,6 +336,7 @@ the skill's *generated output*.) Branch: `feature/split-loop-news-skill`.
 | One session (search + integrate) exceeds `--max-turns 40` | Measure in Step 8; raise cap to ~60; the budget guard (`--max-budget-usd 8`) still bounds cost |
 | `git push origin HEAD:main` rejected because `main` advanced during the run | On a single daily machine this shouldn't happen; wrapper fetches `origin/main` right before creating the worktree. If push is rejected, B fails loudly, the attempt is discarded, and the retry branches off the new tip |
 | Worktree left orphaned on crash | Wrapper `trap cleanup_worktree EXIT` removes it in every path; also run `git worktree prune` at start |
+| Zero-finding day misread as failure → retry loop | Success stays the exit-code + transient-scan signal; `origin/main`-advanced is used only to gate primary-checkout alignment, never as the retry decision |
 | Findings artifact accidentally committed | `.loop-news/` gitignored; B stages only the explicit KB file list, never `git add -A` |
 | Interactive `/fetch-loop-news` runs without isolation | Documented: isolated runs go through the wrapper. (See Open decisions for a skill-owned alternative.) |
 | B runs with an empty/missing artifact (A failed silently) | B Phase 0 aborts with a clear error if `findings.json` is absent or malformed; the wrapper's transient-error scan + exit-code check catches it |
@@ -332,3 +373,20 @@ the skill's *generated output*.) Branch: `feature/split-loop-news-skill`.
 - Failure path (Step 9): `main` untouched, no orphan worktree, clean retry.
 - Docs (`09`, `34`, `README`, `CLAUDE.md`) reflect the two-skill + worktree architecture.
 - CHANGELOG MINOR entry present; tag + release planned post-merge.
+
+---
+
+## Iteration log
+
+- **v1 (2026-07-03)** — Initial draft: split into `fetch-loop-news` (search) +
+  `integrate-loop-news` (integrate/restructure), wrapper-owned worktree isolation,
+  `.loop-news/findings.json` handoff, A→B via Skill tool.
+- **v2 (2026-07-03, refine pass 1)** — 2 HIGH, 5 MEDIUM, 2 LOW resolved. Worktree is now
+  created/torn down **per attempt** (was once, contradicting the retry prose). Success
+  signal corrected to the existing exit-code + transient-scan (the "origin/main advanced"
+  check falsely fails zero-finding days). Wrapper sketch fixes: `BASE_SHA` captured before
+  the run; `mktemp` leaf-path so `worktree add` doesn't hit an existing dir; primary
+  fast-forward guarded on the checkout actually being `main`. Clarified the auto-mode
+  classifier — not `--allowedTools` — is the real permission gate. Corrected the
+  turn-headroom motivation (doesn't hold for single-session). Added B Phase-0 stale-artifact
+  date guard.
