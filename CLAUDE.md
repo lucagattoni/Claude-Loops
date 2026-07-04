@@ -13,6 +13,7 @@ Claude-Loops is a living knowledge base and automated daily tracker for **loop e
 | `.claude/skills/fetch-loop-news/SKILL.md` | Search half — finds news, writes `.loop-news/findings.json` |
 | `.claude/skills/integrate-loop-news/SKILL.md` | KB half — consumes the artifact, integrates + restructures + commits + pushes |
 | `scripts/run-loop-news.sh` | Headless wrapper — runs both skills as two sessions in one worktree |
+| `scripts/SCHEDULING.md` | Change cadence / enable-disable the launchd job — see this before editing the plist |
 | `CHANGELOG.md` · `plans/` · `KB_GAPS.md` | History, plans, gap log |
 
 ## Git workflow

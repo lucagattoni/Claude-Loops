@@ -14,6 +14,11 @@ Versioning follows [Semantic Versioning](https://semver.org/):
 ## [Unreleased]
 
 ### Added
+- `scripts/SCHEDULING.md` — runbook for changing the daily tracker's cadence and
+  enabling/disabling it (macOS launchd: `StartCalendarInterval`/`StartInterval` syntax,
+  `launchctl bootstrap`/`bootout`/`enable`/`disable`/`kickstart`). Linked from README
+  and CLAUDE.md's repo map.
+
 ### Changed
 
 ---

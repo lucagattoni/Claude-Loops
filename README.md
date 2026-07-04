@@ -24,6 +24,7 @@ the files in this repo are the *source* the site is built from.
 | `.claude/skills/fetch-loop-news/SKILL.md` | Search skill — finds news, writes the findings artifact (source only) |
 | `.claude/skills/integrate-loop-news/SKILL.md` | KB skill — integrates + restructures + publishes (source only) |
 | `scripts/run-loop-news.sh` | Shell wrapper — runs both skills as two sessions in one worktree (source only) |
+| [`scripts/SCHEDULING.md`](scripts/SCHEDULING.md) | How to change the cron cadence, or enable/disable the daily run (macOS launchd) |
 | `plans/` | Implementation plans for features in progress (source only) |
 
 ---
@@ -77,6 +78,12 @@ env vars).
 
 Edit the `SOURCES.md` source file (rendered as [Sources](https://lucagattoni.github.io/Claude-Loops/sources/)
 on the site) — the loop reads it fresh on every run.
+
+### Change the schedule, or pause it
+
+The daily run is a macOS launchd LaunchAgent (`com.luca.loop-news`), not cron. To change
+how often it fires, or to enable/disable it, see **[scripts/SCHEDULING.md](scripts/SCHEDULING.md)**
+for the exact `launchctl` commands and `StartCalendarInterval`/`StartInterval` syntax.
 
 ```markdown
 | New Actor | rss | https://theirblog.com/feed | Why they're relevant |
