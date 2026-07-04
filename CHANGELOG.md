@@ -18,6 +18,26 @@ Versioning follows [Semantic Versioning](https://semver.org/):
 
 ---
 
+## [2.7.2] — 2026-07-04 IST
+
+### Fixed
+- **Stage-A self-execution bug** (production incident, 2026-07-04): `fetch-loop-news`'s
+  Phase 4 said "if invoked interactively, run `/integrate-loop-news` yourself" — a
+  condition a headless session can't reliably evaluate, so it did so anyway, executing
+  the entire integrate stage (digest, KB writes, release, commit, push) inside its own
+  search-stage session and collapsing the deliberate two-session split back into one.
+  Removed the exception; the skill now stops unconditionally after writing the artifact.
+- Added a defense-in-depth check to `integrate-loop-news` Phase 0: before doing any KB
+  work, check `git log --grep` for a commit matching this run's `run_time` and abort
+  immediately if the run was already published (cheap; catches a recurrence early).
+- Added a wrapper-level guard (zero LLM cost): after Stage A completes, check whether
+  `origin/main` advanced past the pre-run base SHA; if so, skip launching Stage B
+  entirely instead of paying for a full redundant session.
+- `docs/09-headless-mode.md` — documented the general pitfall (a skill can't distinguish
+  interactive from headless invocation) and the three-layer fix.
+
+---
+
 ## [2.7.1] — 2026-07-04 IST
 
 ### Added

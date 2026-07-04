@@ -188,6 +188,19 @@ while (( attempt <= MAX_ATTEMPTS )); do
   else
     echo "[$(stamp)] attempt ${attempt}: valid findings.json present — skipping search" | tee -a "$LOG_FILE"
   fi
+
+  # Cheap, zero-LLM-cost guard: if Stage A's own session already carried the pipeline
+  # through and pushed (a known failure mode — see fetch-loop-news/SKILL.md Phase 4),
+  # origin/main has already advanced. Detect it here, for free, instead of paying for a
+  # full Stage B session just to have it discover the same thing via git evidence.
+  if (( ok )); then
+    git -C "$WT_DIR" fetch origin main
+    if [[ "$(git -C "$WT_DIR" rev-parse origin/main)" != "$BASE_SHA" ]]; then
+      echo "[$(stamp)] attempt ${attempt}: origin/main already advanced after Stage A — Stage B would be redundant, skipping" | tee -a "$LOG_FILE"
+      success=1; break
+    fi
+  fi
+
   # STAGE B — integrate + restructure + commit + push (only if A stage is good)
   if (( ok )); then
     run_claude "attempt ${attempt}/${MAX_ATTEMPTS} · B (integrate)" "${B_ARGS[@]}" \

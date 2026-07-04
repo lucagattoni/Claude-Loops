@@ -206,6 +206,35 @@ copying for any self-writing daily loop:
 On success the wrapper fast-forwards the primary checkout (`git pull --ff-only`) only if it
 is on `main`, so the local checkout tracks the published run without disturbing other work.
 
+### Pitfall: a skill can't tell interactive from headless invocation
+
+A multi-stage pipeline split across skills (search → integrate, in this repo's case) relies
+on each stage stopping at its boundary so the *orchestrator* — not the model — decides when
+the next stage runs. It is tempting to write an escape hatch into the first stage's skill
+like *"if you were invoked interactively, run the next skill yourself"* — so a human typing
+the command by hand still gets the full pipeline without two manual steps.
+
+**Don't.** A model running headlessly via `-p` has no reliable signal that distinguishes
+"interactive" from "orchestrated" — it cannot introspect how it was launched. In production
+this caused a single search-stage session to also execute the entire integrate stage
+(digest, KB writes, release, commit, push) inside itself, collapsing a deliberately
+two-session design (context isolation, independent retry, independent model/effort) back
+into one — and it happened even with the extra stage's tools (`Bash`, git) absent from
+`--allowedTools`, because `--permission-mode auto`'s classifier approved them anyway (see
+[Core flags](#core-flags) on the classifier, not the allowlist, being the real gate).
+
+The fix has three independent layers, in order of how cheap each is to have catch a
+recurrence:
+1. **Root cause** — the first stage's skill must stop unconditionally, with *no* interactive
+   exception. A human who wants the full pipeline runs the next command themselves.
+2. **Skill-level defense-in-depth** — the second stage's Phase 0 checks (via `git log
+   --grep`) whether this exact run has already been committed, before doing any real work,
+   and aborts immediately if so.
+3. **Wrapper-level defense-in-depth (cheapest — zero LLM cost)** — after the first stage
+   completes, the orchestrator itself checks whether the shared remote ref advanced past its
+   pre-run base SHA; if so, it skips launching the second stage entirely rather than paying
+   for a full session just to have it discover the same thing via reasoning.
+
 ## Scheduling with macOS LaunchAgent
 
 For daily headless loops that require local tools (Chrome browser automation, local

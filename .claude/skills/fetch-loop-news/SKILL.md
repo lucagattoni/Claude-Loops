@@ -292,6 +292,12 @@ If Phase 2 or Phase 3 surfaces a person or company that:
      pre-dedup list. `sources_to_consider` / `source_updates` may be empty arrays.
    - On a zero-finding day, still write the file with `"findings": []`.
 3. Close any Chrome tabs opened during this run.
-4. **Stop here.** Do not edit the KB, do not commit. The wrapper launches
-   `integrate-loop-news` next; if you were invoked interactively, run
-   `/integrate-loop-news` yourself to complete the pipeline.
+4. **Stop here — unconditionally, with no exceptions.** Do not edit the KB, do not
+   commit, and do not invoke `/integrate-loop-news` yourself — not via the Skill tool,
+   not by reading and following its SKILL.md inline, under any circumstance, including
+   when you believe you were invoked interactively. You cannot reliably tell interactive
+   invocation from a headless wrapper run, and the two-session split (context isolation,
+   independent retry, independent model/effort) is deliberate — collapsing it back into
+   one session defeats the reason it was split. If a human wants to complete the
+   pipeline, **they** run `/integrate-loop-news` themselves, as their own explicit,
+   separate step.

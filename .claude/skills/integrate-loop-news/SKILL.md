@@ -19,6 +19,15 @@ to `main`. It does **no** searching — everything it needs is in `.loop-news/fi
    do not commit anything. Print what was wrong so the wrapper's logs show it.
 3. Extract `today`, `run_time`, `last_run_date`, `findings`, `sources_to_consider`, and
    `source_updates`. Use these throughout — never re-derive the time or re-search.
+4. **Already-published check — do this before reading any docs or reasoning about the
+   KB.** Run `git log --oneline -5 --grep="loop news run ${run_time}"` (the `run_time`
+   just extracted). If it returns a match, this exact run has already been integrated
+   and pushed — **stop immediately, print which commit, and make no changes.** This can
+   happen if `fetch-loop-news` already carried the pipeline through on its own (a known
+   failure mode when the two-session split gets collapsed) or if this skill is
+   re-invoked by mistake against an artifact that was already consumed. Do this check
+   first, cheaply — don't rediscover it the slow way by reasoning through git evidence
+   later.
 
 ## Phase 4 — Write digest
 
