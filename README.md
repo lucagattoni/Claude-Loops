@@ -70,14 +70,23 @@ off `origin/main`, so a run never disturbs your working checkout. Logs are writt
 `logs/findings-YYYYMMDD.json` (both gitignored).
 
 Per-stage model, effort, max-turns and budget default at the top of
-`scripts/run-loop-news.sh`. Override them via `LOOP_SEARCH_*` / `LOOP_INTEGRATE_*` env
-vars, or with CLI flags on a one-off run (CLI > env > default):
+`scripts/run-loop-news.sh`. Three ways to override them, in precedence order
+(CLI flag > env file / exported env var > built-in default):
 
 ```bash
+# 1. Standing local default — copy the template, edit it, done (auto-sourced every run):
+cp scripts/run-loop-news.env.example scripts/run-loop-news.env
+$EDITOR scripts/run-loop-news.env
+
+# 2. Exported env var (e.g. in the launchd plist), same LOOP_SEARCH_*/LOOP_INTEGRATE_* names.
+
+# 3. CLI flags, for a one-off run:
 bash scripts/run-loop-news.sh --integrate-model opus --integrate-effort max
 bash scripts/run-loop-news.sh --model opus --effort max   # shorthand: both stages
 bash scripts/run-loop-news.sh --help                       # full flag list
 ```
+
+`scripts/run-loop-news.env` is gitignored — only the `.example` template is tracked.
 
 ### Add or remove a source
 

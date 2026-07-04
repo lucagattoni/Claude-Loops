@@ -26,6 +26,10 @@ Versioning follows [Semantic Versioning](https://semver.org/):
   `--integrate-effort`, plus `--model`/`--effort` shorthands that set both stages at
   once. Precedence: CLI flag > `LOOP_SEARCH_*`/`LOOP_INTEGRATE_*` env var > built-in
   default. `--help` lists all options.
+- `scripts/run-loop-news.env.example` — documents all 8 per-stage config vars
+  (model/effort/max-turns/budget × search/integrate). The wrapper auto-sources
+  `scripts/run-loop-news.env` (gitignored) if present, for a standing local override
+  without exporting shell env vars.
 
 ### Changed
 - Raised `run-loop-news.sh`'s per-stage `--max-budget-usd` defaults (search $8→$30,

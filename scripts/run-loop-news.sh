@@ -21,11 +21,14 @@ REPO_ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 mkdir -p "$REPO_ROOT/logs"
 LOG_FILE="$REPO_ROOT/logs/loop-news-$(date +%Y%m%d).log"   # ABSOLUTE — survives worktree teardown
 
+# Auto-source a local env file if present (gitignored; copy from run-loop-news.env.example).
+# Lets you set a standing per-stage default without exporting shell env vars.
+[[ -f "$REPO_ROOT/scripts/run-loop-news.env" ]] && source "$REPO_ROOT/scripts/run-loop-news.env"
+
 # ── Per-stage tuning — the ONE place to change any of it, independently ───────────────
 #   --model : alias (sonnet|opus|fable) or a full id (e.g. claude-sonnet-5)
 #   --effort: low | medium | high | xhigh | max
-#   Each var falls back to an env override, so change it either by editing the default
-#   here OR by exporting the env var (e.g. in the launchd plist) — no logic change needed.
+#   Precedence: CLI flag (see usage() below) > this file / an exported env var > default.
 #   Defaults reproduce prior behaviour.
 #   Note on --max-budget-usd under a Claude subscription (Pro/Max): it is NOT a real
 #   dollar cost — you're not billed per token — it's a script-side tripwire computed from
