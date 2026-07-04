@@ -139,6 +139,21 @@ Two design points sharpen the taxonomy:
 
 ([uppifyagency/loop-kernel](https://github.com/uppifyagency/loop-kernel), Jun 2026; the same `0`/`2`/`3` contract appears independently in [firegnu/herdr-loop-lab](https://github.com/firegnu/herdr-loop-lab), Jun 2026.)
 
+### Extension: tamper-evident contracts and named exit codes
+
+Three exit codes are the floor, not the ceiling. A **Product Contract** — the goal,
+acceptance criteria, verification commands, and stop conditions — can itself be
+tampered with (by the agent under pressure to declare success, or by an external
+edit); hashing the contract at approval time and treating any mismatch as its own
+stop condition (`NEEDS_SPEC_DECISION`) closes a gap the basic taxonomy doesn't
+address: *the spec drifting is a different failure than the work drifting*, and needs
+its own detectable, named exit state. Expanding from 3 to **8 named exit codes**
+(rather than reusing one code for several distinct failure classes) makes the caller
+able to distinguish "no progress" from "spec tampered" from "reviewer disagreed"
+without parsing log text.
+
+([Aitne-sh/loop-kit](https://github.com/Aitne-sh/loop-kit), Jul 2026.)
+
 ## Experience Encoding — The Loop's Learning Step
 
 After each iteration completes and before context is cleared, encode what was learned

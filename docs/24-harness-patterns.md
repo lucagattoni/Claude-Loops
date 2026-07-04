@@ -111,6 +111,14 @@ capability bar?" but "can the harness raise its own bar and prove it?" Keep the 
 and reversible (component observability) and gate every proposed edit on a held-out run — an
 un-validated harness edit is [Verifier Theater](17-failure-patterns.md) at the meta level.
 
+**The cost case, quantified.** A Hugging Face proposer/accept-reject loop that rewrote *only*
+the harness code around a frozen model matched Sonnet 4.6's legal-agent-benchmark score at
+roughly **7x lower inference cost** — and with identical model and tasks, score ranged from
+3.5% to 80.1% depending solely on harness quality. This is the sharpest evidence yet that
+harness spend, not model spend, is where the marginal dollar buys reliability — the same
+thesis as [The Paradigm Shift](01-paradigm-shift.md), now with a cost multiplier attached.
+([Hugging Face, "Don't train the model, evolve the harness"](https://huggingface.co/spaces/joelniklaus/harness-optimization), Jul 2026.)
+
 ## Harness vs. Environment Engineering
 
 Two complementary safety layers operating at different levels of the stack:
@@ -226,6 +234,24 @@ The goal loop is the most powerful and the most dangerous: without a verifiable
 stopping condition and a hard spend cap, it will run indefinitely.
 
 See also: [Loop Contract](27-loop-contract.md) for mandatory BUDGET and STOP properties.
+
+### The Official Claude Team Loop Types
+
+Anthropic's own Claude Code team publishes a complementary four-way split, framed by
+*how much human involvement the trigger requires* rather than by mechanism:
+
+| Type | Trigger | Stops when | Best for |
+|---|---|---|---|
+| **Turn-based** | A user prompt | Claude judges the task complete or needs more context | Short, exploratory work |
+| **Goal-based** (`/goal`) | A manual real-time prompt | Goal achieved OR max turns reached | Tasks with verifiable completion criteria |
+| **Time-based** (`/loop`, `/schedule`) | A fixed interval | You cancel it, or the work completes | Recurring tasks, monitoring external systems (`/loop` runs locally, `/schedule` moves it to the cloud) |
+| **Proactive** | An event or schedule, no human in real time | Each task exits on completion; the routine runs until manually stopped | Well-defined recurring work (bug triage, dependency upgrades) |
+
+This taxonomy overlaps but doesn't map 1:1 onto Heartbeat/Cron/Hook/Goal above — it
+splits out *turn-based* (conversational, human-prompted) as its own category, and folds
+Heartbeat+Cron together into *time-based*. Use Claire Vo's table to pick a trigger
+mechanism; use this one to decide how much of the loop should run without a human in
+the room. (["Getting started with loops", claude.com/blog](https://claude.com/blog/getting-started-with-loops), Jun 2026.)
 
 ## Three-Agent Full-Stack Harness (Anthropic Engineering)
 

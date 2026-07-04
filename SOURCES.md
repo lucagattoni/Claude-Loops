@@ -72,7 +72,7 @@ substantively relevant to loop engineering practice (not just a passing mention)
 | Addy Osmani | rss | https://addyosmani.com/rss.xml | Co-defined loop engineering |
 | Simon Willison | rss | https://simonwillison.net/atom/entries/ | LLM tooling practitioner |
 | Swyx | x | @swyx | AI engineering community |
-| swyx.io | html | https://www.swyx.io/writing | AI engineering long-form posts |
+| swyx.io | rss | https://www.swyx.io/rss.xml | AI engineering long-form posts; feed URL discovered Jul 2026 (was html-scraped) |
 | The New Stack | rss | https://thenewstack.io/feed/ | Active loop engineering coverage |
 | Sabrina Ramonov | html | https://www.sabrina.dev | Loop engineering + /goal + Routines (Jun 2026) |
 | Sabrina Ramonov | x | @Sabrina_Ramonov | Active X presence posting loop engineering definitions and techniques (Jun 2026) |
@@ -87,7 +87,7 @@ substantively relevant to loop engineering practice (not just a passing mention)
 | X search — loop engineering | x-search | https://x.com/search?q=loop%20engineering&src=typed_query&f=live | Live keyword search; dynamically loaded — scroll ≥3 times to surface 20+ posts |
 | LinkedIn search — loop engineering | linkedin | https://www.linkedin.com/search/results/content/?keywords=loop+engineering | Professional community posts; dynamically loaded — scroll ≥3 times to surface 20+ posts |
 | Harness Books (AgentWay) | html | https://harness-books.agentway.dev | Essay collection on harness design theory — unstable components, ledger closure, input governance, reactive compact |
-| MindStudio Blog | html | https://www.mindstudio.ai/blog | Published 3+ loop engineering articles covering loop design, agent harness architecture, and verification patterns (Jun 2026) |
+| MindStudio Blog | rss | https://www.mindstudio.ai/rss.xml | Published 3+ loop engineering articles covering loop design, agent harness architecture, and verification patterns (Jun 2026); feed URL discovered Jul 2026 (root-level path — /blog/rss.xml 404s) |
 | GitHub search — loop engineering claude | github-search | https://api.github.com/search/repositories?q=%22loop+engineering%22+claude&sort=updated | Search GitHub repos combining "loop engineering" + claude; returns JSON — no auth needed (10 req/hr limit); find new implementations |
 | GitHub search — claude code harness | github-search | https://api.github.com/search/repositories?q=%22claude+code%22+harness&sort=updated | Search GitHub repos combining "claude code" + harness; returns JSON — surface new harness design repos |
 | cobusgreyling/goal-engineering | github | https://github.com/cobusgreyling/goal-engineering | Reference implementation: GOAL.md schema, six canonical goal patterns, G0-G3 readiness scoring tool (Jun 2026) |
@@ -110,6 +110,10 @@ substantively relevant to loop engineering practice (not just a passing mention)
 | Sungmin-Cho/claude-deep-loop | github | https://github.com/Sungmin-Cho/claude-deep-loop | Control-plane/execution-plane split: kernel is sole authorized writer, skill agents read-only and write via kernel subcommands; content-hash-anchored state + append-only events across sessions (Jul 2026) |
 | shouryasrivastava/ctxcarry | github | https://github.com/shouryasrivastava/ctxcarry | "Repo owns your context, not the agent": local-first .ctxcarry/ durable memory, worktree generators, evaluators-assume-broken, token-budgeted multi-tool handoff (Jul 2026) |
 | the-open-engine/zeroshot | github | https://github.com/the-open-engine/zeroshot | ~1.6k★; blind validation / information-asymmetry reviewers — validators see only outputs, never the maker's reasoning; anti-collusion reject-and-retry until all approve (Jul 2026) |
+| JasonxzWen/harness-hub | github | https://github.com/JasonxzWen/harness-hub | Deep-read Jul 2026 (avg 3.5/5) — lock-versioned, state-separated distribution of skills/harness templates; a harness-marketplace angle distinct from typical skill package managers |
+| edonadei/caliper | github | https://github.com/edonadei/caliper | Deep-read Jul 2026 (avg 3.67/5) — local-first eval harness for Claude Code/Codex/Pi/Hermes skills; automatic with/without-skill baseline comparison isolates skill-attributable gains from base-model gains |
+| explainx.ai | html | https://explainx.ai/blog/ | Consistent loop/harness engineering coverage across 3+ runs (Loop Contract Model guide, context/prompt/loop/harness stack piece); overdue add per repeated "worth tracking" flags |
+| Daily Dose of Data Science | html | https://www.dailydoseofds.com | Avi Chawla; 3+ high-engagement (100K-250K+ views) loop/harness/agentic-engineering explainers in one cycle, promoted via @akshay_pachaar (Jul 2026) |
 
 ---
 

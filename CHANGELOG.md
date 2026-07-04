@@ -18,6 +18,24 @@ Versioning follows [Semantic Versioning](https://semver.org/):
 
 ---
 
+## [2.6.1] — 2026-07-04 09:04 IST
+
+### Changed
+- Widest-yield loop-news run to date (103 new findings after dedup). Added the official
+  Claude-team loop-type taxonomy (turn/goal/time-based/proactive) and a quantified
+  harness-cost data point (7x cost reduction, Hugging Face) to `docs/24`; a "Zombie
+  finding" failure pattern (findings ratchet) to `docs/17`; a blind-spot ledger pattern to
+  `docs/16`; severity-proportional reviewer routing to `docs/07`; a tamper-evident
+  contract-hash + 8-named-exit-code extension to `docs/27`; and skill-ingestion security
+  (OWASP Agentic Skills Top 10) + an A-F harness security scorecard to `docs/33`.
+- Added "Don't Train the Model, Evolve the Harness" (Hugging Face) to the reading list.
+- Added 4 new tracked sources: `JasonxzWen/harness-hub` and `edonadei/caliper` (both
+  deep-read this run per the prior run's flag), `explainx.ai`, and Daily Dose of Data
+  Science. Converted `swyx.io` and MindStudio Blog from HTML-scrape to their discovered
+  RSS feed URLs.
+
+---
+
 ## [2.6.0] — 2026-07-03 IST
 
 ### Added

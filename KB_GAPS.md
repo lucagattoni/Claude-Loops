@@ -38,15 +38,24 @@ Updated by each `fetch-loop-news` run. Gap keywords drive targeted GitHub and we
   The crossover conditions are unspecified. Search keywords: `agent testing tool ROI codebase size`,
   `"reasoning effort" vs tools agentic benchmark`, `when checker pass pays off agent`
 
-- **Held-out eval construction for harness evolution**: docs/24 (Self-Improving Harnesses) now
-  says to gate every proposed harness edit on a held-out run and that gains come from
-  tools/middleware/memory not prompts (AHE ablation) — but *how* to build the held-out task set,
-  size it, and avoid overfitting the harness to its own eval is unspecified. Search keywords:
-  `harness evolution held-out eval`, `agent harness overfitting benchmark`, `Terminal-Bench harness ablation`
+- **Held-out eval construction for harness evolution**: partially advanced 2026-07-04 —
+  edonadei/caliper's automatic with/without-skill baseline comparison (re-run every task
+  *without* the change to isolate attributable gain) is a concrete building block, but *how*
+  to size a held-out task set and avoid the harness overfitting to its own eval is still
+  unspecified. Search keywords: `harness evolution held-out eval sizing`,
+  `agent harness overfitting benchmark`, `Terminal-Bench harness ablation`
+
+- **Reviewer-freshness enforcement mechanism**: gomilesf/convergo (Jul 2026) requires "a
+  newly-spawned reviewer (never the same one)" to pass clean at the final exit gate, and
+  docs/04's Clean-Room Review already requires a fresh *session* — but no source yet
+  specifies how a loop mechanically verifies reviewer non-identity (session fingerprint?
+  spawn-time nonce?) rather than just instructing the orchestrator not to reuse one. Search
+  keywords: `"reviewer identity" agent verification`, `session fingerprint agent review`,
+  `fresh reviewer enforcement mechanism agent`
 
 ---
 
 ## Recently Filled (archive — keep last 2 entries; remove older ones)
 
-- ~~**Goal-cost a-priori token estimation**~~ — filled 2026-07-01 by docs/30 (cobusgreyling `goal-cost --pattern <p> --level <G>`: pattern-keyed pre-run cost forecast feeding the Budget primitive before launch)
 - ~~**Self-scaffolding / model-generated harness**~~ — filled 2026-07-02 by docs/24 (Self-Improving Harnesses: Self-Harness weakness-mining→propose→validate; AHE observability-driven evolution with verified prediction contracts, beats human Codex-CLI baseline; HarnessX substitution algebra + AEGIS — the harness optimizes itself from execution traces, model held fixed)
+- ~~**Skill supply-chain / ingestion security**~~ — filled 2026-07-04 by docs/33 (OWASP Agentic Skills Top 10 checklist + mandatory reviewer-only, non-automatable security gate at skill-ingestion time — eugenelim/agent-ready-repo)

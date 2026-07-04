@@ -167,6 +167,37 @@ Use both: provision short-lived credentials, then resolve them via credbroker.
 
 ([eugenelim/agent-ready-repo](https://github.com/eugenelim/agent-ready-repo), Jun 2026.)
 
+## Skill Ingestion Security (OWASP Agentic Skills Top 10)
+
+Credential and OS-level hardening (above) assume the agent's own skills/plugins are
+trustworthy. They may not be: a skill installed from a marketplace or catalog is a
+supply-chain surface with its own attack class — the **OWASP Agentic Skills Top 10**
+(AST01–AST10) names it: malicious natural-language instructions embedded in a skill,
+permission over-declaration, unsafe metadata parsing, SSRF/external-reference integrity,
+and isolation-boundary violations.
+
+The mitigation is a **mandatory reviewer-only, non-automatable security gate** at the
+skill-ingestion step: before a new skill/pack is assimilated into a harness, a human (or
+a fully independent reviewer agent) checks it against the AST01–AST10 checklist — this
+gate cannot be satisfied by the ingesting agent self-certifying, since a compromised
+skill could falsify its own compliance claim.
+([eugenelim/agent-ready-repo](https://github.com/eugenelim/agent-ready-repo), Jul 2026.)
+
+## Grading Harness Security Posture
+
+The patterns above (OS-user isolation, credential disposition, runtime policy gating)
+are individually well-specified but hard to audit *in aggregate* — a harness might get
+credential handling right and egress control wrong. A **harness security scorecard**
+closes that gap: grade a harness A–F across ten dimensions (secret protection, egress
+control, prompt-injection defense, git safety, harness self-protection, verification
+gates, subagent isolation, rollback safety, provenance, audit trail), using **capability
+gates** that cap the overall grade when the effective enforcement floor is weak — e.g. a
+rich `deny` list scores no better than its weakest override (a `bypassPermissions` flag
+discounts an otherwise-strong hard-deny block). Each gate is proven against a
+vulnerable/fixed fixture pair rather than graded by inspection alone, so the score is
+reproducible. Use this as an audit step alongside — not instead of — the design
+patterns above. ([saagpatel/harness-scorecard](https://github.com/saagpatel/harness-scorecard), Jul 2026.)
+
 ## Relationship to MCP Security
 
 [MCP Security](19-mcp-security.md) covers AgentJacking and prompt injection via MCP

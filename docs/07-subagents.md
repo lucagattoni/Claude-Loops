@@ -81,6 +81,16 @@ This pairs the maker/checker split with the cost discipline in [Cost & Turn Cont
 
 ([orobsonn/claude-harness](https://github.com/orobsonn/claude-harness), Jun 2026.)
 
+**Refinement: route eye-tier by severity, not by role alone.** A fixed cheap/mid/strong
+split still spends "strong eyes" budget on low-stakes reviews. A `resolveEyeTier`
+function instead computes the reviewer tier per-change: Opus for high-severity,
+sensitive-path, or architectural-boundary changes; a Sonnet floor elsewhere; trivial
+changes skip review entirely. It also **conditionally re-gates**: a grave fix
+(irreversible, sensitive-path, re-architecture, multi-integration) demands a fresh
+full Opus pass, while other HIGH-severity fixes only need a locked-test-plus-spot-check
+pass — spending the expensive reviewer where the blast radius, not just the role,
+justifies it. ([orobsonn/claude-harness v0.20.0](https://github.com/orobsonn/claude-harness/releases/tag/v0.20.0), Jul 2026.)
+
 ### Tuning evaluator agents
 
 Out-of-the-box, Claude exhibits poor QA discipline in evaluator roles:

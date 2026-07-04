@@ -212,6 +212,19 @@ See [Context Management](13-context-management.md) for why compaction makes dura
 necessary, and [Harness Patterns](24-harness-patterns.md#control-plane-execution-plane-split-kernel-gated-mutation)
 for the kernel that can be the *sole authorized writer* to such a ledger.
 
+**The blind-spot ledger.** A doctrine-tier artifact specifically for *review misses*: an
+append-only log where each review cycle records *why* a finding was missed, categorised
+(not just what was missed). The next review cycle reads the ledger and pre-checks those
+categories before starting, so the same class of miss cannot recur silently. The success
+metric is explicit and falsifiable — "reviewers stop finding the same category twice" —
+rather than a vague aspiration to "learn from mistakes." Two independent implementations
+converge on the same shape: one as a `docs/reviews/blind-spots.md` log feeding a
+`/build-feature` loop, the other as a 5-stage Fail→Investigate→Verify→Distill→Consult
+protocol writing to an Obsidian-readable vault, both gated by a stop-hook that blocks
+session exit until the ledger is updated.
+([ohyesgocool/feature-loop](https://github.com/ohyesgocool/feature-loop);
+[hiphapis/loopcraft](https://github.com/hiphapis/loopcraft), Jul 2026.)
+
 ---
 
 See [Long-Running Agents](25-long-running-agents.md) for the architectural pattern
