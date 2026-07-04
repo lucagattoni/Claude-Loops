@@ -463,7 +463,7 @@ every invocation.
 Use serverless when: iterations are bounded and short, state is well-defined enough
 to serialise, or you are operating in a cost-sensitive production environment.
 
-(Paramveer Singh, "Designing Autonomous AI Loops", Jun 2026.)
+(Paramveer Singh, ["Designing Autonomous AI Loops: A Practical Guide to Loop Engineering"](https://medium.com/@paramveers9451/designing-autonomous-ai-loops-a-practical-guide-to-loop-engineering-895f1f01d250), Jun 2026.)
 
 ## Agent YAML Definition Schema
 
