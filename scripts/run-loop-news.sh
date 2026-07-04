@@ -37,15 +37,17 @@ LOG_FILE="$REPO_ROOT/logs/loop-news-$(date +%Y%m%d).log"   # ABSOLUTE — surviv
 #   a normal thorough run.
 SEARCH_MODEL="${LOOP_SEARCH_MODEL:-sonnet}"              # Skill A · fetch-loop-news
 SEARCH_EFFORT="${LOOP_SEARCH_EFFORT:-high}"
-SEARCH_MAX_TURNS="${LOOP_SEARCH_MAX_TURNS:-40}"
+# 100, not 40: raised for headroom alongside INTEGRATE_MAX_TURNS below (no evidence
+# search itself needs it — it's a ceiling, so a generous one costs nothing if unused).
+SEARCH_MAX_TURNS="${LOOP_SEARCH_MAX_TURNS:-100}"
 SEARCH_BUDGET_USD="${LOOP_SEARCH_BUDGET_USD:-30}"
 INTEGRATE_MODEL="${LOOP_INTEGRATE_MODEL:-sonnet}"        # Skill B · integrate-loop-news
 INTEGRATE_EFFORT="${LOOP_INTEGRATE_EFFORT:-high}"
-# 60, not 40: the 2026-07-04 production run hit "Reached max turns (40)" twice in a row
+# 100, not 40: the 2026-07-04 production run hit "Reached max turns (40)" twice in a row
 # on Stage B — Phase 4 (digest + integrate) + 4b + the MANDATORY every-run 4c structural
 # review + Phase 5 release/commit/push is real work that a normal day can exceed 40 turns
-# on. 60 is the plan's own documented fallback for this exact failure mode.
-INTEGRATE_MAX_TURNS="${LOOP_INTEGRATE_MAX_TURNS:-60}"
+# on. 60 was the plan's documented fallback; raised further to 100 for more headroom.
+INTEGRATE_MAX_TURNS="${LOOP_INTEGRATE_MAX_TURNS:-100}"
 INTEGRATE_BUDGET_USD="${LOOP_INTEGRATE_BUDGET_USD:-20}"
 
 CLAUDE_BIN="${CLAUDE_BIN:-/opt/homebrew/bin/claude}"
