@@ -41,6 +41,11 @@ Versioning follows [Semantic Versioning](https://semver.org/):
   deterministic (the same session hits the same wall), so retrying just re-burns the
   budget for `MAX_ATTEMPTS` runs with no chance of success. The wrapper now detects the
   `Exceeded USD budget` marker and stops immediately with a notification instead.
+- Raised `INTEGRATE_MAX_TURNS` default 40→60. The 2026-07-04 production run hit
+  `Error: Reached max turns (40)` twice in a row on the integrate stage — Phase 4
+  (digest + integrate) plus Phase 4b plus the **mandatory every-run** Phase 4c
+  structural review plus Phase 5 (release/commit/push) is enough real work that a
+  normal day can exceed 40 turns.
 
 ---
 
