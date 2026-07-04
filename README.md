@@ -69,9 +69,15 @@ off `origin/main`, so a run never disturbs your working checkout. Logs are writt
 `logs/loop-news-YYYYMMDD.log` and the findings artifact is copied to
 `logs/findings-YYYYMMDD.json` (both gitignored).
 
-Per-stage model, effort, max-turns and budget are set at the top of
-`scripts/run-loop-news.sh` (each overridable via `LOOP_SEARCH_*` / `LOOP_INTEGRATE_*`
-env vars).
+Per-stage model, effort, max-turns and budget default at the top of
+`scripts/run-loop-news.sh`. Override them via `LOOP_SEARCH_*` / `LOOP_INTEGRATE_*` env
+vars, or with CLI flags on a one-off run (CLI > env > default):
+
+```bash
+bash scripts/run-loop-news.sh --integrate-model opus --integrate-effort max
+bash scripts/run-loop-news.sh --model opus --effort max   # shorthand: both stages
+bash scripts/run-loop-news.sh --help                       # full flag list
+```
 
 ### Add or remove a source
 

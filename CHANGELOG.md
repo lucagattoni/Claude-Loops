@@ -18,7 +18,14 @@ Versioning follows [Semantic Versioning](https://semver.org/):
 
 ---
 
-## [2.6.1] — 2026-07-03 IST
+## [2.7.0] — 2026-07-04 IST
+
+### Added
+- `run-loop-news.sh` CLI flags to set model/effort per stage on a one-off run, without
+  exporting env vars: `--search-model`, `--search-effort`, `--integrate-model`,
+  `--integrate-effort`, plus `--model`/`--effort` shorthands that set both stages at
+  once. Precedence: CLI flag > `LOOP_SEARCH_*`/`LOOP_INTEGRATE_*` env var > built-in
+  default. `--help` lists all options.
 
 ### Changed
 - Raised `run-loop-news.sh`'s per-stage `--max-budget-usd` defaults (search $8→$30,

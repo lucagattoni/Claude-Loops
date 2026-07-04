@@ -43,6 +43,42 @@ INTEGRATE_BUDGET_USD="${LOOP_INTEGRATE_BUDGET_USD:-20}"
 
 CLAUDE_BIN="${CLAUDE_BIN:-/opt/homebrew/bin/claude}"
 
+usage() {
+  cat <<'USAGE'
+Usage: run-loop-news.sh [options]
+
+Per-stage overrides (each defaults to its LOOP_* env var, which defaults to the
+built-in default — precedence is: CLI flag > env var > default):
+
+  --search-model <model>       Model for the search stage (fetch-loop-news)
+  --search-effort <level>      Effort for the search stage (low|medium|high|xhigh|max)
+  --integrate-model <model>    Model for the integrate stage (integrate-loop-news)
+  --integrate-effort <level>   Effort for the integrate stage
+  --model <model>              Shorthand: set both stages' model at once
+  --effort <level>             Shorthand: set both stages' effort at once
+  -h, --help                   Show this help and exit
+
+Model accepts an alias (sonnet|opus|fable) or a full model id (e.g. claude-sonnet-5).
+
+Examples:
+  run-loop-news.sh --integrate-model opus --integrate-effort max
+  run-loop-news.sh --model opus --effort max
+USAGE
+}
+
+while [[ $# -gt 0 ]]; do
+  case "$1" in
+    --search-model) SEARCH_MODEL="$2"; shift 2 ;;
+    --search-effort) SEARCH_EFFORT="$2"; shift 2 ;;
+    --integrate-model) INTEGRATE_MODEL="$2"; shift 2 ;;
+    --integrate-effort) INTEGRATE_EFFORT="$2"; shift 2 ;;
+    --model) SEARCH_MODEL="$2"; INTEGRATE_MODEL="$2"; shift 2 ;;
+    --effort) SEARCH_EFFORT="$2"; INTEGRATE_EFFORT="$2"; shift 2 ;;
+    -h|--help) usage; exit 0 ;;
+    *) echo "Unknown option: $1" >&2; usage; exit 1 ;;
+  esac
+done
+
 MAX_ATTEMPTS=3
 # Seconds to wait before each retry. Index 0 is the wait before attempt 2, index 1 before 3.
 BACKOFF_SECONDS=(30 90 180)
