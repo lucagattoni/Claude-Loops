@@ -14,12 +14,21 @@ Versioning follows [Semantic Versioning](https://semver.org/):
 ## [Unreleased]
 
 ### Added
+### Changed
+
+---
+
+## [2.7.1] — 2026-07-04 IST
+
+### Added
 - `scripts/SCHEDULING.md` — runbook for changing the daily tracker's cadence and
   enabling/disabling it (macOS launchd: `StartCalendarInterval`/`StartInterval` syntax,
   `launchctl bootstrap`/`bootout`/`enable`/`disable`/`kickstart`). Linked from README
   and CLAUDE.md's repo map.
 
 ### Changed
+- CLAUDE.md Git workflow: added the worktree-cleanup rule — remove a worktree and its
+  branch (local + remote) once its work is merged or abandoned.
 
 ---
 
