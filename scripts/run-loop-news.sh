@@ -191,13 +191,24 @@ while (( attempt <= MAX_ATTEMPTS )); do
 
   # Cheap, zero-LLM-cost guard: if Stage A's own session already carried the pipeline
   # through and pushed (a known failure mode — see fetch-loop-news/SKILL.md Phase 4),
-  # origin/main has already advanced. Detect it here, for free, instead of paying for a
-  # full Stage B session just to have it discover the same thing via git evidence.
+  # skip Stage B instead of paying for a full redundant session. Checks for a MATCHING
+  # loop-news commit in the delta, not just "did origin/main move" — main can legitimately
+  # advance for an unrelated reason (e.g. a human merging a different PR concurrently,
+  # which is common in this repo), and that must NOT be mistaken for "this run already
+  # published" — doing so would silently skip a day's digest that was never written.
   if (( ok )); then
     git -C "$WT_DIR" fetch origin main
-    if [[ "$(git -C "$WT_DIR" rev-parse origin/main)" != "$BASE_SHA" ]]; then
-      echo "[$(stamp)] attempt ${attempt}: origin/main already advanced after Stage A — Stage B would be redundant, skipping" | tee -a "$LOG_FILE"
-      success=1; break
+    NEW_MAIN_SHA="$(git -C "$WT_DIR" rev-parse origin/main)"
+    if [[ "$NEW_MAIN_SHA" != "$BASE_SHA" ]]; then
+      if git -C "$WT_DIR" log --oneline "${BASE_SHA}..${NEW_MAIN_SHA}" | grep -q "loop news run"; then
+        echo "[$(stamp)] attempt ${attempt}: origin/main already has a loop-news commit — Stage B would be redundant, skipping" | tee -a "$LOG_FILE"
+        success=1; break
+      fi
+      # else: main advanced for an unrelated reason — rebase our notion of "base" forward
+      # so the publish-safety guard below doesn't later mistake this same unrelated
+      # advance for "our run already published."
+      echo "[$(stamp)] attempt ${attempt}: origin/main advanced for an unrelated reason — continuing" | tee -a "$LOG_FILE"
+      BASE_SHA="$NEW_MAIN_SHA"
     fi
   fi
 
@@ -214,10 +225,20 @@ while (( attempt <= MAX_ATTEMPTS )); do
   fi
 
   # --- failure path: publish-safety guard before any retry ---
+  # Same false-positive risk as the Stage-A guard above: origin/main can advance for an
+  # unrelated reason (a concurrently-merged human PR), which must not be mistaken for
+  # "our push already happened" — that would wrongly abandon a legitimately retriable
+  # failure. Check for a matching loop-news commit in the delta, not just "did it move."
   git -C "$REPO_ROOT" fetch origin main
-  if [[ "$(git -C "$REPO_ROOT" rev-parse origin/main)" != "$BASE_SHA" ]]; then
-    notify "Attempt ${attempt} failed AFTER publishing (origin/main advanced) — not retrying; check repo state."
-    exit 1                             # B already pushed → never retry (would double-commit)
+  NEW_MAIN_SHA="$(git -C "$REPO_ROOT" rev-parse origin/main)"
+  if [[ "$NEW_MAIN_SHA" != "$BASE_SHA" ]]; then
+    if git -C "$REPO_ROOT" log --oneline "${BASE_SHA}..${NEW_MAIN_SHA}" | grep -q "loop news run"; then
+      notify "Attempt ${attempt} failed AFTER publishing (origin/main has our loop-news commit) — not retrying; check repo state."
+      exit 1                           # B already pushed → never retry (would double-commit)
+    fi
+    # else: main advanced for an unrelated reason — rebase forward and keep retrying.
+    echo "[$(stamp)] origin/main advanced for an unrelated reason during attempt ${attempt} — continuing" | tee -a "$LOG_FILE"
+    BASE_SHA="$NEW_MAIN_SHA"
   fi
   if (( attempt < MAX_ATTEMPTS )); then
     wait_s="${BACKOFF_SECONDS[$((attempt - 1))]}"

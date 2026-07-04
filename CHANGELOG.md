@@ -35,6 +35,18 @@ Versioning follows [Semantic Versioning](https://semver.org/):
   entirely instead of paying for a full redundant session.
 - `docs/09-headless-mode.md` — documented the general pitfall (a skill can't distinguish
   interactive from headless invocation) and the three-layer fix.
+- **Adversarial self-review caught and fixed a false-positive introduced by the fix
+  above**: checking only "did `origin/main` move" (not "did it move *because of this
+  run*") would misfire whenever `main` advances for an unrelated reason — e.g. a human
+  merging a different PR concurrently, which happens routinely in this repo. That would
+  silently skip Stage B (or abandon a legitimate retry) on a day the digest was never
+  actually published. Both the new wrapper guard and the pre-existing publish-safety
+  retry guard now check for a *matching* `loop news run` commit in the delta, not just
+  whether the SHA changed; an unrelated advance rebases the tracked base forward and
+  continues normally instead of misfiring.
+- `integrate-loop-news`'s already-published check now fetches and checks against
+  `origin/main` (not just local history, which could miss a publish made by a different
+  worktree/process) and no longer caps the log search depth.
 
 ---
 

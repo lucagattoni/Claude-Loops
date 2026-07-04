@@ -20,14 +20,20 @@ to `main`. It does **no** searching — everything it needs is in `.loop-news/fi
 3. Extract `today`, `run_time`, `last_run_date`, `findings`, `sources_to_consider`, and
    `source_updates`. Use these throughout — never re-derive the time or re-search.
 4. **Already-published check — do this before reading any docs or reasoning about the
-   KB.** Run `git log --oneline -5 --grep="loop news run ${run_time}"` (the `run_time`
-   just extracted). If it returns a match, this exact run has already been integrated
-   and pushed — **stop immediately, print which commit, and make no changes.** This can
-   happen if `fetch-loop-news` already carried the pipeline through on its own (a known
-   failure mode when the two-session split gets collapsed) or if this skill is
-   re-invoked by mistake against an artifact that was already consumed. Do this check
-   first, cheaply — don't rediscover it the slow way by reasoning through git evidence
-   later.
+   KB.** Run `git fetch origin main`, then
+   `git log --oneline --grep="loop news run ${run_time}" origin/main` (the `run_time`
+   just extracted; use `--fixed-strings` if your git wraps `--grep` in a way that treats
+   it as a regex, since `run_time` contains no regex metacharacters but there's no reason
+   to rely on that). Check against `origin/main`, not just local history — a different
+   worktree or process may have already published this exact run without your local
+   checkout knowing yet, and a local-only check would miss that. Do not cap the log
+   depth — an arbitrary limit could miss the match on a day with several unrelated
+   commits. If it returns a match, this exact run has already been integrated and pushed
+   — **stop immediately, print which commit, and make no changes.** This can happen if
+   `fetch-loop-news` already carried the pipeline through on its own (a known failure
+   mode when the two-session split gets collapsed) or if this skill is re-invoked by
+   mistake against an artifact that was already consumed. Do this check first, cheaply —
+   don't rediscover it the slow way by reasoning through git evidence later.
 
 ## Phase 4 — Write digest
 
