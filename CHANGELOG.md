@@ -18,6 +18,38 @@ Versioning follows [Semantic Versioning](https://semver.org/):
 
 ---
 
+## [2.7.0] — 2026-07-04 IST
+
+### Added
+- `run-loop-news.sh` CLI flags to set model/effort per stage on a one-off run, without
+  exporting env vars: `--search-model`, `--search-effort`, `--integrate-model`,
+  `--integrate-effort`, plus `--model`/`--effort` shorthands that set both stages at
+  once. Precedence: CLI flag > `LOOP_SEARCH_*`/`LOOP_INTEGRATE_*` env var > built-in
+  default. `--help` lists all options.
+- `scripts/run-loop-news.env.example` — documents all 8 per-stage config vars
+  (model/effort/max-turns/budget × search/integrate). The wrapper auto-sources
+  `scripts/run-loop-news.env` (gitignored) if present, for a standing local override
+  without exporting shell env vars.
+
+### Changed
+- Raised `run-loop-news.sh`'s per-stage `--max-budget-usd` defaults (search $8→$30,
+  integrate $8→$20). On a Claude subscription (Pro/Max) this flag is not a real dollar
+  cost — it's a script-side runaway-session tripwire computed from API list-price-
+  equivalent token usage — and $8 for the search stage alone was too tight for a normal
+  thorough run, tripping on the live dry run.
+- Fixed a bug where a budget-exceeded failure was retried like a transient error: it's
+  deterministic (the same session hits the same wall), so retrying just re-burns the
+  budget for `MAX_ATTEMPTS` runs with no chance of success. The wrapper now detects the
+  `Exceeded USD budget` marker and stops immediately with a notification instead.
+- Raised `INTEGRATE_MAX_TURNS` default 40→100 (and `SEARCH_MAX_TURNS` 40→100 for
+  consistent headroom, no evidence needed — it's a ceiling, so a higher one costs
+  nothing if unused). The 2026-07-04 production run hit `Error: Reached max turns (40)`
+  twice in a row on the integrate stage — Phase 4 (digest + integrate) plus Phase 4b
+  plus the **mandatory every-run** Phase 4c structural review plus Phase 5
+  (release/commit/push) is enough real work that a normal day can exceed 40 turns.
+
+---
+
 ## [2.6.1] — 2026-07-04 09:04 IST
 
 ### Changed
