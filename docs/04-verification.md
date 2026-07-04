@@ -46,7 +46,7 @@ Weight the first two heavily to push models away from generic outputs. Encoding 
 as explicit criteria (rather than prose instructions) makes them evaluable by a
 separate agent and reduces the ambiguity that leads to self-evaluation bias.
 
-(Prithvi Rajasekaran, Anthropic Engineering, Mar 2026.)
+(Prithvi Rajasekaran, [Anthropic Engineering — "Harness design for long-running application development"](https://www.anthropic.com/engineering/harness-design-long-running-apps), Mar 2026.)
 
 ## The self-verifying loop pattern
 
@@ -356,7 +356,7 @@ The distinction from the A/A Baseline (which establishes noise floor on a verifi
 
 repo: [github.com/comet-ml/opik](https://github.com/comet-ml/opik)
 
-(Comet ML, Jun 2026.)
+(Comet ML, ["Evaluation Metrics Overview"](https://www.comet.com/docs/opik/evaluation/metrics/overview), Jun 2026.)
 
 ## Real-world case study: Mozilla Firefox security harness
 

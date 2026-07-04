@@ -278,6 +278,23 @@ Qwen3.5-35B-A3B 23.8%→38.1%, GLM-5 42.9%→57.1% (up to +21.4pp absolute).
 
 ---
 
+### [Don't Train the Model, Evolve the Harness](https://huggingface.co/spaces/joelniklaus/harness-optimization) — Hugging Face (Joel Niklaus)
+**Added:** 2026-07-04 · **Published:** Jul 2026
+
+**Why here:** The sharpest *cost* evidence in this group — the other two entries report
+accuracy gains with the model held fixed; this one reports a **7x cost reduction** at
+matched accuracy, and isolates harness quality as the sole variable across a 3.5%–80.1%
+score range with model and tasks both held constant.
+
+**Summary:** A proposer/accept-reject loop rewrites only the harness code around a frozen
+model, evaluated on a legal-agent benchmark. The evolved harness matches Sonnet 4.6's score
+at roughly 7x lower inference cost; holding model and tasks fixed, score varies from 3.5%
+to 80.1% depending solely on harness quality. Reinforces the KB's central thesis — the
+harness, not the model, is the leverage point — with a cost multiplier attached rather
+than only an accuracy delta.
+
+---
+
 ## Goal Engineering & Stopping Conditions
 
 The stopping condition is where most loops fail. These articles address it directly.

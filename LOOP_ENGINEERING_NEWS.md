@@ -5,6 +5,72 @@ Sources are defined in [`SOURCES.md`](https://lucagattoni.github.io/Claude-Loops
 
 ---
 
+## 2026-07-04 07:33 UTC (run)
+
+The widest-yield run to date (103 new findings after dedup, from 10 parallel search
+subagents across every tracked source plus X/LinkedIn/web). Two genuine additions stand
+out against a very large "plateaued wave": an **official Anthropic/Claude-team loop
+taxonomy** (turn-based/goal-based/time-based/proactive, with the actual `/goal`/`/loop`/
+`/schedule` commands) that complements the existing Claire Vo trigger taxonomy, and a
+**quantified cost case** for harness-over-model spend (Hugging Face: 7x cost reduction at
+matched accuracy, 3.5%–80.1% score swing from harness quality alone, model+tasks fixed).
+The rest of the field is dominated by a much larger version of last run's plateaued
+maker/checker + loop-kit wave — dozens of low-star repos re-implementing trigger/state/
+verifier primitives already in the KB — with a handful of genuinely new mechanisms pulled
+out individually (findings ratchet, blind-spot ledger, severity-proportional reviewer
+routing, tamper-evident contract hashing, harness security scorecard, skill-ingestion
+security gate).
+
+### New findings
+
+| Tier | Source | Title | URL | Summary |
+|---|---|---|---|---|
+| 1 | arXiv | "Stop Hand-Holding Your Coding Agent: Engineering the Loops that Replace Step-by-Step Prompting" | [link](https://arxiv.org/abs/2607.00038v1) | Formal definitional paper: loop specification (trigger, goal, verification, stopping rule, memory) as a reusable artifact, naming comprehension debt and cognitive surrender as risks — restates the KB's existing framing with academic rigor, no doc change needed. |
+| 1 | Anthropic (claude.com blog) | "Getting started with loops" | [link](https://claude.com/blog/getting-started-with-loops) | Official Claude team loop taxonomy (turn-based/goal-based/time-based/proactive) with the actual `/goal`/`/loop`/`/schedule` commands. **New — added to docs/24** alongside the existing Claire Vo taxonomy. |
+| 1 | via Hugging Face (Joel Niklaus) | "Don't train the model, evolve the harness" | [link](https://huggingface.co/spaces/joelniklaus/harness-optimization) | Proposer/accept-reject loop rewriting only harness code around a frozen model: matches Sonnet 4.6 at ~7x lower cost; 3.5%–80.1% score swing from harness quality alone. **Added to docs/24 and the reading list.** |
+| 1 | via TLDR AI | "WTF Is a Loop? Peter Steinberger vs. Boris Cherny" (Matt Van Horn) | [link](https://x.com/mvanhorn/status/2063865685558903149) | Traces the "loop" meme's five-year lineage (ReAct 2022 → AutoGPT → ralph loop → /loop and /goal) and captures Cherny's verbatim on-stage quote — good lineage reference, already well-covered by existing reading-list entries; no doc change. |
+| 1 | dailydoseofds.com (Avi Chawla) | "Loop Engineering, Clearly Explained" | [link](https://www.dailydoseofds.com/p/loop-engineering-clearly-explained/) | Four-layer stack (prompt/context/harness/loop) + four failure modes (false completion, context rot, tool design, self-grading) closely paralleling the KB's own framing. **Source added to SOURCES.md** (3+ high-engagement pieces this cycle). |
+| 1 | LinkedIn — Nabheet Madan | "Loop engineering: an agentic coding agent closes its own loop" | [link](https://www.linkedin.com/pulse/loop-engineering-agentic-coding-agent-closes-its-own-nabheet-madan-tkpwf/) | Case study ("FlashStock"): Claude Code self-corrected a race condition and idempotency bug across iterations; argues evals — not codegen — are what let a loop run unattended. Consistent with existing KB thesis; no doc change. |
+| 2 | gomilesf/convergo | "Fresh-reviewer exit gate + findings ratchet" | [link](https://github.com/gomilesf/convergo) | Hard 3-round cap escalating to human; a findings ratchet prevents re-litigating previously-invalidated findings without fresh evidence; final exit requires a newly-spawned reviewer. **New failure-pattern row added to docs/17** ("Zombie finding"). |
+| 2 | ohyesgocool/feature-loop + hiphapis/loopcraft | "Blind-spot ledger — append-only 'why I missed it' log" | [link](https://github.com/ohyesgocool/feature-loop) | Two independent implementations of a review-miss ledger read by the next cycle so recurring finding categories get pre-checked; success metric is "reviewers stop finding the same category twice." **New subsection added to docs/16.** |
+| 2 | orobsonn/claude-harness | "v0.20.0 — severity-proportional eye routing + conditional re-gate" | [link](https://github.com/orobsonn/claude-harness/releases/tag/v0.20.0) | Extends "strong eyes, cheap hands" from a fixed role split to a `resolveEyeTier` function that routes by change severity/sensitivity; grave fixes require a fresh full-Opus pass. **Added to docs/07.** |
+| 2 | Aitne-sh/loop-kit | "Contract-hash tamper defense + 8 named exit codes" | [link](https://github.com/Aitne-sh/loop-kit) | Hashes the Product Contract at approval time (`NEEDS_SPEC_DECISION` on tamper); expands the 3-exit-code stop taxonomy to 8 named codes distinguishing failure classes. **Added to docs/27** as an extension of the existing 3-exit-code reference. |
+| 3 | saagpatel/harness-scorecard | "A-F security maturity grader for harnesses" | [link](https://github.com/saagpatel/harness-scorecard) | Grades harnesses across 10 security dimensions with capability gates and vulnerable/fixed fixture pairs. **Added to docs/33** as a complementary audit tool. |
+| 3 | eugenelim/agent-ready-repo | "OWASP Agentic Skills Top 10 (AST01-AST10) + mandatory reviewer-only ingestion gate" | [link](https://github.com/eugenelim/agent-ready-repo/commit/715144f) | Skill-ingestion supply-chain security checklist plus a non-automatable human/independent-reviewer gate before a new skill is assimilated. **Added to docs/33**, fills the "skill supply-chain security" KB gap. |
+| 2 | JeiKeiLim/tenet | "Model-tier-adaptive plans, grounded/ungrounded critic split, doctrine drift, Delivery Modes" | [link](https://github.com/JeiKeiLim/tenet/commit/c37b246) | Repositions as "the agent harness for long, reliable autonomous development"; self-healing doctrine-drift and autonomous-vs-agile delivery cadence. Extends already-tracked repo; no new primitive beyond what docs/24's harness-agnostic framing covers — noted, no doc change this run. |
+| 2 | via @akshay_pachaar thread | "Alook — turn coding agents into a real AI company org chart" | [link](https://github.com/alookai/alook) | ~540★; gives each agent session a role, a real email inbox, and an org-chart position for unattended coordination — a new fleet-coordination surface; noted for a future fleet-engineering pass, no doc change this run. |
+| 2 | via @akshay_pachaar thread | "Google Agents CLI (built on ADK)" | [link](https://github.com/google/agents-cli) | ~4.7k★; unifies scaffolding, LLM-as-judge evaluation, and deployment for agentic engineering — a major-vendor tooling entrant; noted, no doc change this run. |
+| 1 | dailydoseofds.com / @GAZUA_KOR repost, arXiv, Cobus Greyling, TLDR AI, Ben's Bites, MindStudio, VibeReady, explainx.ai, Flowtivity, Blake Crosley, LinkedIn (Vinay Kolla, Linas Beliūnas), @dnvhariprasad, @Sabrina_Ramonov | ~25 additional origin-story / definitional / "getting started" pieces | — | Large convergent wave restating the KB's existing paradigm-shift and getting-started framing (Steinberger's viral tweet, Cherny's WorkOS quote, Osmani's five-building-blocks thread, LangSmith Engine, Factory 2.0, Crabfleet). All already well-covered by docs/01–03, docs/21, docs/28, and the reading list; no doc changes warranted. Full list in `.loop-news/findings.json`. |
+
+### No new content — plateaued wave (no new primitive)
+- **~75 additional GitHub repos** from github-search (maker/checker clones, loop-kit starters, harness marketplaces, review-orchestration plugins) restate trigger/state/verifier/maker-checker primitives already documented across docs/04, docs/07, docs/24, docs/27, docs/34. None introduced a mechanism not already covered or pulled out above. Full list with per-repo summaries in `.loop-news/findings.json`.
+- Large arXiv harvest (SEAGym, APEX, Recursive Agent Harnesses, LLM-as-Code, EvoHunt, NOVA, Hitchhiker's Guide to Agentic AI, StaminaBench, ClayBuddy, ActPlane, AOHP, Code Isn't Memory, Beaver, HarnessBridge, Claw-SWE-Bench, EurekAgent, AutoMegaKernel, MyPCBench, "What makes a harness a harness", SWE-Router) — all reinforce the already-documented self-improving-harness and harness>model theses with additional benchmarks; no new primitive.
+- Addy Osmani full back-catalogue, Simon Willison, Anthropic harness-design article, Martin Fowler, vtrivedy HaaS piece — all predate `last_run_date` and are already integrated into the KB (docs/01, docs/03, docs/24).
+- cobusgreyling/loop-engineering — new CLI tooling (loop-audit/init/cost/sync/context) reported again this run; same toolchain already tracked and noted in a prior digest (2026-06-29). Already a SOURCES.md row — no action.
+- Kanevry/session-orchestrator, BicaMindLabs/FuguNano — re-surfaced with the same features already noted in the 2026-06-30 and 2026-07-02 digests respectively; no new activity.
+- OpenAI news, Harness Books (agentway.dev) — 403 (ongoing)
+- Sabrina Ramonov (sabrina.dev) — no discoverable RSS feed; no Tier 1-3 content this run
+
+### Docs updated this run
+- `docs/24-harness-patterns.md` — added the official Claude-team loop taxonomy (turn-based/goal-based/time-based/proactive) cross-referenced against Claire Vo's; added the Hugging Face harness-cost quantification (7x cost reduction).
+- `docs/33-agent-security-hardening.md` — new "Skill Ingestion Security (OWASP Agentic Skills Top 10)" section; new "Grading Harness Security Posture" section (saagpatel/harness-scorecard).
+- `docs/27-loop-contract.md` — new "Extension: tamper-evident contracts and named exit codes" subsection under the three-exit-code reference (Aitne-sh/loop-kit).
+- `docs/17-failure-patterns.md` — new "Zombie finding" failure-pattern row (findings ratchet, gomilesf/convergo).
+- `docs/16-memory-patterns.md` — new "blind-spot ledger" subsection (ohyesgocool/feature-loop, hiphapis/loopcraft).
+- `docs/07-subagents.md` — extended "Strong Eyes, Cheap Hands" with severity-proportional eye-tier routing (orobsonn/claude-harness v0.20.0).
+- `docs/32-reading-list.md` — added "Don't Train the Model, Evolve the Harness" (Hugging Face) to Self-Improving Harnesses.
+
+### Structural review this run (Phase 4c)
+- The finding-set was **not** theme-shifting — a very large plateaued wave (see above) plus a handful of genuinely new, individually-addable mechanisms, each already owned by an existing doc's topic (verification/subagents/security/memory/loop-contract). No dominant theme lacking a canonical home; no new thesis; no unrepresented primitive.
+- Two items sharpen existing theses rather than fragment them: the official Claude-team loop taxonomy sits *alongside* Claire Vo's in docs/24 (same section, cross-referenced, not a competing doc) and the Hugging Face cost finding extends the harness-conformance/self-improving-harness passage already in docs/24 with a cost multiplier.
+- No index restructure, doc merges, or renames → PATCH, not MAJOR.
+
+### Sources to consider adding to SOURCES.md
+- All actionable candidates from this run were added directly (see SOURCES.md changes below) rather than left pending: [JasonxzWen/harness-hub](https://github.com/JasonxzWen/harness-hub) and [edonadei/caliper](https://github.com/edonadei/caliper) (both deep-read this run per last run's flag, scored ≥3.5/5 avg), [explainx.ai](https://explainx.ai/blog/) (3+ runs of "worth tracking" flags, now overdue), and [Daily Dose of Data Science](https://www.dailydoseofds.com) (Avi Chawla — 3+ high-engagement pieces this cycle).
+- Not added: [jahwag/clem](https://github.com/jahwag/clem) is already the foundational source for docs/33 (mis-flagged as new by this run's github-search subagent, which lacked the full tracked-source list); [Armin Ronacher](https://lucumr.pocoo.org/) — still only the one 2026-06-23 piece, continue watching per the 2026-07-01 note.
+
+---
+
 ## 2026-07-03 04:12 UTC (run)
 
 A **gap-sharpening** run. The standout is a quantified BUDGET finding that inverts a common

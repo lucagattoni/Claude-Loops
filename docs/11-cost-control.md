@@ -31,7 +31,7 @@ Real-world multipliers relative to standard single-turn chat:
 Set `--max-budget-usd` conservatively on first deployment (e.g. $2–5 for a single-agent
 loop), then raise after observing actual consumption on real runs.
 
-(Data Science Dojo, "Agentic Loops: From ReAct to Loop Engineering", 2026.)
+(Data Science Dojo, ["Agentic Loops: From ReAct to Loop Engineering"](https://datasciencedojo.com/blog/agentic-loops-explained-from-react-to-loop-engineering-2026-guide/), 2026.)
 
 ## Real project cost benchmarks
 

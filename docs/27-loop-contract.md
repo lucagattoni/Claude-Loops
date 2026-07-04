@@ -23,7 +23,7 @@ and execution is mechanical; get it wrong and no amount of model quality rescues
 This design step — not the prompting, not the model choice — is where loop engineering
 lives. ("The harness now matters more than the model" — see [The Paradigm Shift](01-paradigm-shift.md).)
 
-(Source: explainx.ai, "Loop Engineering: How to Design Coding Agent Loops That Run While You Sleep", Jun 2026.)
+(Source: explainx.ai, ["How to Build Your First Agent Loop: A Step-by-Step Guide"](https://www.explainx.ai/blog/how-to-build-your-first-agent-loop-step-by-step-2026), Jun 2026.)
 
 ## The Six Properties
 
@@ -76,7 +76,7 @@ Gate 2 maps directly to the STOP property in the Loop Contract above. Gate 1 is
 what enforces it at runtime — without objective evidence, the loop cannot know
 whether STOP has been met.
 
-(Wooheum Xin, "Stop Writing Prompts: The True Nature of Loop Engineering", Zenn, Jun 2026.)
+(Wooheum Xin, ["Stop Writing Prompts: The True Nature of Loop Engineering"](https://zenn.dev/acrosstudioblog/articles/38509c0473683a), Zenn, Jun 2026.)
 
 ## Stop Condition Taxonomy
 
@@ -139,6 +139,21 @@ Two design points sharpen the taxonomy:
 
 ([uppifyagency/loop-kernel](https://github.com/uppifyagency/loop-kernel), Jun 2026; the same `0`/`2`/`3` contract appears independently in [firegnu/herdr-loop-lab](https://github.com/firegnu/herdr-loop-lab), Jun 2026.)
 
+### Extension: tamper-evident contracts and named exit codes
+
+Three exit codes are the floor, not the ceiling. A **Product Contract** — the goal,
+acceptance criteria, verification commands, and stop conditions — can itself be
+tampered with (by the agent under pressure to declare success, or by an external
+edit); hashing the contract at approval time and treating any mismatch as its own
+stop condition (`NEEDS_SPEC_DECISION`) closes a gap the basic taxonomy doesn't
+address: *the spec drifting is a different failure than the work drifting*, and needs
+its own detectable, named exit state. Expanding from 3 to **8 named exit codes**
+(rather than reusing one code for several distinct failure classes) makes the caller
+able to distinguish "no progress" from "spec tampered" from "reviewer disagreed"
+without parsing log text.
+
+([Aitne-sh/loop-kit](https://github.com/Aitne-sh/loop-kit), Jul 2026.)
+
 ## Experience Encoding — The Loop's Learning Step
 
 After each iteration completes and before context is cleared, encode what was learned
@@ -177,7 +192,7 @@ The framing shift matters because onboarding documents describe *intent* and
 *judgment boundaries* — exactly what a loop needs to act autonomously without
 constant supervision. See [Human-in-the-Loop Escalation](14-human-in-the-loop.md).
 
-(Claire Vo, Lenny's Newsletter, "How I AI: How to write AI agent loops", Jun 2026.)
+(Claire Vo, Lenny's Newsletter, ["How I AI: How to write AI agent loops"](https://www.lennysnewsletter.com/p/how-i-ai-how-to-write-ai-agent-loops), Jun 2026.)
 
 ## Event Modeling — Task Decomposition for Loop Contracts
 
@@ -289,7 +304,7 @@ Schedule → Discover → Build → Verify → Repeat
 Self-discovery eliminates the manual queue maintenance step: the loop knows what to work on
 because it reads the same signals a human engineer would check in morning triage.
 
-(Anthropic engineering practices, Jun 2026.)
+([Anthropic engineering practices](https://www.anthropic.com/engineering), Jun 2026.)
 
 ## Relationship to Goal Engineering
 
