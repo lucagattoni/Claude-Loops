@@ -18,6 +18,7 @@ Claude-Loops is a living knowledge base and automated daily tracker for **loop e
 ## Git workflow
 
 - **Always work in a git worktree — never in the primary checkout.** Keep the primary checkout on a clean `main`; do feature/plan work in a separate worktree on its branch (`git worktree add <path> <branch>`), and commit/push from there. This keeps the primary clean and isolated, matching the daily loop's own worktree isolation.
+- **Remove every worktree once its work is finished** — as soon as its branch is merged (or the work is abandoned), `git worktree remove <path>` and delete the branch (local + `git push origin --delete <branch>`). Don't leave finished worktrees lying around "just in case."
 - **Plans and features → own branch + PR.** Never commit feature work directly to `main`. Name branches meaningfully (`feature/...`, `plan/...`).
 - **Exception — automated content goes direct to `main`.** The daily pipeline commits its own output (`LOOP_ENGINEERING_NEWS.md`, `docs/`, `LOOP_ENGINEERING.md`, `SOURCES.md`, `mkdocs.yml`, `CHANGELOG.md`, `KB_GAPS.md`) directly to `main` — `integrate-loop-news`'s Phase 5 commits and `push origin HEAD:main`. This is generated content, not a code feature.
 - **Always pull before changing anything.**
