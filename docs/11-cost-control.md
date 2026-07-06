@@ -49,6 +49,13 @@ The DAW cost breakdown: Planner $0.46 · Build phases $113.85 · QA phases $10.3
 qualitatively different output — not incrementally better. Budget for this step-change
 when reliability and completeness are non-negotiable.
 
+At the other extreme, tight environment- and budget-engineering can make *frontier*
+results cheap: a system budget-engineered around a narrow, well-defined environment
+reached state-of-the-art results on a 26-circle packing benchmark for **under $11 total
+API cost** — evidence that BUDGET ([Loop Contract](27-loop-contract.md)) is not just a
+runaway-cost guard but a design lever that, tightened around a narrow enough SCOPE, can
+buy frontier-level output cheaply. ([EurekAgent, arXiv 2606.13662](http://arxiv.org/abs/2606.13662), Jun 2026.)
+
 ## Token cost by loop pattern
 
 Concrete benchmarks from operating named loop patterns (Cobus Greyling, [cobusgreyling/loop-engineering](https://github.com/cobusgreyling/loop-engineering), Jun 2026):

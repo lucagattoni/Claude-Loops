@@ -120,6 +120,18 @@ Promote to Claw only after the L2→L3 gate is passed and the action set is prov
 
 ([cobusgreyling/fleet-engineering](https://github.com/cobusgreyling/fleet-engineering), Jun 2026.)
 
+## Org-Chart Coordination (an alternative to a graph topology)
+
+Most fleet coordination is described as a graph — nodes (agents) and edges (handoffs).
+An alternative: map agents onto an **org chart** instead — each agent has a role and a
+reporting line, and agents coordinate the way a human org does, over **email** rather
+than a shared state file or direct API calls. The org-chart framing gives fleet
+designers a vocabulary non-engineers already understand (manager, report, cc'd
+stakeholder) and makes escalation paths explicit by construction — a report's blocked
+question routes to its manager the same way a human employee's would. Backend-agnostic:
+agents in the chart can run on Claude Code, Codex, or OpenCode interchangeably.
+([alookai/alook](https://github.com/alookai/alook), Jul 2026.)
+
 ## Current state (June 2026)
 
 - [cobusgreyling/fleet-engineering](https://github.com/cobusgreyling/fleet-engineering) is the primary reference implementation with six production patterns (Team Registry, Shared Inbox HITL, Hierarchical Delegation, Fleet Budget Guard, Cross-Agent Audit)

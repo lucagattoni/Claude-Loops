@@ -75,6 +75,35 @@ SECURITY_MATRIX implies: instead of enumerating attacks to refuse, it refuses an
 outside the declared plan. `blast_radius` complements it by capping *how much* an
 allowed action may touch. ([omnigent-ai/omnigent](https://github.com/omnigent-ai/omnigent), Jul 2026.)
 
+**Update (Jul 2026):** `intent_gate` was renamed **Intent Based Authorization** and its
+off-task-tool-call policy softened from hard-`DENY` to `ASK` — an off-plan action now
+prompts the human for approval instead of silently refusing, trading strict default-deny
+for a human-in-the-loop escalation on the boundary case. The all-or-nothing refusal
+remains the default for clearly out-of-scope actions; `ASK` only applies to the
+ambiguous middle. ([omnigent-ai/omnigent](https://github.com/omnigent-ai/omnigent), Jul 2026.)
+
+### Where Default-Deny Actually Gets Loaded
+
+The open question was never *whether* to default-deny — it's *where in the stack* the
+policy gets enforced so it can't be bypassed by the model simply not calling it. Four
+concrete answers converged this cycle, each intercepting at a different layer:
+
+| Layer | Mechanism | Cannot be bypassed by... |
+|---|---|---|
+| **MCP proxy** | A standalone daemon sits in front of every MCP server, verifying agent identity and denying tool calls by default before they reach the server | The agent skipping a CLAUDE.md rule — the proxy is a separate process the agent never talks to directly |
+| **Tool-dispatch layer** | Destination-aware egress control enforced at the point every tool call is dispatched, shared across Claude Code *and* Codex from one policy | Switching harnesses — the policy lives below the harness, not inside it |
+| **OS/kernel** | The policy engine is compiled into the OS layer itself; guardrails are enforced via kernel integration, not application code | The agent's own process — kernel enforcement holds even if the agent process is fully compromised |
+| **Session bootstrap + eval parity** | A bounded runtime loads a default-deny MCP policy at session start and runs its eval suite over the *same code path* as production | Config drift between "the policy we tested" and "the policy that's live" |
+
+The pattern across all four: **the highest-assurance loading mechanisms move the
+default-deny check outside the process the model runs in** — a proxy daemon, the
+tool-dispatch layer, or the kernel — rather than trusting a CLAUDE.md import or a
+SessionStart hook the model's own process could theoretically route around.
+([mcpharbour/mcpharbour](https://github.com/mcpharbour/mcpharbour);
+[saagpatel/cross-provider-egress-guard](https://github.com/saagpatel/cross-provider-egress-guard);
+ActPlane, [arXiv 2606.25189](https://arxiv.org/abs/2606.25189);
+[codeafix/agent-assistant](https://github.com/codeafix/agent-assistant), Jul 2026.)
+
 ## Credential Rotation Mid-Session
 
 Provisioning and resolving credentials (above) is not enough for long-running loops:
