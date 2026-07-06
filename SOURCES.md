@@ -63,27 +63,27 @@ substantively relevant to loop engineering practice (not just a passing mention)
 
 | Actor | Type | Handle / URL | Notes |
 |---|---|---|---|
-| Anthropic | rss | https://www.anthropic.com/rss.xml | Primary source for Claude Code updates |
+| Anthropic | rss | https://www.anthropic.com/rss.xml | Primary source for Claude Code updates. **404 as of Jul 2026** — feed URL needs rediscovery |
 | Boris Cherny | x | @bcherny | Creator of Claude Code; coined "write loops" |
 | Andrej Karpathy | x | @karpathy | Influential ML researcher |
 | Andrew Ng | x | @AndrewYNg | Agentic AI education |
-| The Batch (DeepLearning.AI) | rss | https://www.deeplearning.ai/the-batch/feed/ | Andrew Ng's weekly newsletter; recurring loop engineering / agentic coverage (e.g. "Loop Engineering for 0-to-1 Product Development", Jun 2026) |
-| OpenAI | html | https://openai.com/news | RSS blocked (403); scrape news index |
-| Addy Osmani | rss | https://addyosmani.com/rss.xml | Co-defined loop engineering |
+| The Batch (DeepLearning.AI) | rss | https://www.deeplearning.ai/the-batch/feed/ | Andrew Ng's weekly newsletter; recurring loop engineering / agentic coverage (e.g. "Loop Engineering for 0-to-1 Product Development", Jun 2026). **404 as of Jul 2026** — feed URL needs rediscovery |
+| OpenAI | rss | https://openai.com/news/rss.xml | Feed discovered Jul 2026 (was html-scraped; 250+ articles returned, root-level path works despite prior 403 note) |
+| Addy Osmani | rss | https://addyo.substack.com/feed | Corrected Jul 2026 — his active blog is the "Elevate" Substack (addyo.substack.com), which carries the origin "loop engineering" post (Jun 2026); the previously-tracked addyosmani.com feed was a different, largely-dormant site |
 | Simon Willison | rss | https://simonwillison.net/atom/entries/ | LLM tooling practitioner |
-| Swyx | x | @swyx | AI engineering community |
+| Swyx | x | @swyx | AI engineering community. Low yield Jul 2026 — keyword search returned zero relevant results, recent activity is unrelated reposts; consider a broader query |
 | swyx.io | rss | https://www.swyx.io/rss.xml | AI engineering long-form posts; feed URL discovered Jul 2026 (was html-scraped) |
 | The New Stack | rss | https://thenewstack.io/feed/ | Active loop engineering coverage |
-| Sabrina Ramonov | html | https://www.sabrina.dev | Loop engineering + /goal + Routines (Jun 2026) |
+| Sabrina Ramonov | rss | https://www.sabrina.dev/feed | Loop engineering + /goal + Routines (Jun 2026); feed URL discovered Jul 2026 (was html-scraped) |
 | Sabrina Ramonov | x | @Sabrina_Ramonov | Active X presence posting loop engineering definitions and techniques (Jun 2026) |
 | Cobus Greyling | rss | https://cobusgreyling.substack.com/feed | Loop Engineering Substack + GitHub repo |
 | Peter Steinberger | x | @steipete | Creator of OpenClaw; "designing loops" framing |
 | Lenny's Newsletter (Claire Vo) | rss | https://www.lennysnewsletter.com/feed | Four-type loop taxonomy article; high-engagement AI practitioner audience (Jun 2026); Substack RSS |
 | Cobus Greyling loop-engineering | github | https://github.com/cobusgreyling/loop-engineering | Reference implementation and patterns repo; watch for new docs, examples, and releases |
-| The Rundown AI | rss | https://www.therundown.ai/feed | Daily AI newsletter (Beehiiv); scan for loop engineering / agentic workflow coverage |
-| TLDR AI | rss | https://tldr.tech/ai/rss | Daily AI digest RSS; scan for Claude Code, agent loop, agentic workflow coverage |
-| Ben's Bites | rss | https://bensbites.beehiiv.com/feed | Daily AI news digest RSS; scan for loop engineering / agent loop coverage |
-| AI Breakfast | rss | https://aibreakfast.beehiiv.com/feed | Daily AI newsletter (Beehiiv RSS); scan for agentic workflow and Claude Code coverage |
+| The Rundown AI | rss | https://www.therundown.ai/feed | Daily AI newsletter (Beehiiv); scan for loop engineering / agentic workflow coverage. **404 as of Jul 2026** — feed URL needs rediscovery |
+| TLDR AI | rss | https://tldr.tech/ai/rss | Daily AI digest RSS; scan for Claude Code, agent loop, agentic workflow coverage. **404 as of Jul 2026** — feed URL needs rediscovery |
+| Ben's Bites | rss | https://bensbites.beehiiv.com/feed | Daily AI news digest RSS; scan for loop engineering / agent loop coverage. **404 as of Jul 2026** — feed URL needs rediscovery |
+| AI Breakfast | rss | https://aibreakfast.beehiiv.com/feed | Daily AI newsletter (Beehiiv RSS); scan for agentic workflow and Claude Code coverage. **404 as of Jul 2026** — feed URL needs rediscovery |
 | X search — loop engineering | x-search | https://x.com/search?q=loop%20engineering&src=typed_query&f=live | Live keyword search; dynamically loaded — scroll ≥3 times to surface 20+ posts |
 | LinkedIn search — loop engineering | linkedin | https://www.linkedin.com/search/results/content/?keywords=loop+engineering | Professional community posts; dynamically loaded — scroll ≥3 times to surface 20+ posts |
 | Harness Books (AgentWay) | html | https://harness-books.agentway.dev | Essay collection on harness design theory — unstable components, ledger closure, input governance, reactive compact |
@@ -104,6 +104,7 @@ substantively relevant to loop engineering practice (not just a passing mention)
 | affaan-m/ecc | github | https://github.com/affaan-m/ecc | Flagship multi-harness "agent operator system" (224k★): eval-harness (pass@k/pass^k, 3 grader types), verification-loop, /loop-start, instinct learning; watch for focused loop-engineering skills (Jun 2026) |
 | krishddd/Strive_Engineering | github | https://github.com/krishddd/Strive_Engineering | Provenance-bound verification: every finding cites a git SHA re-checked via `git cat-file` (loopguard), majority_vote blocks self-grading, L0-L3 autonomy ladder; isomorphic-perturbation verifier (Jun 2026) |
 | Happenmass/Cliclaw | github | https://github.com/Happenmass/Cliclaw | Cross-model maker/checker (Claude implements / Codex reviews) over tmux; auto-continue gate model, tmux-pane state scraping (hook-free), two-tier hybrid memory; 107★ (Jun 2026) |
+| Happenmass/omux | github | https://github.com/Happenmass/omux | Second repo from the same author (Cliclaw above) — 106★; tmux-based parallel orchestration of Claude Code/Codex with cross-session two-tier SQLite memory (Jul 2026) |
 | firegnu/herdr-loop-lab | github | https://github.com/firegnu/herdr-loop-lab | Three-layer (inner/fleet/epic) cross-model adversarial judge + mechanical gate; exit-code stop contracts (0/2/3), stateless worktree rounds, AC-N acceptance criteria (Jun 2026) |
 | arXiv — harness/loop research | rss | http://export.arxiv.org/api/query?search_query=all:%22agent+harness%22+OR+%22loop+engineering%22+OR+%22self-improving+harness%22&sortBy=submittedDate&sortOrder=descending&max_results=30 | arXiv Atom API; primary source for harness-engineering research (Self-Harness 2606.09498, AHE 2604.25850, HarnessX 2606.14249). Added Jul 2026 after 3 arXiv findings in one run |
 | peterCheng123321/loop-engineering | github | https://github.com/peterCheng123321/loop-engineering | Convergence layer over /loop, ralph-loop, Agent SDK loops; progress.md as DP "memo table" — cache solved steps, prune failed branches, survive compaction (Jul 2026) |

@@ -185,11 +185,19 @@ flag → `.claude/agents/` → `~/.claude/agents/` → plugin `agents/`.
 
 ## Nesting
 
-Subagents can spawn their own subagents, up to 5 levels deep. Use this for
+Subagents can spawn their own subagents, up to 5 levels deep
+([@bcherny](https://x.com/bcherny/status/2064327225504403752), Jun 2026). Use this for
 hierarchical delegation: orchestrator → specialist → verifier.
 
 Forked subagents (`subagent_type: "fork"`) inherit the full parent context and
 prompt cache — ideal when the subtask needs all the context the parent has built up.
+
+**Quantified payoff of recursive spawning.** A Recursive Agent Harness (RAH) pattern —
+parent agents spawn subagents in parallel, recursively, rather than a fixed one-level
+fan-out — improved a baseline from 71.75% to 89.77% on Oolong-Synthetic when paired with
+a stronger backbone model, evidence that the *depth* of delegation (not just breadth) is
+a real lever, not just an organisational convenience.
+([arXiv 2606.13643](https://arxiv.org/abs/2606.13643), Jun 2026.)
 
 ## Controlling subagent permissions
 

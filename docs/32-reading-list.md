@@ -295,6 +295,23 @@ than only an accuracy delta.
 
 ---
 
+### [HarnessX: A Composable, Adaptive, and Evolvable Agent Harness Foundry](https://arxiv.org/abs/2606.14249) — arXiv 2606.14249
+**Added:** 2026-07-06 · **Published:** Jun 2026
+
+**Why here:** The only entry in this group that frames harness components as a
+**substitution algebra** (any typed primitive can be swapped for an equivalent) rather
+than an ad-hoc set of editable parts — a structural contribution the other two entries
+don't make, and the paper most directly cited elsewhere in this KB ([docs/24](24-harness-patterns.md)).
+
+**Summary:** Frames runtime components — prompts, tools, memory, control flow — as typed
+harness primitives over a substitution algebra, with an evolution engine (AEGIS) that
+refines them from execution traces. Reports +14.5% average gains across five benchmarks
+(ALFWorld, GAIA, WebShop, and two others), up to +44.0%. Distinct from Self-Harness
+(weakness-mining loop) and AHE (observability pillars) by contributing the *typing and
+substitution* formalism underneath both.
+
+---
+
 ## Goal Engineering & Stopping Conditions
 
 The stopping condition is where most loops fail. These articles address it directly.
@@ -360,17 +377,6 @@ and letting non-engineers ship features that developers later refine. Bug-fixing
 eval-first loop (write a reproducing eval/test, fix, re-run as the stopping condition, gate on
 human review before commit). The lesson is organizational: the bottleneck moved from
 implementation to deciding which disposable proposal is worth keeping.
-
-**Why here:** Makes the strongest case that verification — not model quality — is the
-primary unsolved problem in production loop deployment. Useful calibration for teams
-that have working loops but haven't built a verification layer.
-
-**Summary:** Argues the shift to autonomous loops makes verification the primary
-cloud-native engineering challenge: as implementation speed approaches zero, the
-bottleneck becomes confirming output correctness. A separate model must grade results
-before the loop exits. Covers verification architecture patterns: independent evaluator
-agents, evidence-based stopping (test results, not assertions), and the cost of the
-"looks done" failure mode in production systems.
 
 ---
 

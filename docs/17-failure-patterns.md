@@ -1,5 +1,16 @@
 # Common Failure Patterns
 
+Every pattern below falls into one of three root-cause categories: **underspecification**
+(the task or stop condition was never fully defined), **capability errors** (the model
+genuinely couldn't do the task), or **harness errors** (the scaffolding — permissions,
+verification, state — failed even though the model could have succeeded). Distinguishing
+these matters for the fix: underspecification is fixed by clarifying the spec or Loop
+Contract ([docs/27](27-loop-contract.md)), capability errors are fixed by a stronger model
+or narrower scope, and harness errors are fixed by hardening the scaffolding itself — most
+of the patterns catalogued here are harness errors, since a well-specified task run by a
+capable model still fails when the surrounding loop has no stop condition, no verifier, or
+no state hygiene. ([ClayBuddy](http://arxiv.org/abs/2606.19380), Jun 2026.)
+
 | Pattern | Symptom | Fix |
 |---|---|---|
 | Kitchen-sink session | Unrelated tasks mixed, context polluted | `/clear` between tasks |

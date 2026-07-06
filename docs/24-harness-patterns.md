@@ -2,7 +2,10 @@
 
 The harness is the scaffolding around the agent — prompts, tools, context policies,
 sandboxes, and feedback loops. It is a first-class engineering artefact that requires
-continuous refinement, not a disposable wrapper.
+continuous refinement, not a disposable wrapper. An operational test for what actually
+counts as a harness (as distinct from a framework, SDK, or orchestrator) — validated
+against Claude Code, Codex CLI, Aider, Cline, OpenHands, and SWE-agent — is given in
+["What makes a harness a harness"](https://arxiv.org/abs/2606.10106) (arXiv, Jun 2026).
 
 ## Harness vs. Loop — Two Architectural Layers
 
@@ -37,6 +40,17 @@ governed across many loops via [Fleet Engineering](23-fleet-engineering.md).
 (Opus 4.6 in Claude Code), harness-only changes. This is the hardest evidence to date
 that harness design, not model swap, is the accessible leverage: a mid-pack agent
 became top-5 with the model held fixed. (LangChain, ["The Anatomy of an Agent Harness"](https://www.langchain.com/blog/the-anatomy-of-an-agent-harness), Mar 2026.)
+
+Two benchmarks add further quantified weight to the same thesis. **StaminaBench**
+(stress-testing coding agents over 100+ interaction turns) finds harness quality alone
+creates up to a **6x performance gap** between otherwise-similar models, and that
+feedback loops improve results by up to **12x** over single-shot attempts — the harness,
+not the base model, dominates sustained-task performance.
+([arXiv 2606.19613](http://arxiv.org/abs/2606.19613), Jun 2026.) **Claw-SWE-Bench**
+(evaluating OpenClaw-style harnesses on coding tasks) found the *same backbone model*
+scores only 19.1% with a minimal adapter versus **73.4%** with a full adapter — a 4x
+swing from harness completeness alone, with the model held fixed.
+([arXiv 2606.12344](http://arxiv.org/abs/2606.12344), Jun 2026.)
 
 ### Harness Conformance Testing (harness-bench)
 
@@ -103,6 +117,22 @@ an equivalent), with an evolution engine (AEGIS) that refines prompts, tools, me
 control flow from execution traces. Reports +14.5% average across five benchmarks (ALFWorld,
 GAIA, WebShop, and two others), up to +44.0%.
 ([Cobus Greyling](https://cobusgreyling.substack.com/p/harnessx-when-the-harness-starts) / [arXiv 2606.14249](https://arxiv.org/abs/2606.14249), Jul 2026.)
+
+**SEAGym — evaluation environments for self-evolving harnesses.** A dedicated eval
+environment for self-improving harnesses surfaces two risks the three approaches above
+share: useful intermediate harness snapshots can **collapse** in later iterations (the
+optimizer overfits to recent traces and regresses on cases it previously handled), and
+**source diversity** — how varied the training traces are — materially affects harness
+reliability after evolution. Practical implication: keep a fixed regression suite of
+*earlier* snapshots' solved cases and re-check it every iteration, not just the newest
+failures. ([arXiv 2606.17546](http://arxiv.org/abs/2606.17546), Jun 2026.)
+
+**APEX — co-evolving harness, principles, and workflow together.** Rather than evolving
+the harness alone, a three-layer framework simultaneously co-evolves the harness
+configuration, the stated principles guiding it, and the workflow topology, raising a
+composite "Health Score" from 0.300 to 0.570 — evidence that harness-only evolution
+(the three approaches above) may be leaving gains on the table by holding principles and
+topology fixed. ([arXiv 2606.15363](http://arxiv.org/abs/2606.15363), Jun 2026.)
 
 **The shared shape:** all three are outer loops whose *product is a better harness*, each gated
 by a verifier (regression run / prediction contract / benchmark). They validate the

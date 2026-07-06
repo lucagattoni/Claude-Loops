@@ -18,6 +18,42 @@ Versioning follows [Semantic Versioning](https://semver.org/):
 
 ---
 
+## [2.7.2] — 2026-07-06 17:38 IST
+
+### Added
+- `docs/16-memory-patterns.md` — Pattern H: LLM Wiki (compiled, cross-linked organizational
+  knowledge base; converged independently across 3 sources this run — Karpathy, The New
+  Stack, Cobus Greyling)
+- `docs/33-agent-security-hardening.md` — "Where Default-Deny Actually Gets Loaded" section
+  (4 concrete enforcement points: MCP proxy, tool-dispatch layer, OS/kernel, session-bootstrap
+  eval-parity), substantially filling the SECURITY_MATRIX loading-mechanism KB gap
+- `docs/04-verification.md` — cross-model reviewer arbitration mechanism (verdict-driven
+  severity, promote-on-confirm, bounded 3-round reconciliation), filling half of the
+  cross-model-arbitration KB gap
+- `docs/23-fleet-engineering.md` — Org-Chart Coordination pattern (agents mapped to reporting
+  lines, coordinating over email, as an alternative to a graph topology)
+- `docs/24-harness-patterns.md` — definitional-paper citation, StaminaBench + Claw-SWE-Bench
+  quantified harness>model evidence (6x/4x gaps), SEAGym + APEX additions
+- `docs/11-cost-control.md` — EurekAgent sub-$11 frontier-result cost benchmark
+- `docs/07-subagents.md` — primary-source citation for the depth=5 nesting cap; Recursive
+  Agent Harness (RAH) quantified evidence
+- `docs/17-failure-patterns.md` — 3-category root-cause taxonomy intro (underspecification /
+  capability errors / harness errors)
+- `docs/32-reading-list.md` — added HarnessX (arXiv 2606.14249) to Self-Improving Harnesses
+
+### Changed
+- `docs/32-reading-list.md` — removed a structurally broken entry (orphaned "Why
+  here"/"Summary" text with no title or citation, left over from a prior edit) in
+  "Loops in Production"
+- `KB_GAPS.md` — marked 2 gaps filled (SECURITY_MATRIX loading mechanism; cross-model
+  arbitration's disagreement-resolution half), refined the remaining arbitration question,
+  advanced the held-out-eval gap, ruled out a false lead on F0-F3 fleet maturity
+- `SOURCES.md` — fixed Addy Osmani's feed URL (was pointing at a dormant site), switched
+  OpenAI and Sabrina Ramonov from `html` to `rss` (feeds discovered this run), flagged 6
+  dead RSS feeds for rediscovery, added Happenmass/omux
+
+---
+
 ## [2.7.1] — 2026-07-04 IST
 
 ### Added

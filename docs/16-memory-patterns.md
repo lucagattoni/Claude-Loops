@@ -225,6 +225,37 @@ session exit until the ledger is updated.
 ([ohyesgocool/feature-loop](https://github.com/ohyesgocool/feature-loop);
 [hiphapis/loopcraft](https://github.com/hiphapis/loopcraft), Jul 2026.)
 
+## Pattern H: LLM Wiki
+
+Where Patterns A–G externalise a single loop's *task* memory, the LLM Wiki externalises
+**organisational knowledge** the agent compiles and maintains across many unrelated
+runs — a persistent, cross-linked knowledge base an LLM both writes to and queries,
+rather than re-deriving the same facts from scratch each session:
+
+```
+raw/       ← unprocessed source material (transcripts, docs, notes)
+wiki/      ← the compiled, cross-linked knowledge base pages
+index.md   ← entry point / table of contents into wiki/
+log.md     ← append-only record of what was ingested and when
+claude.md  ← instructions for how the agent should ingest/query/lint this wiki
+```
+
+Three workflows operate on the structure: **ingest** (raw material → new or updated wiki
+pages, with cross-links to related pages), **query** (answer a question by reading wiki/
+first, falling back to raw/ only if the wiki doesn't cover it), and **lint** (periodically
+check the wiki for orphaned pages, broken cross-links, and pages that duplicate content
+better owned elsewhere — the wiki's own version of [KB_GAPS.md](../KB_GAPS.md) hygiene).
+
+This converged from three independent directions the same week — Karpathy's original
+gist, Google's Open Knowledge Format, and Garry Tan's 23-role "gstack" — suggesting the
+underlying idea (Markdown-as-agent-memory, compiled and maintained rather than replayed)
+is becoming a convention rather than one person's technique. The shared thesis: as models
+improve, the differentiator shifts from model quality to *the organisational knowledge the
+agent reads and maintains* — the wiki, not the transcript, becomes the durable asset.
+([Karpathy gist](https://gist.github.com/karpathy/442a6bf555914893e9891c11519de94f);
+[Cobus Greyling](https://cobusgreyling.substack.com/p/llm-wiki);
+[The New Stack](https://thenewstack.io/markdown-agent-memory-moat/), Jul 2026.)
+
 ---
 
 See [Long-Running Agents](25-long-running-agents.md) for the architectural pattern

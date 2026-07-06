@@ -279,6 +279,21 @@ are the converging community answer to [Verifier Theater](17-failure-patterns.md
 verifier, the contract, and the evidence all live outside the agent's reach, no single judge
 can wave work through, and the judge that does check does not share the maker's blind spots.
 
+**Arbitrating disagreement between cross-model reviewers.** Once you pair multiple
+independent models as reviewers (pattern 5), a new question follows: what do you do when
+they disagree? A multi-model (Claude + Codex + Gemini) reconciliation harness found that
+**~85–90% of findings are caught by exactly one reviewer** — not by consensus — which
+argues for *model-family diversity* over adding more reviewers of the same family for
+consensus voting: the marginal reviewer that catches something new is more valuable than
+a second vote on something already caught. To reconcile severity across reviewers it uses
+**verdict-driven severity**: a verifier's confirmed/refuted judgment overrides the raw
+severity a reviewer assigned, with a "promote-on-confirm" rule that floors any
+independently-*confirmed* bug at high severity regardless of how mild the original
+reviewer rated it. Cross-reviewer overlap is tracked mechanically (a findings database
+with an `agreement_n` count per finding) rather than argued about at review time, and the
+whole reconciliation is bounded to 3 rounds, gating only on blocker/high severity so minor
+disagreements don't stall the loop. ([houshuang/compound-review](https://github.com/houshuang/compound-review), Jun 2026.)
+
 ## Eval Metrics: pass@k vs. pass^k
 
 A single pass/fail run cannot tell you whether a loop is *reliably* correct or just
