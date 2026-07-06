@@ -173,7 +173,8 @@ run_claude() {
 # budget, plus A-uses-Chrome vs B-uses-git); run_claude just wraps PTY + transient scan.
 A_ARGS=(--model "$SEARCH_MODEL" --effort "$SEARCH_EFFORT"
         --max-turns "$SEARCH_MAX_TURNS" --max-budget-usd "$SEARCH_BUDGET_USD" --chrome
-        --allowedTools "Read,Edit,Write,WebFetch,mcp__claude-in-chrome__*" -p "/fetch-loop-news")
+        --allowedTools "Read,Edit,Write,WebFetch,mcp__claude-in-chrome__*"
+        --disallowedTools "Bash(git *),Bash(gh *),Skill" -p "/fetch-loop-news")
 B_ARGS=(--model "$INTEGRATE_MODEL" --effort "$INTEGRATE_EFFORT"
         --max-turns "$INTEGRATE_MAX_TURNS" --max-budget-usd "$INTEGRATE_BUDGET_USD"
         --allowedTools "Read,Edit,Write,WebFetch,Bash(git *)" -p "/integrate-loop-news")

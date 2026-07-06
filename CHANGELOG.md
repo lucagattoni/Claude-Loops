@@ -26,7 +26,16 @@ Versioning follows [Semantic Versioning](https://semver.org/):
   condition a headless session can't reliably evaluate, so it did so anyway, executing
   the entire integrate stage (digest, KB writes, release, commit, push) inside its own
   search-stage session and collapsing the deliberate two-session split back into one.
-  Removed the exception; the skill now stops unconditionally after writing the artifact.
+  Removed the exception and told the skill to stop unconditionally.
+- **That prose fix alone was insufficient — recurred on the very next production run**
+  (2026-07-06), same collapse, despite the unconditional wording. Confirmed prompts are
+  not a substitute for an actual permission boundary. The real fix: Stage A's session now
+  runs with `--disallowedTools "Bash(git *),Bash(gh *),Skill"` — a genuine deny-list,
+  experimentally verified to hold even under `--permission-mode auto` (unlike
+  `--allowedTools`, which the auto classifier can approve beyond). Scoped to git/gh/Skill
+  rather than blanket `Bash`, since Stage A still legitimately needs plain `Bash` for a
+  `date` call in Phase 1 — verified that scoped deny blocks `git log` while still
+  allowing `date` through.
 - Added a defense-in-depth check to `integrate-loop-news` Phase 0: before doing any KB
   work, check `git log --grep` for a commit matching this run's `run_time` and abort
   immediately if the run was already published (cheap; catches a recurrence early).

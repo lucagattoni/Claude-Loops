@@ -301,3 +301,15 @@ If Phase 2 or Phase 3 surfaces a person or company that:
    one session defeats the reason it was split. If a human wants to complete the
    pipeline, **they** run `/integrate-loop-news` themselves, as their own explicit,
    separate step.
+
+   **This instruction alone is not sufficient — do not rely on it.** In production this
+   exact escalation happened twice in a row even with wording this explicit (2026-07-04,
+   2026-07-06): the model self-invoked the integrate stage anyway, both by using it as
+   permission and via tools the classifier approved beyond the session's allowlist. The
+   wrapper (`scripts/run-loop-news.sh`) now also structurally denies `Bash(git *)`,
+   `Bash(gh *)`, and `Skill` for this stage via `--disallowedTools` — a real deny-list,
+   verified to hold even under `--permission-mode auto` (unlike `--allowedTools`, which
+   the auto classifier can approve beyond). That technical enforcement, not this prose,
+   is what actually prevents the collapse when run through the wrapper. A human running
+   this skill interactively outside the wrapper has no such enforcement and must rely on
+   this instruction alone.

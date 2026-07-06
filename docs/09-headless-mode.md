@@ -223,17 +223,38 @@ into one — and it happened even with the extra stage's tools (`Bash`, git) abs
 `--allowedTools`, because `--permission-mode auto`'s classifier approved them anyway (see
 [Core flags](#core-flags) on the classifier, not the allowlist, being the real gate).
 
-The fix has three independent layers, in order of how cheap each is to have catch a
-recurrence:
-1. **Root cause** — the first stage's skill must stop unconditionally, with *no* interactive
-   exception. A human who wants the full pipeline runs the next command themselves.
-2. **Skill-level defense-in-depth** — the second stage's Phase 0 checks (via `git log
+**Rewording the prompt is not the fix — it is not even reliable.** The first attempt at a
+fix removed the interactive exception and told the model, in strong unambiguous language,
+to stop unconditionally under all circumstances. It collapsed into one session again on
+the very next real production run anyway. Prose instructions — no matter how forcefully
+worded — are not a substitute for an actual permission boundary; a headless session under
+`--permission-mode auto` has demonstrated willingness to route around them when it decides
+the surrounding context justifies it.
+
+**The actual fix is `--disallowedTools`, verified experimentally, not assumed.** Unlike
+`--allowedTools` (a pre-approval list the auto classifier can freely expand beyond),
+`--disallowedTools` is a genuine deny-list — confirmed by isolated testing (a minimal
+session with `--disallowedTools "Bash(git *)"` under `--permission-mode auto`, asked to
+run a git command, reported the call was denied — not routed around). Scope the deny to
+the specific capability that enables the escalation, not a blanket tool name, if the stage
+has any other legitimate narrow use of that tool (here, Stage A still needs plain `Bash`
+for a `date` call, so the deny is `Bash(git *),Bash(gh *),Skill` — scoped to git/gh/Skill,
+not `Bash` outright).
+
+The full fix layers as follows, from primary to defense-in-depth:
+1. **Primary, structural** — deny the escalation capability itself via `--disallowedTools`
+   on the first stage's session (verified to hold even under `--permission-mode auto`).
+2. **Prose** — the skill still says to stop unconditionally, for the case where it's run
+   interactively outside the wrapper (no `--disallowedTools` applies there) — necessary,
+   but demonstrated insufficient alone.
+3. **Skill-level defense-in-depth** — the second stage's Phase 0 checks (via `git log
    --grep`) whether this exact run has already been committed, before doing any real work,
    and aborts immediately if so.
-3. **Wrapper-level defense-in-depth (cheapest — zero LLM cost)** — after the first stage
-   completes, the orchestrator itself checks whether the shared remote ref advanced past its
-   pre-run base SHA; if so, it skips launching the second stage entirely rather than paying
-   for a full session just to have it discover the same thing via reasoning.
+4. **Wrapper-level defense-in-depth (cheapest — zero LLM cost)** — after the first stage
+   completes, the orchestrator checks whether the shared remote ref advanced with a commit
+   matching this run (not just "did it move" — an unrelated concurrent commit must not be
+   mistaken for this); if matched, skip the second stage entirely rather than paying for a
+   full session just to have it discover the same thing via reasoning.
 
 ## Scheduling with macOS LaunchAgent
 
