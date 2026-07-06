@@ -62,6 +62,13 @@ Versioning follows [Semantic Versioning](https://semver.org/):
   Set `CLAUDE_CODE_PRINT_BG_WAIT_CEILING_MS=0` (per the CLI's own suggested remedy) —
   safe since the outer `--max-turns`/`--max-budget-usd` ceilings still bound the overall
   session regardless.
+- **Production incident (2026-07-06, validation run #2)**: hit the Claude account session
+  limit ("You've hit your session limit · resets &lt;time&gt;"). This message matched
+  neither `ERROR_REGEX` nor `BUDGET_EXCEEDED_REGEX`, so the wrapper treated it as an
+  ordinary retriable failure and burned all 3 attempts (with 30s/90s backoffs) against a
+  limit that resets on a wall clock, not on a short backoff. Added `SESSION_LIMIT_REGEX`
+  as a third deterministic non-retry class (same pattern as budget-exceeded): on match,
+  stop immediately with a clear notification instead of retrying.
 
 ---
 

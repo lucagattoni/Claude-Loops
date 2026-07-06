@@ -111,6 +111,14 @@ ERROR_REGEX='API Error:|ECONNRESET|ETIMEDOUT|Unable to connect to API|Connection
 # of backing off and retrying.
 BUDGET_EXCEEDED_REGEX='Exceeded USD budget'
 
+# Claude account (subscription) usage limit hit. Also DETERMINISTIC within this script's
+# lifetime — it resets on a wall-clock time (e.g. "resets 7:20pm"), not on a short backoff,
+# so all MAX_ATTEMPTS would burn their backoff delays for nothing (observed in production,
+# 2026-07-06: 3 attempts, 30s+90s backoff, all hit the same limit instantly). Distinct from
+# ERROR_REGEX (that's transient/retriable) and BUDGET_EXCEEDED_REGEX (that's our own
+# --max-budget-usd tripwire) — this is Anthropic's own account-level quota.
+SESSION_LIMIT_REGEX="You've hit your session limit"
+
 stamp() { date -u +%Y-%m-%dT%H:%M:%SZ; }
 
 # Best-effort desktop notification + log line. Never fails the script.
@@ -149,10 +157,12 @@ findings_valid() {
 
 # run_claude <label> <claude-args...> — run one session in the worktree via a PTY (so
 # claude flushes line-by-line), fold its output into the day log, and return success =
-# exit 0 AND no transient-error marker. Sets the global BUDGET_EXCEEDED=1 (and does NOT
-# reset it — the caller must check it right after the call) when the budget-exceeded
-# marker is seen, so the outer loop can stop instead of retrying a deterministic failure.
+# exit 0 AND no transient-error marker. Sets the global BUDGET_EXCEEDED=1 / SESSION_LIMIT=1
+# (and does NOT reset either — the caller must check right after the call) when their
+# respective markers are seen, so the outer loop can stop instead of retrying a
+# deterministic (non-transient, backoff-won't-help) failure.
 BUDGET_EXCEEDED=0
+SESSION_LIMIT=0
 run_claude() {
   local label="$1"; shift
   local tmp; tmp="$(mktemp -t loop-news-attempt.XXXXXX)"
@@ -163,9 +173,10 @@ run_claude() {
   local transient="no"
   grep -Eq "$ERROR_REGEX" "$tmp" && transient="yes"
   if grep -Eq "$BUDGET_EXCEEDED_REGEX" "$tmp"; then BUDGET_EXCEEDED=1; fi
+  if grep -Fq "$SESSION_LIMIT_REGEX" "$tmp"; then SESSION_LIMIT=1; fi
   rm -f "$tmp"
   if [[ $code -eq 0 && $transient == "no" ]]; then return 0; fi
-  echo "[$(stamp)] ${label} failed (exit=${code}, transient=${transient}, budget_exceeded=${BUDGET_EXCEEDED})" | tee -a "$LOG_FILE"
+  echo "[$(stamp)] ${label} failed (exit=${code}, transient=${transient}, budget_exceeded=${BUDGET_EXCEEDED}, session_limit=${SESSION_LIMIT})" | tee -a "$LOG_FILE"
   return 1
 }
 
@@ -189,7 +200,7 @@ while (( attempt <= MAX_ATTEMPTS )); do
   git -C "$WT_DIR" reset --hard origin/main
   git -C "$WT_DIR" clean -fd            # NOT -x → keeps ignored .loop-news/
 
-  ok=1; BUDGET_EXCEEDED=0
+  ok=1; BUDGET_EXCEEDED=0; SESSION_LIMIT=0
   # STAGE A — search; skipped entirely if a valid artifact already exists (B-only retry)
   if ! findings_valid; then
     run_claude "attempt ${attempt}/${MAX_ATTEMPTS} · A (search)" "${A_ARGS[@]}" || ok=0
@@ -230,6 +241,13 @@ while (( attempt <= MAX_ATTEMPTS )); do
   # --- budget-exceeded is DETERMINISTIC: never retry (would just hit the same wall) ---
   if (( BUDGET_EXCEEDED )); then
     notify "Attempt ${attempt} exceeded its --max-budget-usd — not retrying (this always recurs). Raise LOOP_SEARCH_BUDGET_USD / LOOP_INTEGRATE_BUDGET_USD."
+    exit 1
+  fi
+
+  # --- session limit is an account-level quota that resets on a clock, not a backoff:
+  # never retry within this script run (the reset time is printed in the log for a human).
+  if (( SESSION_LIMIT )); then
+    notify "Attempt ${attempt} hit the Claude account session limit — not retrying (resets on a clock, not a backoff). Re-run manually after the reset time (see log)."
     exit 1
   fi
 
