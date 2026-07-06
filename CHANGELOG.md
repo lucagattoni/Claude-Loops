@@ -69,6 +69,11 @@ Versioning follows [Semantic Versioning](https://semver.org/):
   limit that resets on a wall clock, not on a short backoff. Added `SESSION_LIMIT_REGEX`
   as a third deterministic non-retry class (same pattern as budget-exceeded): on match,
   stop immediately with a clear notification instead of retrying.
+- **Production incident (2026-07-06, validation run #3)**: with the structural fix
+  confirmed working (Stage A correctly stopped after search, no self-execution, on two
+  separate attempts), Stage B then hit `Reached max turns (100)` twice in a row on a
+  large-batch day (74 findings, 9+ docs touched). Raised `INTEGRATE_MAX_TURNS` 100→250 —
+  same rationale as the earlier 40→100 raise: it's a ceiling, not a target.
 
 ---
 

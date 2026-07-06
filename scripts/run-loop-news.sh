@@ -43,11 +43,12 @@ SEARCH_MAX_TURNS="${LOOP_SEARCH_MAX_TURNS:-100}"
 SEARCH_BUDGET_USD="${LOOP_SEARCH_BUDGET_USD:-30}"
 INTEGRATE_MODEL="${LOOP_INTEGRATE_MODEL:-sonnet}"        # Skill B · integrate-loop-news
 INTEGRATE_EFFORT="${LOOP_INTEGRATE_EFFORT:-high}"
-# 100, not 40: the 2026-07-04 production run hit "Reached max turns (40)" twice in a row
-# on Stage B — Phase 4 (digest + integrate) + 4b + the MANDATORY every-run 4c structural
-# review + Phase 5 release/commit/push is real work that a normal day can exceed 40 turns
-# on. 60 was the plan's documented fallback; raised further to 100 for more headroom.
-INTEGRATE_MAX_TURNS="${LOOP_INTEGRATE_MAX_TURNS:-100}"
+# 250, not 100: the 2026-07-04 run hit "Reached max turns (40)" twice; raised to 100.
+# The 2026-07-06 validation run (74 findings, 9+ docs touched) hit "Reached max turns
+# (100)" twice in a row too — a large-batch day genuinely needs more than 100. Same
+# rationale as before: this is a ceiling, not a target, so a generous one costs nothing
+# on a normal/small day; it only matters on the days it would otherwise fail outright.
+INTEGRATE_MAX_TURNS="${LOOP_INTEGRATE_MAX_TURNS:-250}"
 INTEGRATE_BUDGET_USD="${LOOP_INTEGRATE_BUDGET_USD:-20}"
 
 CLAUDE_BIN="${CLAUDE_BIN:-/opt/homebrew/bin/claude}"
