@@ -52,6 +52,14 @@ INTEGRATE_BUDGET_USD="${LOOP_INTEGRATE_BUDGET_USD:-20}"
 
 CLAUDE_BIN="${CLAUDE_BIN:-/opt/homebrew/bin/claude}"
 
+# Production incident (2026-07-05): Stage A's parallel per-source subagents (Phase 2 —
+# one subagent per tracked source) tripped the CLI's own internal background-task wait
+# ceiling ("Background tasks still running after 600s; terminating"), which the CLI's own
+# error output says to disable via this env var. Safe to leave uncapped here: the outer
+# --max-turns/--max-budget-usd ceilings on each stage still bound the overall session
+# even if no individual background wait is capped internally.
+export CLAUDE_CODE_PRINT_BG_WAIT_CEILING_MS=0
+
 usage() {
   cat <<'USAGE'
 Usage: run-loop-news.sh [options]

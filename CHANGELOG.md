@@ -18,7 +18,7 @@ Versioning follows [Semantic Versioning](https://semver.org/):
 
 ---
 
-## [2.7.2] — 2026-07-04 IST
+## [2.7.2] — 2026-07-06 IST
 
 ### Fixed
 - **Stage-A self-execution bug** (production incident, 2026-07-04): `fetch-loop-news`'s
@@ -47,6 +47,12 @@ Versioning follows [Semantic Versioning](https://semver.org/):
 - `integrate-loop-news`'s already-published check now fetches and checks against
   `origin/main` (not just local history, which could miss a publish made by a different
   worktree/process) and no longer caps the log search depth.
+- **Production incident (2026-07-05)**: Stage A's parallel per-source subagents tripped
+  the CLI's internal 600s background-task wait ceiling ("Background tasks still running
+  after 600s; terminating"), causing all 3 attempts to fail with no digest published.
+  Set `CLAUDE_CODE_PRINT_BG_WAIT_CEILING_MS=0` (per the CLI's own suggested remedy) —
+  safe since the outer `--max-turns`/`--max-budget-usd` ceilings still bound the overall
+  session regardless.
 
 ---
 
