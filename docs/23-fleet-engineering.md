@@ -90,6 +90,15 @@ Distinct from developer maturity (docs/20) and per-loop readiness (L1/L2/L3 in d
 
 Start every fleet at F0, regardless of engineer experience. F3 requires F2 evidence.
 
+**Still missing: observable per-gate indicators.** A governance-first harness enforcing
+shared policy across Copilot, Claude Code, and Codex (a "baton workflow" handing
+responsibility between role labels — Manager → Collaborator → Admin → Consultant)
+documents fleet-aware routing, telemetry, and policy enforcement consistent with F0-F3
+progression, but — like every other source checked so far — stops short of defining the
+*concrete, checkable signal* that proves a fleet has passed a given gate (as opposed to
+merely running the infrastructure a passing fleet would have). The gap remains open.
+([chf3198/megingjord-harness](https://github.com/chf3198/megingjord-harness), Jul 2026.)
+
 ## Fleet Economics — Cost Attribution
 
 Individual loop token budgets aggregate into fleet-level spend. At F2+, track cost per agent:

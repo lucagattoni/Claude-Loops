@@ -18,6 +18,33 @@ Versioning follows [Semantic Versioning](https://semver.org/):
 
 ---
 
+## [2.7.3] — 2026-07-07 05:27 IST
+
+### Added
+- `docs/04-verification.md` — Reviewer Freshness Enforcement (model vs. perspective
+  independence, never-see-the-draft rule, synthesizer-bias mitigation), filling the
+  reviewer-freshness-enforcement KB gap; held-out evaluator-only "holdout wall" refinement
+- `docs/24-harness-patterns.md` — Darwin Mode (train/eval-disjoint held-out gating),
+  filling the held-out-eval-sizing KB gap and closing SEAGym's snapshot-collapse risk;
+  mechanized-vs-prose compliance metric (~100% vs ~70-90%); harness-bench self-correcting
+  capability tables; harness-design origin-story citation (The Making of Claude Code)
+- `docs/10-fan-out.md` — Agentic MapReduce pattern (map signals → bounded fan-out →
+  reduce → sandbox-verify)
+- `docs/32-reading-list.md` — added metaharness (Darwin Mode) to Self-Improving Harnesses
+
+### Changed
+- `docs/23-fleet-engineering.md` — noted megingjord-harness as a partial (not sufficient)
+  contribution to the F0-F3 observable-indicators gap
+- `KB_GAPS.md` — marked reviewer-freshness-enforcement and held-out-eval-sizing gaps
+  filled; annotated F0-F3 and cross-model-pairing gaps with this run's partial findings
+- `SOURCES.md` — Anthropic switched from dead RSS feed to html-type `claude.com/blog`;
+  rediscovered feed URLs for TLDR AI, The Rundown AI, and Ben's Bites; removed dead
+  `orobsonn/claude-harness` (404); promoted hhamja to a tracked github source
+- `LOOP_ENGINEERING.md` — updated docs/04, docs/24, and docs/10 summaries for this run's
+  additions
+
+---
+
 ## [2.7.2] — 2026-07-06 17:38 IST
 
 ### Added

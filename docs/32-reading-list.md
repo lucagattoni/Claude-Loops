@@ -312,6 +312,26 @@ substitution* formalism underneath both.
 
 ---
 
+### [metaharness](https://github.com/ruvnet/metaharness) — ruvnet
+**Added:** 2026-07-07 · **Published:** Jul 2026
+
+**Why here:** The only entry in this group that specifies *how* to avoid the overfitting
+risk SEAGym warns about, rather than just reporting benchmark gains. Its Darwin Mode
+enforces strict train/eval disjointness between the traces that generate a mutation and
+the held-out benchmark that gates it — a methodological detail none of the arXiv papers
+in this group make explicit.
+
+**Summary:** A factory-model harness generator (branded CLI, MCP server, governance
+policy, witness-signed release provenance) with a self-evolution mode, Darwin
+(`@metaharness/darwin`), that mutates its own config, sandbox-tests each candidate, and
+keeps only mutations that measurably improve a held-out benchmark (SWE-bench Lite,
+LiveCodeBench) strictly disjoint from the mutation-generating traces. A companion model
+router learns the cheapest-sufficient model per task from fleet-wide eval logs, and a
+Cost-Pareto leaderboard requires Wilson 95% confidence intervals on submissions —
+statistical rigor not seen elsewhere in this reading list.
+
+---
+
 ## Goal Engineering & Stopping Conditions
 
 The stopping condition is where most loops fail. These articles address it directly.
