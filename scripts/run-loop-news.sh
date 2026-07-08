@@ -43,14 +43,23 @@ SEARCH_MAX_TURNS="${LOOP_SEARCH_MAX_TURNS:-100}"
 SEARCH_BUDGET_USD="${LOOP_SEARCH_BUDGET_USD:-30}"
 INTEGRATE_MODEL="${LOOP_INTEGRATE_MODEL:-sonnet}"        # Skill B · integrate-loop-news
 INTEGRATE_EFFORT="${LOOP_INTEGRATE_EFFORT:-high}"
-# 100, not 40: the 2026-07-04 production run hit "Reached max turns (40)" twice in a row
-# on Stage B — Phase 4 (digest + integrate) + 4b + the MANDATORY every-run 4c structural
-# review + Phase 5 release/commit/push is real work that a normal day can exceed 40 turns
-# on. 60 was the plan's documented fallback; raised further to 100 for more headroom.
-INTEGRATE_MAX_TURNS="${LOOP_INTEGRATE_MAX_TURNS:-100}"
+# 250, not 100: the 2026-07-04 run hit "Reached max turns (40)" twice; raised to 100.
+# The 2026-07-06 validation run (74 findings, 9+ docs touched) hit "Reached max turns
+# (100)" twice in a row too — a large-batch day genuinely needs more than 100. Same
+# rationale as before: this is a ceiling, not a target, so a generous one costs nothing
+# on a normal/small day; it only matters on the days it would otherwise fail outright.
+INTEGRATE_MAX_TURNS="${LOOP_INTEGRATE_MAX_TURNS:-250}"
 INTEGRATE_BUDGET_USD="${LOOP_INTEGRATE_BUDGET_USD:-20}"
 
 CLAUDE_BIN="${CLAUDE_BIN:-/opt/homebrew/bin/claude}"
+
+# Production incident (2026-07-05): Stage A's parallel per-source subagents (Phase 2 —
+# one subagent per tracked source) tripped the CLI's own internal background-task wait
+# ceiling ("Background tasks still running after 600s; terminating"), which the CLI's own
+# error output says to disable via this env var. Safe to leave uncapped here: the outer
+# --max-turns/--max-budget-usd ceilings on each stage still bound the overall session
+# even if no individual background wait is capped internally.
+export CLAUDE_CODE_PRINT_BG_WAIT_CEILING_MS=0
 
 usage() {
   cat <<'USAGE'
@@ -103,6 +112,14 @@ ERROR_REGEX='API Error:|ECONNRESET|ETIMEDOUT|Unable to connect to API|Connection
 # of backing off and retrying.
 BUDGET_EXCEEDED_REGEX='Exceeded USD budget'
 
+# Claude account (subscription) usage limit hit. Also DETERMINISTIC within this script's
+# lifetime — it resets on a wall-clock time (e.g. "resets 7:20pm"), not on a short backoff,
+# so all MAX_ATTEMPTS would burn their backoff delays for nothing (observed in production,
+# 2026-07-06: 3 attempts, 30s+90s backoff, all hit the same limit instantly). Distinct from
+# ERROR_REGEX (that's transient/retriable) and BUDGET_EXCEEDED_REGEX (that's our own
+# --max-budget-usd tripwire) — this is Anthropic's own account-level quota.
+SESSION_LIMIT_REGEX="You've hit your session limit"
+
 stamp() { date -u +%Y-%m-%dT%H:%M:%SZ; }
 
 # Best-effort desktop notification + log line. Never fails the script.
@@ -141,10 +158,12 @@ findings_valid() {
 
 # run_claude <label> <claude-args...> — run one session in the worktree via a PTY (so
 # claude flushes line-by-line), fold its output into the day log, and return success =
-# exit 0 AND no transient-error marker. Sets the global BUDGET_EXCEEDED=1 (and does NOT
-# reset it — the caller must check it right after the call) when the budget-exceeded
-# marker is seen, so the outer loop can stop instead of retrying a deterministic failure.
+# exit 0 AND no transient-error marker. Sets the global BUDGET_EXCEEDED=1 / SESSION_LIMIT=1
+# (and does NOT reset either — the caller must check right after the call) when their
+# respective markers are seen, so the outer loop can stop instead of retrying a
+# deterministic (non-transient, backoff-won't-help) failure.
 BUDGET_EXCEEDED=0
+SESSION_LIMIT=0
 run_claude() {
   local label="$1"; shift
   local tmp; tmp="$(mktemp -t loop-news-attempt.XXXXXX)"
@@ -155,9 +174,10 @@ run_claude() {
   local transient="no"
   grep -Eq "$ERROR_REGEX" "$tmp" && transient="yes"
   if grep -Eq "$BUDGET_EXCEEDED_REGEX" "$tmp"; then BUDGET_EXCEEDED=1; fi
+  if grep -Fq "$SESSION_LIMIT_REGEX" "$tmp"; then SESSION_LIMIT=1; fi
   rm -f "$tmp"
   if [[ $code -eq 0 && $transient == "no" ]]; then return 0; fi
-  echo "[$(stamp)] ${label} failed (exit=${code}, transient=${transient}, budget_exceeded=${BUDGET_EXCEEDED})" | tee -a "$LOG_FILE"
+  echo "[$(stamp)] ${label} failed (exit=${code}, transient=${transient}, budget_exceeded=${BUDGET_EXCEEDED}, session_limit=${SESSION_LIMIT})" | tee -a "$LOG_FILE"
   return 1
 }
 
@@ -165,7 +185,8 @@ run_claude() {
 # budget, plus A-uses-Chrome vs B-uses-git); run_claude just wraps PTY + transient scan.
 A_ARGS=(--model "$SEARCH_MODEL" --effort "$SEARCH_EFFORT"
         --max-turns "$SEARCH_MAX_TURNS" --max-budget-usd "$SEARCH_BUDGET_USD" --chrome
-        --allowedTools "Read,Edit,Write,WebFetch,mcp__claude-in-chrome__*" -p "/fetch-loop-news")
+        --allowedTools "Read,Edit,Write,WebFetch,mcp__claude-in-chrome__*"
+        --disallowedTools "Bash(git *),Bash(gh *),Skill" -p "/fetch-loop-news")
 B_ARGS=(--model "$INTEGRATE_MODEL" --effort "$INTEGRATE_EFFORT"
         --max-turns "$INTEGRATE_MAX_TURNS" --max-budget-usd "$INTEGRATE_BUDGET_USD"
         --allowedTools "Read,Edit,Write,WebFetch,Bash(git *)" -p "/integrate-loop-news")
@@ -180,7 +201,7 @@ while (( attempt <= MAX_ATTEMPTS )); do
   git -C "$WT_DIR" reset --hard origin/main
   git -C "$WT_DIR" clean -fd            # NOT -x → keeps ignored .loop-news/
 
-  ok=1; BUDGET_EXCEEDED=0
+  ok=1; BUDGET_EXCEEDED=0; SESSION_LIMIT=0
   # STAGE A — search; skipped entirely if a valid artifact already exists (B-only retry)
   if ! findings_valid; then
     run_claude "attempt ${attempt}/${MAX_ATTEMPTS} · A (search)" "${A_ARGS[@]}" || ok=0
@@ -188,6 +209,30 @@ while (( attempt <= MAX_ATTEMPTS )); do
   else
     echo "[$(stamp)] attempt ${attempt}: valid findings.json present — skipping search" | tee -a "$LOG_FILE"
   fi
+
+  # Cheap, zero-LLM-cost guard: if Stage A's own session already carried the pipeline
+  # through and pushed (a known failure mode — see fetch-loop-news/SKILL.md Phase 4),
+  # skip Stage B instead of paying for a full redundant session. Checks for a MATCHING
+  # loop-news commit in the delta, not just "did origin/main move" — main can legitimately
+  # advance for an unrelated reason (e.g. a human merging a different PR concurrently,
+  # which is common in this repo), and that must NOT be mistaken for "this run already
+  # published" — doing so would silently skip a day's digest that was never written.
+  if (( ok )); then
+    git -C "$WT_DIR" fetch origin main
+    NEW_MAIN_SHA="$(git -C "$WT_DIR" rev-parse origin/main)"
+    if [[ "$NEW_MAIN_SHA" != "$BASE_SHA" ]]; then
+      if git -C "$WT_DIR" log --oneline "${BASE_SHA}..${NEW_MAIN_SHA}" | grep -q "loop news run"; then
+        echo "[$(stamp)] attempt ${attempt}: origin/main already has a loop-news commit — Stage B would be redundant, skipping" | tee -a "$LOG_FILE"
+        success=1; break
+      fi
+      # else: main advanced for an unrelated reason — rebase our notion of "base" forward
+      # so the publish-safety guard below doesn't later mistake this same unrelated
+      # advance for "our run already published."
+      echo "[$(stamp)] attempt ${attempt}: origin/main advanced for an unrelated reason — continuing" | tee -a "$LOG_FILE"
+      BASE_SHA="$NEW_MAIN_SHA"
+    fi
+  fi
+
   # STAGE B — integrate + restructure + commit + push (only if A stage is good)
   if (( ok )); then
     run_claude "attempt ${attempt}/${MAX_ATTEMPTS} · B (integrate)" "${B_ARGS[@]}" \
@@ -200,11 +245,28 @@ while (( attempt <= MAX_ATTEMPTS )); do
     exit 1
   fi
 
+  # --- session limit is an account-level quota that resets on a clock, not a backoff:
+  # never retry within this script run (the reset time is printed in the log for a human).
+  if (( SESSION_LIMIT )); then
+    notify "Attempt ${attempt} hit the Claude account session limit — not retrying (resets on a clock, not a backoff). Re-run manually after the reset time (see log)."
+    exit 1
+  fi
+
   # --- failure path: publish-safety guard before any retry ---
+  # Same false-positive risk as the Stage-A guard above: origin/main can advance for an
+  # unrelated reason (a concurrently-merged human PR), which must not be mistaken for
+  # "our push already happened" — that would wrongly abandon a legitimately retriable
+  # failure. Check for a matching loop-news commit in the delta, not just "did it move."
   git -C "$REPO_ROOT" fetch origin main
-  if [[ "$(git -C "$REPO_ROOT" rev-parse origin/main)" != "$BASE_SHA" ]]; then
-    notify "Attempt ${attempt} failed AFTER publishing (origin/main advanced) — not retrying; check repo state."
-    exit 1                             # B already pushed → never retry (would double-commit)
+  NEW_MAIN_SHA="$(git -C "$REPO_ROOT" rev-parse origin/main)"
+  if [[ "$NEW_MAIN_SHA" != "$BASE_SHA" ]]; then
+    if git -C "$REPO_ROOT" log --oneline "${BASE_SHA}..${NEW_MAIN_SHA}" | grep -q "loop news run"; then
+      notify "Attempt ${attempt} failed AFTER publishing (origin/main has our loop-news commit) — not retrying; check repo state."
+      exit 1                           # B already pushed → never retry (would double-commit)
+    fi
+    # else: main advanced for an unrelated reason — rebase forward and keep retrying.
+    echo "[$(stamp)] origin/main advanced for an unrelated reason during attempt ${attempt} — continuing" | tee -a "$LOG_FILE"
+    BASE_SHA="$NEW_MAIN_SHA"
   fi
   if (( attempt < MAX_ATTEMPTS )); then
     wait_s="${BACKOFF_SECONDS[$((attempt - 1))]}"

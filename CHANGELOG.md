@@ -18,6 +18,65 @@ Versioning follows [Semantic Versioning](https://semver.org/):
 
 ---
 
+## [2.7.4] — 2026-07-08 IST
+
+### Fixed
+- **Stage-A self-execution bug** (production incident, 2026-07-04): `fetch-loop-news`'s
+  Phase 4 said "if invoked interactively, run `/integrate-loop-news` yourself" — a
+  condition a headless session can't reliably evaluate, so it did so anyway, executing
+  the entire integrate stage (digest, KB writes, release, commit, push) inside its own
+  search-stage session and collapsing the deliberate two-session split back into one.
+  Removed the exception and told the skill to stop unconditionally.
+- **That prose fix alone was insufficient — recurred on the very next production run**
+  (2026-07-06), same collapse, despite the unconditional wording. Confirmed prompts are
+  not a substitute for an actual permission boundary. The real fix: Stage A's session now
+  runs with `--disallowedTools "Bash(git *),Bash(gh *),Skill"` — a genuine deny-list,
+  experimentally verified to hold even under `--permission-mode auto` (unlike
+  `--allowedTools`, which the auto classifier can approve beyond). Scoped to git/gh/Skill
+  rather than blanket `Bash`, since Stage A still legitimately needs plain `Bash` for a
+  `date` call in Phase 1 — verified that scoped deny blocks `git log` while still
+  allowing `date` through.
+- Added a defense-in-depth check to `integrate-loop-news` Phase 0: before doing any KB
+  work, check `git log --grep` for a commit matching this run's `run_time` and abort
+  immediately if the run was already published (cheap; catches a recurrence early).
+- Added a wrapper-level guard (zero LLM cost): after Stage A completes, check whether
+  `origin/main` advanced past the pre-run base SHA; if so, skip launching Stage B
+  entirely instead of paying for a full redundant session.
+- `docs/09-headless-mode.md` — documented the general pitfall (a skill can't distinguish
+  interactive from headless invocation) and the three-layer fix.
+- **Adversarial self-review caught and fixed a false-positive introduced by the fix
+  above**: checking only "did `origin/main` move" (not "did it move *because of this
+  run*") would misfire whenever `main` advances for an unrelated reason — e.g. a human
+  merging a different PR concurrently, which happens routinely in this repo. That would
+  silently skip Stage B (or abandon a legitimate retry) on a day the digest was never
+  actually published. Both the new wrapper guard and the pre-existing publish-safety
+  retry guard now check for a *matching* `loop news run` commit in the delta, not just
+  whether the SHA changed; an unrelated advance rebases the tracked base forward and
+  continues normally instead of misfiring.
+- `integrate-loop-news`'s already-published check now fetches and checks against
+  `origin/main` (not just local history, which could miss a publish made by a different
+  worktree/process) and no longer caps the log search depth.
+- **Production incident (2026-07-05)**: Stage A's parallel per-source subagents tripped
+  the CLI's internal 600s background-task wait ceiling ("Background tasks still running
+  after 600s; terminating"), causing all 3 attempts to fail with no digest published.
+  Set `CLAUDE_CODE_PRINT_BG_WAIT_CEILING_MS=0` (per the CLI's own suggested remedy) —
+  safe since the outer `--max-turns`/`--max-budget-usd` ceilings still bound the overall
+  session regardless.
+- **Production incident (2026-07-06, validation run #2)**: hit the Claude account session
+  limit ("You've hit your session limit · resets &lt;time&gt;"). This message matched
+  neither `ERROR_REGEX` nor `BUDGET_EXCEEDED_REGEX`, so the wrapper treated it as an
+  ordinary retriable failure and burned all 3 attempts (with 30s/90s backoffs) against a
+  limit that resets on a wall clock, not on a short backoff. Added `SESSION_LIMIT_REGEX`
+  as a third deterministic non-retry class (same pattern as budget-exceeded): on match,
+  stop immediately with a clear notification instead of retrying.
+- **Production incident (2026-07-06, validation run #3)**: with the structural fix
+  confirmed working (Stage A correctly stopped after search, no self-execution, on two
+  separate attempts), Stage B then hit `Reached max turns (100)` twice in a row on a
+  large-batch day (74 findings, 9+ docs touched). Raised `INTEGRATE_MAX_TURNS` 100→250 —
+  same rationale as the earlier 40→100 raise: it's a ceiling, not a target.
+
+---
+
 ## [2.7.3] — 2026-07-07 05:27 IST
 
 ### Added
