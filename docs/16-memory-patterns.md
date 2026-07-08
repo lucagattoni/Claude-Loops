@@ -244,7 +244,7 @@ Three workflows operate on the structure: **ingest** (raw material → new or up
 pages, with cross-links to related pages), **query** (answer a question by reading wiki/
 first, falling back to raw/ only if the wiki doesn't cover it), and **lint** (periodically
 check the wiki for orphaned pages, broken cross-links, and pages that duplicate content
-better owned elsewhere — the wiki's own version of [KB_GAPS.md](../KB_GAPS.md) hygiene).
+better owned elsewhere — the wiki's own version of [KB_GAPS.md](https://github.com/lucagattoni/Claude-Loops/blob/main/KB_GAPS.md) hygiene).
 
 This converged from three independent directions the same week — Karpathy's original
 gist, Google's Open Knowledge Format, and Garry Tan's 23-role "gstack" — suggesting the
