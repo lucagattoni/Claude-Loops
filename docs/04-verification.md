@@ -135,9 +135,55 @@ Standard verification re-runs the same checks each loop iteration. Three pattern
 
 **Held-Out Test Layer:** A set of perturbed inputs is generated before coding begins and kept hidden from the implementing agent. After implementation, the held-out tests run. A passing implementation that fails on held-out perturbations reveals over-fitting to the expected examples.
 
+**The holdout wall — evaluator-only, path-only disclosure.** A refinement that hardens
+where the held-out layer physically lives: the acceptance checklist exists only inside the
+evaluator's role, and the generator (which negotiates its own "done" contract) is passed
+the holdout's *path*, never its content, and receives back only the evaluator's parsed
+verdict — never the checklist itself. This closes a gap the basic pattern leaves open: a
+"hidden" test the implementer's agent could still read from disk if both roles share a
+filesystem view. Cross-model pairing (e.g. Claude builds, Codex judges) is configured
+explicitly per role rather than auto-selected, which sharpens *how* to hold a test out but
+leaves *which model pair* to use an open, user-judged choice.
+([KristopherGBaker/Sparra](https://github.com/KristopherGBaker/Sparra), Jul 2026.)
+
 **Cross-Task Defect Ledger:** When a run produces a defect (test failure, type error, security finding), the defect is logged to a shared ledger with root-cause category. Subsequent runs read the ledger before starting and explicitly check for the same root-cause categories. Defects stop being repeated rather than just fixed.
 
 ([JeremyW1990/loop-engineering-skill](https://github.com/JeremyW1990/loop-engineering-skill), Jun 2026.)
+
+## Reviewer Freshness Enforcement
+
+Clean-Room Review (above) says the reviewer must run in a fresh session. This pattern
+gives a mechanism for *why that isn't enough on its own* and what "fresh" must actually
+mean.
+
+**Two independence axes, not one.** "Model independence" (a different AI system reviews
+the work) and "perspective independence" (the *same* model, but with no shared
+conversation history) catch different failure classes — a same-model reviewer with a
+clean session still avoids context-poisoning from the implementer's rationalizations,
+even though it shares the model's blind spots. Both axes are needed; neither substitutes
+for the other.
+
+**Priming defeats freshness.** A reviewer told what verdict is expected — even
+implicitly, by seeing the implementer's draft or reasoning before forming its own
+judgment — produces compliance, not review. The enforcement rule: a fresh reviewer must
+see only the problem statement and constraints, **never the draft**, until it has
+produced its own independent solution. The divergence between the reviewer's independent
+solution and the original draft is the highest-signal output of the whole review — it
+surfaces hidden framing assumptions the implementer couldn't see from inside their own
+reasoning.
+
+**The synthesizer problem.** Even with a perfectly fresh reviewer, the *human or agent who
+reconciles* the two solutions remains the most biased party in the loop — they already
+have an opinion before synthesis begins. Mitigation: log every rejection alongside every
+acceptance (not just the accepted changes), and define convergence operationally as "no
+further draft changes after synthesis" rather than "the synthesizer feels satisfied."
+
+This is a concrete answer to the reviewer-freshness-enforcement question Clean-Room
+Review leaves open: freshness isn't just "spawn a new session" — it requires withholding
+the draft until independent judgment is formed, and auditing the synthesis step itself for
+the same bias the fresh reviewer was meant to avoid.
+
+([beingcognitive/unprimed-dialectic](https://github.com/beingcognitive/unprimed-dialectic), Jun 2026.)
 
 ## Belief State Machine for Claim Verification
 

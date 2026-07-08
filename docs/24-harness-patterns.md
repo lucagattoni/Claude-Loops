@@ -31,6 +31,15 @@ The implication: harness design decisions (permission posture, verification gate
 credential handling) are no longer local choices — they propagate to every loop the
 org runs. This is why the harness, not the model, is the leverage point ("the harness
 now matters more than the model" — see [The Paradigm Shift](01-paradigm-shift.md)).
+
+**Origin story.** Anthropic's own account of Claude Code's beginnings (internal codename
+"clide") traces "harness design" back to 2022-2023 work on giving a model a persistent
+shell and a bash tool — before Claude Code existed as a product, the prototype was
+already fanning out 100 Haiku subagents in parallel, and the app itself was, in its
+builders' words, "tool definitions in a loop and a simple REPL UI." The org-level-artifact
+framing above isn't a new idea layered on top of the tool — it's the same concern the
+original builders were solving for from day one.
+([Anthropic, "The Making of Claude Code"](https://www.anthropic.com/features/making-of-claude-code), Jul 2026.)
 The org-level harness is realised concretely as per-thread/per-channel agent instances
 with their own memory and permissions — see [Claude Tag](31-claude-tag.md) — and
 governed across many loops via [Fleet Engineering](23-fleet-engineering.md).
@@ -61,6 +70,17 @@ tools, recover state?), turning "is this harness production-grade?" into a bench
 rather than a judgement call. This is a distinct evaluation primitive from output
 verification ([docs/04](04-verification.md)): output verification asks "is the *work*
 correct?"; conformance testing asks "is the *harness* capable?"
+([omnigent-ai/omnigent](https://github.com/omnigent-ai/omnigent) `harness-bench`, Jul 2026.)
+
+**Self-correcting capability tables.** A conformance bench is only as trustworthy as the
+capability table it checks against — and that table can itself drift out of sync with
+reality (e.g. an adapter wrongly declared "streaming-capable" for a harness that dropped
+streaming support). The fix is structural: when a conformance run finds a declared
+capability doesn't hold, the bench corrects the *source model* (the capability
+declaration) rather than papering over it with a special-cased test — keeping the
+declared contract and the bench itself from silently diverging over time. Supporting this,
+the bench runs against three transport drivers (in-process SDK, full server, native TUI)
+so a capability gap specific to one transport doesn't hide behind a pass on another.
 ([omnigent-ai/omnigent](https://github.com/omnigent-ai/omnigent) `harness-bench`, Jul 2026.)
 
 ## Self-Improving Harnesses
@@ -133,6 +153,27 @@ configuration, the stated principles guiding it, and the workflow topology, rais
 composite "Health Score" from 0.300 to 0.570 — evidence that harness-only evolution
 (the three approaches above) may be leaving gains on the table by holding principles and
 topology fixed. ([arXiv 2606.15363](http://arxiv.org/abs/2606.15363), Jun 2026.)
+
+**Darwin Mode — train/eval-disjoint held-out gating (closing the SEAGym collapse risk).**
+SEAGym (above) warns that self-evolving harnesses can overfit to their own recent traces
+and regress on cases they previously solved. A concrete gating mechanism closes this: the
+optimizer mutates its own config, sandbox-tests each candidate mutation, and keeps *only*
+mutations that measurably improve performance on a **held-out benchmark set strictly
+disjoint from the traces used to generate the mutation** (e.g. SWE-bench Lite, LiveCodeBench).
+Train/eval disjointness — not just "a regression suite exists" — is what prevents the
+optimizer from mutating toward whatever the held-out set happens to reward. A companion
+model router learns, from fleet-wide eval logs, the *cheapest sufficient* model per task
+rather than always routing to the strongest — a fleet-maturity-relevant detail alongside the
+harness-evolution one. ([ruvnet/metaharness](https://github.com/ruvnet/metaharness), Jul 2026.)
+
+**Mechanized rules beat prose guidance, quantified.** A self-improving harness that
+converts confirmed tool-call failures into durable, vote-weighted lessons (promoted into
+an enforced hook once repeat evidence crosses a weight threshold) reports **~100%
+compliance for mechanized rules versus ~70-90% for the equivalent prose guidance** in
+CLAUDE.md. This is a directly quantified version of the "encode learnings as rules, not
+prose" principle already implicit in [Experience Encoding](27-loop-contract.md) —
+a rule the harness enforces is followed far more reliably than a rule the model is merely
+told about. ([Aditya-Nagariya/harness-forge](https://github.com/Aditya-Nagariya/harness-forge), Jul 2026.)
 
 **The shared shape:** all three are outer loops whose *product is a better harness*, each gated
 by a verifier (regression run / prediction contract / benchmark). They validate the

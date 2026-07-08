@@ -67,6 +67,28 @@ Sweeper, etc.), fan-out coordination extends to cross-loop ownership:
 See [Loop Patterns](34-loop-patterns.md) for the full priority ordering and seven
 named loop patterns with defined STATE.md coordination.
 
+## Agentic MapReduce
+
+For codebase-wide analysis tasks (security audits, dependency sweeps, dead-code
+detection), structure the fan-out as an explicit MapReduce rather than an unstructured
+swarm:
+
+1. **Map** — a coordinator agent scans the codebase and maps out signal locations
+   (files, patterns, or regions likely to contain what you're looking for)
+2. **Fan out** — each mapped region is assigned to its own bounded agent invocation,
+   scoped to only that region (same scope-verified parallelism as above)
+3. **Reduce** — a synthesis pass collects all per-region findings into a single
+   deduplicated list
+4. **Verify** — each candidate finding is independently confirmed in an isolated sandbox
+   before being reported, so the reduce step doesn't just aggregate unverified guesses
+
+The map stage is what separates this from plain fan-out: instead of dividing work
+mechanically (one agent per file), a signal-aware pass decides *where* to look first,
+so bounded-context agents spend their budget on high-likelihood regions rather than
+scanning uniformly.
+
+([Devin, "Security Swarm"](https://threadreaderapp.com/thread/2072368168182432109.html), Jul 2026.)
+
 ## Pipe Claude into your existing pipelines
 
 ```bash
