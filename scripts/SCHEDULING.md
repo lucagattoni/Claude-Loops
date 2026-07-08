@@ -95,29 +95,63 @@ git commit -m "chore(scheduling): change tracker cadence to ..."
 
 ---
 
-## Enable / disable
+## Stop it from firing again (read this before running just `disable`)
 
-Two different things, easy to conflate:
+> **`disable` alone is not enough if the job is currently loaded.** "Disabled" and
+> "loaded" are two independent states in launchd, and `disable` only changes the
+> first one: it writes a persistent flag to launchd's override database
+> (`launchctl print-disabled gui/$(id -u)` will correctly show `=> disabled`
+> immediately). It does **not** unload the job. If the job was already bootstrapped —
+> which it is, any time `launchctl list | grep loop-news` shows a line — its
+> *already-armed* next `StartCalendarInterval` trigger can still fire once despite the
+> disabled flag being set correctly. This is not hypothetical: it happened on this
+> machine — `disable` was run, `print-disabled` confirmed `=> disabled`, and the job
+> still fired at its next 05:00 trigger. **To reliably stop the next run, you must also
+> `bootout` it** — `disable` by itself is not sufficient.
 
-- **`disable`** — persists across reboots; the job cannot run at all (even a manual
-  `kickstart`) until re-`enable`d. Use this for "stop running it for a while."
-- **`bootout`** — unloads the job from launchd for the current session; a `bootstrap`
-  (or a reboot/login, since `RunAtLoad` is `false` here so not even that) is needed to
-  bring it back. Use this when you're about to replace the plist file anyway.
+**To stop it right now, run both commands together:**
 
 ```bash
-# Pause indefinitely (survives reboot; explicit re-enable required)
-launchctl disable gui/$(id -u)/com.luca.loop-news
+launchctl disable gui/$(id -u)/com.luca.loop-news   # persists the "don't run" flag across reboots
+launchctl bootout  gui/$(id -u)/com.luca.loop-news   # unloads it NOW so the next trigger can't fire
+```
 
-# Resume
-launchctl enable gui/$(id -u)/com.luca.loop-news
+Verify it actually stopped:
+
+```bash
+launchctl list | grep loop-news              # no output = fully unloaded, confirmed stopped
+launchctl print-disabled gui/$(id -u) | grep loop-news   # should show "=> disabled"
+```
+
+**To reactivate it later, run both commands together** (order matters — `enable`
+before `bootstrap`, otherwise the freshly-loaded job inherits the disabled flag and
+silently never fires):
+
+```bash
+launchctl enable    gui/$(id -u)/com.luca.loop-news
 launchctl bootstrap gui/$(id -u) ~/Library/LaunchAgents/com.luca.loop-news.plist
+```
 
-# Unload only (schedule stays in the plist; reload with bootstrap when ready)
-launchctl bootout gui/$(id -u)/com.luca.loop-news
+Verify it's back:
 
-# Remove entirely (also delete the live plist file if you don't want it back)
-launchctl bootout gui/$(id -u)/com.luca.loop-news
+```bash
+launchctl print gui/$(id -u)/com.luca.loop-news | grep -A4 "event triggers"
+```
+
+### What each command actually does (for reference)
+
+| Command | Effect | Survives reboot? | Stops an already-loaded job's next fire? |
+|---|---|---|---|
+| `disable` | Sets a persistent "don't run" flag | Yes | **Not reliably** — see warning above |
+| `enable` | Clears that flag | Yes | n/a (this is the resume half) |
+| `bootout` | Unloads the job from launchd immediately | No — a login/reboot won't reload it either, since `RunAtLoad` is `false` | Yes — this is the one that actually works |
+| `bootstrap` | Loads the job (plist → launchd) | n/a | n/a (this is the resume half) |
+
+**Remove entirely** (also delete the live plist file if you don't want it to come back):
+
+```bash
+launchctl disable gui/$(id -u)/com.luca.loop-news
+launchctl bootout  gui/$(id -u)/com.luca.loop-news
 rm ~/Library/LaunchAgents/com.luca.loop-news.plist
 ```
 
