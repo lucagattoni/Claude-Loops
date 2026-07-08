@@ -18,6 +18,49 @@ Versioning follows [Semantic Versioning](https://semver.org/):
 
 ---
 
+## [2.7.5] — 2026-07-08 07:09 IST
+
+### Added
+- **Loop news run 2026-07-08 04:15 UTC** (recovery run — see CHANGELOG "Fixed" entries
+  below for why): 52 new findings integrated after dedup against 45 already-published
+  URLs. New KB sections: docs/24 "Dynamic Workflow Patterns" (Anthropic's six
+  orchestration patterns) and "Cross-Model Division of Labor" (consolidating four
+  independent findings — steipete's advisor loop, codex-first SKILL.md, Puppetmaster,
+  official openai/codex-plugin-cc — into one canonical home per Phase 4c); docs/24
+  "Task-Shaped DAG Orchestration" (Kaola-Workflow) and schema-level conformance
+  (Temper); docs/27 "Quota-Aware Should-Run Gate" (loopx) and plan-as-contract note
+  (walidboulanouar); docs/16 "Pattern I: Durable Objectives with Evidence Logs"
+  (loopx); docs/23 swarm-topology-via-consensus subsection and a Gas Town case study
+  (20-30 parallel Claude Code instances via git-persisted Beads); docs/33 "Cross-Org
+  Federation (Zero-Trust)" (ruflo); docs/26 "Dark-Factory Ceiling and Its Bottleneck"
+  and "Named Factory Deployments" (Droid Shield 2.0, auto-merge discussion),
+  consolidating a second Phase 4c dominant theme (autonomy-maturity framing recurred
+  across 4 findings); docs/17 new failure pattern "Ghosting under review feedback";
+  docs/11 "Confidence-Scheduled Verification"; docs/29 "Zero-Polling Signaling" and
+  "Cloud/Mobile Background Execution"; docs/14 "Who Interrupts Whom, More Often";
+  docs/01 "Who Benefits Most From the Shift"; docs/04 per-criterion independent
+  verification (manifest-dev), a 93.4%-non-overlap production corroboration of the
+  existing cross-model-reviewer figure, and a 43%-fabrication-rate adversarial-gate
+  case study (walidboulanouar).
+- Nine candidate repos (loopx, walidboulanouar/loop-engineering, manifest-dev,
+  Kaola-Workflow, ruflo, temper, athena-loops, omnigent, claude-deep-loop) put through
+  the resource-review gate (scored 0-5 on unique-contribution/precision/durability);
+  all nine cleared the ≥3.0 bar and were integrated. SOURCES.md: added ruvnet
+  (github profile, 2+ relevant repos).
+
+### Changed
+- docs/32-reading-list.md — Reference Implementations: replaced Strive_Engineering
+  with LoopX (Strive's provenance-bound-claims contribution is now fully absorbed
+  into docs/04 with direct citations); Getting Started: added Ben's Bites "My
+  thoughts on Fable".
+- LOOP_ENGINEERING.md index summaries refreshed for rows 1, 4, 10, 11, 14, 16, 17,
+  22, 23, 24, 26, 27, 29, 32, 33 (staleness check).
+- KB_GAPS.md — new gap (underspecified-input mitigation for autonomous pipelines);
+  annotated the existing cross-model-reviewer-pairing and F0-F3 fleet-maturity gaps
+  with this run's near-miss evidence (both remain open).
+
+---
+
 ## [2.7.4] — 2026-07-08 IST
 
 ### Fixed

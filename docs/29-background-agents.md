@@ -110,6 +110,32 @@ See [Fan-Out](10-fan-out.md) for the full pattern.
 Use `SubagentStop` with `additionalContext` to chain background agents — when one
 finishes, the hook can inspect the output and fire the next step.
 
+## Zero-Polling Signaling (an alternative to the agent view)
+
+`claude agents` and hook-driven chaining both work by the orchestrator *checking*
+on background sessions — polling the agent view or waiting on a `SubagentStop` hook.
+An alternative removes polling entirely: workers signal completion by **typing into
+the orchestrator's own terminal** via a multiplexer (e.g. tmux/cmux), interrupting it
+directly rather than being observed. The orchestrator's terminal receives a one-line
+`WORKER-DONE <id>: <status>` keystroke as the worker's last action — an instant
+wake-up rather than a poll interval — while all specs and audit trails still live in
+git-tracked plan folders so a failed dispatch can be re-issued from the same file.
+Production numbers from this pattern: 28 dispatch cycles and ~100 reviewed changes
+in one overnight run, with a separate adversarial reviewer gate (see
+[Verification](04-verification.md)) catching a 43% fabrication rate before
+integration. ([walidboulanouar/loop-engineering](https://github.com/walidboulanouar/loop-engineering), Jul 2026.)
+
+## Cloud/Mobile Background Execution
+
+Background execution is not limited to one machine's terminal. Anthropic's Claude
+Cowork moved to web and mobile, so an agent task keeps running headlessly in the
+cloud while the initiating device is offline — the same "close the laptop, loop keeps
+running" property `--bg` gives locally, extended to devices that were never running
+a local session in the first place. This sits alongside [Routines](28-routines.md) as
+a second cloud-hosted execution path, oriented at ad hoc cowork tasks rather than
+scheduled/triggered loops.
+([The New Stack, "Anthropic's Claude Cowork now keeps working when you close your laptop"](https://thenewstack.io/claude-cowork-cloud-mobile/), Jul 2026.)
+
 ## Related
 
 - [Fan-Out](10-fan-out.md) — parallelism patterns using background agents

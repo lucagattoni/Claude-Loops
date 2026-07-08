@@ -67,7 +67,7 @@ substantively relevant to loop engineering practice (not just a passing mention)
 | Boris Cherny | x | @bcherny | Creator of Claude Code; coined "write loops" |
 | Andrej Karpathy | x | @karpathy | Influential ML researcher |
 | Andrew Ng | x | @AndrewYNg | Agentic AI education |
-| The Batch (DeepLearning.AI) | rss | https://www.deeplearning.ai/the-batch/feed/ | Andrew Ng's weekly newsletter; recurring loop engineering / agentic coverage (e.g. "Loop Engineering for 0-to-1 Product Development", Jun 2026). **404 as of Jul 2026** — feed URL needs rediscovery |
+| The Batch (DeepLearning.AI) | rss | https://www.deeplearning.ai/the-batch/feed/ | Andrew Ng's weekly newsletter; recurring loop engineering / agentic coverage (e.g. "Loop Engineering for 0-to-1 Product Development", Jun 2026). **Still 404 as of 2026-07-08** — no `<link rel=alternate>` tag on the site either, official feed appears discontinued/unpublished; only an unverified third-party mirror found (`kill-the-newsletter.com/feeds/jc8116b7aauska20.xml`) |
 | OpenAI | rss | https://openai.com/news/rss.xml | Feed discovered Jul 2026 (was html-scraped; 250+ articles returned, root-level path works despite prior 403 note) |
 | Addy Osmani | rss | https://addyo.substack.com/feed | Corrected Jul 2026 — his active blog is the "Elevate" Substack (addyo.substack.com), which carries the origin "loop engineering" post (Jun 2026); the previously-tracked addyosmani.com feed was a different, largely-dormant site |
 | Simon Willison | rss | https://simonwillison.net/atom/entries/ | LLM tooling practitioner |
@@ -83,7 +83,7 @@ substantively relevant to loop engineering practice (not just a passing mention)
 | The Rundown AI | rss | https://rss.beehiiv.com/feeds/2R3C6Bt5wj.xml | Daily AI newsletter (Beehiiv); scan for loop engineering / agentic workflow coverage. Feed URL rediscovered Jul 2026 (original `/feed` 404'd) |
 | TLDR AI | rss | https://tldr.tech/api/rss/ai | Daily AI digest RSS; scan for Claude Code, agent loop, agentic workflow coverage. Feed URL rediscovered Jul 2026 (`/ai/rss` 404'd; `tldr.tech/rss` is the general-tech feed, not AI-specific) |
 | Ben's Bites | rss | https://bensbites.com/feed | Daily AI news digest RSS; scan for loop engineering / agent loop coverage. Feed URL rediscovered Jul 2026 (moved off beehiiv to its own domain) |
-| AI Breakfast | rss | https://aibreakfast.beehiiv.com/feed | Daily AI newsletter (Beehiiv RSS); scan for agentic workflow and Claude Code coverage. **404 as of Jul 2026** — feed URL needs rediscovery |
+| AI Breakfast | rss | https://aibreakfast.beehiiv.com/feed | Daily AI newsletter (Beehiiv RSS); scan for agentic workflow and Claude Code coverage. **Still 404 as of 2026-07-08** (also tried `/feed.xml`); only the homepage resolves — try `/rss` next run or check beehiiv RSS settings |
 | X search — loop engineering | x-search | https://x.com/search?q=loop%20engineering&src=typed_query&f=live | Live keyword search; dynamically loaded — scroll ≥3 times to surface 20+ posts |
 | LinkedIn search — loop engineering | linkedin | https://www.linkedin.com/search/results/content/?keywords=loop+engineering | Professional community posts; dynamically loaded — scroll ≥3 times to surface 20+ posts |
 | Harness Books (AgentWay) | html | https://harness-books.agentway.dev | Essay collection on harness design theory — unstable components, ledger closure, input governance, reactive compact |
@@ -115,6 +115,7 @@ substantively relevant to loop engineering practice (not just a passing mention)
 | explainx.ai | html | https://explainx.ai/blog/ | Consistent loop/harness engineering coverage across 3+ runs (Loop Contract Model guide, context/prompt/loop/harness stack piece); overdue add per repeated "worth tracking" flags |
 | Daily Dose of Data Science | html | https://www.dailydoseofds.com | Avi Chawla; 3+ high-engagement (100K-250K+ views) loop/harness/agentic-engineering explainers in one cycle, promoted via @akshay_pachaar (Jul 2026) |
 | hhamja | github | https://github.com/hhamja/loop-harness | Prolific single actor flagged twice now (Jun/Jul 2026) with 5+ same-day loop-engineering/harness repos (loopkit, loopkit-b, my-loopkit, loop-harness, loop-engineering-architecture, claude-code-flywheel); loop-harness itself ships a cross-model verifier split and disk-based state — promoted to tracked after repeated "worth watching" flags |
+| ruvnet | github | https://github.com/ruvnet | Prolific actor with 2+ relevant contributions: metaharness (self-evolving harness generator, cited in KB_GAPS.md) and ruflo (63,478★ agent meta-harness — swarm topologies, HNSW memory, learning/trust/replanning loops); track the profile for new repos, not just the two found so far (Jul 2026) |
 
 ---
 

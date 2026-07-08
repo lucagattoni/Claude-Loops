@@ -67,3 +67,16 @@ the dual loop nests *execution inside strategy*; the three feedback loops nest
 *agent inside developer inside user* by who provides the correcting signal.
 
 (Andrew Ng, ["Loop Engineering for 0-to-1 Product Development"](https://info.deeplearning.ai/a-new-generation-studies-ai-apples-recipe-for-on-device-models-glm5.2-tackles-open-ended-problems-1), The Batch, Jun 2026.)
+
+## Who Interrupts Whom, More Often
+
+A first-party analysis of Claude Code/API traffic found that **Claude asks for
+clarification more than twice as often as humans interrupt it** mid-task. Read
+against the checkpoint-placement guidance above, this cuts against the intuition
+that autonomous loops mainly fail by over-reaching without asking — in practice the
+more common friction is the model pausing for input at a rate that itself needs
+tuning. This argues for calibrating checkpoint *sensitivity* symmetrically: the
+80/20 target above is not just about adding enough human checkpoints, it is equally
+about not over-provisioning the model's own clarification triggers past the point
+where they start recreating the bottleneck loops were meant to remove.
+(Anthropic Research, ["Measuring agent autonomy"](https://www.anthropic.com/research/measuring-agent-autonomy), Jul 2026.)

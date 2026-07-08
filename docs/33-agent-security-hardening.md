@@ -227,6 +227,31 @@ vulnerable/fixed fixture pair rather than graded by inspection alone, so the sco
 reproducible. Use this as an audit step alongside — not instead of — the design
 patterns above. ([saagpatel/harness-scorecard](https://github.com/saagpatel/harness-scorecard), Jul 2026.)
 
+## Cross-Org Federation (Zero-Trust)
+
+The patterns above assume one org's agents talking to one org's resources. A
+**federation layer** extends the same hardening posture across a machine or
+organizational boundary — agents belonging to different owners communicating
+without either side implicitly trusting the other:
+
+- **Zero-trust transport**: mutual TLS plus ed25519 signing on every message, so
+  identity is cryptographically verified per-message rather than assumed from
+  network location.
+- **Behavioral trust scoring**: a formula blending success rate, uptime, threat
+  signal, and integrity (`0.4×success + 0.2×uptime + 0.2×threat + 0.2×integrity`)
+  produces a continuously-updated trust score per remote agent, rather than a
+  static allow-list — an agent that starts behaving suspiciously loses standing
+  over time instead of only being blocked after a single flagged incident.
+- **PII detection at the boundary**: a 14-type PII detection pipeline screens
+  outbound messages crossing the federation boundary, treating cross-org leakage
+  as a distinct risk from the intra-org credential exposure this doc otherwise
+  covers.
+
+Treat the trust-scoring *formula* and the transport mechanism as the verifiable
+contribution here — evaluate them independently of the source's broader marketing
+claims about scale and adoption, which are not independently confirmed.
+([ruvnet/ruflo](https://github.com/ruvnet/ruflo), Jul 2026.)
+
 ## Relationship to MCP Security
 
 [MCP Security](19-mcp-security.md) covers AgentJacking and prompt injection via MCP

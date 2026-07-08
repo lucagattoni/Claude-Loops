@@ -57,6 +57,30 @@ handcrafted.
 
 ---
 
+## A Second Target for Learning: the Harness Itself, Not Just the Orchestrator
+
+Fugu learns *which model does what* (orchestrator-as-trained-model). A distinct but
+related idea trains the **harness as a control layer** while leaving the underlying
+LLM frozen: treat the scaffolding around the model — retry policy, tool sequencing,
+context management — as a learnable controller, trained via advantage-weighted
+regression on execution traces rather than hand-coded if/else logic. The paper
+introduces a **Harness Maturity Score** to make "how reliable is this harness's
+execution pattern" a measured quantity rather than a judgment call, distinguishing
+this from [Harness Patterns' self-improving harnesses](24-harness-patterns.md#self-improving-harnesses)
+(which mutate the harness's *code*) by instead training a *policy* that sits on top
+of a fixed harness. ([arXiv 2607.05458](http://arxiv.org/abs/2607.05458), Jul 2026.)
+
+A hand-designed analog of the same instinct — replan rather than restart on failure —
+appears in a large agent meta-harness's **Replanning Loop**: a GOAP-style A* planner
+decomposes a goal into an action sequence and replans specifically from the point of
+failure when state changes invalidate the current plan, instead of discarding
+progress and starting over. Paired with a **Trust Loop** that scores agent behavior
+(a weighted formula blending success rate, uptime, threat signals, and integrity) to
+upgrade or downgrade an agent's permission level over time. Treat the vendor's
+broader marketing claims (adoption numbers, "100+ agents") with skepticism — the
+concrete planning and trust-scoring mechanics are independently verifiable from the
+docs; the popularity claims are not. ([ruvnet/ruflo](https://github.com/ruvnet/ruflo), Jul 2026.)
+
 ## Benchmarks (Fugu Ultra, June 2026)
 
 | Benchmark | Fugu Ultra | Best frontier comparison |

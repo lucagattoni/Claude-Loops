@@ -151,6 +151,22 @@ the context the agent lacks and steering at the cadence the agent cannot self-co
 
 ---
 
+### [My thoughts on Fable](https://www.bensbites.com/p/my-thoughts-on-fable) — Ben's Bites
+**Added:** 2026-07-08 · **Published:** Jul 2026
+
+**Why here:** The most practitioner-legible catalog of the loop-type decision the
+KB documents formally elsewhere ([docs/24](24-harness-patterns.md#the-official-claude-team-loop-types)).
+Written as a personal search for an ideal "thinking harness" rather than a reference
+doc, it's a useful on-ramp for readers who want the intuition before the taxonomy.
+
+**Summary:** Ben searches for a creative "thinking harness" that fits how he actually
+works, and in doing so catalogs the loop types now available in Claude Code — turn-based
+prompts, `/goal`, `/loop`, `/schedule`, and proactive routines — evaluating each against
+his own workflow rather than in the abstract. Useful as a worked example of applying the
+Goals vs. Loops decision framework to a real, non-engineering task.
+
+---
+
 ## Harness Design & Architecture
 
 Deep-dive articles on the engineering of the harness — the scaffolding around the agent.
@@ -476,21 +492,23 @@ the judge's checklist alive across context compaction, and every wave must paste
 
 ---
 
-### [Strive_Engineering](https://github.com/krishddd/Strive_Engineering) — krishddd
-**Added:** 2026-06-29 · **Published:** Jun 2026
+### [LoopX](https://github.com/huangruiteng/loopx) — huangruiteng
+**Added:** 2026-07-08 · **Published:** Jul 2026
 
-**Why here:** Where loop-kernel makes the *check* unfakeable, this repo makes the
-*report* unfakeable — the cleanest implementation of provenance-bound verification, a
-technique none of the other reference implementations demonstrate. It answers the
-failure where an agent fabricates evidence ("fixed at commit X") that no artifact backs.
+**Why here:** The only reference implementation that treats BUDGET as a per-turn
+admission decision (proceed/wait/ask/idle) rather than a single end-of-run ceiling,
+and pairs it with durable objectives and evidence logs that survive agent restarts —
+gaps none of the other four entries in this group address. Replaces
+Strive_Engineering, whose provenance-bound-claims contribution is now fully absorbed
+into [docs/04](04-verification.md#verifier-integrity-keeping-the-check-unfakeable)
+with direct citations, making the standalone reading-list entry redundant.
 
-**Summary:** A loop-engineering runtime built on an L0-L3 autonomy ladder where every
-finding must cite a real git SHA, and a guard (`loopguard`) re-verifies the citation
-against the object store via `git cat-file` before accepting the claim — a citation that
-points at no matching artifact is rejected automatically. Layered on top: diff-integrity
-and prompt-injection scanning, and a `majority_vote` across independent judges so no
-single grader the worker could collude with can wave work through. Together these
-generalise the external-verifier idea from "re-run the check" to "bind every claim to an
-inspectable, unforgeable artifact and have more than one judge confirm it."
+**Summary:** A local control plane for long-running, restart-prone agent workflows
+across Codex/Claude Code/Cursor. Tracks durable objectives, a quota-aware
+should-run gate with four decision states, `claimed_by` todo ownership, append-only
+evidence logs, and verifiable handoffs that preserve scope across sessions. Explicitly
+scopes itself as *not* an autonomous production controller — dangerous permissions,
+publishing, and production writes stay with the human operator. 90 stars, 2,525
+commits, comprehensive architecture/quota-allocation/interaction-pattern docs.
 
 ---

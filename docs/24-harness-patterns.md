@@ -83,6 +83,56 @@ the bench runs against three transport drivers (in-process SDK, full server, nat
 so a capability gap specific to one transport doesn't hide behind a pass on another.
 ([omnigent-ai/omnigent](https://github.com/omnigent-ai/omnigent) `harness-bench`, Jul 2026.)
 
+**Cross-vendor observable policy denials.** A conformance suite is only useful if a
+denial is actually *visible* to whatever is testing it. `harness-bench` added a
+`PolicyDeniedEvent` so that when a native harness (Claude Code, Codex, etc.) blocks
+a tool call under policy, that denial surfaces as an observable stream event rather
+than a silent no-op — letting the same conformance probe verify deny-behavior
+consistently across vendors instead of trusting each harness's own logs.
+([omnigent-ai/omnigent](https://github.com/omnigent-ai/omnigent) `harness-bench` #2096, Jul 2026.)
+
+### Schema-Level Conformance (Temper)
+
+`harness-bench` tests *behavior* (does the harness enforce stop conditions, gate
+tools, recover state at runtime?). A complementary, cheaper check is **schema-level
+conformance**: does the `.claude/` directory itself — skills, rules, agents, hooks —
+match a declared contract, before anything even runs? Temper implements this as a
+compiler-like pipeline rather than a linter: `init` scans the whole `.claude/`
+directory into one typed model, `emit` deterministically compiles author-declared
+requirements into a lock file (regenerated twice to self-verify determinism), and
+`check` gates the actual files against that lock in CI. The distinction from
+harness-bench: this catches drift in the harness's *declared shape* (a skill file
+that no longer matches its own schema) before a conformance run ever needs to
+exercise it at runtime. ([duct-tape-and-markdown/temper](https://github.com/duct-tape-and-markdown/temper), Jul 2026.)
+
+## Task-Shaped DAG Orchestration
+
+An alternative to a fixed N-agent pipeline (two-part, three-agent, five-wave): compose
+a **task-shaped DAG** per issue, sized to the issue's actual complexity rather than a
+fixed role count. A simple fix becomes a single-node DAG; a complex feature fans out
+into parallel research and implementation legs. Distinguishing mechanisms:
+
+- **Fail-closed exit gates**: every node runs an act → check → close cycle; a
+  post-dominance gate ensures a code-reviewer node evaluates *every* code-producing
+  node reachable in the graph (no path bypasses review by construction), and a
+  security-reviewer gate is inserted specifically for sensitive changes.
+- **Classifier-gated parallelism**: before claiming parallel work, a pre-claim check
+  (file overlap, shared dependencies, shared infrastructure) marks candidate work
+  green / yellow / red / blocked — parallelism is only attempted where the classifier
+  has already ruled out collision, rather than discovered after the fact (contrast
+  with [Scope-Verified Parallelism](10-fan-out.md#scope-verified-parallelism), which
+  catches collisions at the point of write instead of before dispatch — the two are
+  complementary layers, not substitutes).
+- **Mandatory synthesizer merge**: write-fan-outs proven disjoint still run in
+  isolated per-node worktrees by default, and a dedicated synthesizer node
+  octopus-merges divergent branches — parallel execution never merges itself.
+- **Bounded review-fix loop**: capped at a maximum of 5 iterations with mechanical
+  (not self-assessed) verdicts, preventing the [infinite fix loop](17-failure-patterns.md) pattern.
+
+Durable state (`workflow-state.md`) records phase, step, pending gates, and per-node
+evidence, so a session resumes mid-workflow across a context reset rather than
+restarting the DAG. ([KaolaBrother/Kaola-Workflow](https://github.com/KaolaBrother/Kaola-Workflow), Jul 2026.)
+
 ## Self-Improving Harnesses
 
 If the harness is the leverage point — and it can be tested
@@ -368,6 +418,68 @@ needed.* An evaluator only adds value when the task sits beyond what the baselin
 model handles reliably solo. As that boundary moves outward with each model
 generation, periodically simplify your harness and measure whether quality holds.
 
+## Dynamic Workflow Patterns (Anthropic Engineering)
+
+Rather than fixing one harness shape per project, Claude Code can **write its own
+custom multi-agent harness per task** by selecting from six named orchestration
+patterns — the harness itself becomes a decision the agent makes, not just a
+human-authored default:
+
+| Pattern | Shape | Guards against |
+|---|---|---|
+| **Classify-and-act** | A router classifies the task, then dispatches to a matching specialist | Applying the wrong workflow shape to a task that didn't need it |
+| **Fan-out-and-synthesize** | Independent workers cover sub-parts in parallel; a synthesizer merges results | Sequential work that could have been parallelized |
+| **Adversarial verification** | A separate agent tries to *break* the work rather than confirm it | Self-preferential bias — an agent approving its own output |
+| **Generate-and-filter** | Many candidate solutions generated, weak ones filtered before any single one is polished | Sunk-cost commitment to the first plausible draft |
+| **Tournament** | Candidates compete head-to-head across rounds; a judge advances the strongest | Local optima from evaluating candidates independently rather than comparatively |
+| **Loop-until-done** | Repeat generate → evaluate until a stopping condition is met | Goal drift — treat this as the canonical implementation of the Loop Contract's STOP property |
+
+These are explicitly framed as countermeasures to three named failure modes:
+**agentic laziness** (settling for a shallow but plausible-looking pass),
+**self-preferential bias** (an agent trusting its own output more than external
+evidence), and **goal drift** (the task definition eroding across iterations — see
+[Failure Patterns → Context drift](17-failure-patterns.md)). Pick the pattern to
+match the failure mode you are most exposed to, not by default habit.
+
+(Anthropic, ["A harness for every task: dynamic workflows in Claude Code"](https://claude.com/blog/a-harness-for-every-task-dynamic-workflows-in-claude-code), Jul 2026.)
+
+## Cross-Model Division of Labor
+
+A recurring pattern across mid-2026 harness design: **split roles across models by
+cost/quality tier, not just by function.** A stronger (and more expensive) model is
+kept for specification, review, and destructive operations; a cheaper or
+faster model does the bulk of implementation — inverting the naive default of
+running one model for everything.
+
+- **Advisor loop**: an executor session calls a stronger model only *on demand* for
+  guidance, while a cheaper model does the bulk implementation work — the stronger
+  model is consulted, not driving. ([@steipete](https://x.com/steipete/status/2074638582418231495), Jul 2026.)
+- **codex-first SKILL.md**: a Claude Code skill formalizing this as a hard rule —
+  Claude keeps design, review, and destructive operations; implementation is
+  delegated to `codex exec --yolo` via temp-file specs, with escalation back to
+  Claude after two failed delegation attempts (a bounded retry, not an infinite
+  handoff loop). ([steipete/agent-scripts](https://github.com/steipete/agent-scripts/blob/main/skills/codex-first/SKILL.md), Jul 2026.)
+- **Puppetmaster**: generalizes the pattern into a provider-neutral control plane —
+  a supervisor in front of multiple agent CLIs (Cursor, Claude Code, OpenAI) with
+  leased worker subprocesses and typed, deterministically-stitched artifacts, so the
+  division of labor is enforced by the control plane rather than by convention.
+  ([professorpalmer/Puppetmaster](https://github.com/professorpalmer/Puppetmaster), Jul 2026.)
+- **Official first-party version**: OpenAI's own Claude Code plugin implements the
+  same reviewer-executor separation as a supported product, not a community skill —
+  a `/codex:adversarial-review` command and an optional gate that **blocks Claude's
+  response pending Codex's validation**. Notable because the pattern now has
+  official backing from a *different* vendor, not just community consensus.
+  ([openai/codex-plugin-cc](https://github.com/openai/codex-plugin-cc), Jul 2026.)
+
+This is the same underlying idea as [Subagents' "strong eyes, cheap hands"](07-subagents.md)
+cost-asymmetric role allocation, generalized from same-vendor subagents to
+cross-vendor sessions — the review/execution split survives the model boundary. It
+is also the *cost-allocation* side of the same coin as
+[Verification's cross-model independence](04-verification.md#verifier-integrity-keeping-the-check-unfakeable)
+pattern 5: that section argues cross-model review is more *effective* (different
+blind spots); this section is about why it is increasingly also cheaper (cheap model
+implements, expensive model only reviews/advises on demand).
+
 ## Five-Wave Execution Model
 
 A typed sequential execution pattern where agents deploy in parallel within each
@@ -427,6 +539,16 @@ architecture, not by the model's compliance. This is the harness-level counterpa
 repo-owned durable ledger in [Memory Patterns](16-memory-patterns.md#pattern-g-repo-owned-durable-ledger).
 ([Sungmin-Cho/claude-deep-loop](https://github.com/Sungmin-Cho/claude-deep-loop), Jul 2026.)
 
+**Feeding the kernel's own history back into itself.** A follow-up release added an
+`insights` kernel subcommand that mines the kernel's own chain-verified run history
+into deterministic insights — feeding the proposal step of the next loop iteration
+and the init step of the next loop entirely. This closes a hill-climbing feedback
+loop *inside* the control plane: the harness doesn't just execute a fixed proposal
+step, it proposes its own next move based on evidence from its own audited past runs,
+without loosening the kernel's read-only-for-skills invariant (insights are emitted
+via the same atomic-write + append-anchored-event path as any other kernel write).
+([Sungmin-Cho/claude-deep-loop](https://github.com/Sungmin-Cho/claude-deep-loop) v1.4.0, Jul 2026.)
+
 ## Harness-Agnostic Projection
 
 A harness-agnostic design separates loop logic from the CLI or platform it runs on.
@@ -438,6 +560,16 @@ Benefits:
 - Portfolio-level consistency: same security, verification, and escalation policies apply across all harnesses
 - Avoid lock-in: swap or add harness targets without rewriting loop logic
 - Specialist agents (adversarial reviewer, security analyst) ship as portable units usable in any target harness
+
+**A lighter-weight version of the same idea**: instead of compiling to each target's
+native layout, put the control flow itself (decompose → fan-out workers → aggregate →
+review gate, looping on a negative review) in ordinary code behind one adapter
+interface (`Agent.run()`), so any backend — Claude, Codex, opencode, aider — plugs in
+without the harness knowing which one it's talking to. The same orchestration then
+exposes itself two ways: as an MCP server (callable from Claude Code, Cursor, Cline)
+and as a standalone CLI, with long-running MCP calls returning a `run_id` immediately
+and polling a cursor-based tail rather than blocking a request past its timeout.
+([luckeyfaraday/athena-loops](https://github.com/luckeyfaraday/athena-loops), Jul 2026.)
 
 **Security review at specification stage:** In a harness-agnostic design, a dedicated security agent
 reviews the compiled harness specification *before* any implementation begins — not after.

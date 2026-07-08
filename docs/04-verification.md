@@ -340,6 +340,40 @@ with an `agreement_n` count per finding) rather than argued about at review time
 whole reconciliation is bounded to 3 rounds, gating only on blocker/high severity so minor
 disagreements don't stall the loop. ([houshuang/compound-review](https://github.com/houshuang/compound-review), Jun 2026.)
 
+**The same non-overlap holds outside LLM-judge harnesses, in shipped code-review
+products.** Four commercial AI code reviewers (CodeRabbit, Sentry Seer, Greptile,
+Cursor BugBot) run in parallel across 146 real PRs over three weeks produced 679
+findings, and **93.4% were caught by exactly one tool** — no pair of tools ever
+flagged the same line. This corroborates the ~85–90% figure above with an
+independent, non-LLM-judge data source: the non-overlap is not an artifact of how
+LLM-as-judge harnesses are built, it recurs in production tools built by different
+vendors on different review philosophies. ([dev.to, "Best AI Code Reviewer in 2026?"](https://dev.to/_vjk/best-ai-code-reviewer-in-2026-we-ran-4-in-parallel-for-3-weeks-146-prs-679-findings-1c0f), Jul 2026.)
+
+**Per-criterion independent verification as the stopping condition.** A distinct
+refinement of pattern 1 above: instead of one verifier judging the whole diff, define
+"done" as a **manifest of acceptance criteria**, and spawn one independent verifier
+*per criterion* rather than one verifier for the whole task — no single verifier
+holds (and can rationalize around) the full picture, and completion requires every
+criterion plus a global invariant check to pass, not an aggregate judgment call. This
+is preceded by an adversarial understanding gate that challenges assumptions and reads
+the codebase *before* any manifest is written, on the premise that most agent failures
+are actually upstream — confidently solving the wrong problem — not downstream
+verification gaps. The manifest is a more granular version of
+[GOAL.md's done-conditions checklist](30-goal-engineering.md): where GOAL.md tracks
+one checklist for the whole goal, a manifest gives each criterion its own
+independent verifier. ([doodledood/manifest-dev](https://github.com/doodledood/manifest-dev), Jul 2026.)
+
+**Adversarial gate quantified in production: 43% fabrication rate caught.** A
+zero-polling fleet orchestrator (one orchestrator dispatching to Claude Code workers,
+[Fan-Out](10-fan-out.md)) ran a separate, cheaper reviewer model against every
+worker's output before integration. Across 28 dispatch cycles and roughly 100
+reviewed changes in one overnight run, the adversarial gate caught a **43%
+fabrication rate in generated summaries** — plus fabricated benchmark numbers,
+wrong pricing, and broken UI links that the implementer's own report had missed
+entirely. A concrete number for what "the checker catches what the maker cannot
+self-see" is worth in practice, not just an argument for why cross-checking matters.
+([walidboulanouar/loop-engineering](https://github.com/walidboulanouar/loop-engineering), Jul 2026.)
+
 ## Eval Metrics: pass@k vs. pass^k
 
 A single pass/fail run cannot tell you whether a loop is *reliably* correct or just

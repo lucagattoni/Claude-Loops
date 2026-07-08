@@ -89,3 +89,17 @@ Anthropic published five canonical agent workflow patterns that underpin their i
 The **evaluator-optimizer** is the canonical implementation of the maker/checker verification loop: the generator produces an artifact, the evaluator judges it against defined criteria, and the result drives the next generation. The loop exits when the evaluator's criteria are met — this is loop engineering's stopping condition in practice. See [Subagents](07-subagents.md) for the DOER/CHECKER pattern and evaluator tuning.
 
 (Anthropic, ["Building Effective Agents"](https://www.anthropic.com/news/building-effective-agents), Dec 2024.)
+
+## Who Benefits Most From the Shift
+
+An analysis of roughly 400,000 Claude Code sessions found that **domain expertise —
+not coding background — predicts how much work Claude does per instruction.** This
+sharpens the [AI Leverage Formula](#ai-leverage-formula) above: "Skill" was framed
+generically, but the data says the specific skill that compounds with Clarity is
+domain knowledge of the problem being solved, not general programming ability. A
+domain expert with limited coding background can write higher-leverage instructions
+than a strong general-purpose engineer working outside their domain, because
+clarity about *what "done" means in this domain* is what lets Claude do more per
+turn — the throughline back to the compound-probability argument above: fewer,
+clearer decisions per instruction compounds into fewer total turns needed.
+(Anthropic Research, ["Claude Code expertise analysis"](https://www.anthropic.com/research/claude-code-expertise), Jul 2026.)

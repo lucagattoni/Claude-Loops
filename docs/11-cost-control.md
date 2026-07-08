@@ -110,6 +110,20 @@ onto a weak-reasoning maker is a poor trade against simply raising effort.
 
 ([*Reasoning effort, not tool access, buys first-try reliability in agentic code generation*](https://arxiv.org/abs/2607.02436), arXiv, Jul 2026.)
 
+## Confidence-Scheduled Verification
+
+Not every iteration needs a full verification pass. A **confidence-scheduled**
+approach skips a verification pass when the maker's own confidence signal is high
+enough that the expected value of re-checking is low, and runs it in full when
+confidence is low — spending verification compute where it is likely to change the
+outcome rather than uniformly on every iteration. This is a budget-allocation
+refinement to [Verification](04-verification.md), not a replacement for it: the
+default disposition is still "verify," and the schedule only skips the check when a
+calibrated confidence signal (not the maker's self-report of correctness — see
+[Verifier Theater](17-failure-patterns.md)) crosses a threshold. Framed by the source
+as a way to cut wasted GPU compute in long-running agent loops.
+(MindStudio, ["Confidence-Scheduled Verification: How DeepSpark Cuts Wasted GPU Compute"](https://www.mindstudio.ai/blog/deepspark-confidence-scheduled-verification-ai-agents/), Jul 2026.)
+
 ## Handle result subtypes
 
 ```python

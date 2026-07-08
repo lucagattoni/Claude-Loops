@@ -141,6 +141,36 @@ question routes to its manager the same way a human employee's would. Backend-ag
 agents in the chart can run on Claude Code, Codex, or OpenCode interchangeably.
 ([alookai/alook](https://github.com/alookai/alook), Jul 2026.)
 
+**A third topology: swarm coordination via consensus protocols.** Where the graph and
+org-chart framings coordinate through explicit messages or reporting lines, a swarm
+topology coordinates through a **queen-led hierarchy backed by distributed-systems
+consensus** (Raft, Byzantine fault tolerance, or gossip protocols) — the same class of
+protocol used to keep database replicas agreed on state, applied here to keep agent
+fleet state agreed across many concurrent workers. This trades the readability of an
+org chart for the fault-tolerance guarantees of a consensus algorithm — appropriate
+when the fleet must keep operating correctly through individual agent crashes, not just
+coordinate cleanly when everything is healthy. ([ruvnet/ruflo](https://github.com/ruvnet/ruflo), Jul 2026.)
+
+## Case Study: Gas Town — 20-30 Parallel Instances via Git-Persisted Work Units
+
+Steve Yegge's "Gas Town" is a concrete, named production deployment of fleet
+engineering at real scale: **20–30 parallel Claude Code instances** coordinated
+through work units called **Beads**, persisted in git rather than in an external
+queue or database. Two mechanisms make this survive at that concurrency:
+
+- **Merge-queue management** — Beads flow through an explicit merge queue rather than
+  each agent pushing directly to a shared branch, turning "many agents editing the
+  same repo" from a collision risk into a serialized, auditable sequence.
+- **Crash-surviving agent identities** — an agent's identity and in-progress work
+  are anchored to git state, not to a live process; a crashed instance can be
+  restarted and resumes against the same Bead rather than losing its claim or
+  duplicating another instance's work.
+
+This is a working example of the [Fleet Budget Guard](#fleet-four-pillars) and
+[claimed-todo](16-memory-patterns.md#pattern-i-durable-objectives-with-evidence-logs)
+ideas at a concurrency level (20–30 agents) well beyond what most documented fleets
+in this KB report operating at. ([Steve Yegge, "Welcome to Gas Town"](https://steve-yegge.medium.com/welcome-to-gas-town-4f25ee16dd04), Jul 2026.)
+
 ## Current state (June 2026)
 
 - [cobusgreyling/fleet-engineering](https://github.com/cobusgreyling/fleet-engineering) is the primary reference implementation with six production patterns (Team Registry, Shared Inbox HITL, Hierarchical Delegation, Fleet Budget Guard, Cross-Agent Audit)

@@ -63,6 +63,31 @@ The Loop Contract can be materialised as four files in the repo:
 The loop reads all four at startup. Updating `PROMPT.md` re-tasks the loop without
 changing its rules or goal.
 
+**Plan-as-contract for one-off fleet dispatch.** A lighter variant for a single
+orchestrator dispatching to worker agents (rather than a standing loop): the
+orchestrator writes one `plans/<name>/PLAN.md` per unit of work — the SCOPE and
+ACTION properties for *that dispatch* — and the worker's only contract is to
+execute exactly that plan and report back. Because the plan lives in git, a failed
+dispatch can be trivially re-issued from the same file rather than re-specified from
+scratch. ([walidboulanouar/loop-engineering](https://github.com/walidboulanouar/loop-engineering), Jul 2026.)
+
+## Quota-Aware Should-Run Gate
+
+A refinement of the BUDGET property for loops that persist across many agent turns
+and restarts: rather than BUDGET being only a hard ceiling (spend no more than $X),
+gate *every turn* through an explicit **should-run decision** with four states —
+**proceed** (budget and priority clear it), **wait** (a higher-priority gate is
+pending), **ask** (needs a human decision before spending more), or **idle** (nothing
+actionable right now). This turns "did we run out of budget?" from a single
+end-of-run check into a per-turn admission decision, and gives the loop a defined
+state for "there is budget left but proceeding isn't the right call yet" — a case a
+binary budget cap cannot express. Paired with a **safe fallback** rule: when the
+primary (P0) objective is gated, the loop may still make progress on lower-priority
+(P1/P2) work rather than sitting fully idle, provided that work is tracked with the
+same evidence and ownership discipline as the primary objective (see
+[claimed_by todo ownership](16-memory-patterns.md#pattern-d-multi-backend-task-queue)).
+([huangruiteng/loopx](https://github.com/huangruiteng/loopx), Jul 2026.)
+
 ## Two Quality Gates
 
 Before a loop iteration continues or launches, apply two explicit checkpoints:

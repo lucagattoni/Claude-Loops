@@ -14,7 +14,9 @@ Updated by each `fetch-loop-news` run. Gap keywords drive targeted GitHub and we
   turned out to be unrelated enforcement-gate layers, not fleet maturity — false lead,
   ruled out. 2026-07-07 retry: chf3198/megingjord-harness documents F0-F3-consistent
   fleet-aware routing/telemetry/policy infrastructure but — like every source checked so
-  far — stops short of the concrete, checkable per-gate signal; still open.)
+  far — stops short of the concrete, checkable per-gate signal; still open. 2026-07-08
+  retry: ruvnet/ruflo's Trust Loop scores individual agents, not fleet-wide gate
+  readiness — adjacent but not a fleet maturity indicator either; still open.)
 
 - **Effort-vs-tooling budget boundary**: docs/11 documents that reasoning effort dominates
   tool access for *first-try reliability* on a greenfield spec'd build (arXiv 2607.02436), but
@@ -30,9 +32,20 @@ Updated by each `fetch-loop-news` run. Gap keywords drive targeted GitHub and we
   catch the most non-overlapping failure classes (beyond "different family") is still
   unspecified. (2026-07-07: erikhuang76821/fable-harness-kit and KristopherGBaker/Sparra
   both configure cross-model pairing manually per role rather than by a benchmarked
-  selection criterion — pairing remains a user judgment call, not yet a measured one.)
+  selection criterion — pairing remains a user judgment call, not yet a measured one.
+  2026-07-08: dev.to's 4-commercial-code-review-tool study (93.4% non-overlap, 146 PRs)
+  corroborates the non-overlap finding again but is product-level, not model-pair-level —
+  still no source names which *specific* model pairs catch the most distinct classes.)
   Search keywords: `cross-model reviewer pairing benchmark`, `"model diversity"
   code review coverage`, `which LLM pair catches most bugs`.
+
+- **Underspecified-input mitigation for autonomous pipelines**: Multiple 2026-07-08
+  sources (MindStudio's dark-factory pipeline, Kaola-Workflow's DAG planner) name
+  underspecified input as the dominant bottleneck once implementation/review/deploy are
+  all automated, but none specify a *mechanism* for catching underspecification before
+  it propagates through the pipeline (as opposed to catching bad output after the fact).
+  Search keywords: `spec quality gate agent pipeline`, `underspecified input detection
+  LLM agent`, `pre-implementation ambiguity check autonomous coding`.
 
 ---
 

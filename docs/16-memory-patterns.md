@@ -258,6 +258,41 @@ agent reads and maintains* — the wiki, not the transcript, becomes the durable
 
 ---
 
+## Pattern I: Durable Objectives with Evidence Logs
+
+For a local control plane coordinating one or more agent CLIs (Codex, Claude Code,
+Cursor) across many restarts, persist state as a small set of typed artifacts rather
+than one flat progress file:
+
+- **Durable objectives** — the goal survives individual chat sessions and agent
+  restarts; a new session picks up the same objective rather than re-deriving it
+  from conversation history.
+- **`claimed_by` todo ownership** — each todo item records which agent instance
+  owns it, so multiple agents (or restarted instances of the same agent) never
+  silently duplicate or collide on the same unit of work — a lighter-weight
+  alternative to the Slack/GitHub claim workflows in
+  [Pattern D](#pattern-d-multi-backend-task-queue) for setups without a shared
+  chat/issue surface.
+- **Append-only evidence logs** — every state change is written, never rewritten,
+  so a later session (or a human) can reconstruct *why* the state is what it is,
+  not just what it currently says.
+- **Verifiable handoffs** — a handoff between sessions or agents preserves the
+  original scope and boundaries explicitly, rather than trusting the receiving
+  session to infer them from context.
+- **Public/private boundary scanning** — before any artifact is committed or
+  published, a scan checks for credentials and raw traces that shouldn't leave the
+  private evidence log.
+
+The project's own framing is a useful discipline: it explicitly refuses to be "an
+autonomous production controller" — dangerous permissions, publishing, and
+production writes stay with the human operator; the durable state exists to make
+*resumption* safe, not to expand what the loop is allowed to do unattended.
+([huangruiteng/loopx](https://github.com/huangruiteng/loopx), Jul 2026. See also the
+[quota-aware should-run gate](27-loop-contract.md#quota-aware-should-run-gate) from
+the same project, which governs *when* a claimed todo may actually be worked.)
+
+---
+
 See [Long-Running Agents](25-long-running-agents.md) for the architectural pattern
 (Ralph loop / planner-worker-judge) that uses these memory strategies to coordinate
 work across multiple context windows.

@@ -52,6 +52,15 @@ at the point of write, not at the point of task assignment.
 
 (session-orchestrator — [Kanevry/session-orchestrator](https://github.com/Kanevry/session-orchestrator), Jun 2026.)
 
+**A complementary check earlier in the pipeline**: rather than only catching a
+collision at the point of write, a **classifier-gated** pre-claim check can mark
+candidate parallel work green/yellow/red/blocked *before* dispatch, based on file
+overlap, shared dependencies, and shared infrastructure — reducing how often the
+write-time lock above actually has to deny anything. See
+[Task-Shaped DAG Orchestration](24-harness-patterns.md#task-shaped-dag-orchestration)
+for the full pattern; the two checks are complementary layers, not substitutes for
+each other.
+
 ## Multi-Loop Coordination
 
 For repos running multiple distinct loops (CI Sweeper + PR Babysitter + Dependency
