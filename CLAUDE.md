@@ -22,7 +22,6 @@ Claude-Loops is a living knowledge base and automated daily tracker for **loop e
 - **Remove every worktree once its work is finished** — as soon as its branch is merged (or the work is abandoned), `git worktree remove <path>` and delete the branch (local + `git push origin --delete <branch>`). Don't leave finished worktrees lying around "just in case."
 - **Plans and features → own branch + PR.** Never commit feature work directly to `main`. Name branches meaningfully (`feature/...`, `plan/...`).
 - **Exception — automated content goes direct to `main`.** The daily pipeline commits its own output (`LOOP_ENGINEERING_NEWS.md`, `docs/`, `LOOP_ENGINEERING.md`, `SOURCES.md`, `mkdocs.yml`, `CHANGELOG.md`, `KB_GAPS.md`) directly to `main` — `integrate-loop-news`'s Phase 5 commits and `push origin HEAD:main`. This is generated content, not a code feature.
-- **Always pull before changing anything.**
 - When iterating/refining (devil's-advocate or review rounds), **commit AND push at each iteration** — treat each round as a shippable increment; never batch rounds into one commit.
 
 ## Releases
@@ -39,7 +38,3 @@ After every batch of commits that produces a new CHANGELOG version: create an an
 ## Structural review (norm after every news run)
 
 After every tracker run, do a critical, findings-driven structural review of the whole KB (codified as Phase 4c in `integrate-loop-news`) — read the findings as a *set* and ask whether the KB should be restructured (missing canonical home, missing thesis, centrality drift, docs to merge/reorder). The organizing spine is the five loop-design questions: **What / How / When / How much / How do you know it's done?** (Loop Contract: SCOPE / ACTION / TRIGGER / BUDGET / STOP + verifier). Prefer consolidation over new docs. Index restructures = MAJOR; new canonical sections + cross-refs = MINOR/PATCH.
-
-## Interaction defaults
-
-Cross-project working defaults — think critically about proposals (don't just implement), give honest pros/cons when asking the user to choose, let the user have the last word, and inspect git state (`git status` / `git reflog`) before any corrective `git reset` — live in the global `~/.claude/CLAUDE.md`.
