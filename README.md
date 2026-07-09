@@ -113,3 +113,9 @@ Supported types: `x` (X.com profile), `rss` (RSS/Atom feed), `html` (blog index 
 1. Add a new source by editing `SOURCES.md` — no code change needed (see [Sources](https://lucagattoni.github.io/Claude-Loops/sources/))
 2. For knowledge base edits, open a PR targeting `main`
 3. For new plans, add a file to the `plans/` directory on a feature branch
+
+---
+
+## License
+
+[MIT](LICENSE)
