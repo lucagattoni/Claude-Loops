@@ -18,6 +18,26 @@ Versioning follows [Semantic Versioning](https://semver.org/):
 
 ---
 
+## [2.7.6] — 2026-07-09 08:19 IST
+
+### Added
+- **Bun's Zig→Rust rewrite case study** (manually researched, [bun.com/blog/bun-in-rust](https://bun.com/blog/bun-in-rust)):
+  docs/23 new case study section — 64 parallel Claude Code instances across 4
+  worktrees, ~1,300 LOC/min peak, 535,496-line rewrite in 11 days, plain-worktree
+  coordination with no external queue layer (contrast with Gas Town's Beads);
+  docs/04 two new findings under Verifier Integrity — language-independent
+  (TypeScript) test suite as a cross-language-rewrite verifier, and blind
+  adversarial review quantified at 64-agent scale (128 bugs fixed, 19 regressions);
+  docs/24 new "Fix the process, not the code" subsection under Self-Improving
+  Harnesses — a manual, single-engineer instance of harness-level fixes over
+  point-fixes (dangerous git commands fixed once at the workflow-instruction level,
+  not per-instance); docs/26 new bullet under Named Factory Deployments — the
+  granular porting-guide → mechanical-port → compiler-errors → tests-green task
+  decomposition that made the rewrite agent-sized. No new doc files; four existing
+  docs updated, cross-linked to each other.
+
+---
+
 ## [2.7.5] — 2026-07-08 07:09 IST
 
 ### Added

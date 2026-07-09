@@ -374,6 +374,27 @@ entirely. A concrete number for what "the checker catches what the maker cannot
 self-see" is worth in practice, not just an argument for why cross-checking matters.
 ([walidboulanouar/loop-engineering](https://github.com/walidboulanouar/loop-engineering), Jul 2026.)
 
+**Language-independent test suite as verifier for a full rewrite.** A distinct technique
+for keeping the verifier honest during a *cross-language* rewrite: write the test suite in
+a **third language**, independent of both the old and new implementation. Bun's Zig→Rust
+port (535,496 lines, 11 days) verified every change against an existing TypeScript test
+suite with roughly a million assertions — a verifier that cannot be gamed by matching
+implementation-specific quirks in either Zig or Rust, because it was never coupled to
+either. This generalises pattern 1 above (external verifier) one step further: not just
+"the loop runs the check, not the agent," but "the check is written in a language the
+rewrite cannot influence." ([Bun, "Bun, in Rust"](https://bun.com/blog/bun-in-rust), Jul 2026.)
+
+**Blind adversarial review, quantified on a full production rewrite.** A concrete
+large-scale instance of the information-asymmetry pattern above: on the same Bun rewrite,
+one Claude Code instance implemented while a separate instance — with no visibility into
+the implementer's reasoning — was charged with a single mandate: "find bugs & reasons why
+the code does not work." Run at fleet scale (peak 64 parallel instances across 4
+worktrees, see [Fleet Engineering's case
+study](23-fleet-engineering.md#case-study-bun-64-parallel-instances-rewriting-535k-lines-in-11-days)),
+this produced 128 bug fixes in the v1.4.0 release with only 19 regressions introduced
+across the full 535,496-line rewrite — a real-world data point for what blind adversarial
+review buys at scale, not just at single-diff granularity. ([Bun, "Bun, in Rust"](https://bun.com/blog/bun-in-rust), Jul 2026.)
+
 ## Eval Metrics: pass@k vs. pass^k
 
 A single pass/fail run cannot tell you whether a loop is *reliably* correct or just

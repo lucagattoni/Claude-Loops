@@ -232,6 +232,19 @@ capability bar?" but "can the harness raise its own bar and prove it?" Keep the 
 and reversible (component observability) and gate every proposed edit on a held-out run — an
 un-validated harness edit is [Verifier Theater](17-failure-patterns.md) at the meta level.
 
+**Fix the process, not the code (Bun case study).** The self-improving-harness research
+above assumes an automated optimizer; the same discipline works manually and is easy to
+skip under time pressure. During Bun's 11-day, 64-parallel-instance Zig→Rust rewrite,
+Claude instances began repeatedly running dangerous git commands (`git stash`, `git
+reset`) mid-task. The response was not to intervene per-instance or hand-fix the
+resulting damage — it was to edit the workflow instructions once, globally, so the fix
+applied to every future instance rather than the one caught in the act. The author's own
+framing: "fixed the process that generates the code instead of hand-fixing the code."
+This is the manual, single-engineer version of what
+[Self-Harness](#self-improving-harnesses) and [AHE](#self-improving-harnesses) do with an
+automated weakness-mining step — the failure class, not the individual failure, is what
+gets patched. ([Bun, "Bun, in Rust"](https://bun.com/blog/bun-in-rust), Jul 2026.)
+
 **The cost case, quantified.** A Hugging Face proposer/accept-reject loop that rewrote *only*
 the harness code around a frozen model matched Sonnet 4.6's legal-agent-benchmark score at
 roughly **7x lower inference cost** — and with identical model and tasks, score ranged from
