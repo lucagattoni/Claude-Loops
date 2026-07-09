@@ -79,6 +79,17 @@ humans orchestrating and reviewing) is provider-agnostic.
   human-paced one for the PRs it's confident about, with humans reserved for the
   PRs the gate itself flags as uncertain.
   ([@thorstenball repost via @steipete](https://x.com/thorstenball/status/2074377949181030491), Jul 2026.)
+- **Bun's granular decomposition of a total rewrite**: rather than dispatching
+  "rewrite Bun in Rust" as one instruction, the work was broken into a sequence
+  small enough for parallel agents to execute mechanically: generate porting guides
+  (`PORTING.md`, a lifetimes table) → port files mechanically → fix compiler errors
+  (16,000 of them, distributed as a checklist across 64 parallel Claude instances,
+  see [Fleet Engineering's case
+  study](23-fleet-engineering.md#case-study-bun-64-parallel-instances-rewriting-535k-lines-in-11-days))
+  → get subcommands working → run the test suite to green. Each stage produces a
+  checkable artifact the next stage consumes, which is what makes a 535,496-line
+  rewrite decomposable into agent-sized units at all. ([Bun, "Bun, in
+  Rust"](https://bun.com/blog/bun-in-rust), Jul 2026.)
 
 ## Relationship to Other Concepts
 

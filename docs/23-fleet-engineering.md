@@ -171,6 +171,32 @@ This is a working example of the [Fleet Budget Guard](#fleet-four-pillars) and
 ideas at a concurrency level (20–30 agents) well beyond what most documented fleets
 in this KB report operating at. ([Steve Yegge, "Welcome to Gas Town"](https://steve-yegge.medium.com/welcome-to-gas-town-4f25ee16dd04), Jul 2026.)
 
+## Case Study: Bun — 64 Parallel Instances Rewriting 535K Lines in 11 Days
+
+Bun's port of its JavaScript-runtime internals from Zig to Rust is a second concrete,
+named production deployment at real scale, larger in raw instance count than Gas Town:
+**about 50 dynamic workflows over 11 days**, peaking at **64 parallel Claude Code
+instances across 4 git worktrees**, sustaining roughly **1,300 lines of code written per
+minute** at peak. Unlike Gas Town's Beads-based coordination layer, this fleet ran on
+plain git worktrees with no external work-unit queue — a data point for how far raw
+worktree parallelism scales before a coordination layer becomes necessary.
+
+Two design choices carried the fleet through 535,496 lines of rewritten code:
+
+- **A checklist-shaped task, not a single instruction.** The 16,000 compiler errors
+  produced by switching languages were treated as a distributable checklist and spread
+  across the 64 parallel instances — see the granular decomposition sequence in
+  [The Factory Model](26-factory-model.md#named-factory-deployments).
+- **[Blind adversarial review](04-verification.md#verifier-integrity-keeping-the-check-unfakeable)
+  at fleet scale** — separate implementer/reviewer instances, reviewer blind to the
+  implementer's reasoning — produced 128 bug fixes in the v1.4.0 release against only 19
+  regressions introduced across the full rewrite.
+
+Result: a 535,496-line Zig→Rust port shipped in 11 days, 128 bugs fixed vs. the prior
+release, and memory leaks eliminated (one multi-build leak dropped from 6.7 GB to 609 MB
+over 2,000 iterations) — the class of bug the rewrite was undertaken to fix in the first
+place. ([Bun, "Bun, in Rust"](https://bun.com/blog/bun-in-rust), Jul 2026.)
+
 ## Current state (June 2026)
 
 - [cobusgreyling/fleet-engineering](https://github.com/cobusgreyling/fleet-engineering) is the primary reference implementation with six production patterns (Team Registry, Shared Inbox HITL, Hierarchical Delegation, Fleet Budget Guard, Cross-Agent Audit)
