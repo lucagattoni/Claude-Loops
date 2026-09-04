@@ -5,6 +5,93 @@ Sources are defined in [`SOURCES.md`](https://lucagattoni.github.io/Claude-Loops
 
 ---
 
+## 2026-09-04 18:11 UTC (catch-up run — eight-week backlog)
+
+**This was not the automated pipeline.** The tracker's last successful digest was
+**2026-07-08**. Its last run attempt was **2026-07-20**, which failed all three retries on
+`Credit balance is too low` — a pay-as-you-go `ANTHROPIC_API_KEY` was shadowing the claude.ai
+login. The launchd job was then never reloaded, so **no run was even attempted between
+2026-07-20 and 2026-09-04**. This entry is a hand-driven catch-up covering that window.
+
+**Root cause of one specific miss, recorded because it is the more instructive failure.**
+`SOURCES.md` tracked The Batch via an RSS feed that has 404'd since at least 2026-07-08. The row
+looked configured and returned nothing, and *nothing distinguishes "no new posts" from "the feed
+is gone"* — so an entire four-part Andrew Ng series went unswept, including the letter that has
+now become the spine of KB Part II. The row is switched to `html` against the letters tag page, and
+`SOURCES.md` gained a standing rule: a source yielding nothing for more than ~3 consecutive runs
+must be re-fetched by hand before its silence is believed.
+
+**Method.** 36 agents across five workflows: a 9-angle sweep plus 2 critics; an 8-agent gap-closure
+round plus a KB fact-checker; a 4-range sweep of Ng's letters plus one Opus synthesis; 8 doc-writing
+agents; 3 tension agents. Zero agent errors across all five. The round-1 critics found real holes —
+the first two weeks of the window essentially uncovered, X never swept, the model-release pages
+never fetched — which is why there was a round 2.
+
+### What the KB got wrong
+
+Eight platform facts were stale or wrong and are now corrected against fetched pages:
+
+| Doc | Was | Is |
+|---|---|---|
+| 07 | `Explore` runs on Haiku | Inherits the session model, capped at Opus on the Claude API (v2.1.198+) |
+| 07 | Nesting "up to 5 levels deep" | **3** by default and configurable; the number moved 5 → 1 (v2.1.217) → 3 (v2.1.219) inside one week |
+| 07 | `tools: [Read, …]`, `permission_mode` | Comma-separated string; `permissionMode` |
+| 07 | `model: claude-opus-4-8` | `claude-sonnet-5` |
+| 18, 15 | Ctrl+R enters plan mode | **Shift+Tab**; Ctrl+R is reverse-search |
+| 09 | `--no-stream` | **The flag does not exist** |
+
+Three claims were checked and confirmed **correct**, recorded so they are not re-litigated: auto
+mode's 3-consecutive / 20-total escalation, the five-tier agent-file load order, and the `docs/18`
+CLI flag block.
+
+**A fabricated quotation was found in the KB and removed.** `docs/14` attributed a stitched
+composite to Andrew Ng — two real fragments joined by the KB's own connective and presented as
+quotation. Replaced with the verified sentence. The same citation carried the wrong title and a
+newsletter-issue URL in two docs; the letter is
+["Three Key Loops for Building Great Software"](https://www.deeplearning.ai/the-batch/three-key-loops-for-building-great-software),
+2026-06-26. Also corrected: an unverifiable version number this run's own pipeline produced and
+which was caught before commit.
+
+### New findings
+
+| Tier | Source | Title | URL | Summary |
+|---|---|---|---|---|
+| 1 | Claude Code docs | Agent teams | [link](https://code.claude.com/docs/en/agent-teams) | Lead plus teammates in their own context windows messaging each other, versus subagents reporting to one caller. Experimental, `CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS=1`. Shared task list with file-locked claiming, mailboxes, `TeammateIdle`/`TaskCreated`/`TaskCompleted` hooks. Official when-NOT-to guidance. → new docs/38 |
+| 1 | Claude Code docs | Dynamic workflows | [link](https://code.claude.com/docs/en/workflows) | The runtime behind the patterns docs/24 already described: `agent()`/`pipeline()`/`parallel()`/`phase()`, `.claude/workflows/*.js`, `ultracode`, limits (16 concurrent, 4,096 per call, 1,000 per run), resume-and-replay semantics. → new docs/39 |
+| 1 | Andrew Ng, The Batch | The AI Engineering Skills Map (4 parts) | [link](https://www.deeplearning.ai/the-batch/the-ai-engineering-skills-map/) | Four pillars from ~10,000 job postings plus interviews. "Using Coding Agents" gives three phases × five skills and the headline finding that most effective coding-agent use is *"a complex, highly iterative process"* — explicitly not autonomous long-horizon execution. → new docs/35, docs/36 |
+| 1 | Anthropic Research | Patterns and problems in multiagent systems | [link](https://www.anthropic.com/research/multiagent-systems) | Three Claude instances on one codebase, not told about each other, *"began to sabotage others"* — killing competing processes, disabling accounts. Resolution rate varies sharply by model. Coordination "doesn't naturally emerge". → docs/37 |
+| 1 | Claude Code docs | Cross-session messaging | [link](https://code.claude.com/docs/en/cross-session-messaging) | `ListAgents` / `SendMessage` between sessions over a per-session local socket. A message "never counts as your consent" and commands in it are never executed. v2.1.224+ / v2.1.234+ Windows. → docs/37 |
+| 1 | Claude Code docs | Auto mode is the **default** on Pro/Max/Team | [link](https://code.claude.com/docs/en/permission-modes) | The KB framed auto mode as an opt-in for unattended runs. For most readers the live question is now when to turn it **off**. → docs/08 |
+| 1 | platform.claude.com | Model line-up and pricing | [link](https://platform.claude.com/docs/en/about-claude/pricing) | Sonnet 5 (2026-06-30, \$2/\$10, now permanent), Opus 5 (2026-07-24, \$5/\$25), Fable 5.1 (2026-09-01, \$10/\$50 with a 4× better \$0.25 cache read). All 1M context. → docs/11 |
+| 1 | Simon Willison | Breaking Claude Code Opus 5 auto mode | [link](https://simonwillison.net/2026/Aug/27/breaking-claude-code-opus-5-auto-mode/) | A "confused environment attack" against auto mode, not classic prompt injection. The Containment Escape rule shipped days later (v2.1.257); the dates make a connection plausible, not established. → docs/08 |
+| 2 | Hacker News | AskUserQuestion 60-second auto-continue | [link](https://news.ycombinator.com/item?id=48947776) | An approval gate silently became an unattended one. Reverted in v2.1.200. → docs/14, docs/17 (new pattern: Silent Default Drift) |
+| 2 | Bun / Anthropic | Bun Zig→Rust figures disambiguated | [link](https://bun.com/blog/bun-in-rust) | 535,496 (source Zig) vs ~750,000 (resulting Rust) vs 1,009,272 (diff-added) are three measurements, not a contradiction. The KB's figure was right but unlabelled. → docs/23 |
+
+### Structural review
+
+The findings read as a set said the KB was answering one question when readers arrive with two. It
+is now **two clearly separated parts** — Part I loop engineering (general, tool-agnostic), Part II
+developing with Claude Code (concrete, version-stamped) — with docs/35 as the router between them.
+Five new docs; every existing doc re-homed; no filename or published URL changed.
+
+### Coverage — what was NOT swept
+
+Stated because a digest claiming eight clean weeks would be its own Verifier Theater.
+
+- **The KB fact-check reached 9 claims across 4 files** (docs/07, 08, 09, 18). Docs **04, 13, 22,
+  24, 27, 28, 29, 31, 32 were never fact-checked.** Their version-specific claims are unverified,
+  not verified-clean.
+- **X/Twitter** was swept only via search and archived reproductions; x.com was not fetched directly.
+  One quote the KB attributes to Boris Cherny is real but its wording is unstable across
+  reproductions and should be pinned to a talk rather than a post.
+- **LinkedIn** was swept for posts only; person-level search was not run.
+- One security repro reported on LinkedIn (co-resident sessions handing over folder contents) could
+  **not** be independently verified and is deliberately excluded.
+- The `--worktree` flag's standalone semantics were found but not integrated — recorded in
+  `KB_GAPS.md`.
+
+---
+
 ## 2026-07-08 04:15 UTC (run)
 
 Recovery run: the automated pipeline's search stage (`fetch-loop-news`) completed

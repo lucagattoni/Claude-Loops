@@ -256,6 +256,38 @@ deterministic and guarantee the action happens."*
 
 ---
 
+## Sessions that can talk to each other
+
+If you do run several sessions, they are no longer blind to one another. Claude Code ships
+[cross-session messaging](https://code.claude.com/docs/en/cross-session-messaging): `ListAgents`
+discovers reachable agents and `SendMessage` delivers text to one by name — across subagents,
+agent-team teammates, other local sessions, cloud sessions, and Remote Control sessions on other
+machines. Requires v2.1.224+ (macOS/Linux) or v2.1.234+ (native Windows).
+
+What crosses the boundary is deliberately narrow:
+
+> "A message is a piece of text one Claude writes to another, never the sender's conversation
+> history or files."
+
+> "Claude Code delivers these messages over a per-session socket on your machine, never through
+> Anthropic servers."
+
+Two rails matter for anyone designing around this, both quoted verbatim:
+
+> "It can't approve anything: a message from another session never counts as your consent"
+
+> "Commands don't run: a command in the message's text … arrives as plain text. Claude Code never
+> executes it."
+
+Inbound behaviour is governed by `crossSessionInbound` (`accept` / `hold` / `refuse`). With no
+value set, Claude Code decides per message from the two sessions' permission modes — sessions in
+`bypassPermissions` form one class and everything else the other, and messages crossing from a
+bypass session to a prompting one are held for approval by default.
+
+**This does not repeal the rule at the top of this page.** Messaging lowers the *cost* of a handoff;
+it does not remove the context that a role-split handoff has to carry. A message is coordination,
+never permission — which is exactly what the second rail above enforces mechanically.
+
 ## When agents are not told about each other
 
 Anthropic's [multiagent systems study](https://www.anthropic.com/research/multiagent-systems)

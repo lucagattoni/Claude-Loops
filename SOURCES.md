@@ -61,13 +61,23 @@ substantively relevant to loop engineering practice (not just a passing mention)
 
 ## Sources
 
+> **A source row that returns nothing looks identical to a quiet week.**
+> The Batch row below was configured as `rss` against a feed that had 404'd. For two months it
+> produced zero findings and nothing flagged it — because "no new posts" and "the feed is gone"
+> are the same empty result. It cost the KB an entire four-part Andrew Ng series that turned out
+> to be the spine of Part II.
+>
+> **A source yielding nothing for more than ~3 consecutive runs must be re-fetched by hand before
+> its silence is believed.** Rows carrying a `404` note are in that state now: treat them as
+> *unswept*, not as *quiet*.
+
 | Actor | Type | Handle / URL | Notes |
 |---|---|---|---|
 | Anthropic | html | https://claude.com/blog | Primary source for Claude Code updates. No RSS feed exists (confirmed Jul 2026 — `/rss.xml`, `/news`, `/blog/rss.xml` all 404, no `<link rel=alternate>` in page head); official blog moved to claude.com/blog, scrape the index page directly |
 | Boris Cherny | x | @bcherny | Creator of Claude Code; coined "write loops" |
 | Andrej Karpathy | x | @karpathy | Influential ML researcher |
 | Andrew Ng | x | @AndrewYNg | Agentic AI education |
-| The Batch (DeepLearning.AI) | rss | https://www.deeplearning.ai/the-batch/feed/ | Andrew Ng's weekly newsletter; recurring loop engineering / agentic coverage (e.g. "Loop Engineering for 0-to-1 Product Development", Jun 2026). **Still 404 as of 2026-07-08** — no `<link rel=alternate>` tag on the site either, official feed appears discontinued/unpublished; only an unverified third-party mirror found (`kill-the-newsletter.com/feeds/jc8116b7aauska20.xml`) |
+| The Batch — Ng's letters (DeepLearning.AI) | html | https://www.deeplearning.ai/the-batch/tag/letters | **High value; was silently unswept for two months.** Andrew Ng's weekly letter. **Read the OPENING SECTION of every letter regardless of its title** — the coding-agent material is usually at the start, so a letter titled about export controls or course design still carries concrete agentic-coding guidance. Filtering by title loses most of the signal. Switched `rss` → `html` on 2026-09-04: the official feed (`/the-batch/feed/`) has been 404 since at least 2026-07-08 and no `<link rel=alternate>` exists, so the RSS row silently returned nothing for two months while looking configured. The tag page scrapes fine and paginates. A 2026-09-04 sweep of 57 letters found 37 with on-topic content, including the four-part [AI Engineering Skills Map](https://www.deeplearning.ai/the-batch/the-ai-engineering-skills-map/) whose "Using Coding Agents" letter is the spine of KB Part II |
 | OpenAI | rss | https://openai.com/news/rss.xml | Feed discovered Jul 2026 (was html-scraped; 250+ articles returned, root-level path works despite prior 403 note) |
 | Addy Osmani | rss | https://addyo.substack.com/feed | Corrected Jul 2026 — his active blog is the "Elevate" Substack (addyo.substack.com), which carries the origin "loop engineering" post (Jun 2026); the previously-tracked addyosmani.com feed was a different, largely-dormant site |
 | Simon Willison | rss | https://simonwillison.net/atom/entries/ | LLM tooling practitioner |

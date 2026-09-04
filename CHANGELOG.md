@@ -18,6 +18,69 @@ Versioning follows [Semantic Versioning](https://semver.org/):
 
 ---
 
+## [3.0.0] — 20260904 19:12
+
+Restructured into **two clearly separated parts**, and corrected nine factual defects the
+restructure surfaced. First release since 2026-07-09; covers an eight-week tracker outage.
+
+### Changed — BREAKING
+
+- **The index and site navigation are reorganised into two parts.** Part I — Loop Engineering is
+  general and tool-agnostic (Claude Code appears as an example, never a prerequisite). Part II —
+  Developing with Claude Code is concrete and version-stamped. `LOOP_ENGINEERING.md`, `docs/index.md`,
+  `mkdocs.yml` nav and `README.md` all rewritten. **No `docs/NN-` filename and no published URL
+  changed**, so no external link breaks — only grouping and framing moved. Every one of the 39 docs
+  appears in the nav exactly once; all 34 pre-existing row summaries preserved verbatim.
+- **`site_name`: `Loop Engineering` → `Claude Loops`**, matching the repo and project.
+- **Routines, Claude Tag, Background Agents and Headless moved from Part I to Part II** — all four
+  are Claude Code product surfaces and cannot sit in a part that must stay general.
+- **The docs/01 thesis is scoped, not discarded.** "Stop writing prompts, start designing loops"
+  stays as a claim about a *class* of work. The table no longer claims "design the loop once, let it
+  run" or an unqualified "the loop verifies itself" — both overstated, and both were in tension with
+  docs/14 *inside the KB*.
+
+### Added
+
+- **`docs/35-choosing-your-mode`** — the router the KB never had. Three tests a task must pass
+  before a loop is worth building; task-properties decision table; the supervised-autonomy middle
+  ground where most real work sits; the compound-probability argument re-scoped as an argument for
+  a *correction* loop rather than an *unattended* one.
+- **`docs/36-development-workflow`** — the Part II spine. Ng's three phases × five skills, each
+  mapped to the Claude Code primitive that implements it.
+- **`docs/37-session-architecture`** — split by context boundary, never by job title. Anthropic's
+  three justifications and the one that is absent; the telephone game; the 90.2% figure and the
+  population it was actually measured on; the official four-way primitive matrix; native
+  cross-session messaging; a named case study with its refuted-claims table.
+- **`docs/38-agent-teams`** and **`docs/39-dynamic-workflows`** — two shipped primitives with zero
+  prior KB coverage.
+- **docs/24 "When to remove harness"** — the KB accumulated harness monotonically with no doctrine
+  for removing any of it. Harness complexity is a depreciating asset with a stated decay direction.
+- **docs/26 spec-first conditioned on project maturity**; **docs/08 + docs/33 the cost of refusal**;
+  **docs/21 the loops-vs-graphs debate** (recorded as contested, since the framing traces to a joke
+  rather than a consolidation piece); **docs/17 Silent Default Drift** as a named failure pattern;
+  **docs/11** a model reference table (Sonnet 5 / Opus 5 / Fable 5.1 / Haiku 4.5) with selection
+  guidance.
+
+### Fixed
+
+- **A fabricated quotation attributed to Andrew Ng, removed from docs/14.** A stitched composite —
+  two real fragments joined by the KB's own connective and presented as quotation. Replaced with the
+  verified sentence.
+- **A miscited letter in docs/14 and docs/32** — wrong title, and a newsletter-issue URL instead of
+  the article.
+- **Eight stale or wrong platform facts** across docs/07, 08, 09, 15, 18: the `Explore` subagent's
+  model, the nested-subagent depth cap (5 → **3**, and configurable), subagent frontmatter shape,
+  a legacy model pin, `Ctrl+R` for plan mode (it is **Shift+Tab**) in two docs, and a `--no-stream`
+  flag that does not exist. Three further claims were checked and confirmed correct.
+- **A broken anchor in docs/11**, caught by `mkdocs build --strict`.
+- **docs/23** — the Bun figures were correct but unlabelled; 535,496 / ~750,000 / 1,009,272 are
+  three different measurements and are now named as such, with a practitioner counterweight.
+- **`SOURCES.md`** — The Batch row switched `rss` → `html`; the feed had 404'd since 2026-07-08 and
+  silently returned nothing for two months while looking configured. Adds a standing rule that a
+  source yielding nothing for >~3 runs must be re-fetched by hand before its silence is believed.
+
+---
+
 ## [2.7.6] — 2026-07-09 08:19 IST
 
 ### Added
