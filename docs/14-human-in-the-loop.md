@@ -42,6 +42,62 @@ assumption.
 
 (MindStudio, ["Human-in-the-Loop Checkpoints for AI Agents"](https://www.mindstudio.ai/blog/human-in-the-loop-checkpoints-ai-agents), Jun 2026.)
 
+## When the Checkpoint Has a Timeout
+
+The four tests above decide *where* a checkpoint goes. A fifth decision is easy to skip:
+what happens if nobody answers in time.
+
+**A timeout on an approval gate converts it into an unattended gate whenever the default
+is to continue.** The loop still asks the question and still pauses, so it looks like a
+checkpoint — but if silence means "proceed," the gate has become a fixed delay before the
+same unreviewed action, not a control on it.
+
+**Worked example.** Claude Code's `AskUserQuestion` tool was changed to auto-continue after
+60 seconds of no input instead of blocking indefinitely. The change shipped **unannounced** —
+no changelog entry — and practitioners discovered it in production. Anthropic then reverted
+the default, in `2.1.200`: *"Changed `AskUserQuestion` dialogs to no longer auto-continue by
+default; opt into an idle timeout via `/config`."*
+
+No public source names the version that introduced the behaviour, which is itself the point:
+the reversal is in the changelog and the introduction is not. The thread drew 142 points and 127 comments
+on Hacker News ([Hacker News, "Claude Code: Anatomy of a Misfeature"](https://news.ycombinator.com/item?id=48947776),
+Jul 2026; article at [olafalders.com](https://www.olafalders.com/2026/07/17/claude-code-anatomy-of-a-misfeature/)).
+
+The Anthropic engineer responsible for the change acknowledged the process failure
+in-thread:
+
+> "the rollout should have been opt-in (like it is now) and on the Changelog."
+
+A practitioner objected to the 60-second window itself, independently of how it shipped:
+
+> "How can I possibly provide any kind of informed answer in under 60 seconds? I can barely
+> read some of its context for a question in 60 seconds!"
+
+The two objections are distinct and both real: one is a process failure (an undocumented
+default change), the other is a design failure (60 seconds is not enough time for an
+informed answer to most questions worth interrupting a human for). A checkpoint that
+fails on either axis has stopped functioning as a checkpoint.
+
+**Design rule.** State what happens on timeout as part of the checkpoint's definition,
+not as an implementation detail decided later:
+- Does the checkpoint block indefinitely, or does it time out?
+- If it times out, does the default action on silence continue the loop, or block it?
+- Is that default consistent with what the Irreversibility test (above) already said
+  about this action?
+
+**Prefer default-block over default-continue wherever the action is not trivially
+reversible.** A checkpoint on an irreversible action (a push to main, a cost overrun)
+that silently defaults to "continue" on timeout provides no real protection — it adds a
+delay before the unreviewed action happens anyway. Where a genuine liveness problem
+exists (a long-running job that must not deadlock on an absent reviewer), fix it with a
+timeout tuned to actual review effort, an escalation to a second reviewer, or a queued
+retry — not a short default-continue timeout on a decision the checkpoint exists
+precisely because it was not safe to make unreviewed.
+
+This is one instance of the broader [Silent Default Drift](17-failure-patterns.md)
+pattern: the gate was correct when the loop was designed, and it degraded without anyone
+touching the loop's own configuration.
+
 ## The Three Feedback Loops
 
 Human-in-the-loop is not one checkpoint — it is the **middle of three nested feedback

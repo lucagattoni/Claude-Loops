@@ -320,3 +320,4 @@ that wasn't told to refuse them will rationalize.
 - [Background Agents](29-background-agents.md) — sessions running independently (not within a parent session)
 - [Fan-Out](10-fan-out.md) — parallelism using multiple subagents
 - [Hooks](12-hooks.md) — SubagentStart/SubagentStop lifecycle events
+- [Agent Teams](38-agent-teams.md) — teammates that message each other directly instead of reporting back; the same definition can serve as either
