@@ -25,7 +25,7 @@ For **building software**, the default is interactive. Three independent sources
 > "Most coding tasks involve fewer truly parallelizable tasks than research, and LLM agents are not
 > yet great at coordinating and delegating to other agents in real time."
 >
-> — Anthropic, [*How we built our multi-agent research system*](https://www.anthropic.com/engineering/multi-agent-research-system)
+> — Anthropic, [*How we built our multi-agent research system*](https://www.anthropic.com/engineering/multi-agent-research-system), 2025-06-13
 
 And measured on a real project: over six weeks of building a shipped tool with Claude Code, the
 work that actually moved product code was interactive; the autonomous fan-outs were used for

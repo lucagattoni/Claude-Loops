@@ -211,7 +211,13 @@ orchestrator → specialist → verifier.
 |---|---|---|
 | Nesting depth below the main conversation | **3** | `CLAUDE_CODE_MAX_SUBAGENT_SPAWN_DEPTH` (set to `1` to disable nesting) |
 | Concurrent subagents per session | **20** — spawning a 21st fails with `Concurrent subagent limit reached` | `CLAUDE_CODE_MAX_CONCURRENT_SUBAGENTS` (requires v2.1.217+) |
-| Total subagent spawns per session | **200** | `CLAUDE_CODE_MAX_SUBAGENTS_PER_SESSION` |
+
+There is **no cap on total spawns over a session** — only the two limits above. A 200-spawn
+per-session cap did exist (added v2.1.212) and was **removed in v2.1.224**: *"Removed the
+200-subagent-per-session spawn cap; long-running sessions no longer refuse new agents (concurrency
+and depth limits still apply)."* The current [subagents reference](https://code.claude.com/docs/en/sub-agents)
+says plainly: *"Two limits control subagent use, each with its own variable… There's no limit on the
+total number of subagents Claude can spawn over a session."*
 
 **Version history — the number changed twice in one week, so pin your assumptions to a version:**
 

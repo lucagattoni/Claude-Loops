@@ -58,8 +58,13 @@ no changelog entry — and practitioners discovered it in production. Anthropic 
 the default, in `2.1.200`: *"Changed `AskUserQuestion` dialogs to no longer auto-continue by
 default; opt into an idle timeout via `/config`."*
 
-No public source names the version that introduced the behaviour, which is itself the point:
-the reversal is in the changelog and the introduction is not. The thread drew 142 points and 127 comments
+**No changelog entry names the version that introduced the behaviour** — the reversal is in the
+changelog and the introduction is not. The version is recoverable only from outside the release
+notes: the article below pins it to `2.1.198` by diffing the shipped binaries, and Anthropic's
+environment-variable reference now records it retroactively — *"In v2.1.198 and v2.1.199,
+auto-continue was on by default with a `60000` (60 seconds) timeout"*
+([env-vars reference](https://code.claude.com/docs/en/env-vars)). Auto-continue is now off by
+default and opt-in via `askUserQuestionTimeout`. The thread drew 142 points and 120 comments (as of 2026-09-04)
 on Hacker News ([Hacker News, "Claude Code: Anatomy of a Misfeature"](https://news.ycombinator.com/item?id=48947776),
 Jul 2026; article at [olafalders.com](https://www.olafalders.com/2026/07/17/claude-code-anatomy-of-a-misfeature/)).
 

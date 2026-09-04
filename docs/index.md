@@ -29,7 +29,7 @@ For **building software**, the honest answer is Part II.
 > "Most coding tasks involve fewer truly parallelizable tasks than research, and LLM agents are not
 > yet great at coordinating and delegating to other agents in real time."
 >
-> — Anthropic, [*How we built our multi-agent research system*](https://www.anthropic.com/engineering/multi-agent-research-system)
+> — Anthropic, [*How we built our multi-agent research system*](https://www.anthropic.com/engineering/multi-agent-research-system), 2025-06-13
 
 Part I is not the lesser half. It is where **recurring, well-specified, verifiable** work belongs —
 triage, sweeps, dependency bumps, docs sync, digests. That work is genuinely better done by a loop

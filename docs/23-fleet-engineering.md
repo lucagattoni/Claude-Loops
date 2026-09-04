@@ -217,7 +217,7 @@ Two design choices carried the fleet through the port:
   (Anthropic, "Introducing dynamic workflows in Claude Code"). It produced 128 bug fixes
   in the v1.4.0 release against only 19 regressions introduced across the full rewrite.
 
-Result: 6,502 commits over eleven days from first commit to merge, with **99.8% of the
+Result: 6,502 non-merge commits (6,778 including merges) over eleven days from first commit to merge, with **99.8% of the
 existing test suite passing** on the resulting Rust codebase (Anthropic, "Introducing
 dynamic workflows in Claude Code"), 128 bugs fixed vs. the prior release, and memory
 leaks eliminated (one multi-build leak dropped from 6.7 GB to 609 MB over 2,000
