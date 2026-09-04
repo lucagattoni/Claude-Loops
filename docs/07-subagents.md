@@ -180,8 +180,8 @@ Define reusable agent roles with frontmatter in `.claude/agents/<name>.md`:
 name: security-reviewer
 description: Audits code for injection, auth flaws, and exposed secrets
 model: claude-sonnet-5
-tools: [Read, Grep, Glob, Bash]
-permission_mode: auto
+tools: Read, Grep, Glob, Bash
+permissionMode: auto
 ---
 You are a senior security engineer. Flag: SQL/XSS/command injection,
 auth/authz flaws, secrets in code, insecure data handling.

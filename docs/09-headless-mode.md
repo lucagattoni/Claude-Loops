@@ -10,7 +10,6 @@ and scheduled jobs.
 claude -p "task"                                     # non-interactive, output to stdout
 claude -p "task" --output-format json                # structured JSON output
 claude -p "task" --output-format stream-json         # streaming JSON for real-time processing
-claude -p "task" --no-stream                         # wait for full response (verify flag name)
 claude -p "task" --max-turns 30                      # hard turn cap
 claude -p "task" --max-budget-usd 2.00               # hard cost cap
 claude -p "task" --permission-mode auto              # skip permission prompts (unattended)
@@ -34,10 +33,12 @@ rate limit without losing accumulated context.
 ## Prompt and model overrides
 
 ```bash
-# Replace the system prompt entirely
+# Replace the system prompt entirely (--system-prompt-file <path> for the file form)
 claude -p "task" --system-prompt "You are a security auditor."
 
-# Append to the default system prompt (verify flag name)
+# Append to the default system prompt
+#   also: --append-system-prompt-file <path>
+#   also: --append-subagent-system-prompt (every subagent; -p only; v2.1.205+)
 claude -p "task" --append-system-prompt "Always return structured JSON."
 
 # Override model
@@ -62,7 +63,7 @@ In CI or multi-machine setups, the system prompt varies per machine (working dir
 hostname, git config), invalidating the prompt cache on every run:
 
 ```bash
-claude -p "task" --exclude-dynamic-system-prompt-sections  # verify flag name
+claude -p "task" --exclude-dynamic-system-prompt-sections
 ```
 
 Moves machine-specific sections to the first user message — the system prompt stays
@@ -74,10 +75,13 @@ identical across machines, cache hits occur, and cost per run drops significantl
 # Don't persist session to disk (ephemeral CI runs)
 claude -p "task" --no-session-persistence
 
-# Disable ALL customizations (troubleshoot hook/skill/plugin conflicts)
+# Disable ALL customizations (troubleshoot hook/skill/plugin conflicts). Differs from --bare:
+#   auth, model selection, built-in tools and permissions still work normally, and managed
+#   settings policy still applies. Sets CLAUDE_CODE_SAFE_MODE.
 claude -p "task" --safe-mode
 
-# Skip all setup: hooks, skills, MCP, CLAUDE.md, auto-memory (fastest start; verify flag name)
+# Skip all setup: hooks, skills, commands, subagents, plugins, MCP, auto-memory, CLAUDE.md
+#   Keeps Bash + file read/edit. Skills under --add-dir still load. Sets CLAUDE_CODE_SIMPLE.
 claude -p "task" --bare
 ```
 
