@@ -104,6 +104,44 @@ Decision 20260904: **named case study, absolute dollar figures dropped.** The re
 
 ---
 
+## 4b. ClaudeWarp — reference implementation + case study
+
+Decision 20260904. [`Claude-Warp`](https://github.com/lucagattoni/Claude-Warp) is **public**:
+*"Loop harness for Claude Code — scaffold, guard, and schedule autonomous loops in any project."*
+
+There is an existing dependency between the two repos: ClaudeWarp's `/claude-warp-sync-research`
+**already scans Claude-Loops** for new patterns and implements findings. Part II is therefore
+effectively the spec ClaudeWarp builds against, and the relationship should be documented in both
+directions.
+
+How it appears:
+- **Throughout Part II** as the worked reference implementation — "here is what this looks like built".
+- **As a named case study**, alongside Pinakes, covering the G0–G3 readiness gate, risk-tiered
+  autonomy (R0–R5), and the two-tier BLOCK/WARN release verdict.
+- **The shrink-on-native property is the headline lesson**: `/claude-warp-sync` reads every Claude
+  Code release and retires ClaudeWarp components the moment a native feature covers them. A harness
+  designed to shrink is a transferable design rule, not a product feature.
+
+ClaudeWarp's [`docs/reference/comparison.md`](https://github.com/lucagattoni/Claude-Warp/blob/main/docs/reference/comparison.md)
+also surfaced **native primitives the KB does not cover at all**: `/goal`, `/ultraplan`, `/batch`,
+Desktop scheduled tasks, `/code-review`, `/security-review` — and that the native `/agents` wizard
+was **removed in v2.1.198**. These go into Part II regardless of the ClaudeWarp framing.
+
+## 4c. Model line-up — reference table + selection guidance
+
+Decision 20260904: **both**, not a bare table.
+- A pricing/context/date reference table in `docs/11-cost-control.md` covering **Sonnet 5, Opus 5,
+  Fable 5.1** and what each replaced as default and when. Every cell sourced from a fetched page;
+  any unsourced cell marked, never filled from memory.
+- **Selection guidance woven into Part II**: which model for the main loop, which for subagents,
+  which for a judge; how that interacts with effort levels (`low`→`ultracode`) and with
+  `CLAUDE_CODE_SUBAGENT_MODEL` / `CLAUDE_CODE_SUBAGENT_MODEL_FORCE` (precedence reordered in
+  v2.1.251; `_FORCE` added v2.1.257).
+- Round 2's `model-releases` agent is fetching the official announcement pages directly, after
+  round 1 produced a garbled URL (`anthropic.com/news/claude-opus-4-6`) matching no real model.
+
+---
+
 ## 5. Evidence base
 
 **Round 1** (`wf_ff75ed78-134`): 9 sweep angles + 2 critics, 11/11 agents, 0 errors, coverage
