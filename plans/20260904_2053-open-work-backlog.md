@@ -115,6 +115,42 @@ This is the mechanism that turned one bad day into eight silent weeks.
 - **Do:** add a `CREDIT_BALANCE_REGEX` no-retry branch with its own `notify()` text; add
   `unset ANTHROPIC_API_KEY` (or detect-and-warn) near the top of the script, before `A_ARGS`/`B_ARGS`.
 
+### A7 — `CLAUDE_BIN` points at a path that does not exist · **blocking A2** · small
+
+**The tracker cannot succeed today even if launchd fires.** Found 20260904 by applying a peer
+report from the ClaudeWarp session as a hypothesis about this repo rather than reading it as a
+war story.
+
+- **Evidence:** `scripts/run-loop-news.sh:54` is
+  `CLAUDE_BIN="${CLAUDE_BIN:-/opt/homebrew/bin/claude}"` — a hardcoded absolute path.
+  `ls /opt/homebrew/bin/claude` → **No such file or directory**. The binary is at
+  `/Users/luca/.local/bin/claude` (native installer; symlink → `~/.local/share/claude/versions/2.1.261`).
+  There is no `scripts/run-loop-news.env`, so the default applies, and
+  `run-loop-news.env.example` never mentions `CLAUDE_BIN` — so nothing tells an operator to set it.
+- **What happens:** `run_claude()` (`:171`) invokes the missing binary → exit **127**. 127 does not
+  match `ERROR_REGEX`, so it is classed non-transient; the script still burns all three attempts
+  with backoff, then `notify()`s to a desktop notification and a gitignored log. Silent failure,
+  the same shape as **A3**.
+- **Do:** replace the hardcoded default with a resolver — honour `CLAUDE_BIN`, else `command -v
+  claude`, else a short list of known locations (`~/.local/bin`, `/opt/homebrew/bin`) — and
+  **preflight it**: if it does not resolve to an executable, abort with a named FATAL before the
+  attempt loop, rather than discovering it three attempts later.
+- **Gate:** run under `env -i` with the launchd PATH and confirm the preflight fires; then confirm
+  a resolved binary passes.
+
+**This partially answers U2.** The script writes its "Starting loop-news run" line (`:194`) *before*
+the first `claude` call, so a fired-but-broken run would still leave a dated log in `logs/`. There
+is none after 2026-07-20. So launchd genuinely is not firing **and** the binary path is broken —
+**two independent faults**, either of which alone produces the same eight weeks of silence. Fixing
+one and declaring victory is the trap here.
+
+**Class note for `docs/17` and H5:** this is the same defect class the peer hit twice
+(`claude` not on the scheduler's PATH; `timeout` absent on stock macOS, wrapping every call). Ours
+is one level worse — not a PATH assumption but a hardcoded absolute path that silently became
+wrong when the binary moved. Checked and **not applicable** here: `grep -n timeout
+scripts/run-loop-news.sh` returns nothing, so the `timeout`/`gtimeout` defect does not affect us
+(neither binary exists on this machine, confirmed).
+
 ---
 
 ## 4. Tier 2 — content correctness
@@ -333,7 +369,7 @@ the remote, and is marked latest.
 | # | Unknown | How to settle |
 |---|---|---|
 | **U1** | Whether the **2026-07-01 → 07-14** window was ever swept. Round-1 critics flagged it "essentially uncovered" (high severity); the final digest's own "what was NOT swept" section (`LOOP_ENGINEERING_NEWS.md:114-131`) does not mention it, and no finding dates to it. Either round 2 closed it and the digest omits saying so, or the digest missed its own honesty standard | Re-run a source sweep scoped to that window, or recover round 2's per-source date coverage. Add an explicit disclosure line either way |
-| **U2** | **Why launchd went quiet.** `logs/launchd.log` has no entry after `2026-07-08T05:21:52Z`, yet the 2026-07-20 run exists in its own log — starting 17:49:54Z, 13+ hours off the 04:00 UTC slot, so almost certainly a hand-run `bash scripts/run-loop-news.sh`. Reading: launchd may not have fired since **8 July**, which the API-key fix does nothing about | **A2**'s validation run — specifically whether `logs/launchd.log` gains a new entry |
+| **U2** | **Partially answered by A7 — two faults, not one.** **Why launchd went quiet.** `logs/launchd.log` has no entry after `2026-07-08T05:21:52Z`, yet the 2026-07-20 run exists in its own log — starting 17:49:54Z, 13+ hours off the 04:00 UTC slot, so almost certainly a hand-run `bash scripts/run-loop-news.sh`. Reading: launchd may not have fired since **8 July**, which the API-key fix does nothing about | **A2**'s validation run — specifically whether `logs/launchd.log` gains a new entry |
 
 ---
 
@@ -342,23 +378,26 @@ the remote, and is marked latest.
 | Step | Items | Gate |
 |---|---|---|
 | 1 | **A1** — strict-build gate in the skill | A deliberately broken link aborts the push |
-| 2 | **A2** — one real end-to-end run | Commit on `main` + run log + **a new `launchd.log` entry** (resolves **U2**) |
-| 3 | **A4**, **A5**, **A6** — CI paths, `docs/index.md`, the two no-retry branches | `mkdocs build --strict` |
-| 4 | **A3** — remote staleness watchdog | Watchdog fires on a deliberately stale digest header |
-| 5 | **§6 corrections** + **C3** — stop the handover docs lying, cheapest possible win | — |
-| 6 | **C2**, **C6**, **C13**, **C14** — small content fixes with sources already in hand | Citation-link gate |
-| 7 | **C1** + **H1** — the 14-doc fact-check, version stamps folded in | One commit per doc, each gated on `--strict` |
-| 8 | **C5**, **C8**, **C9**, **C11**, **C12** — new content and source revalidation | Resource-review rule (score ≥ 3.0 before extracting) |
-| 9 | **H2**–**H9**, **H11**, **H12** — corpus hygiene | — |
-| 10 | **C7**, **C10** — the two large sweeps | — |
-| 11 | **D2**/**H10**, **D3**/**H13** — release policy and plan archival | — |
+| 2 | **A7** — resolve + preflight `CLAUDE_BIN` | Preflight fires under `env -i` with the launchd PATH |
+| 3 | **A2** — one real end-to-end run | Commit on `main` + run log + **a new `launchd.log` entry** (resolves the rest of **U2**) |
+| 4 | **A4**, **A5**, **A6** — CI paths, `docs/index.md`, the two no-retry branches | `mkdocs build --strict` |
+| 5 | **A3** — remote staleness watchdog | Watchdog fires on a deliberately stale digest header |
+| 6 | **§6 corrections** + **C3** — stop the handover docs lying, cheapest possible win | — |
+| 7 | **C2**, **C6**, **C13**, **C14** — small content fixes with sources already in hand | Citation-link gate |
+| 8 | **C1** + **H1** — the 14-doc fact-check, version stamps folded in | One commit per doc, each gated on `--strict` |
+| 9 | **C5**, **C8**, **C9**, **C11**, **C12** — new content and source revalidation | Resource-review rule (score ≥ 3.0 before extracting) |
+| 10 | **H2**–**H9**, **H11**, **H12** — corpus hygiene | — |
+| 11 | **C7**, **C10** — the two large sweeps | — |
+| 12 | **D2**/**H10**, **D3**/**H13** — release policy and plan archival | — |
 
-**Highest-value next task: steps 1 and 2, in one sitting.** A1 is the only item with two confirmed
+**Highest-value next task: steps 1-3, in one sitting.** A1 is the only item with two confirmed
 production incidents behind it, and it is a strict prerequisite for A2 — re-arming the pipeline
 ungated re-arms the exact failure that broke the site on 07-06 and 07-07, this time on a tree nobody
-has published from in eight weeks. A2 then converts the repo's biggest unknown into a fact. This
-beats C1 (the fact-check) because automation defects **compound daily** — every day the tracker does
-not run is KB drift no later fact-check can recover — while the content gap's cost accrues linearly.
+has published from in eight weeks. A7 is non-negotiable before A2: the tracker
+invokes a binary that does not exist, so a validation run without it measures nothing. A2 then
+converts the repo's biggest unknown into a fact. This beats C1 (the fact-check) because automation
+defects **compound daily** — every day the tracker does not run is KB drift no later fact-check can
+recover — while the content gap's cost accrues linearly.
 
 ---
 
