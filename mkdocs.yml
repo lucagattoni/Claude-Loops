@@ -1,10 +1,11 @@
-site_name: Loop Engineering
+site_name: Claude Loops
 site_description: >-
-  A knowledge base for loop engineering with Claude Code — designing autonomous
-  agent loops that observe, plan, act, verify, and iterate.
+  Two disciplines, kept separate: loop engineering — designing autonomous agent
+  loops that observe, plan, act, verify and iterate — and developing software
+  efficiently with Claude Code.
 site_url: https://lucagattoni.github.io/Claude-Loops/
 site_author: Luca Gattoni
-copyright: Loop Engineering — a Claude Code knowledge base
+copyright: Claude Loops — loop engineering, and developing with Claude Code
 
 repo_url: https://github.com/lucagattoni/Claude-Loops
 repo_name: lucagattoni/Claude-Loops
@@ -93,52 +94,69 @@ extra:
     - icon: fontawesome/brands/github
       link: https://github.com/lucagattoni/Claude-Loops
 
-# Left navigation — grouped as in LOOP_ENGINEERING.md (foundational → advanced).
-# Chapters and sub-chapters are numbered for easy reference.
+# Left navigation — two clearly separated parts.
+#   PART I  is general and tool-agnostic: usable by a reader on any coding agent.
+#   PART II is Claude Code specific, concrete and version-stamped.
+# Chapter numbers are display-only. The docs/NN- filenames are the stable identifiers
+# and never change when docs are regrouped.
 nav:
   - Home: index.md
-  - 1. Foundations:
-      - 1.1 The Paradigm Shift: 01-paradigm-shift.md
-      - 1.2 The Factory Model: 26-factory-model.md
-      - 1.3 The Core Agent Loop Cycle: 02-agent-loop-cycle.md
-      - 1.4 Loop Maturity Model: 20-loop-maturity-model.md
-      - 1.5 Context vs. Loop Engineering: 21-context-vs-loop-engineering.md
-  - 2. Designing a Loop:
-      - 2.1 The Loop Contract: 27-loop-contract.md
-      - 2.2 Goal Engineering: 30-goal-engineering.md
-      - 2.3 Harness Patterns: 24-harness-patterns.md
-      - 2.4 Loop Patterns Catalog: 34-loop-patterns.md
-      - 2.5 The Six Building Blocks: 03-building-blocks.md
-      - 2.6 Routines: 28-routines.md
-      - 2.7 Claude Tag: 31-claude-tag.md
-      - 2.8 Explore → Plan → Implement → Commit: 15-explore-plan-implement.md
-  - 3. Components:
-      - 3.1 CLAUDE.md: 05-claude-md.md
-      - 3.2 Skills: 06-skills.md
-      - 3.3 Subagents: 07-subagents.md
-      - 3.4 Hooks: 12-hooks.md
-      - 3.5 Permissions & Auto Mode: 08-permissions.md
-      - 3.6 Headless & Non-Interactive Mode: 09-headless-mode.md
-  - 4. State & Long-Running Loops:
-      - 4.1 Context Management: 13-context-management.md
-      - 4.2 Memory Patterns: 16-memory-patterns.md
-      - 4.3 Long-Running Agents: 25-long-running-agents.md
-      - 4.4 Background Agents: 29-background-agents.md
-  - 5. Quality & Safety:
-      - 5.1 Verification: 04-verification.md
-      - 5.2 Common Failure Patterns: 17-failure-patterns.md
-      - 5.3 Human-in-the-Loop Escalation: 14-human-in-the-loop.md
-      - 5.4 Cost & Turn Control: 11-cost-control.md
-      - 5.5 MCP Security: 19-mcp-security.md
-      - 5.6 Agent Security Hardening: 33-agent-security-hardening.md
-  - 6. Scaling:
-      - 6.1 Fan-Out: 10-fan-out.md
-      - 6.2 Fleet Engineering: 23-fleet-engineering.md
-      - 6.3 Learned Orchestration: 22-learned-orchestration.md
-  - 7. Reference:
-      - 7.1 Quick Reference: 18-quick-reference.md
-      - 7.2 Reading List: 32-reading-list.md
-  - 8. Project:
-      - 8.1 News Digest: news.md
-      - 8.2 Sources: sources.md
-      - 8.3 Changelog: changelog.md
+
+  - Part I — Loop Engineering:
+      - 1. Foundations:
+          - 1.1 The Paradigm Shift: 01-paradigm-shift.md
+          - 1.2 The Core Agent Loop Cycle: 02-agent-loop-cycle.md
+          - 1.3 Loop Maturity Model: 20-loop-maturity-model.md
+          - 1.4 Context vs. Loop Engineering: 21-context-vs-loop-engineering.md
+          - 1.5 The Factory Model: 26-factory-model.md
+      - 2. Designing a Loop:
+          - 2.1 The Loop Contract: 27-loop-contract.md
+          - 2.2 Goal Engineering: 30-goal-engineering.md
+          - 2.3 Harness Patterns: 24-harness-patterns.md
+          - 2.4 Loop Patterns Catalog: 34-loop-patterns.md
+      - 3. Verification & Failure:
+          - 3.1 Verification: 04-verification.md
+          - 3.2 Common Failure Patterns: 17-failure-patterns.md
+          - 3.3 Human-in-the-Loop Escalation: 14-human-in-the-loop.md
+      - 4. Scaling:
+          - 4.1 Fan-Out: 10-fan-out.md
+          - 4.2 Fleet Engineering: 23-fleet-engineering.md
+          - 4.3 Learned Orchestration: 22-learned-orchestration.md
+          - 4.4 Long-Running Agents: 25-long-running-agents.md
+
+  - Part II — Developing with Claude Code:
+      - 5. Start Here:
+          - 5.1 Choosing Your Mode: 35-choosing-your-mode.md
+      - 6. The Workflow:
+          - 6.1 The Development Workflow: 36-development-workflow.md
+          - 6.2 Session Architecture: 37-session-architecture.md
+          - 6.3 Explore → Plan → Implement → Commit: 15-explore-plan-implement.md
+      - 7. Your Setup:
+          - 7.1 CLAUDE.md: 05-claude-md.md
+          - 7.2 Skills: 06-skills.md
+          - 7.3 Hooks: 12-hooks.md
+          - 7.4 Permissions & Auto Mode: 08-permissions.md
+          - 7.5 The Six Building Blocks: 03-building-blocks.md
+          - 7.6 Memory Patterns: 16-memory-patterns.md
+          - 7.7 Context Management: 13-context-management.md
+      - 8. Parallel Work:
+          - 8.1 Subagents: 07-subagents.md
+          - 8.2 Agent Teams: 38-agent-teams.md
+          - 8.3 Dynamic Workflows: 39-dynamic-workflows.md
+      - 9. Running Unattended:
+          - 9.1 Headless & Non-Interactive Mode: 09-headless-mode.md
+          - 9.2 Routines: 28-routines.md
+          - 9.3 Background Agents: 29-background-agents.md
+          - 9.4 Claude Tag: 31-claude-tag.md
+      - 10. Cost & Safety:
+          - 10.1 Cost & Turn Control: 11-cost-control.md
+          - 10.2 MCP Security: 19-mcp-security.md
+          - 10.3 Agent Security Hardening: 33-agent-security-hardening.md
+
+  - 11. Reference:
+      - 11.1 Quick Reference: 18-quick-reference.md
+      - 11.2 Reading List: 32-reading-list.md
+  - 12. Project:
+      - 12.1 News Digest: news.md
+      - 12.2 Sources: sources.md
+      - 12.3 Changelog: changelog.md

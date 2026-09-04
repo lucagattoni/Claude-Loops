@@ -176,26 +176,94 @@ in this KB report operating at. ([Steve Yegge, "Welcome to Gas Town"](https://st
 Bun's port of its JavaScript-runtime internals from Zig to Rust is a second concrete,
 named production deployment at real scale, larger in raw instance count than Gas Town:
 **about 50 dynamic workflows over 11 days**, peaking at **64 parallel Claude Code
-instances across 4 git worktrees**, sustaining roughly **1,300 lines of code written per
-minute** at peak. Unlike Gas Town's Beads-based coordination layer, this fleet ran on
-plain git worktrees with no external work-unit queue — a data point for how far raw
-worktree parallelism scales before a coordination layer becomes necessary.
+instances across 4 git worktrees** — "4 of these workflows at once each in a separate
+worktree, each with 16 Claudes per workflow. About 64 Claudes at a time" (Bun, "Bun, in
+Rust") — sustaining roughly **1,300 lines of code written per minute** at peak. Unlike
+Gas Town's Beads-based coordination layer, this fleet ran on plain git worktrees with no
+external work-unit queue — a data point for how far raw worktree parallelism scales
+before a coordination layer becomes necessary.
 
-Two design choices carried the fleet through 535,496 lines of rewritten code:
+### What "535,496 lines" actually measures
 
-- **A checklist-shaped task, not a single instruction.** The 16,000 compiler errors
-  produced by switching languages were treated as a distributable checklist and spread
-  across the 64 parallel instances — see the granular decomposition sequence in
+535,496 is the **source Zig codebase**, not a size of the rewrite or its output — and
+this doc previously stated the figure without saying which of three legitimate,
+independently-sourced numbers it was, which is exactly why a critic flagged it as
+contradicting the ~750,000 figure quoted elsewhere. It doesn't; the three numbers measure
+three different things:
+
+| Number | What it measures | Source |
+|---|---|---|
+| **535,496 lines** | Lines of Zig in the *source* codebase, excluding comments, across 1,448 `.zig` files | [Bun, "Bun, in Rust"](https://bun.com/blog/bun-in-rust) |
+| **~750,000 lines** | Anthropic's rounded count of the *resulting* Rust codebase | [Anthropic, "Introducing dynamic workflows in Claude Code"](https://claude.com/blog/introducing-dynamic-workflows-in-claude-code) |
+| **1,009,272 lines** | Lines *added* in the final merged diff — "the diff that landed was +1,009,272" (Bun, "Bun, in Rust") — includes churn, not just net-new code | [Bun, "Bun, in Rust"](https://bun.com/blog/bun-in-rust) |
+
+The general lesson generalises past this one case study: a line count (or any figure)
+without its unit and its population is a claim waiting to be flagged as an error by the
+next reader who finds a different, equally correct number for the same-sounding thing.
+
+Two design choices carried the fleet through the port:
+
+- **A checklist-shaped task, not a single instruction.** Fixing the cyclical
+  dependencies "revealed about 16,000 compiler errors. A massive number for 1 human, but
+  not a crazy number for 64 claudes at once" (Bun, "Bun, in Rust") — treated as a
+  distributable checklist and spread across the 64 parallel instances — see the granular
+  decomposition sequence in
   [The Factory Model](26-factory-model.md#named-factory-deployments).
 - **[Blind adversarial review](04-verification.md#verifier-integrity-keeping-the-check-unfakeable)
-  at fleet scale** — separate implementer/reviewer instances, reviewer blind to the
-  implementer's reasoning — produced 128 bug fixes in the v1.4.0 release against only 19
-  regressions introduced across the full rewrite.
+  at fleet scale** — Bun describes the ratio as "1 implementer, 2 or more adversarial
+  reviewers per implementer. The reviewer's only job: find bugs & reasons why the code
+  does not work" (Bun, "Bun, in Rust"); Anthropic separately describes the same review
+  layer as "hundreds of agents working in parallel with two reviewers on each file"
+  (Anthropic, "Introducing dynamic workflows in Claude Code"). It produced 128 bug fixes
+  in the v1.4.0 release against only 19 regressions introduced across the full rewrite.
 
-Result: a 535,496-line Zig→Rust port shipped in 11 days, 128 bugs fixed vs. the prior
-release, and memory leaks eliminated (one multi-build leak dropped from 6.7 GB to 609 MB
-over 2,000 iterations) — the class of bug the rewrite was undertaken to fix in the first
-place. ([Bun, "Bun, in Rust"](https://bun.com/blog/bun-in-rust), Jul 2026.)
+Result: 6,502 non-merge commits (6,778 including merges) over eleven days from first commit to merge, with **99.8% of the
+existing test suite passing** on the resulting Rust codebase (Anthropic, "Introducing
+dynamic workflows in Claude Code"), 128 bugs fixed vs. the prior release, and memory
+leaks eliminated (one multi-build leak dropped from 6.7 GB to 609 MB over 2,000
+iterations) — the class of bug the rewrite was undertaken to fix in the first place.
+([Bun, "Bun, in Rust"](https://bun.com/blog/bun-in-rust), Jul 2026; [Anthropic,
+"Introducing dynamic workflows in Claude Code"](https://claude.com/blog/introducing-dynamic-workflows-in-claude-code), May 2026.)
+
+### Counterweight: an uncritical case study deserves its objections stated
+
+Every figure above comes from the company that ran the fleet and wrote it up (Bun) or
+the vendor that sold the platform it ran on (Anthropic) — this doc has not, until now,
+carried anything from outside either party. The Hacker News discussion of Anthropic's
+launch post raises two objections worth reading alongside the results:
+
+**The result may not be specific to dynamic workflows.** A behaviour-preserving,
+file-by-file port is close to a best case for coding agents regardless of the
+orchestration framework running them:
+
+> "Mechanical refactors are relatively straight forward for agents."
+>
+> — [SkyPuncher, comment on Hacker News item 48311705](https://news.ycombinator.com/item?id=48311705)
+
+If that reading holds, the case study is stronger evidence that fleet parallelism scales
+to 64 concurrent instances than it is evidence that *dynamic workflows specifically* —
+as opposed to worktrees plus adversarial review, which Gas Town also uses without
+dynamic workflows — caused the result.
+
+**Token cost at this concurrency is unmeasured for the Bun port itself, and heavy at
+comparable scale elsewhere.** Neither Bun's post nor Anthropic's names a token or dollar
+figure for the 64-instance run. Other users of the same feature, on smaller, unrelated
+jobs, reported burning through paid-plan allocations fast:
+
+> "Tested this out on a 5x max plan, turns out I spun up 62 Opus 4.8 1M sub-agents for my
+> dynamic workflow and maxed out my ~5hr cap in..... 18 minutes?"
+>
+> — [Syntaf, comment on Hacker News item 48311705](https://news.ycombinator.com/item?id=48311705)
+
+> "I just hit my Claude Max limit for the first time *ever* thanks to workflows lol. Like
+> 90 agents ran to do a code review of a fairly small package I have."
+>
+> — [ncphillips, comment on Hacker News item 48311705](https://news.ycombinator.com/item?id=48311705)
+
+Read the throughput and bug-fix numbers above as real but vendor-reported and
+favourable-case; treat the cost of reproducing this at similar concurrency as unstated by
+either primary source and plausibly large, per what practitioners report when they run
+the same feature at a fraction of the scale.
 
 ## Current state (June 2026)
 

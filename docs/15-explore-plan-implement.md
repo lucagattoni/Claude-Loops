@@ -4,7 +4,7 @@ For complex, multi-file tasks, always separate phases:
 
 ```bash
 # Phase 1: Explore (plan mode — no edits)
-# Press Ctrl+R to enter plan mode, or:
+# Press Shift+Tab to cycle permission modes into plan mode, or:
 claude --permission-mode plan
 > "Read src/auth and understand how sessions work. 
    Also look at how we handle environment secrets."

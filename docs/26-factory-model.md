@@ -38,6 +38,44 @@ You are operating in factory-model territory when:
 - The bottleneck on your velocity is review bandwidth, not implementation bandwidth
 - You are writing `PLAN.md` files more often than you are writing functions
 
+## Spec-First, Conditioned on Maturity
+
+[The Manager Analogy](#the-manager-analogy) and [Practical Signals](#practical-signals) above state
+spec-first as unconditional. Andrew Ng conditions it on where the project is:
+
+> "But when building quick 0-to-1 prototypes or applications in domains I'm unfamiliar with, I often
+> move faster and with less deliberation. I find it convenient to jump quickly into directing a
+> coding agent to start building, so I can examine what it has built in order to make the next set
+> of decisions… Instead of 'spec drive development' becoming a new waterfall process where writing a
+> spec is a gate to further progress, this allows me to more iteratively refine the spec."
+>
+> — Andrew Ng, [*Make All Your Tokens (and Your Brainwork)
+> Count*](https://www.deeplearning.ai/the-batch/make-all-your-tokens-and-your-brainwork-count),
+> 2026-07-10
+
+The conditioning variable, stated directly in the same piece:
+
+> "As a software project matures, coding agents will work longer (maybe hours) to build to more
+> complex specs…"
+>
+> — Andrew Ng, [*Make All Your Tokens (and Your Brainwork)
+> Count*](https://www.deeplearning.ai/the-batch/make-all-your-tokens-and-your-brainwork-count),
+> 2026-07-10
+
+The KB is not wrong, just unconditional where Ng is conditional: "write precise specs before
+delegating" and the < 1 hour agent time / > 1 hour spec time signal are the **mature-project** case.
+Early on, clarity is partly an *output* of the first loop iteration — build, inspect, refine — not a
+precondition for starting one.
+
+| | 0-to-1 / unfamiliar domain | Mature project / real users |
+|---|---|---|
+| Spec's role | Discovered by iterating: build, inspect, refine | Written before delegating |
+| Spec effort vs. agent-time | Minutes writing a spec, agent runs briefly, repeat | Spec-writing time can legitimately exceed agent time |
+| Failure mode if misapplied | **Spec-gating a prototype** — waterfall in a costume, the exact anti-pattern Ng names | **Skipping the spec on a brownfield service with users** — plausible, expensive, wrong output shipped |
+
+Place the task on this table before applying the Practical Signals above as a rule rather than a
+default.
+
 ## The Dark-Factory Ceiling and Its Bottleneck
 
 Framing the factory model as a maturity progression: coding autonomy runs from

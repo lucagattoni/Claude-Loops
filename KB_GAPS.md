@@ -7,6 +7,19 @@ Updated by each `fetch-loop-news` run. Gap keywords drive targeted GitHub and we
 
 ## Active Gaps
 
+- **`claude --worktree <name>` standalone semantics**: docs/03 lists worktrees as a building
+  block and docs/29 shows `--bg --worktree "<task>"`, but the interactive flag's own semantics are
+  undocumented here — default branch/path naming (`.claude/worktrees/<name>/`, branch
+  `worktree-<name>`), branching directly from a PR/MR (`claude --worktree "#1234"`, fetching
+  `pull/<number>/head` or `merge-requests/<number>/head`), `.worktreeinclude` for copying gitignored
+  files like `.env` into each worktree, the resume/cleanup lifecycle, and — most relevant to this
+  KB — the **four hard-enforced isolation checks** (file edits outside the worktree, command working
+  directory, git redirects via `-C`/`--git-dir`/`GIT_DIR`, and unverifiable shell constructs), of
+  which the docs say "You can't turn this check off." That is mechanical enforcement rather than
+  convention, and this repo's own CLAUDE.md mandates worktree-only editing as advisory prose.
+  Source: [worktrees reference](https://code.claude.com/docs/en/worktrees), verified 2026-09-04.
+  Found by the 2026-09-04 catch-up sweep; not integrated in v3.0.0 for scope.
+
 - **F0-F3 fleet maturity indicators**: docs/23 defines the F0-F3 levels but the
   observable indicators for passing each gate are underspecified — search keywords:
   `fleet engineering maturity`, `"F0" "F1" fleet agent`, `agent fleet governance metrics`.

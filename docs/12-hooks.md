@@ -78,7 +78,22 @@ exit 0  # allow
 | `StopFailure` | Claude stopped due to error (rate limit, billing, etc.) | No |
 | `PreCompact` | Before context compaction | No |
 | `PostCompact` | After context compaction | No |
+| `PreModelSwitch` | Before a model switch — block, confirm, or annotate it (v2.1.251+) | Yes |
+| `PostModelSwitch` | After a model switch completes — annotate the outcome (v2.1.251+) | No* |
 | `post-session` | After session ends, before workspace deletion | No |
+
+\* The switch has already happened by the time `PostModelSwitch` fires, so blocking applies to
+`PreModelSwitch`; the changelog states both events together as "block, confirm, or annotate a
+model switch." (Claude Code v2.1.251, [release
+notes](https://github.com/anthropics/claude-code/releases/tag/v2.1.251).)
+
+**`SessionStart` resume hooks got richer in v2.1.251 too:** they now receive session staleness
+and the estimated re-cache cost, verbatim: "`SessionStart` resume hooks now receive session
+staleness and the estimated re-cache cost." A resume hook can use this to warn (or refuse to
+resume) a session that has gone stale enough that resuming it would trigger an expensive
+uncached re-processing of the whole history — see [Cost & Turn
+Control](11-cost-control.md#the-cache-cost-of-switching-model-or-effort-mid-session) for why
+that re-cache cost matters.
 
 ## JSON output API
 
@@ -251,6 +266,14 @@ with the test output as context.
   "headers": { "Authorization": "Bearer ${AUDIT_TOKEN}" },
   "allowedEnvVars": ["AUDIT_TOKEN"] }
 ```
+
+**Gate a model switch (v2.1.251+):** before `PreModelSwitch`/`PostModelSwitch` existed, a model
+switch mid-session (whether Claude's own choice or a user's `/model` call) was unobservable and
+ungatable by a hook — the loop had no deterministic control point to stop, log, or confirm it.
+`PreModelSwitch` makes an accidental downgrade to a cheaper/weaker model mid-task a blockable
+event rather than a silent one, and `PostModelSwitch` gives an audit trail of every switch a
+loop actually made — the same "always runs, cannot be skipped" property this doc opens with,
+now applied to model choice instead of only tool calls.
 
 **Chain background agents via SubagentStop:**
 ```json

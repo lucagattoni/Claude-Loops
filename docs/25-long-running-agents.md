@@ -88,7 +88,8 @@ and the budget cap.
 
 ## Detaching from the terminal
 
-Long-running agents often need to run after you close your IDE. Two options:
+Long-running agents often need to run after you close your IDE. Two shapes, illustrated with
+Claude Code — most agent CLIs offer an equivalent detach, and most vendors now offer a hosted path:
 
 - **`claude --bg`** — starts a background session on the same machine; survives terminal close; manageable via `claude agents`. See [Background Agents](29-background-agents.md).
 - **Routines** — Anthropic-hosted cloud execution; survives machine shutdown entirely. See [Routines](28-routines.md).
@@ -98,11 +99,11 @@ Long-running agents often need to run after you close your IDE. Two options:
 A long-running agent that never stops is not a feature — it is a bug waiting to
 become an incident. Three complementary limits:
 
-| Mechanism | Scope | Implemented by |
+| Mechanism | Bounds what | Implemented by |
 |---|---|---|
-| `--max-turns` | Turn cap per invocation | Claude Code flag (in-process) |
-| `--max-budget-usd` | Cost cap per invocation | Claude Code flag (in-process) |
-| **Session watchdog** | Wall-clock time limit; crash recovery | OS supervisor (outside the process) |
+| Turn cap per invocation | Bounds a runaway loop | A harness flag, in-process (`--max-turns` in Claude Code) |
+| Cost cap per invocation | Bounds spend | A harness flag, in-process (`--max-budget-usd` in Claude Code) |
+| **Session watchdog** | Wall-clock time; crash recovery | An OS supervisor, outside the process — harness-independent by design |
 
 The watchdog is the layer the other two cannot cover: it detects stalled processes,
 enforces an absolute wall-clock limit (e.g. 2 hours), and restarts crashed sessions

@@ -98,6 +98,15 @@ STOP: issue opened
 - **Connectors** — MCP tools must be pre-configured in the Routine; local filesystem
   is not available (everything goes through git + connectors)
 
+**MCP servers configured in Claude Code don't carry over.** As of **v2.1.251**, `/schedule`
+says so directly instead of a bare error, verbatim: "Improved `/schedule` to explain that
+MCP servers configured in Claude Code can't be attached to cloud routines, instead of a bare
+\"No MCP connectors\" message." ([v2.1.251 release
+notes](https://github.com/anthropics/claude-code/releases/tag/v2.1.251).) Local MCP config
+(`.mcp.json`, `claude mcp add` entries) doesn't travel to the cloud — a Routine that needs an
+MCP tool needs a claude.ai-side connector attached in the `/schedule` setup flow, not just a
+working local server.
+
 ## Related
 
 - [The Loop Contract](27-loop-contract.md) — define TRIGGER/SCOPE/STOP before creating a Routine

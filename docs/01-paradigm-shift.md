@@ -2,12 +2,27 @@
 
 > Stop writing prompts. Start designing loops.
 
+!!! note "Scope of this claim"
+    This page argues for a **class of work**, not for a universal default. For recurring,
+    well-specified, verifiable work — triage, sweeps, dependency bumps, docs sync, digests — a
+    loop beats a person repeating themselves, and the payoff compounds. For **building software**,
+    the dominant productive mode is interactive: *"most effective coding agent use is a complex,
+    highly iterative process"* ([Andrew Ng](https://www.deeplearning.ai/the-batch/the-ai-engineering-skills-map-in-detail-using-coding-agents/),
+    2026-09-04). [Choosing Your Mode](35-choosing-your-mode.md) is the router between the two.
+
 | Old way | Loop engineering |
 |---|---|
-| Prompt → wait → review → prompt again | Design the loop once, let it run |
+| Prompt → wait → review → prompt again | Design the loop, then iterate *on the loop* |
 | Tactical, one-shot | Strategic, systemic |
-| You are the verification step | The loop verifies itself |
+| You are the verification step | The loop verifies itself — and you verify the verifier |
 | Session dies when you close your laptop | Loop runs on schedule or event trigger |
+
+The second column used to read *"design the loop once, let it run"* and *"the loop verifies
+itself"*, full stop. Both overstated it. A loop is a piece of software with an unusually
+unreliable component inside it; it needs the same iteration and the same review as anything else
+you ship. Ng's own three-loop model — carried in
+[Human-in-the-Loop](14-human-in-the-loop.md) — has the developer loop firing every tens of minutes
+to hours, and his one first-party figure for unattended running is *"around an hour."*
 
 The key insight (credited to Boris Cherny, who built Claude Code):
 **replace yourself as the person who prompts the agent**.

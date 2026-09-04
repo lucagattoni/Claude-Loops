@@ -17,7 +17,7 @@ claude --continue           # most recent
 claude --resume             # pick from list
 
 # Plan mode (explore without editing)
-# Ctrl+R in interactive, or --permission-mode plan
+# Shift+Tab cycles permission modes in interactive, or --permission-mode plan
 
 # Clear context
 /clear

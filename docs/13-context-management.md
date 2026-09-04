@@ -39,6 +39,32 @@ drifting from the original goal across turns, switch from compaction to resets.
 Encode the learnings externally first (see [Experience Encoding](27-loop-contract.md)),
 then start the next iteration from a clean window.
 
+## Auto-compact thresholds by model (version-stamped)
+
+The point at which auto-compact fires has moved as 1M-context models' compaction windows were
+tuned closer to the actual limit:
+
+| Model | Auto-compact point | Since |
+|---|---|---|
+| Sonnet 5 (1M context) | ~967K tokens | v2.1.247 |
+| Opus and Fable (1M context) | shortly before the 1M-token limit | v2.1.260 |
+
+> "Changed Sonnet 5's default auto-compact window to its full 1M context, so sessions on the 1M
+> window now auto-compact at about 967K tokens instead of about 934K"
+> — [v2.1.247 release notes](https://github.com/anthropics/claude-code/releases/tag/v2.1.247)
+
+> "Improved auto-compact for 1M-context models: Opus and Fable sessions now compact shortly
+> before the 1M-token limit, and recovery compaction on very large contexts no longer times out
+> at 10 minutes"
+> — [v2.1.260 release notes](https://github.com/anthropics/claude-code/releases/tag/v2.1.260)
+
+If auto-compact is off, the error a loop hits mid-run now says so instead of just reporting the
+limit:
+
+> "Improved the context-limit error to say when auto-compact is off and point to `/config` to
+> re-enable it"
+> — [v2.1.235 release notes](https://github.com/anthropics/claude-code/releases/tag/v2.1.235)
+
 ## Input Governance Pipeline
 
 Before the model sees context, a governance pipeline can pre-process it to prevent
