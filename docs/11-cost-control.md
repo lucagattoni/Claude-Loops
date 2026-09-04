@@ -251,7 +251,7 @@ also the direct instrument for the [Loop Contract](27-loop-contract.md)'s **BUDG
 LOOP.md that sets a per-run token cap can check that cap against `/usage` instead of
 estimating it from a benchmark table, and a loop whose tokens-per-run climbs without a
 matching rise in units closed is the runaway-cost signal to slow down or kill (see
-[Operational Kill / Pause / Slow-Down Thresholds](#operational-kill--pause--slow-down-thresholds)
+[Operational Kill / Pause / Slow-Down Thresholds](#operational-kill-pause-slow-down-thresholds)
 below), read directly instead of inferred from the bill.
 
 The same release also made `/loop` itself quieter about doing nothing: "Improved `/loop`:
