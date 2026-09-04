@@ -27,6 +27,26 @@ regardless of confidence. Advancing to L3 requires documented evidence of reliab
 not just absence of visible failures. `L3` should be explicitly gated in the loop's
 own LOOP.md before any auto-merge is allowed.
 
+## Loop Command Modes
+
+Every pattern below runs on top of the `/loop` primitive, which as of **v2.1.248** offers
+two modes with no platform restriction. Changelog, verbatim: "Changed `/loop`: self-paced
+dynamic mode and the no-prompt autonomous default are now always available, including on
+Bedrock/Vertex/Foundry." ([v2.1.248 release
+notes](https://github.com/anthropics/claude-code/releases/tag/v2.1.248).) Before that
+release, self-paced mode (Claude sets its own wake-up cadence instead of a human choosing
+a fixed interval) and the no-prompt autonomous default were gated off Bedrock, Vertex, and
+Foundry — a loop engineer deploying on those platforms had to fall back to a fixed interval
+with per-wake-up confirmation. v2.1.248 removes that platform check entirely.
+
+`/loop` is also quieter about doing nothing, as of **v2.1.243**: "consecutive wake-ups
+where Claude has nothing to do now fold into a single line in the terminal instead of
+printing each one." ([v2.1.243 release
+notes](https://github.com/anthropics/claude-code/releases/tag/v2.1.243).) That is a
+terminal-output change, not a change to the Early Exit rule itself (see [Token Cost
+Reference](#token-cost-reference) below) — a no-op wake-up still exits at the same token
+cost, it just no longer floods the transcript with one line per wake-up.
+
 ## Pattern Catalog
 
 ### Daily Triage
@@ -144,6 +164,10 @@ Benchmarks from operating experience:
 | Report-only triage | ~50,000–80,000 |
 | Action run (implementer + verifier) | ~200,000–250,000 |
 | CI Sweeper at 5 min cadence, no early exit | ~5M/day |
+
+These are third-party operating benchmarks, not a measurement of any specific loop. As of
+**v2.1.243**, `/usage` reports the real per-loop figure instead — see [Cost Per Loop, Now
+First-Party](11-cost-control.md#cost-per-loop-now-first-party) in Cost & Turn Control.
 
 See [Cost & Turn Control](11-cost-control.md) for budget caps and `--max-budget-usd` usage.
 

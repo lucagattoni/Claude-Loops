@@ -104,9 +104,13 @@ v2.1.235 and later, so earlier entries here come from the raw GitHub file).
 | v2.1.210 | Classifier model pinned per session | "Improved auto mode: the permission classifier now defaults to Sonnet 5 for external sessions, validated on the session's first request and pinned for the session." |
 | v2.1.211 | Always-allow rules persist across worktrees | "When you choose 'Yes, and don't ask again' … Claude Code saves the rule to `.claude/settings.local.json` at the root of the git repository, resolved through worktrees to the main checkout." — [Configure permissions](https://code.claude.com/docs/en/permissions) |
 | v2.1.214 | Long Bash commands always prompt | "Fixed Bash permission checks misjudging very long commands — commands over 10,000 characters now always prompt instead of running automatically." |
+| v2.1.236 | `Monitor` allow rules paused during auto mode | "Improved auto mode: `Monitor` allow rules are now set aside while auto mode is active, so Monitor commands are reviewed the same way Bash commands are." |
+| v2.1.236 | Git-status spoofing closed | "Improved auto mode: the git status check can no longer be fooled by a repo's `status.showUntrackedFiles=no` setting into reporting a clean tree." |
+| v2.1.246 | Auto mode rules become editable in the UI | "Added an Auto mode tab to `/permissions` for viewing and editing auto mode classifier rules." |
 | v2.1.248 | Hardened `--restricted` session mode added | "Added `--restricted` (or `CLAUDE_CODE_RESTRICTED=1`): removes the built-in tools that run commands or code and `WebFetch` (unless named in `--tools`), keeps file tools inside the working directory, refuses `bypassPermissions`, and ignores user, project and local settings files." |
 | v2.1.257 | Cloud/container-escape primitives blocked by default | "Added a Containment Escape rule to auto mode so cloud metadata-credential fetches, egress evasion, and cross-tenant reach are no longer auto-approved unless your environment marks them expected." |
 | v2.1.257 | Reads outside working directories can be fenced | "Added a one-time prompt in auto mode before the first file read outside the working directories, with the option to block such reads (`permissions.blockReadsOutsideWorkingDirectories`)." |
+| v2.1.257 | `bypassPermissions` no longer settable from project settings | "Changed `defaultMode: \"bypassPermissions\"` in `.claude/settings.json` or `.claude/settings.local.json` to be ignored, like `\"auto\"`; set it in user or managed settings, or pass `--permission-mode`." |
 
 The last row is a new setting, not just a prompt: set
 `"permissions": {"blockReadsOutsideWorkingDirectories": true}` to make the file tools refuse such
@@ -119,6 +123,29 @@ release stopped reading `autoMode` from the repo-resident settings file. A loop 
 on both — the env var and a committed `.claude/settings.local.json` — needs re-checking after an
 upgrade past v2.1.207: the flag now does nothing (accepted for compatibility only), and the
 setting needs to move to `~/.claude/settings.json`.
+
+### Repo settings cannot escalate their own privilege
+
+The v2.1.207 change above is one instance of a broader pattern across three releases: a
+committed `.claude/settings.json` or gitignored `.claude/settings.local.json` — both
+repo-resident, both writable by anything that can write to the repo — lost the ability to grant
+elevated trust on its own. `defaultMode: "bypassPermissions"` in project settings stopped being
+honored in v2.1.257 (table above); `autoMode` in `.claude/settings.local.json` stopped being
+read in v2.1.207 (table above); and outside permissions entirely, which binary the sandbox
+trusts for ripgrep was restricted to non-project sources in v2.1.232:
+
+> "Changed `sandbox.ripgrep` to be honored only from user, managed, and `--settings` settings;
+> project settings can no longer override the sandbox's ripgrep binary."
+> — [CHANGELOG.md](https://raw.githubusercontent.com/anthropics/claude-code/main/CHANGELOG.md), v2.1.232
+
+For a loop that clones and operates on an untrusted repository, this matters directly: the
+repo's own config file — which a hostile repo could ship pre-poisoned — can no longer vote
+itself into `bypassPermissions`, auto mode, or a substituted sandbox binary. Only settings
+outside the repo's write access (user-level, managed, or CLI flags) can grant that trust. See
+[Agent Security Hardening § Where Default-Deny Actually Gets
+Loaded](33-agent-security-hardening.md#where-default-deny-actually-gets-loaded) for the same
+principle applied at the OS/sandbox layer, plus a v2.1.260 nuance worth knowing before relying
+on strict sandbox mode.
 
 ### The confused-environment attack class
 

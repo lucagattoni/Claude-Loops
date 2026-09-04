@@ -84,6 +84,20 @@ Architecture](37-session-architecture.md#what-the-measurement-showed) documents 
 workflow reported `{"raised":0,"confirmed":[],"refuted":[]}` as a clean result — one of the
 discarded findings was a real high-severity defect. Count the nulls before you filter them out.
 
+That same failure signature — a result that looks complete but isn't — also showed up one level
+down, inside the subagents a workflow spawns. **As of v2.1.246**, a subagent that hits its own
+`maxTurns` cap no longer returns a result indistinguishable from a finished one. See [Subagents →
+a capped subagent used to look finished](07-subagents.md#a-capped-subagent-used-to-look-finished-it-doesnt-anymore)
+for the fix and how it relates to the Pinakes case study above.
+
+### The tool's own footprint has shrunk
+
+**As of v2.1.248:** "Improved the Workflow tool's prompt footprint: its description is now about
+1k tokens instead of 5.7k, with the script-writing reference moved into a bundled
+`workflow-authoring` skill." The script-writing reference — the material you'd need to actually
+author a script — now loads only when a script is being written, instead of sitting in every
+session's system prompt whether or not a workflow ever runs.
+
 ### `pipeline()` vs `parallel()` — the distinction people get wrong
 
 This is the single most common mistake in a hand-written workflow script, and it's easy to miss
@@ -124,6 +138,25 @@ If you catch yourself writing `await parallel(...)` immediately followed by a pl
 flatten/map/filter with no cross-item dependency, that transform belongs inside a `pipeline()`
 stage instead — the barrier isn't buying you anything, and it's forcing every fast task to wait for
 the slowest one.
+
+---
+
+## Structured output: `agent({schema})`
+
+The `schema` option above (`{ schema: FINDINGS_SCHEMA }`) is a JSON Schema the agent's final answer
+must satisfy, returned as parsed data instead of prose. It has a retry cap under the hood — v2.1.186
+fixed schema-validated agents "looping forever on repeated schema validation failures instead of
+aborting after 5 attempts" — and **v2.1.260** sharpened both ends of that path:
+
+> "Improved structured output: Workflow `agent({schema})` rejects a JSON Schema that can never be
+> satisfied up front, and retry-cap errors now include the last validation failure"
+>
+> — Claude Code changelog, v2.1.260
+
+So a contradictory schema (a `required`/`type` combination nothing could ever satisfy) now fails at
+the call site instead of burning the agent's 5-attempt budget trying to produce the impossible, and
+when a schema-validated call does exhaust its retries, the error names the actual validation failure
+from the last attempt instead of a bare retry-cap message.
 
 ---
 
@@ -334,6 +367,8 @@ repo.
   middle ground
 - [Session Architecture](37-session-architecture.md) — the four-way primitive comparison in context,
   and the Pinakes case study on counting dead agents before filtering
+- [Verification](04-verification.md#loop-verdict-taxonomy) — the six-verdict taxonomy a bare
+  pass/fail collapses over, including the `timeout` verdict a capped subagent now reports as
 - [Cost & Turn Control](11-cost-control.md) — per-loop token accounting, the instrument to use before
   believing either side of "the cost is real"
 - [Headless Mode](09-headless-mode.md) — where the `ultracode` keyword does *not* trigger

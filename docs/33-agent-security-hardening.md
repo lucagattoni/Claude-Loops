@@ -104,6 +104,33 @@ SessionStart hook the model's own process could theoretically route around.
 ActPlane, [arXiv 2606.25189](https://arxiv.org/abs/2606.25189);
 [codeafix/agent-assistant](https://github.com/codeafix/agent-assistant), Jul 2026.)
 
+**A first-party instance: Claude Code's own sandbox config.** The same principle — the
+default-deny check must live somewhere the process it protects cannot reach — shows up inside
+Claude Code's own settings precedence. Project settings (`.claude/settings.json`,
+`.claude/settings.local.json`) are committed to, or gitignored inside, the repo the agent is
+operating on, so anything that can write to that repo can, in principle, write to that file.
+Which binary the sandbox trusts to run ripgrep was moved out of that reach in v2.1.232:
+
+> "Changed `sandbox.ripgrep` to be honored only from user, managed, and `--settings` settings;
+> project settings can no longer override the sandbox's ripgrep binary."
+> — [CHANGELOG.md](https://raw.githubusercontent.com/anthropics/claude-code/main/CHANGELOG.md), v2.1.232
+
+A related but distinct nuance from v2.1.260 is worth flagging before relying on strict sandbox
+mode (`sandbox.allowUnsandboxedCommands: false`) to block *every* unsandboxed command:
+
+> "Changed commands typed at the `!` bash-mode prompt to run outside the sandbox even when
+> strict sandbox mode (`sandbox.allowUnsandboxedCommands: false`) is on, like typing into your
+> own terminal."
+> — [CHANGELOG.md](https://raw.githubusercontent.com/anthropics/claude-code/main/CHANGELOG.md), v2.1.260
+
+That is not a reversal of the v2.1.232 hardening — it exempts commands a human types
+interactively at the `!` prompt, per the changelog's own framing ("like typing into your own
+terminal"), not commands an agent or a repo's config can issue. Project settings still cannot
+grant an agent-issued command a way around strict sandbox mode. See [Permissions & Auto Mode §
+Repo settings cannot escalate their own
+privilege](08-permissions.md#repo-settings-cannot-escalate-their-own-privilege) for the same
+pattern applied to `bypassPermissions` (v2.1.257) and `autoMode` (v2.1.207).
+
 ## Credential Rotation Mid-Session
 
 Provisioning and resolving credentials (above) is not enough for long-running loops:

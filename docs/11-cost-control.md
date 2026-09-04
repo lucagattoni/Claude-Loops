@@ -140,6 +140,35 @@ Reach for `CLAUDE_CODE_SUBAGENT_MODEL_FORCE=1` only when that floor must hold wi
 exceptions — a cost audit, a compliance run — because it also overrides the built-in Explore
 and Plan subagents' own `model` fields.
 
+**The precedence order, version-stamped:**
+
+| Rank | Source | Since | Notes |
+|---|---|---|---|
+| 1 (highest) | Per-invocation `model` parameter (what Claude passes when spawning this specific subagent) | Always | Wins even over a pinned agent definition |
+| 2 | Subagent definition's `model:` frontmatter (`inherit` = main conversation's model) | Always | Wins over `CLAUDE_CODE_SUBAGENT_MODEL` **since v2.1.251 only** |
+| 3 | `CLAUDE_CODE_SUBAGENT_MODEL` env var | Sets only the *default* since v2.1.251 | **Before v2.1.251** this rung was highest-precedence and silently overrode rung 2 |
+| 4 (lowest) | Main conversation's model | Always | Applies when nothing above is set |
+| — override — | `CLAUDE_CODE_SUBAGENT_MODEL_FORCE=1` | v2.1.257+ | Ignores ranks 1–2 (per-spawn and agent-definition overrides), forcing rank 3 — or rank 4 if `CLAUDE_CODE_SUBAGENT_MODEL` is unset — onto every subagent, teammate, and workflow agent, except a `fork` and a skill run with `model: inherit` |
+
+**What this means in plain terms:** setting `CLAUDE_CODE_SUBAGENT_MODEL` is a **default**, not a
+guarantee. Since v2.1.251, an agent definition's own `model:` field — or a `model` Claude passes
+at spawn time — silently outranks it, so a fleet you believe is capped at Haiku can still run
+individual subagents on Opus if their definitions say so. Anyone who set the env var expecting a
+hard cost ceiling, not just a fallback, needs `CLAUDE_CODE_SUBAGENT_MODEL_FORCE=1` (v2.1.257+) —
+without it, the cap is advisory.
+
+This is no longer something to assume and hope: **`/tasks` and the agent detail dialogs show the
+model (and effort level) each subagent actually ran on, as of v2.1.243** — "Added the model (and
+effort level) each subagent ran on to `/tasks` and the agent detail dialogs." ([v2.1.243 release
+notes](https://github.com/anthropics/claude-code/releases/tag/v2.1.243); the official [Sub-agents
+reference](https://code.claude.com/docs/en/sub-agents#checking-which-model-a-subagent-uses) cites
+"Requires Claude Code v2.1.242 or later" for the same `/tasks` display.) **Practical advice:**
+after setting a model floor, check `/tasks` on a real run rather than trusting the env var alone
+— it is the cheapest way to catch an agent definition that quietly opted out of the cap.
+
+See [Subagents → Custom agents](07-subagents.md#custom-agents-claudeagents) for where the
+`model:` frontmatter that outranks the env var is actually set.
+
 **The Explore trap this interacts with:** `Explore` is a built-in subagent, so it is not
 exempt from any of the above — and since v2.1.198 it inherits the *main conversation's* model
 by default rather than always running on Haiku, so "Explore is cheap because it's Haiku" is no
@@ -205,6 +234,32 @@ This is not an optimisation — it is a correctness requirement for always-on lo
 See [Loop Patterns](34-loop-patterns.md) for the seven named loop patterns and their
 typical token envelopes.
 
+## Cost Per Loop, Now First-Party
+
+Until **v2.1.243**, the benchmarks above were the closest a loop engineer could get to a
+per-loop cost figure without hand-rolled instrumentation — someone else's operating
+experience, not a measurement of *your* loop. That release added it as a built-in report,
+verbatim: "Added a Loops breakdown to `/usage`: per-loop run count, total tokens, tokens per
+run, and last run, so runaway or chatty `/loop` tasks are easy to spot." ([v2.1.243 release
+notes](https://github.com/anthropics/claude-code/releases/tag/v2.1.243).)
+
+This is the number [Ng's cost-per-unit-of-work argument](35-choosing-your-mode.md) asks
+for, now first-party instead of hand-instrumented: tokens per run *is* cost per closed unit
+for any loop whose unit of work is one wake-up (Daily Triage, Debt Audit); divide by
+units-closed-per-run for a loop like PR Babysitter that can close several in one pass. It is
+also the direct instrument for the [Loop Contract](27-loop-contract.md)'s **BUDGET** leg — a
+LOOP.md that sets a per-run token cap can check that cap against `/usage` instead of
+estimating it from a benchmark table, and a loop whose tokens-per-run climbs without a
+matching rise in units closed is the runaway-cost signal to slow down or kill (see
+[Operational Kill / Pause / Slow-Down Thresholds](#operational-kill--pause--slow-down-thresholds)
+below), read directly instead of inferred from the bill.
+
+The same release also made `/loop` itself quieter about doing nothing: "Improved `/loop`:
+consecutive wake-ups where Claude has nothing to do now fold into a single line in the
+terminal instead of printing each one." (Same source.) And as of **v2.1.248**, self-paced
+dynamic mode and the no-prompt autonomous default lost their platform gate — see [Loop
+Patterns → Loop Command Modes](34-loop-patterns.md#loop-command-modes).
+
 ## Effort levels
 
 | Level | Use when |
@@ -267,6 +322,21 @@ Two things worth pulling out of that table:
   five-star `max`. `ultrathink` is a separate, one-off in-prompt keyword for deeper reasoning
   on a single turn — it does not change the session's effort setting or trigger a workflow.
 
+### Effort persists per model, or scoped to one session
+
+Two related changes to how `/effort` remembers its setting:
+
+- v2.1.251, verbatim: "Changed `/effort` to save your default effort level per model, so each
+  model keeps its own setting when you switch." Before this, one `/effort` choice applied
+  across every model; a deliberate "raise effort on the hard model, leave the cheap one at
+  default" split now survives a `/model` switch instead of needing to be re-set each time.
+- v2.1.257, verbatim: "Added `s` in `/effort` to change effort for the current session only,
+  matching `/model`." Use it for a one-off bump on a single hard turn without changing the
+  default that future sessions on that model will pick up.
+
+([v2.1.251](https://github.com/anthropics/claude-code/releases/tag/v2.1.251) and
+[v2.1.257](https://github.com/anthropics/claude-code/releases/tag/v2.1.257) release notes.)
+
 ## The Cache Cost of Switching Model or Effort Mid-Session
 
 Every model, and on most models every effort level, keeps its own prompt cache. Official docs,
@@ -284,6 +354,29 @@ That Fable 5.1 exception is new, and it shipped broken: "Before v2.1.260, changi
 Fable 5.1 with an API key or a Claude subscription also invalidated the cache" — the same
 release ([v2.1.257](https://github.com/anthropics/claude-code/releases/tag/v2.1.257)) that
 shipped Fable 5.1 itself shipped it with that bug, fixed three versions later.
+
+### Setting the cache TTL directly
+
+For API-key and cloud-provider (Bedrock/Vertex/Foundry) users, the cache TTL is also a
+configurable setting rather than a fixed default:
+
+- v2.1.243, verbatim: "Added `promptCacheTtl` and `subagentPromptCacheTtl` settings so
+  API-key and cloud-provider users can keep a 1-hour prompt cache on the main conversation
+  while subagents stay at 5 minutes"
+- v2.1.248, verbatim: "Added `experimental.cacheTtl` (`\"5m\"` or `\"1h\"`) to agent
+  frontmatter: a per-agent prompt cache TTL used when no subagent TTL setting is configured"
+
+([v2.1.243](https://github.com/anthropics/claude-code/releases/tag/v2.1.243) and
+[v2.1.248](https://github.com/anthropics/claude-code/releases/tag/v2.1.248) release notes.)
+
+**Loop engineering read:** a 1-hour cache write costs 2× base input price against a 5-minute
+write's 1.25× (the cache-pricing rule quoted above) — so `promptCacheTtl: "1h"` is a bet that
+the main conversation will still be warm an hour from now, worth it for a long-running
+interactive session but wasted spend on a short-lived subagent. `subagentPromptCacheTtl` sets
+that bet session-wide for every subagent; per-agent `experimental.cacheTtl` frontmatter
+overrides it for one agent definition specifically, and only applies when no subagent-level TTL
+setting is configured. Together they let a fleet keep the main loop's cache warm at 1h while
+short-lived worker subagents default to the cheaper 5m write.
 
 **Consequence for a loop:** switching model or effort mid-run to save money on the harder half
 of a task can cost more than it saves, because the next request re-processes the *entire*

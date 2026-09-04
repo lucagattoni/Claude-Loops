@@ -88,6 +88,31 @@ claude -p "task" --bare
 `--bare` is the fastest possible headless start — use it for self-contained tasks
 that do not need any project configuration.
 
+## Fail-closed unattended runs (v2.1.259+)
+
+For a headless host with nobody watching, the default direction a prompt fails matters more than
+usual:
+
+> "Added `--permission-prompts none` for unattended headless hosts: anything that would prompt is
+> denied automatically while the active permission mode (including auto mode) keeps deciding"
+> — [v2.1.259 release notes](https://github.com/anthropics/claude-code/releases/tag/v2.1.259)
+
+```bash
+claude -p "task" --permission-mode auto --permission-prompts none
+```
+
+Contrast the two ways to remove a prompt from a headless loop:
+
+| Flag | What happens to a prompt | Direction |
+|---|---|---|
+| `--permission-prompts none` | Denied automatically; the active mode's own decisions still apply | Fail-**closed** |
+| `--dangerously-skip-permissions` | Never asked; the action runs regardless | Fail-**open** |
+
+For a scheduled or unattended loop — nobody at the terminal to answer a prompt —
+`--permission-prompts none` is the safer default: an action that would have needed a human's yes
+is skipped, not silently allowed. See [Permissions & Auto Mode](08-permissions.md) for the full
+permission-mode picture.
+
 ## Structured output
 
 For loops that hand off results to downstream processes:

@@ -288,6 +288,38 @@ bypass session to a prompting one are held for approval by default.
 it does not remove the context that a role-split handoff has to carry. A message is coordination,
 never permission — which is exactly what the second rail above enforces mechanically.
 
+### `/config` visibility, and subagent messages framed correctly
+
+Inbound handling got a visible settings surface:
+
+> "Added `/config` rows for "Dialog expiry" and "Messages from your other sessions" (cross-session
+> inbound accept/hold/refuse)"
+> — [v2.1.232 release notes](https://github.com/anthropics/claude-code/releases/tag/v2.1.232)
+
+And a message from your own subagent no longer reads like an unrelated session butting in:
+
+> "Improved framing of messages from your own subagents: Claude is told the sender is a worker
+> inside this session, not an unrelated Claude session"
+> — [v2.1.251 release notes](https://github.com/anthropics/claude-code/releases/tag/v2.1.251)
+
+### Zero-polling arrives natively (v2.1.236)
+
+[Background Agents](29-background-agents.md) documents a hand-rolled zero-polling pattern: a
+worker types a one-line `WORKER-DONE <id>: <status>` into the orchestrator's terminal via a
+multiplexer, waking it instantly instead of the orchestrator polling `claude agents` or waiting on
+a `SubagentStop` hook. Claude Code v2.1.236 shipped the same idea as a native `SendMessage` option:
+
+> "Added `notify_when_idle` to cross-session `SendMessage`: ask another Claude Code session on
+> this machine to send one notice when it next goes idle — opt-in, one-shot, no polling (macOS and
+> Linux)"
+> — [v2.1.236 release notes](https://github.com/anthropics/claude-code/releases/tag/v2.1.236)
+
+This is the shrink-on-native dynamic [Harness Patterns](24-harness-patterns.md) documents
+elsewhere: a component built to compensate for a missing primitive becomes overhead once the
+platform ships that primitive directly. `notify_when_idle` doesn't replace the multiplexer
+pattern's git-tracked audit trail or its reach across non-Claude-Code tools — but for two Claude
+Code sessions on one machine, it removes the need to build the wake-up mechanism at all.
+
 ## When agents are not told about each other
 
 Anthropic's [multiagent systems study](https://www.anthropic.com/research/multiagent-systems)

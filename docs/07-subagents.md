@@ -147,6 +147,53 @@ deterministic checks (test pass/fail, lint errors) — those are never confidenc
 
 (session-orchestrator — [Kanevry/session-orchestrator](https://github.com/Kanevry/session-orchestrator), Jun 2026.)
 
+## A capped subagent used to look finished — it doesn't anymore
+
+**Fixed in v2.1.246:** "Improved subagent results: a subagent that stops at its `maxTurns` limit
+now returns its output marked as partial, with a hint to continue it via `SendMessage`, instead of
+appearing finished."
+
+This is the platform fixing, at the runtime level, close to what [Session
+Architecture](37-session-architecture.md#the-finding-that-actually-mattered) documents by hand as a
+case study: a fan-out where agents died mid-work and the coordinator reported a clean result anyway,
+because nothing distinguished "returned everything" from "returned whatever it had when it got cut
+off." That case study's deaths came from a *session limit* killing background agents outright; a
+`maxTurns` cap is a different, gentler trigger — the agent stops on its own, by design — but before
+v2.1.246 the two were indistinguishable to whatever consumed the result: a coordinating session, a
+CHECKER in the DOER/CHECKER pattern above, or a workflow's `agent()` call (see [Dynamic
+Workflows](39-dynamic-workflows.md#the-script-api) for the workflow-side half of this).
+
+It's a partial fix, not the whole one — the result now carries the flag, but a caller still has to
+check for it before treating "returned" as "done." The corrective is the same one that case study
+drew: don't collapse completion into pass/fail. See [Verification → Loop Verdict
+Taxonomy](04-verification.md#loop-verdict-taxonomy) for the six-verdict shape (`pass` / `fail` /
+`handoff` / `timeout` / `stopped` / `awaiting-merge`) a bare pass/fail hides exactly this kind of
+truncation inside.
+
+## Running in the background (version-stamped)
+
+| Version | Change |
+|---|---|
+| v2.1.198 | "Subagents now run in the background by default, so Claude keeps working while they run and is notified when they finish (previously a gradual rollout)" |
+| v2.1.259 | "Improved nested background subagent results to be saved in the parent subagent's transcript, so resumed subagents keep them and shared transcripts show the delivery" |
+| v2.1.260 | "Removed the one-hour time limit on background commands started by subagents; they now run until they exit or are stopped, matching the main session" |
+
+Before v2.1.198, delegating a subagent meant your own turn blocked until it returned — the
+wall-clock cost of "spawn a subagent" was the subagent's full runtime, paid synchronously. Once
+subagents run in the background by default, that cost changes shape: the session keeps working
+and is notified when the subagent finishes, so the immediate cost of delegating is closer to
+sending a message than to making a blocking call — the runtime cost is still there, it's just no
+longer sitting on your turn.
+
+v2.1.259 matters specifically for [nested](#nesting) delegation: before it, a background subagent
+spawned by another subagent could return a result the *parent* subagent's own transcript never
+recorded — a resumed parent, or a shared transcript view, could silently miss a delivery that
+happened while nobody was looking at that layer.
+
+v2.1.260 removed a cap that applied to subagents but not the main session: a background Bash
+process a subagent started used to get killed after an hour regardless of whether it was still
+useful; it now runs until it exits or is stopped, the same rule the main session already had.
+
 ## Built-in subagent types
 
 Claude Code ships with named subagent types you can invoke directly:
@@ -192,6 +239,30 @@ Invoke with: `Use a subagent: security-reviewer — review @src/auth/`.
 
 Agent files are loaded from (in priority order): managed settings → `--agents` CLI
 flag → `.claude/agents/` → `~/.claude/agents/` → plugin `agents/`.
+
+### Which model actually wins — the env var is a default, not a ceiling
+
+A pinned `model:` field above looks authoritative, but it is not the only thing that decides
+what a subagent runs on. Four sources compete, and the ranking **changed in v2.1.251**:
+
+| Rank | Source | Since |
+|---|---|---|
+| 1 (highest) | `model` Claude passes at spawn time (per-invocation) | Always |
+| 2 | This agent definition's `model:` frontmatter (`inherit` = main conversation's model) | Wins over `CLAUDE_CODE_SUBAGENT_MODEL` **only since v2.1.251** |
+| 3 | `CLAUDE_CODE_SUBAGENT_MODEL` env var | Default-only since v2.1.251; was rank 1 before that |
+| 4 (lowest) | Main conversation's model | Always |
+
+**Setting `CLAUDE_CODE_SUBAGENT_MODEL` is a default, not a guarantee.** An agent definition's own
+`model:` field silently outranks it — a `security-reviewer` pinned to `opus` still runs on Opus
+even if the shell exports `CLAUDE_CODE_SUBAGENT_MODEL=haiku`. To force a hard ceiling with no
+exceptions, set `CLAUDE_CODE_SUBAGENT_MODEL_FORCE=1` (v2.1.257+), which skips ranks 1–2 for every
+subagent, teammate, and workflow agent (a `fork` and a `model: inherit` skill run stay exempt).
+
+Verify rather than assume: `/tasks` and the agent detail dialogs show the model **and effort
+level** each subagent actually ran on (v2.1.243+), so which rung applied on a given run is
+checkable, not guessed. Full precedence table, the `_FORCE` mechanics, and the practical read on
+using `/tasks` to audit it: [Cost & Turn Control → Which model a subagent actually runs
+on](11-cost-control.md#which-model-a-subagent-actually-runs-on).
 
 ## Nesting
 
@@ -326,4 +397,10 @@ that wasn't told to refuse them will rationalize.
 - [Background Agents](29-background-agents.md) — sessions running independently (not within a parent session)
 - [Fan-Out](10-fan-out.md) — parallelism using multiple subagents
 - [Hooks](12-hooks.md) — SubagentStart/SubagentStop lifecycle events
+- [Session Architecture](37-session-architecture.md#the-finding-that-actually-mattered) — the
+  Pinakes case study on dead agents reporting a clean result
+- [Dynamic Workflows](39-dynamic-workflows.md) — `agent()`, the workflow-script call that spawns a
+  subagent the way this page describes, plus its own `maxTurns`-adjacent structured-output limits
+- [Verification](04-verification.md#loop-verdict-taxonomy) — the six-verdict taxonomy that a bare
+  pass/fail hides truncation inside
 - [Agent Teams](38-agent-teams.md) — teammates that message each other directly instead of reporting back; the same definition can serve as either
