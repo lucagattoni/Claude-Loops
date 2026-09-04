@@ -109,8 +109,14 @@ loops that run at different cadences** in AI-powered product development:
 | **Developer feedback loop** | The human engineer | Tens of minutes to hours (reviews the product) | Direction, judgment, taste |
 | **External feedback loop** | End users | Days+ (usage data) | Whether the product is the right one |
 
-> "Closing the loop" is what lets "coding agents work longer productively without
-> human intervention."
+> "This idea of closing the loop took off around the end of last year, and it has been a game
+> changer in enabling coding agents to work longer productively without human intervention."
+
+Ng also gives the only first-party duration figure in his corpus, and it is worth holding against
+any claim about how long a loop can run unattended:
+
+> "my coding agent could easily work for around an hour, using a web browser to check what it had
+> built multiple times before getting back to me"
 
 The faster the inner loop closes on its own (verifiable checks, see [Verification](04-verification.md)),
 the less often the human loop must fire — but the human loop never disappears, because
@@ -122,7 +128,7 @@ This complements the [Inner/Outer Dual Loop](25-long-running-agents.md#inneroute
 the dual loop nests *execution inside strategy*; the three feedback loops nest
 *agent inside developer inside user* by who provides the correcting signal.
 
-(Andrew Ng, ["Loop Engineering for 0-to-1 Product Development"](https://info.deeplearning.ai/a-new-generation-studies-ai-apples-recipe-for-on-device-models-glm5.2-tackles-open-ended-problems-1), The Batch, Jun 2026.)
+(Andrew Ng, ["Three Key Loops for Building Great Software"](https://www.deeplearning.ai/the-batch/three-key-loops-for-building-great-software), The Batch, 2026-06-26.)
 
 ## Who Interrupts Whom, More Often
 

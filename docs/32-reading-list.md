@@ -132,8 +132,8 @@ boundaries — exactly what an autonomous loop needs to act without constant sup
 
 ---
 
-### [Loop Engineering for 0-to-1 Product Development](https://info.deeplearning.ai/a-new-generation-studies-ai-apples-recipe-for-on-device-models-glm5.2-tackles-open-ended-problems-1) — Andrew Ng (The Batch)
-**Added:** 2026-06-26 · **Published:** Jun 2026
+### [Three Key Loops for Building Great Software](https://www.deeplearning.ai/the-batch/three-key-loops-for-building-great-software) — Andrew Ng (The Batch)
+**Added:** 2026-06-26 · **Published:** 2026-06-26
 
 **Why here:** The clearest mental model for *where the human fits* once loops run the
 implementation, from one of the field's most authoritative voices. The three-nested-
