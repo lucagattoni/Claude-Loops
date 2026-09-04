@@ -155,11 +155,21 @@ Claude Code ships with named subagent types you can invoke directly:
 |---|---|---|---|
 | `fork` | Same as parent | All (inherits context) | Fast parallel work — shares parent's prompt cache |
 | `general-purpose` | Same as parent | All | Standard isolated subtask |
-| `Explore` | Haiku | Read-only | Fast codebase search; skip CLAUDE.md for speed |
+| `Explore` | Inherits main conversation's model[^explore] | Read-only | Fast codebase search; skips CLAUDE.md and git status for speed |
 | `Plan` | Same as parent | Read-only | Architecture planning in plan mode |
 
 `fork` is the cheapest subagent — it inherits the parent's context and prompt cache,
 so it starts fast and shares what the parent already knows.
+
+[^explore]: **Changed in v2.1.198.** Explore previously always ran on Haiku. Official docs now
+    state it *"inherits from the main conversation, capped at Opus on the Claude API, so Explore
+    never runs on a more expensive model than the one you already chose for the session, unless you
+    set `CLAUDE_CODE_SUBAGENT_MODEL` and force it onto every subagent."* On Bedrock, Vertex,
+    Foundry and Claude Platform on AWS it inherits directly, with no Opus cap. **Cost consequence:**
+    "Explore is cheap because it's Haiku" is no longer true by default — a session on Opus runs
+    Explore on Opus. To pin it, define a project subagent named `Explore` with `model: haiku`; a
+    user or project subagent of that name overrides the built-in and keeps its own `model` field.
+    ([subagents reference](https://code.claude.com/docs/en/sub-agents))
 
 ## Custom agents (`.claude/agents/`)
 
@@ -169,7 +179,7 @@ Define reusable agent roles with frontmatter in `.claude/agents/<name>.md`:
 ---
 name: security-reviewer
 description: Audits code for injection, auth flaws, and exposed secrets
-model: claude-opus-4-8
+model: claude-sonnet-5
 tools: [Read, Grep, Glob, Bash]
 permission_mode: auto
 ---
@@ -185,9 +195,37 @@ flag → `.claude/agents/` → `~/.claude/agents/` → plugin `agents/`.
 
 ## Nesting
 
-Subagents can spawn their own subagents, up to 5 levels deep
-([@bcherny](https://x.com/bcherny/status/2064327225504403752), Jun 2026). Use this for
-hierarchical delegation: orchestrator → specialist → verifier.
+Subagents can spawn their own subagents **up to three layers below the main conversation by
+default** — a configurable default, not a fixed cap. Use this for hierarchical delegation:
+orchestrator → specialist → verifier.
+
+> "By default, a subagent can spawn subagents of its own, up to three layers below the main
+> conversation. At the depth limit, Claude Code withholds the Agent tool from every subagent except
+> a fork, so a subagent at the limit does its delegated work itself and returns one summary."
+>
+> — [Subagents reference](https://code.claude.com/docs/en/sub-agents)
+
+### Limits, and how they have moved
+
+| Limit | Default | Override |
+|---|---|---|
+| Nesting depth below the main conversation | **3** | `CLAUDE_CODE_MAX_SUBAGENT_SPAWN_DEPTH` (set to `1` to disable nesting) |
+| Concurrent subagents per session | **20** — spawning a 21st fails with `Concurrent subagent limit reached` | `CLAUDE_CODE_MAX_CONCURRENT_SUBAGENTS` (requires v2.1.217+) |
+| Total subagent spawns per session | **200** | `CLAUDE_CODE_MAX_SUBAGENTS_PER_SESSION` |
+
+**Version history — the number changed twice in one week, so pin your assumptions to a version:**
+
+| Versions | Default depth |
+|---|---|
+| v2.1.172 – v2.1.216 | 5, and **not changeable** |
+| v2.1.217 – v2.1.218 (from 2026-07-21) | **1** — *"Changed subagents to no longer spawn nested subagents by default; set `CLAUDE_CODE_MAX_SUBAGENT_SPAWN_DEPTH` to allow deeper nesting."* |
+| v2.1.219 onward (from 2026-07-24) | **3** — *"Subagents can now spawn nested subagents up to depth 3 by default (was 1); set `CLAUDE_CODE_MAX_SUBAGENT_SPAWN_DEPTH=1` to disable nesting."* |
+
+!!! warning "This entry corrects an error"
+    Earlier versions of this page stated *"up to 5 levels deep"*, citing a June 2026 source. That
+    was true for v2.1.172–v2.1.216 and is now wrong on two counts: the default is **3**, and it is
+    **configurable** rather than fixed. A platform limit sourced from a dated post is an
+    unversioned claim — the lesson generalises to every number in this knowledge base.
 
 Forked subagents (`subagent_type: "fork"`) inherit the full parent context and
 prompt cache — ideal when the subtask needs all the context the parent has built up.
