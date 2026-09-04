@@ -55,6 +55,24 @@ restructure surfaced. First release since 2026-07-09; covers an eight-week track
   prior KB coverage.
 - **docs/24 "When to remove harness"** — the KB accumulated harness monotonically with no doctrine
   for removing any of it. Harness complexity is a depreciating asset with a stated decay direction.
+- **A systematic pass over the full Claude Code changelog** (620KB, 385 versions, 2,076 bullets,
+  filtered locally to 187 decision-relevant entries for v2.1.200+). Integrated across eleven docs:
+  the **subagent model-routing reorder** (`CLAUDE_CODE_SUBAGENT_MODEL` demoted from override to
+  *default* in v2.1.251; `CLAUDE_CODE_SUBAGENT_MODEL_FORCE` added v2.1.257 as the real ceiling;
+  `/tasks` shows what each subagent actually ran on since v2.1.243, so it is checkable);
+  `PreModelSwitch`/`PostModelSwitch` hooks; `promptCacheTtl`/`subagentPromptCacheTtl` and per-agent
+  `experimental.cacheTtl`; the `/usage` **Loops breakdown** as the first-party cost-per-loop-run
+  figure the Loop Contract's BUDGET leg asks for; `--permission-prompts none` as a **fail-closed**
+  unattended default (the opposite of `--dangerously-skip-permissions`); per-model auto-compact
+  thresholds; and **`notify_when_idle`** (v2.1.236), the native form of the zero-polling pattern the
+  KB had credited only to a third-party harness — filed as an instance of the shrink-on-native
+  dynamic rather than as a new feature.
+- **docs/07 + docs/11: a capped subagent no longer looks finished.** Since v2.1.246 a subagent that
+  stops at `maxTurns` returns its output *marked partial*. That is the platform fixing, at the
+  runtime level, the exact defect docs/37 documents as a case study.
+- **docs/08: "repo settings cannot escalate their own privilege"** — a pattern named across four
+  releases. `bypassPermissions` (v2.1.257), `autoMode` (v2.1.207) and `sandbox.ripgrep` (v2.1.232)
+  were each demoted out of project settings. A cloned repo no longer votes on its own permissions.
 - **docs/26 spec-first conditioned on project maturity**; **docs/08 + docs/33 the cost of refusal**;
   **docs/21 the loops-vs-graphs debate** (recorded as contested, since the framing traces to a joke
   rather than a consolidation piece); **docs/17 Silent Default Drift** as a named failure pattern;
@@ -75,6 +93,28 @@ restructure surfaced. First release since 2026-07-09; covers an eight-week track
 - **A broken anchor in docs/11**, caught by `mkdocs build --strict`.
 - **docs/23** — the Bun figures were correct but unlabelled; 535,496 / ~750,000 / 1,009,272 are
   three different measurements and are now named as such, with a practitioner counterweight.
+- **A fabricated table row this release itself introduced, then removed.** `docs/07` gained a
+  "200 total subagent spawns per session" limit with an env var, `CLAUDE_CODE_MAX_SUBAGENTS_PER_SESSION`,
+  that does not exist. The cap was real once (v2.1.212) and was **removed in v2.1.224**; the current
+  reference says plainly there is no limit on total spawns over a session. A reader would have pasted
+  a dead knob into `settings.json`. Caught twice independently and simultaneously — by an adversarial
+  review lens and by the changelog pass — eleven lines above this page's own warning that an
+  unversioned platform limit is an unversioned claim.
+- **An over-correction, reversed.** An agent claim that the `AskUserQuestion` auto-continue shipped
+  in `v2.1.198` was stripped as unsourced after checking the changelog and the HN thread. It was
+  **true**: Anthropic's environment-variable reference states *"In v2.1.198 and v2.1.199,
+  auto-continue was on by default with a `60000` (60 seconds) timeout"*, and the linked article pins
+  it by binary diff. Neither source had been checked. Calling a true claim fabricated is the same
+  defect as asserting a false one, in the other direction. The narrow claim survives — no *changelog*
+  entry names it — and the doc now shows where the version is actually recoverable.
+- **A second broken in-page anchor in docs/11**, caught by the same strict build. Both were fixed by
+  reading the `id` out of the generated HTML rather than guessing the slug.
+- **docs/23**: `6,502` commits labelled as the merges-excluded figure against the source's own
+  `6,778` headline. **docs/14**: the HN comment count corrected to 120 and date-stamped, since it
+  moves. **docs/25**: hedged — it is a Part I doc, and this release created the rule that Part I
+  never *requires* Claude Code, then filed unaudited content under it. **docs/35 + index**: the
+  Anthropic multi-agent research post dated `2025-06-13`; it had sat undated beside a 2026-09-04
+  quote, fifteen months apart with nothing telling the reader.
 - **`SOURCES.md`** — The Batch row switched `rss` → `html`; the feed had 404'd since 2026-07-08 and
   silently returned nothing for two months while looking configured. Adds a standing rule that a
   source yielding nothing for >~3 runs must be re-fetched by hand before its silence is believed.

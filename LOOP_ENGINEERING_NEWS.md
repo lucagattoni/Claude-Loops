@@ -21,9 +21,10 @@ now become the spine of KB Part II. The row is switched to `html` against the le
 `SOURCES.md` gained a standing rule: a source yielding nothing for more than ~3 consecutive runs
 must be re-fetched by hand before its silence is believed.
 
-**Method.** 36 agents across five workflows: a 9-angle sweep plus 2 critics; an 8-agent gap-closure
+**Method.** 62 agents across eight workflows: a 9-angle sweep plus 2 critics; an 8-agent gap-closure
 round plus a KB fact-checker; a 4-range sweep of Ng's letters plus one Opus synthesis; 8 doc-writing
-agents; 3 tension agents. Zero agent errors across all five. The round-1 critics found real holes —
+agents; 3 tension agents; a 6-lens adversarial review with one refuter per finding and an Opus
+judge (20 agents); and 6 changelog-integration agents. **Zero agent errors across all eight.** The round-1 critics found real holes —
 the first two weeks of the window essentially uncovered, X never swept, the model-release pages
 never fetched — which is why there was a round 2.
 
@@ -52,6 +53,37 @@ newsletter-issue URL in two docs; the letter is
 2026-06-26. Also corrected: an unverifiable version number this run's own pipeline produced and
 which was caught before commit.
 
+### The changelog pass
+
+The full Claude Code changelog was fetched raw and filtered **locally** — 620KB, 385 versions,
+2,076 bullets. WebFetch was not used for this, because it had returned two *different* "earliest
+version" answers for the same file, meaning its summarizer was silently truncating.
+
+| Stage | Bullets |
+|---|---|
+| All | 2,076 |
+| Topic-relevant, de-noised | 643 |
+| Added / Changed / Removed, v2.1.200+ | **187** |
+
+The noise is overwhelmingly `Fixed` (2,740 across all history). The signal concentrates in
+`Removed` — only **35 in the entire project history** — and `Changed` (168). Every integration agent
+was required to grep the whole file for **supersession** before writing, since a feature added in
+v2.1.212 may be gone by v2.1.260. That check is what caught a fabricated row this run had itself
+produced.
+
+### The adversarial review
+
+Six lenses over the release diff, one Sonnet refuter per finding, one Opus judge. 13 findings
+raised, 11 survived refutation, 6 reached must-fix, coverage `FINDINGS`, zero lenses and zero
+refuters lost. Slow lenses were scheduled first so a session limit would truncate the cheap end —
+the value-biased truncation docs/37 documents.
+
+It caught a fabricated table row **this release had introduced** (a 200-spawn cap with a
+non-existent env var, removed from the platform in v2.1.224), and an **over-correction**: a true
+version claim that had been stripped as unsourced because only two of four available sources were
+checked. Both are recorded in the changelog. A review that only ever finds other people's mistakes
+is not being run adversarially enough.
+
 ### New findings
 
 | Tier | Source | Title | URL | Summary |
@@ -65,6 +97,11 @@ which was caught before commit.
 | 1 | platform.claude.com | Model line-up and pricing | [link](https://platform.claude.com/docs/en/about-claude/pricing) | Sonnet 5 (2026-06-30, \$2/\$10, now permanent), Opus 5 (2026-07-24, \$5/\$25), Fable 5.1 (2026-09-01, \$10/\$50 with a 4× better \$0.25 cache read). All 1M context. → docs/11 |
 | 1 | Simon Willison | Breaking Claude Code Opus 5 auto mode | [link](https://simonwillison.net/2026/Aug/27/breaking-claude-code-opus-5-auto-mode/) | A "confused environment attack" against auto mode, not classic prompt injection. The Containment Escape rule shipped days later (v2.1.257); the dates make a connection plausible, not established. → docs/08 |
 | 2 | Hacker News | AskUserQuestion 60-second auto-continue | [link](https://news.ycombinator.com/item?id=48947776) | An approval gate silently became an unattended one. Reverted in v2.1.200. → docs/14, docs/17 (new pattern: Silent Default Drift) |
+| 1 | Claude Code changelog | Subagent model routing reordered | [link](https://raw.githubusercontent.com/anthropics/claude-code/main/CHANGELOG.md) | v2.1.251 demoted `CLAUDE_CODE_SUBAGENT_MODEL` from an override to a **default** — an agent definition's `model:` now outranks it. v2.1.257 added `CLAUDE_CODE_SUBAGENT_MODEL_FORCE` as the real ceiling. v2.1.243 made it checkable: `/tasks` shows the model **and effort** each subagent actually ran on. → docs/07, docs/11 |
+| 1 | Claude Code changelog | A capped subagent no longer looks finished | [link](https://raw.githubusercontent.com/anthropics/claude-code/main/CHANGELOG.md) | v2.1.246: a subagent stopping at `maxTurns` returns its output **marked partial**, with a hint to continue via `SendMessage`. The platform fixing at runtime the exact defect docs/37 documents. → docs/07, docs/39 |
+| 1 | Claude Code changelog | `notify_when_idle` — zero-polling, natively | [link](https://raw.githubusercontent.com/anthropics/claude-code/main/CHANGELOG.md) | v2.1.236: ask another session to send one notice when it next goes idle. Opt-in, one-shot, no polling. The KB credited this pattern to a third-party harness; the platform has absorbed it. → docs/37 |
+| 1 | Claude Code changelog | Repo settings cannot escalate their own privilege | [link](https://raw.githubusercontent.com/anthropics/claude-code/main/CHANGELOG.md) | `bypassPermissions` (v2.1.257), `autoMode` (v2.1.207) and `sandbox.ripgrep` (v2.1.232) each demoted out of project settings across four releases. A cloned repo no longer votes on its own permissions. → docs/08, docs/33 |
+| 1 | Claude Code changelog | `/usage` Loops breakdown · `--permission-prompts none` | [link](https://raw.githubusercontent.com/anthropics/claude-code/main/CHANGELOG.md) | v2.1.243 gives per-loop run count and tokens-per-run — the first-party figure the Loop Contract's BUDGET leg asks for. v2.1.259 adds a **fail-closed** unattended default, the opposite of `--dangerously-skip-permissions`. → docs/34, docs/11, docs/09 |
 | 2 | Bun / Anthropic | Bun Zig→Rust figures disambiguated | [link](https://bun.com/blog/bun-in-rust) | 535,496 (source Zig) vs ~750,000 (resulting Rust) vs 1,009,272 (diff-added) are three measurements, not a contradiction. The KB's figure was right but unlabelled. → docs/23 |
 
 ### Structural review
@@ -89,6 +126,10 @@ Stated because a digest claiming eight clean weeks would be its own Verifier The
   **not** be independently verified and is deliberately excluded.
 - The `--worktree` flag's standalone semantics were found but not integrated — recorded in
   `KB_GAPS.md`.
+- **The changelog pass covered v2.1.200–v2.1.260 only.** 2,076 bullets exist across 385 versions
+  back to 0.2.21; 187 were reviewed. Everything before v2.1.200 is **unswept**, not clean. The
+  filter also drops `Fixed` bullets that do not change behaviour, so a behaviour change worded as a
+  fix may have been missed.
 
 ---
 
