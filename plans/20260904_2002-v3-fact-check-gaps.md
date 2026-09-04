@@ -52,7 +52,7 @@ in those files. This table is the corrected, current picture, derived from
 | `30` | Goal Engineering | Cites `/goal` readiness gates — check against current `/goal` docs |
 | `31` | Claude Tag | Product surface, moves independently of Claude Code CLI releases |
 
-### Touched, but only the *new* content was verified (16 docs) — medium priority
+### Touched, but only the *new* content was verified (20 docs) — medium priority
 
 `01, 07, 08, 09, 11, 12, 13, 14, 15, 17, 18, 21, 23, 24, 25, 26, 28, 32, 33, 34` — pre-existing
 sentences in these files were **not** re-checked unless they happened to overlap with what an

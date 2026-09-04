@@ -143,8 +143,9 @@ three copy-pasteable instances behind.
 
 ### C3 — The handover documents miscount the backlog · small
 
-- `20260904_2002-v3-fact-check-gaps.md:51` says "(16 docs)" and then lists **20** filenames.
-  14 + 20 + 5 = 39. `CLAUDE.md:5` inherits the same "~16 more".
+- **Done in this plan's own commit:** `20260904_2002-v3-fact-check-gaps.md:51` said "(16 docs)" and
+  then listed **20** filenames (14 + 20 + 5 = 39); `CLAUDE.md:5` inherited the same "~16 more".
+  Both corrected.
 - The `disable-model-invocation` example is attributed to the doc-06 row (`:44`); it actually lives
   at `docs/03-building-blocks.md:50`.
 

@@ -2,10 +2,12 @@
 
 Claude-Loops is a living knowledge base and automated daily tracker for **loop engineering** — designing systems that prompt Claude for you. Read `LOOP_ENGINEERING.md` (the index) and `README.md` before working. The KB grows automatically via a two-skill pipeline: `fetch-loop-news` (search) hands off to `integrate-loop-news` (integrate + restructure + publish).
 
-> **Open work — read this first.** After `v3.0.0`'s restructure, 14 of 39 docs (plus the pre-existing
-> content in ~16 more) have never been fact-checked against current Claude Code docs. Read
-> `plans/20260904_2002-v3-fact-check-gaps.md` for the full picture, the method, and the exact next
-> command — do not re-derive this from scratch. **Delete this note once that file's gap is closed.**
+> **Open work — read this first.** Read `plans/20260904_2053-open-work-backlog.md` — the full
+> verified backlog after `v3.0.0`, ranked, with three decisions still open. The highest-priority
+> items are **automation, not content**: the daily tracker has not fired since 8 July. The
+> fact-check method lives in `plans/20260904_2002-v3-fact-check-gaps.md` (14 of 39 docs untouched,
+> ~20 more only partially verified). Do not re-derive either from scratch. **Delete this note once
+> the backlog's §3 and §4 are empty.**
 
 ## Repository map
 
