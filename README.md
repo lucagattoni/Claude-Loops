@@ -1,7 +1,20 @@
 # Claude Loops
 
-A living knowledge base and automated tracker for **loop engineering** — the practice
-of designing systems that prompt Claude for you, rather than typing prompts yourself.
+A living knowledge base and automated tracker covering **two disciplines, kept separate**:
+
+| **Part I — Loop Engineering** | **Part II — Developing with Claude Code** |
+|---|---|
+| Designing a system that prompts an agent *for* you — it fires on a trigger, works, verifies, and stops. You are not at the keyboard. | You and Claude Code building software together, iteratively, with you in the loop. |
+| General, tool-agnostic. | Claude Code specific, version-stamped. |
+
+For **building software**, the honest default is Part II — *"most effective coding agent use is a
+complex, highly iterative process"* ([Andrew Ng](https://www.deeplearning.ai/the-batch/the-ai-engineering-skills-map-in-detail-using-coding-agents/),
+2026-09-04, explicitly *not* autonomous long-horizon execution). Part I is where **recurring,
+well-specified, verifiable** work belongs — triage, sweeps, dependency bumps, docs sync, digests —
+and there the payoff compounds.
+
+Not sure which you need? [**Choosing Your Mode**](https://lucagattoni.github.io/Claude-Loops/35-choosing-your-mode/)
+is the router: three tests a task must pass before a loop is worth building.
 
 ## 📖 Read the documentation → **<https://lucagattoni.github.io/Claude-Loops/>**
 
@@ -17,7 +30,7 @@ the files in this repo are the *source* the site is built from.
 | Source file | Read it on the site |
 |---|---|
 | `docs/*.md` | [The knowledge base](https://lucagattoni.github.io/Claude-Loops/) — one page per topic |
-| `LOOP_ENGINEERING.md` | [Home / topic index](https://lucagattoni.github.io/Claude-Loops/) |
+| `LOOP_ENGINEERING.md` | [Home / topic index](https://lucagattoni.github.io/Claude-Loops/) — both parts, one row per topic |
 | `CHANGELOG.md` | [Changelog](https://lucagattoni.github.io/Claude-Loops/changelog/) |
 | `SOURCES.md` | [Sources](https://lucagattoni.github.io/Claude-Loops/sources/) |
 | `LOOP_ENGINEERING_NEWS.md` | [News digest](https://lucagattoni.github.io/Claude-Loops/news/) |
@@ -33,10 +46,15 @@ the files in this repo are the *source* the site is built from.
 
 **Read it on the site: <https://lucagattoni.github.io/Claude-Loops/>** — the 3-column
 layout (nav · content · on-this-page TOC) is the intended reading experience, with search
-and cross-links that don't work in raw GitHub Markdown. Start with
-[The Paradigm Shift](https://lucagattoni.github.io/Claude-Loops/01-paradigm-shift/),
-[The Loop Contract](https://lucagattoni.github.io/Claude-Loops/27-loop-contract/), and
-[Verification](https://lucagattoni.github.io/Claude-Loops/04-verification/).
+and cross-links that don't work in raw GitHub Markdown.
+
+| If you want to… | Start at |
+|---|---|
+| Work out which half you need | [Choosing Your Mode](https://lucagattoni.github.io/Claude-Loops/35-choosing-your-mode/) |
+| Build software with Claude Code | [The Development Workflow](https://lucagattoni.github.io/Claude-Loops/36-development-workflow/) |
+| Decide on one session or several | [Session Architecture](https://lucagattoni.github.io/Claude-Loops/37-session-architecture/) |
+| Design an autonomous loop | [The Loop Contract](https://lucagattoni.github.io/Claude-Loops/27-loop-contract/) |
+| Know when a loop is actually done | [Verification](https://lucagattoni.github.io/Claude-Loops/04-verification/) |
 
 The knowledge base grows automatically: when the daily loop finds a new concept not yet
 covered, it adds a page and a row to the [topic index](https://lucagattoni.github.io/Claude-Loops/).

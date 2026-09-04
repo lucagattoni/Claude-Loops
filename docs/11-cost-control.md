@@ -87,7 +87,7 @@ busts the prompt cache you were relying on.
 
 ### Main loop, subagents, and a judge pass are not the same purchase
 
-[Subagents](07-subagents.md#strong-eyes-cheap-hands----cost-asymmetric-role-allocation)
+[Subagents](07-subagents.md#strong-eyes-cheap-hands-cost-asymmetric-role-allocation)
 already makes the case for allocating models by role rather than uniformly — cheap hands do
 the high-volume work, strong eyes decide only at the gates. Mapped onto the current lineup:
 
