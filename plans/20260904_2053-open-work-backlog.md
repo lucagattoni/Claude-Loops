@@ -249,19 +249,40 @@ help-text-only, and **C10** already flags that `Fixed` bullets were dropped whol
 | 3 | `claude agents --json` returns `id` (8-hex short id), `sessionId` (uuid), `state` (`working`), `status` (`busy`), plus `pid`, `cwd`, `kind`, `startedAt`, `name` | `docs/29` — the short `id` is what `attach`/`logs`/`stop`/`rm` take |
 | 4 | `--max-turns` is still accepted but **no longer listed in `claude --help`**; `--max-budget-usd` is listed | `docs/18` — needs a version-stamped note (ties to **H1**) |
 
-**Peer-reported, NOT verified here — verify before writing any of it into the KB:** that a one-word
-`--bg` session inherited Opus 5 at `xhigh` and cost $0.24 (the consequence of fact 2, plausible but
-unmeasured here); that a positional prompt after a variadic flag (`--allowedTools`, `--worktree`) is
-swallowed as another value; the `--all` flag and `waitingFor` field on `claude agents`; and
-ClaudeWarp's own sync-method lesson.
+**The session-floor finding — peer-measured, arithmetic re-checked here, worth a KB line.**
+ClaudeWarp's follow-up ([v0.42.1](https://github.com/lucagattoni/Claude-Warp/releases/tag/v0.42.1))
+retracted its own first explanation of the $0.24 figure. The number holds; the *cause* was wrong.
+Recorded `cost-state`: `totalCostUSD` 0.242504, of which Opus 5 was $0.240609 on **2 input / 4 output
+tokens** — with **thinking tokens 0** and a **22,659-token 1-hour cache write**. Effort did not drive
+the cost; 93.4% of it was the session writing its own system prompt and tool definitions into a 1h
+cache at Opus's 2x rate, for a session that lived 64 seconds. Re-computing from those token counts at
+list price gives $0.2406 against $0.240609 recorded — matches to four decimals, so it is a real
+per-session cost and not a rate-limit-window artefact.
+
+> **The generalisable claim:** a fresh `--bg` session pays a floor before doing any work —
+> (system prompt + tool definitions) x the model's cache-write rate — so a fan-out's budget is
+> (items x floor) + actual work, and **the floor scales with the model's price, not the task**.
+> The operator move is therefore *pin a cheaper model*, not *lower the effort*: the identical write
+> on Sonnet 5 is $0.09.
+
+Two homes for it: `docs/29` (the `--bg` cost contract, alongside fact 2) and `docs/11`, which argues
+the 1h-vs-5m cache-write bet **qualitatively and now has a measured case** of the short-lived-session
+loss. Cite ClaudeWarp v0.42.1; we have not reproduced the measurement ourselves.
+
+**Still peer-reported and NOT verified here — verify before writing into the KB:** that a positional
+prompt after a variadic flag (`--allowedTools`, `--worktree`) is swallowed as another value; the
+`--all` flag and `waitingFor` field on `claude agents`.
 
 **Also:** ClaudeWarp documents the native `--bg --worktree` contract (positional-first, no dollar
 cap, workers commit/push their own branch per v2.1.221, nothing merges back) — a concrete consumer
 to cite when writing **C6**.
 
-**Method note this vindicates:** a changelog-only sync missed a broken scaffold for 60+ releases.
-Checking emitted flags against `claude --help` and the background contract against one throwaway
-session is a cheap gate the KB's own method (**C10**) does not currently include.
+**Method note this vindicates** — and it cuts deeper than **C10** alone. A changelog-only sync
+missed a broken scaffold for 60+ releases. But the `Fixed` bullet, had it been read, would only have
+said `--bg -p` is now rejected; what revealed the scaffold was *broken* was **running it**. Reading
+finds the fact, executing finds the consequence. So **C10**'s Fixed-bullet pass is necessary and not
+sufficient: pair it with exercising the surface the way a user does — which is the same test-seam
+rule this KB already states and its own pipeline did not follow (see **A1**).
 
 ---
 
