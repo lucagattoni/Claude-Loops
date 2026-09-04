@@ -43,7 +43,9 @@ recurring, well-specified and verifiable — the profile that passes
 
 This is the most-skipped judgement in phase 1. Writing a full spec for a throwaway prototype is
 waste; skipping one on a brownfield service with users is how agents produce plausible, wrong,
-expensive work. Match the ceremony to the blast radius.
+expensive work. Match the ceremony to the blast radius. Part I's spec-first signals
+([Factory Model](26-factory-model.md#spec-first-conditioned-on-maturity)) carry the same maturity
+condition — read them as the mature-project case, not a universal rule.
 
 ---
 

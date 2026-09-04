@@ -324,6 +324,55 @@ full week of zero unexpected actions at the current stage. These stages align wi
 
 > "before you trust an agent to run on its own, do these 4 things" — [@Sabrina_Ramonov](https://x.com/Sabrina_Ramonov), Jun 2026
 
+## The Cost of Refusal
+
+Every gate above is tuned against one failure mode: a false ALLOW, where the model does
+something it shouldn't. A hardened gate has a second, symmetric failure mode that none of the
+tables on this page currently model — a false DENY, where the gate blocks work that was
+legitimate. That cost is not hypothetical; it changed which harness Andrew Ng's team runs.
+
+Ng's team hit it directly while trying to security-review their own open source project:
+
+> "Unfortunately, when we tried to perform one such review, both Claude Code (running Fable 5)
+> and Codex (running GPT 5.6 Sol) refused. Notably, Codex did a decent job mapping out possible
+> attack vectors (following well known procedures like those documented by the U.S.-funded
+> nonprofit MITRE) but then refused to proceed beyond a certain point."
+> — Andrew Ng, [*Open Models, Open Harnesses, Open Security*](https://www.deeplearning.ai/the-batch/open-models-open-harnesses-open-security), 2026-07-31
+
+Their response was not to loosen either harness's guardrails — it was to switch harness and
+model entirely:
+
+> "So we used an open agentic harness — OpenWorker itself! — with both GLM 5.2 and Kimi K3 to
+> complete our security review."
+> — Andrew Ng, same source
+
+That is a false-refusal rate acting as a **harness selection criterion**, not a threshold tuned
+inside one harness. A week earlier, the same team made the identical move for the identical
+reason, one layer down the stack — a commercially hosted model wouldn't help analyse logs from
+a live attack on Hugging Face's infrastructure:
+
+> "the LLM refused to do so on safety grounds"
+> — Andrew Ng, [*When Guardrails Go Wrong*](https://www.deeplearning.ai/the-batch/when-guardrails-go-wrong), 2026-07-24
+
+Hugging Face used the open GLM 5.2 model instead — which had the side benefit of keeping the
+sensitive logs, attacker data, and credentials on their own infrastructure rather than sent to
+a third party.
+
+Ng is explicit that this is not an argument against guardrails as such:
+
+> "Guardrails on LLMs do have a place. There are certain requests, such as for detailed
+> directions to harm oneself or others, or for clearly criminal acts, that we're better off
+> having models refuse."
+> — Andrew Ng, *When Guardrails Go Wrong*
+
+The design point for this page: `deny` and `ask` are tuned against the cost of a wrongly-allowed
+action. Nothing above is tuned against the cost of a wrongly-refused one — and for at least one
+team, that second cost was large enough to change which harness they run. A denylist or
+`PermissionRequest` hook that never gets measured for its false-refusal rate is only half
+specified. See [Agent Security Hardening § Hardening During the Incident It Exists
+For](33-agent-security-hardening.md#hardening-during-the-incident-it-exists-for) for the same
+tension at the OS-hardening layer.
+
 ## Relationship to Agent Security Hardening
 
 The [Agent Security Hardening](33-agent-security-hardening.md) doc covers the OS-layer

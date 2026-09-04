@@ -772,6 +772,79 @@ tracks *implicit conventions*.
 
 ([eugenelim/agent-ready-repo](https://github.com/eugenelim/agent-ready-repo), Jun 2026.)
 
+## When to Remove Harness
+
+Everything above this line is accretion — a growing corpus of components to add. Harness
+complexity is not a one-way ratchet: it is a **depreciating asset with a stated decay
+direction**. Every component built on top of a moving platform is a liability with a
+maturity date, not a permanent fixture.
+
+> "Today's agents need much more scaffolding — that is, code that guides its step-by-step
+> actions — rather than just letting an LLM have access to some tools and fully
+> autonomously decide what to do."
+>
+> "Building a reliable agent today requires much more scaffolding to guide it; but as LLMs
+> become more capable, we will see successful agents built with less scaffolding."
+>
+> — Andrew Ng, ["Build an Autonomous Agent Using This Simple Recipe!"](https://www.deeplearning.ai/the-batch/build-an-autonomous-agent-using-this-simple-recipe), Dec 2025
+
+Six months later, Ng reports the prediction starting to hold — with coding agents named as
+the leading edge, not the exception:
+
+> "So far, most practical Agentic AI workflows (except for coding agents) have not relied on
+> the LLM to this extent to decide what to do next. Instead, they have relied more on
+> developer-specified workflows to deliver higher reliability. But in the past few months,
+> frontier LLMs have advanced sufficiently for this style of harness design to provide an
+> important, if still not entirely reliable, alternative."
+>
+> — Andrew Ng, ["Agents on the Desktop"](https://www.deeplearning.ai/the-batch/agents-on-the-desktop), Jun 2026
+
+Read together: coding agents (Claude Code among them) were already leaning on the LLM to
+decide more, before the rest of the field caught up. That does not exempt this doc from the
+trend it documents — it means the trend arrives here *first*.
+
+### The removal test
+
+Ng also gives the operational criterion — not just the direction, but when to act on it:
+
+> "For example, one very common pattern is ripping out scaffolding and letting the LLM do
+> more. This is often a good move when you now have access to a smarter LLM than you did
+> when you first built a workflow."
+>
+> — Andrew Ng, ["Evals and Error Analysis, Part 2"](https://www.deeplearning.ai/the-batch/improve-agentic-performance-with-evals-and-error-analysis-part-2), Oct 2025
+
+And the diagnostic for *which* component to cut first:
+
+> "One way to spot opportunities for doing this is if error analysis shows that a sequence
+> of steps collectively underperforms compared to what a human might do, even though the
+> performance of each individual step is good."
+>
+> — Andrew Ng, ["Evals and Error Analysis, Part 2"](https://www.deeplearning.ai/the-batch/improve-agentic-performance-with-evals-and-error-analysis-part-2), Oct 2025
+
+That is a symptom of rigidity, not of insufficient scaffolding — a pipeline whose every step
+scores well but whose combined output still lags a human is a case for removing a gate, not
+adding one.
+
+**A concrete removal test**, runnable against any component catalogued in this doc:
+
+1. Re-run the task on the current frontier model with the component removed.
+2. If quality holds, the component was load-bearing for an older, weaker model and is now
+   pure overhead — remove it.
+3. If quality drops, keep it, and repeat the test at the next model release rather than
+   assuming the answer is permanent.
+
+This doc already has one instance of the test applied concretely — see
+[Load-Bearing vs. Optional Components](#load-bearing-vs-optional-components): sprint
+decomposition was essential with Opus 4.5 and became removable overhead with Opus 4.6, found
+by the same re-run-and-compare method.
+
+**The engineering expression of the same idea** already lives in
+[The Development Workflow](36-development-workflow.md#a-worked-reference-implementation):
+ClaudeWarp's `/claude-warp-sync` skill retires each of its own components the moment Claude
+Code ships the equivalent natively — "the harness is built to disappear." Read that section
+for the mechanism; the rule it encodes is the one this section argues for: **a harness
+should be designed to shrink, not just to grow.**
+
 ## Harness Update File Safety Contract
 
 When the harness ships updates that modify shared files (CLAUDE.md, loop templates,

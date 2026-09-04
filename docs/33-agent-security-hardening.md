@@ -160,6 +160,25 @@ both are inside the process. The watchdog operates outside it.
 
 See [Long-Running Agents](25-long-running-agents.md) for state recovery patterns.
 
+## Hardening During the Incident It Exists For
+
+The controls above assume hardening fires *before* compromise — blocking escalation,
+exfiltration, unauthorised tool calls. There is a different failure mode when hardening is still
+armed *during* the response to an actual attack: a gate that cannot tell "analyse this attack"
+from "conduct this attack" fails during exactly the event it was built to defend.
+
+Andrew Ng's team hit this directly. A commercially hosted model refused to analyse logs from a
+live attack on Hugging Face's infrastructure, on safety grounds, and Hugging Face used an open
+model instead. A week later, trying to security-review their own project, Ng's team hit the same
+refusal from both Claude Code and Codex and switched harness and model rather than continue.
+Full verbatim quotes and both sources are in [Permissions & Auto Mode § The Cost of
+Refusal](08-permissions.md#the-cost-of-refusal).
+
+This is not an argument for weaker gates — Ng: "Guardrails on LLMs do have a place." It is an
+argument for testing incident response as its own scenario: can the hardened agent still be used
+*defensively* once an incident is underway, or does the SECURITY_MATRIX or runtime policy gate
+above have to be bypassed to make it useful?
+
 ## Relationship to Permissions & Allowlists
 
 The [Permissions & Auto Mode](08-permissions.md) doc covers the software-layer companion
