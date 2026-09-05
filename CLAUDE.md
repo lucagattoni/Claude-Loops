@@ -57,10 +57,38 @@ Claude-Loops is a living knowledge base and automated daily tracker for **loop e
   pointer the change falsified. **This includes correcting the backlog when the work proves the
   backlog itself wrong** — record the correction in place rather than quietly deleting it.
 
+## Pipeline (the unattended tracker)
+
+- **A default that means success is a fabricated result, not a fallback.** This repo's defining
+  defect class, and the reason it went eight weeks publishing nothing while every signal looked
+  clean. Instances found and fixed: an unresolved slash command exits **0**, so a missing skill made
+  Stage B log `Run complete` having published nothing; a `findings: []` artifact read as "search
+  failed" when a quiet day is a finished run; a dead RSS feed and a clean feed both returned no
+  items; `notify()` reported only to a desktop popup and a gitignored log. So: **when a check cannot
+  tell, it must fail, never pass.** Never write `|| echo 0` on a count, an empty default on a work
+  list, or a catch that swallows and continues. And assert on the **artifact** — a commit, a
+  deployed page, a fresh digest header — never on a run's exit status; "the workflow succeeded" has
+  been true here while nothing shipped.
+- **Every expensive stage must be resumable from any point, because it can die at any point.**
+  Standing requirement, set 20260905. A session limit, a killed process or a closed laptop can end a
+  stage mid-execution, so anything costing real minutes or money checkpoints its progress somewhere
+  the *wrapper* can see: Stage A per source in its artifact, Stage B as commits on a per-day branch.
+  Prefer a mechanism the wrapper can verify (git) over one the agent maintains (a progress file) —
+  progress inside a Claude session is invisible from outside, so an agent-kept ledger is advisory
+  prose, the same weakness as a gate written as instructions in a `SKILL.md`.
+
 ## Knowledge-base rules
 
 - **Citations must link.** Every external reference in `docs/*.md` (repo, tool, product, @handle) must be a markdown hyperlink to the official page — never a bare name. Post-edit check: `grep -rn 'repo: github\.com' docs/ | grep -v '\[github'`.
 - **Review new resources before moving on.** When a new repo/article/tool is discovered, fetch it (README + any `docs/`) and score it on unique contribution / precision / durability (0–5). Avg ≥ 3.0 → deep-read and extract; otherwise note in `KB_GAPS.md` or skip. Never add to the KB from a README skim alone.
+- **Never write a version number, flag, limit or model ID without the fetched source in front of
+  you** — this KB is public and gets copied. Two failure modes, opposite directions, both shipped in
+  `v3.0.0`: a **fabricated** table row for an env var that does not exist, and an **over-correction**
+  that stripped a *true* claim after checking only two of the four sources that carried it. Before
+  removing a claim as unsourced, check every source that could plausibly carry it — absent from one
+  page is not "does not exist". Prefer `curl` + strip-tags over WebFetch for anything quoted
+  verbatim; WebFetch's summariser has silently truncated quotes here. And **never edit quoted
+  third-party material to make it look current** — correct the KB's own text around it instead.
 - **Keep docs current in the same session.** Any infra/process/pattern change updates the relevant `docs/*.md` (e.g. headless → `docs/09`, routines → `docs/28`, loop patterns → `docs/34`) and `SOURCES.md` before committing — don't wait to be asked.
 - **Every timestamp is UTC, `YYYYMMDD HH:MM`.** Skills and humans alike: read the clock with `date -u '+%Y%m%d %H:%M'`, never compose or convert one. Applies to digest headers, changelog and release entries, plan filenames and branch names. **Never rewrite an existing timestamp** — entries recorded in local time (everything before `[3.0.0]`) stay exactly as written, because restamping them invents precision nobody measured. Decided 20260905; supersedes the previous skills-UTC/humans-local split, which had produced three formats inside one `CHANGELOG.md`.
 
