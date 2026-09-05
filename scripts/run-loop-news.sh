@@ -191,10 +191,19 @@ BASE_SHA="$(git -C "$REPO_ROOT" rev-parse origin/main)"     # captured ONCE, bef
 WT_PARENT="$(mktemp -d -t loop-news-wt.XXXXXX)"; WT_DIR="$WT_PARENT/wt"   # add needs a non-existent leaf
 TEMP_BRANCH="loop-news-run-$(date -u +%Y%m%d-%H%M%S)"
 
+# Set once the run has published: stops cleanup re-creating the resume artifact it just retired.
+ARTIFACT_CONSUMED=0
+
 cleanup() {
-  # Preserve the artifact for post-mortem before the worktree vanishes.
-  [[ -f "$WT_DIR/.loop-news/findings.json" ]] && \
-    cp "$WT_DIR/.loop-news/findings.json" "$REPO_ROOT/logs/findings-$(date +%Y%m%d).json" 2>/dev/null || true
+  # Preserve the artifact so the next run can RESUME from it instead of re-searching — unless this
+  # run already published it, in which case re-creating it here would hand the next run a set that
+  # is already in main and produce a duplicate digest. cleanup runs on EXIT, i.e. AFTER the success
+  # path, so without this guard it silently undoes the consume. (Caught by a test asserting the
+  # files on disk; the success path's own log line said "consumed" and was telling the truth.)
+  # UTC to match SEED_ARTIFACT — a local-time name would split the pair either side of midnight.
+  if (( ! ARTIFACT_CONSUMED )) && [[ -f "$WT_DIR/.loop-news/findings.json" ]]; then
+    cp "$WT_DIR/.loop-news/findings.json" "$REPO_ROOT/logs/findings-$(date -u +%Y%m%d).json" 2>/dev/null || true
+  fi
   git -C "$REPO_ROOT" worktree remove --force "$WT_DIR" 2>/dev/null || rm -rf "$WT_PARENT"
   git -C "$REPO_ROOT" branch -D "$TEMP_BRANCH" 2>/dev/null || true
 }
@@ -202,13 +211,52 @@ trap cleanup EXIT
 
 git -C "$REPO_ROOT" worktree add -b "$TEMP_BRANCH" "$WT_DIR" origin/main
 
-# True when the artifact exists AND its "today" matches the current UTC date.
-findings_valid() {
-  local f="$WT_DIR/.loop-news/findings.json"
-  [[ -f "$f" ]] && \
-    [[ "$(python3 -c 'import json,sys; print(json.load(open(sys.argv[1])).get("today",""))' "$f" 2>/dev/null)" \
-       == "$(date -u +%Y-%m-%d)" ]]
+# artifact_valid <path> — true when the file is a Stage-A artifact this run may use: parses as
+# JSON, declares the schema this wrapper understands, is stamped with the current UTC date, and
+# carries at least one finding. Checked as a whole because each part fails differently: a truncated
+# write parses but has no findings; yesterday's artifact parses and has findings; a schema bump
+# would silently change field meanings. Any failure is false — an unreadable artifact is never
+# treated as an absent one, and never as a usable one.
+artifact_valid() {
+  local f="$1"
+  [[ -f "$f" ]] || return 1
+  python3 - "$f" "$(date -u +%Y-%m-%d)" <<'EOF' 2>/dev/null
+import json,sys
+try:
+    d = json.load(open(sys.argv[1]))
+except Exception:
+    sys.exit(1)
+sys.exit(0 if d.get("schema") == 1
+              and d.get("today") == sys.argv[2]
+              and isinstance(d.get("findings"), list)
+              and len(d["findings"]) > 0
+         else 1)
+EOF
 }
+
+# The in-worktree artifact — what the attempt loop consults to decide "skip Stage A".
+findings_valid() { artifact_valid "$WT_DIR/.loop-news/findings.json"; }
+
+# --- Stage-A resume: reuse today's search rather than paying for it twice ---------------
+# Stage A costs ~23 minutes and up to $SEARCH_BUDGET_USD. Its artifact already survived every
+# previous run (cleanup copies it to logs/), but nothing ever read it back, so any failure after
+# Stage A — a session limit, a killed process, a machine reboot — re-ran the whole search.
+#
+# The trap this closes: a SUCCESSFUL run also leaves an artifact behind. Seeding from it blindly
+# would re-integrate findings that are already published and emit a duplicate digest. So the
+# artifact is marked consumed the moment a run publishes, and only an unconsumed one is reused.
+SEED_ARTIFACT="$REPO_ROOT/logs/findings-$(date -u +%Y%m%d).json"
+CONSUMED_ARTIFACT="$REPO_ROOT/logs/findings-$(date -u +%Y%m%d).consumed.json"
+
+if [[ "${LOOP_FORCE_SEARCH:-0}" == "1" ]]; then
+  echo "[$(stamp)] LOOP_FORCE_SEARCH=1 — ignoring any saved artifact, Stage A will run" | tee -a "$LOG_FILE"
+elif artifact_valid "$SEED_ARTIFACT"; then
+  mkdir -p "$WT_DIR/.loop-news"
+  cp "$SEED_ARTIFACT" "$WT_DIR/.loop-news/findings.json"
+  echo "[$(stamp)] RESUME: reusing today's unconsumed Stage-A artifact ($(python3 -c 'import json,sys;print(len(json.load(open(sys.argv[1]))["findings"]))' "$SEED_ARTIFACT") findings) — skipping search. LOOP_FORCE_SEARCH=1 to re-search." | tee -a "$LOG_FILE"
+elif [[ -f "$SEED_ARTIFACT" ]]; then
+  echo "[$(stamp)] A saved artifact exists but is not usable (wrong date, wrong schema, empty, or unreadable) — Stage A will run" | tee -a "$LOG_FILE"
+fi
 
 # run_claude <label> <claude-args...> — run one session in the worktree via a PTY (so
 # claude flushes line-by-line), fold its output into the day log, and return success =
@@ -352,6 +400,15 @@ if (( ! success )); then
 fi
 
 echo "[$(stamp)] Run complete (succeeded on attempt ${attempt})" | tee -a "$LOG_FILE"
+
+# Retire the artifact so a later run today re-searches instead of republishing this set.
+# Renamed rather than deleted: it stays available for post-mortem, just not for resume.
+if [[ -f "$WT_DIR/.loop-news/findings.json" ]]; then
+  cp "$WT_DIR/.loop-news/findings.json" "$CONSUMED_ARTIFACT" 2>/dev/null || true
+fi
+rm -f "$SEED_ARTIFACT"
+ARTIFACT_CONSUMED=1
+echo "[$(stamp)] Stage-A artifact marked consumed ($(basename "$CONSUMED_ARTIFACT"))" | tee -a "$LOG_FILE"
 
 # --- success path: align the primary checkout if B published and it's on main ---
 git -C "$REPO_ROOT" fetch origin main
