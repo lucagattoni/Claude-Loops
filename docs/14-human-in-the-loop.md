@@ -146,4 +146,15 @@ tuning. This argues for calibrating checkpoint *sensitivity* symmetrically: the
 80/20 target above is not just about adding enough human checkpoints, it is equally
 about not over-provisioning the model's own clarification triggers past the point
 where they start recreating the bottleneck loops were meant to remove.
+
+## Persona Document as a Calibration Feedback Channel
+
+A concrete, low-overhead pattern for closing the [Developer feedback
+loop](#the-three-feedback-loops) on a judgment task rather than a code-correctness one: for
+a human-in-the-loop verification cycle on a news-filtering LLM app, the builder reads the
+model's daily justifications and, whenever the LLM's judgment diverged from his own, adds a
+rule to the persona document driving the loop. The persona document accumulates as a
+standing record of exactly where the human's judgment and the model's diverged — a running,
+example-anchored calibration log rather than a one-time prompt tuned once and left alone.
+([therundown.ai community, "Sam's full workflow (Rally News build)"](https://app.therundown.ai/community/posts/fb6ebbe2-5e7a-4cba-9301-83ddabb7f814), Sep 2026.)
 (Anthropic Research, ["Measuring agent autonomy"](https://www.anthropic.com/research/measuring-agent-autonomy), Jul 2026.)

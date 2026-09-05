@@ -127,6 +127,70 @@ a loop at each node, inside a graph shaped by dependency rather than by a fixed 
 graph decides what can run concurrently; the loop inside each node decides when that piece of
 work is done.
 
+### The debate continues (Sep 2026) — cost, control theory, and a maturity ladder
+
+Seven weeks after Steinberger's joke, the debate had not settled — it deepened into four
+independent, non-joke arguments, each landing at a different point in this doc's own analysis.
+
+**Karpathy names loop as an intermediate stage, not an alternative.** A Stanford lecture
+positions the field's progression as LLM → Prompt → Agent → **Loop** → Graph, roughly
+mapped to 10/30/50/70/100% autonomy. Read against the table above, this corroborates rather
+than contests it: loop is where a single thread of work matures to reliable autonomy; graph
+is what you reach for once that thread needs to split.
+([@TechWithLilyAi](https://x.com/TechWithLilyAi/status/2096177729163215080), Sep 2026.)
+
+**The strongest new argument is a cost claim, not a capability claim.** Most of the graph
+case (this doc, above) argues graphs *can do more* — parallel legs, per-node tooling. Rubén
+Domínguez's retrospective on the whole 41-day cycle argues the opposite failure mode is
+underweighted: **parallel review graphs often cost *more* than the sequential loop they
+replace**, because running N reviewers in parallel is not free just because it's concurrent —
+it's N times the review cost, paid whether or not the reviewers disagree. He also names why
+that spend frequently buys less than it appears to: **same-model parallel reviewers are
+correlated, not independent** — "a chorus, not an ensemble" — so three GPT-5.6 reviewers in
+parallel can share the same blind spot the way three microphones on one melody don't add
+information. He credits the real turning point not to Steinberger's post but to Anthropic's
+May 2026 dynamic-workflows preview (a model-authored JS script orchestrates subagents so only
+the final result re-enters context — see [Dynamic Workflow Patterns](24-harness-patterns.md#dynamic-workflow-patterns-anthropic-engineering)),
+and recommends at least one **non-probabilistic node** (a compiler, type-checker, or test run)
+on every critical verification path — a concrete design rule, not just a caution. This is the
+same finding as [Verification's cross-model independence](04-verification.md#verifier-integrity-keeping-the-check-unfakeable),
+now with a cost argument attached: independence is not just more *effective*, correlated
+reviewers are also a worse trade *per dollar* than a single well-verified pass.
+([LinkedIn — Rubén Domínguez Ibar](https://www.linkedin.com/pulse/forget-loop-engineering-its-all-graph-now-rub%C3%A9n-dom%C3%ADnguez-ibar-2cyzf/), Sep 2026.)
+
+**A control-theory reframing gives the failure modes this KB already names a shared
+vocabulary.** Rajesh Kavasseri maps the generate → evaluate → revise → repeat loop onto
+classical closed-loop feedback control, and reframes agent failure modes as textbook control
+pathologies: oscillation (the loop's own [Verdict oscillation](17-failure-patterns.md) is
+literally a control-theory oscillation — a system overshooting and overcorrecting around a
+setpoint it never settles on), steady-state error (a persistent gap between output and goal
+that more iterations don't close), coupled control channels (fixing one property destabilises
+another), and poor observability/controllability (you cannot correct what you cannot measure
+or influence). His sharpest line: `--max-rounds` is a **circuit breaker, not a convergence
+guarantee** — a hard iteration cap stops a runaway, but nothing about capping iterations
+implies the loop was converging toward the goal in the first place. See
+[Failure Patterns](17-failure-patterns.md) for where this vocabulary now applies directly.
+([LinkedIn — Rajesh Kavasseri](https://www.linkedin.com/pulse/loop-engineering-control-theory-marketing-budget-rajesh-kavasseri-r6v6c/), Sep 2026.)
+
+**A skeptic view, for balance.** Not every voice treats the debate as substantive: "loop
+engineering is just bro code for 'we're making it up as we go'" is a live dissent worth
+recording alongside the pro-loop-engineering material this doc otherwise curates — the naming
+churn (loop → graph → whatever comes next) is itself evidence for the skeptic's point, even
+if the underlying design questions (SCOPE/ACTION/TRIGGER/BUDGET/STOP) are real regardless of
+what the discipline is called this quarter. ([@thiagoTF](https://x.com/thiagoTF/status/2096165836348158464), Sep 2026.)
+
+**Academic corroboration of the three-way split.** A cloud-engineering paper independently
+converges on the same three-way distinction this doc's four/five-discipline table draws —
+separating **graph engineering** (workflow progression), **loop engineering**
+(diagnosis/repair), and **harness engineering** (zero-trust execution) as orthogonal concerns
+for autonomous cloud agents, rather than competing framings of one thing.
+([arXiv 2609.00050](https://arxiv.org/abs/2609.00050), Aug 2026.) Google has separately been
+reported proposing "Graph Engineering" as a higher-level concept for coordinating multiple
+connected agents, distinct from handling any one agent's Loop or Harness — another
+independent publisher treating the term as a practice rather than a joke's residue, adding to
+the two guides already cited below.
+([@peaceandwhisky](https://x.com/peaceandwhisky/status/2096167196200439901), Sep 2026.)
+
 ### Is "Graph Engineering" a named discipline?
 
 Contested, and younger than the other four. It traces to a joke, not a consolidation piece —

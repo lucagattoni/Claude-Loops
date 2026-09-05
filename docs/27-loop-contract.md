@@ -384,6 +384,78 @@ All PRs must include a test output block." — apply this constraint in all PR-r
 
 ([faisalishfaq2005/loopflow](https://github.com/faisalishfaq2005/loopflow), Jun 2026.)
 
+## Concrete STOP+Verifier Implementations (Sept 2026 cohort)
+
+A cluster of independent projects converged this run on the exact same shape: a scheduled
+or on-demand loop where the harness — not the agent — owns SCOPE/BUDGET/STOP and never
+merges or promotes a change without a separate verifier's sign-off. Read together, they are
+evidence the six-property contract above is not just a design heuristic but a pattern
+multiple unrelated builders arrive at independently once a loop runs unattended in
+production.
+
+- **dream-machine** — a 13-stage nightly pipeline that ends every cycle in
+  **ACCEPT / REJECT / INCONCLUSIVE**, never merging autonomously (the human promotion gate
+  is retained by design). Built explicitly against the Sakana AI Scientist reward-hacking
+  failure mode, using adversarial critique and cryptographically witnessed provenance so a
+  claimed pass can be audited after the fact. Extends
+  [metaharness's Darwin Mode](24-harness-patterns.md#self-improving-harnesses) into a full
+  scheduled STOP-verifier loop rather than an on-demand mutation check.
+  ([ruvnet/dream-machine](https://github.com/ruvnet/dream-machine), Sep 2026.)
+- **autogenous** — "Governed Evolutionary Software": a closed production loop
+  (observe failures → explain → generate adaptations → test → promote-or-rollback) that
+  converts runtime failures into **typed mutations**. Adaptations ship as signed,
+  capability-constrained, *expiring* "Antibody Packages," and promotion requires **≥2
+  independent pinned-judge signatures** before a staged canary rollout with automatic
+  rollback. A concrete, code-enforced SCOPE/ACTION/TRIGGER/BUDGET/STOP+verifier contract for
+  production self-repair — the multi-judge signature requirement is a stronger completion
+  check than this doc's own [Stop Condition Taxonomy](#stop-condition-taxonomy) assumes by
+  default (single verifier).
+  ([ruvnet/autogenous](https://github.com/ruvnet/autogenous), Sep 2026.)
+- **openAVO** — a governed autonomous reasoning harness where the agent freely
+  inspects/hypothesizes/edits/executes/evaluates/repairs, while the harness alone owns
+  permissions, budgets, invariants, rollback, and evidence; every state transition produces a
+  hash-chained signed receipt. Reports **+160% resolved-task improvement** over baseline on
+  SWE-bench Verified at **+97.7% cost** — and is explicitly flagged by its own authors as
+  exceeding the economics threshold for production release, a rare instance of a source
+  reporting its own result as *not yet worth shipping*.
+  ([ruvnet/openAVO](https://github.com/ruvnet/openAVO), Aug 2026.)
+- **sparc** — enforces the five SPARC phases (Specification/Pseudocode/Architecture/
+  Refinement/Completion) as an executable TypeScript state machine with immutable phase
+  ordering and Ed25519-attested tamper-evident evidence. The key STOP-integrity detail:
+  **agents cannot self-execute their own stored test commands** — evidence must come from a
+  separate verifier process, closing the same self-grading gap
+  [Verifier Integrity](04-verification.md#verifier-integrity-keeping-the-check-unfakeable)
+  documents. ([ruvnet/sparc](https://github.com/ruvnet/sparc), Sep 2026.)
+- **loop.js** — states a Goal; rounds run until a **skeptical, read-only Verify agent (no
+  self-grading)** settles it, with failure reasons feeding forward into the next round.
+  Budgets (rounds / USD / timeout) are declarative and explicitly framed as **runaway
+  guards, not completion criteria** — the same distinction this doc's
+  [Stop Condition Taxonomy](#stop-condition-taxonomy) draws between safety stops and the
+  completion check. ([loop-js/loop.js](https://github.com/loop-js/loop.js), Sep 2026.)
+- **loop-contract-skill** — states the whole doctrine of this page as a repo tagline: "an
+  agent is bounded by its verifier, not its model." Implements frozen scope, red-before-work
+  executable oracles (the check must fail before the fix is attempted, proving it actually
+  tests something), per-item proofs, and a gate script (`fold_ledger.py`) that mechanically
+  refuses to accept an unverified claim. DONE vs. KNOWN modes generalize the contract beyond
+  code to data and research work.
+  ([hdkhosravian/loop-contract-skill](https://github.com/hdkhosravian/loop-contract-skill), Aug 2026.)
+- **DeMARS** — outside software entirely: a computational-materials-science framework
+  combining deterministic algorithms, bounded LLM judgment, task-specific verification, and
+  complete delegation — a Loop-Contract-style SCOPE/verifier pattern applied to scientific
+  computing, evidence the contract shape generalizes past coding agents.
+  ([arXiv 2609.00795, "Agentic programs: an emerging form of scientific software"](https://arxiv.org/abs/2609.00795), Sep 2026.)
+
+**Benchmarking the controller, not just the harness.** LoopArena evaluates models
+specifically as *runtime controllers* guiding coding agents through long tasks — the
+loop-engineering equivalent of a harness conformance suite
+([docs/24](24-harness-patterns.md#harness-conformance-testing-harness-bench)), but scoring
+the controller's STOP/TRIGGER decisions rather than the harness's capability surface. Best
+Strict Success Rate on the benchmark: only **24.69%** — evidence that getting the contract
+right in principle and a model executing it reliably in practice remain two different
+problems. A lightweight "Type II" evaluation correlates highly with full-task results as a
+cheap proxy metric for iterating on controller design.
+([arXiv 2608.28281, "LoopArena"](https://arxiv.org/abs/2608.28281), Aug 2026.)
+
 ## Relationship to the Factory Model
 
 The Loop Contract is the specification document for a factory model workflow. Just

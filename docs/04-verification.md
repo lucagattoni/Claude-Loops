@@ -582,3 +582,55 @@ and never trigger automatic retry.
 
 This confirms the compound probability argument in [The Paradigm Shift](01-paradigm-shift.md):
 the verification chain converts per-step model accuracy into end-to-end reliable output.
+
+## The Non-Probabilistic Node Rule
+
+A concrete design rule falls out of the [loops-vs-graphs cost debate](21-context-vs-loop-engineering.md#the-debate-continues-sep-2026-cost-control-theory-and-a-maturity-ladder):
+put at least **one non-probabilistic node** (a compiler, type-checker, linter, or test run —
+something that returns the same verdict on the same input every time) on every critical
+verification path, not just LLM judges. The reasoning is the same one behind
+[Verifier Integrity](#verifier-integrity-keeping-the-check-unfakeable)'s cross-model
+independence pattern, sharpened with a cost argument: **parallel same-model reviewers are
+correlated, not independent** — "a chorus, not an ensemble." Three instances of the same
+model reviewing the same output in parallel can share the same blind spot the way three
+microphones on one melody add volume, not information, and that redundant spend often costs
+*more* than a single well-verified sequential pass. A deterministic node breaks the
+correlation entirely, because it has no model-specific blind spot to share.
+([LinkedIn — Rubén Domínguez Ibar](https://www.linkedin.com/pulse/forget-loop-engineering-its-all-graph-now-rub%C3%A9n-dom%C3%ADnguez-ibar-2cyzf/), Sep 2026.)
+
+## Benchmark and Eval Integrity (Sept 2026 corpus)
+
+Several independent findings converge on the same warning: a claimed result is only as
+trustworthy as the eval that produced it, and evals themselves fail silently far more often
+than practitioners assume.
+
+- **~30% of a widely-used benchmark was broken.** OpenAI audited SWE-Bench Pro and found
+  roughly 30% of its 731 tasks were unsound, withdrawing its recommendation of the benchmark
+  entirely — the [oracle problem](#oracle-problem-in-ai-generated-tests) above, at the scale
+  of an industry-standard eval rather than one AI-generated test file.
+  ([OpenAI, "Separating signal from noise in coding evaluations"](https://openai.com/index/separating-signal-from-noise-coding-evaluations), Jul 2026.)
+- **A headline benchmark score depended on an undisclosed harness, not the model.** OpenAI's
+  98.6% ARC-AGI-3 score for GPT-6 Astra came from an undisclosed evaluation harness/system
+  wrapped around the model — a harness OpenAI does not sell to developers — not from the raw
+  model under the settings a developer could reproduce. This is the eval-integrity mirror of
+  [Harness Patterns' quantified harness>model corpus](24-harness-patterns.md#the-harness-as-an-org-level-artifact):
+  the same fact that makes harness investment worthwhile (the harness dominates the score) is
+  exactly what makes an undisclosed harness a misleading benchmark claim.
+  ([The New Stack, "OpenAI will sell you Astra, but not the system that scored 98.6%"](https://thenewstack.io/openai-astra-harness-arc-agi-3/); [The New Stack, "GPT-6 Astra's score of 98.6% looked like AGI. Then researchers read the fine print."](https://thenewstack.io/astra-arc-agi-benchmark/), Sep 2026.)
+- **Eval gates belong in the product, not just the test suite.** Repeatable evaluation gates,
+  fixed test scenarios, and execution-path tracing need to be built into the product itself so
+  agent reliability holds *across releases* — treating eval as a one-time pre-ship check
+  rather than a standing gate is how regressions ship silently.
+  ([The New Stack, "AI agent evaluations are part of the product"](https://thenewstack.io/ai-agent-evaluation-gates/), Sep 2026.)
+- **DISH — closing the simulation-deployment gap.** A Deployment-Imitating SWE-Agent Harness
+  plus critique refinement narrows the gap between how a coding agent is evaluated and how it
+  actually runs in deployment — a structural fix for the same class of problem as the
+  Astra disclosure above: an eval environment that doesn't match deployment conditions
+  produces a score deployment can't reproduce.
+  ([arXiv 2609.02302](https://arxiv.org/abs/2609.02302), Sep 2026.)
+- **A consumer-facing instance of the same discipline.** A "Loop Method" guide for improving
+  ChatGPT workflows runs three improvement loops with a **panel of sub-agents adversarially
+  reviewing each cycle**, identifying the biggest weakness and validating against success
+  criteria before proceeding — the same maker/checker discipline this doc documents for
+  coding agents, appearing independently in a non-engineering product context.
+  ([therundown.ai, "Use the loop method to get better results from ChatGPT"](https://app.therundown.ai/guides/use-the-loop-method-to-get-better-results-from-chatgpt), Sep 2026.)

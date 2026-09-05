@@ -146,6 +146,28 @@ pair them — estimate from the pattern, then cap with the measured ceiling.
 
 ([cobusgreyling/goal-engineering](https://github.com/cobusgreyling/goal-engineering) `goal-cost`, v1.1.0, Jun 2026.)
 
+## Case Study: 107M Rows on a Single Goal
+
+A concrete real-world data point on how far a single well-formed Goal scales: Ben Tossell
+set Codex running on one `/goal`-equivalent objective to repeat tasks until done,
+delegating to **hundreds of subagents** — including a dedicated **auditor subagent
+verifying the numbers** — to scrape and clean 107 million rows of UK council spending data.
+The auditor role is the Verifier primitive in this doc made concrete at scale: a goal this
+large doesn't get one final check, it gets a standing subagent whose only job is
+cross-checking the working agents' output against the source data as it accumulates.
+([Ben's Bites, "Scraping 107M rows of data to build this"](https://www.bensbites.com/p/scraping-107m-rows-of-data-to-build), Sep 2026.)
+
+## Aspire — Can Models Self-Evolve from Vague Goals?
+
+The Four Goal Primitives above assume the Objective starts well-formed (per the "Bad" vs
+"Good" example). Aspire benchmarks the harder case: **vague-goal-driven self-evolution**,
+where the objective itself is underspecified and the agent must sharpen it across attempts.
+Agents complete the training loops, but weight-level gains stay sparse, and harness
+evolution lags hand-engineered references — evidence that the G0 (vague objective) case
+this doc already flags as "do not launch; clarify first" is not yet something agents reliably
+self-correct their way out of, reinforcing rather than replacing the G0–G3 readiness
+discipline above. ([arXiv 2608.31111, "Aspire"](https://arxiv.org/abs/2608.31111), Aug 2026.)
+
 ## Relationship to the Loop Contract
 
 A goal is a single non-recurring iteration with a deterministic stopping condition.

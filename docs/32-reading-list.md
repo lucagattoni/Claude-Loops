@@ -473,22 +473,21 @@ extraction where no rule auto-applies without human review.
 
 ---
 
-### [loop-kernel](https://github.com/uppifyagency/loop-kernel) — uppifyagency
-**Added:** 2026-06-28 · **Published:** Jun 2026
+### [loop-contract-skill](https://github.com/hdkhosravian/loop-contract-skill) — hdkhosravian
+**Added:** 2026-09-05 · **Published:** Aug 2026
 
-**Why here:** The smallest reference implementation that makes the stopping-condition
-taxonomy concrete and *provable*. Where other repos describe stop conditions, this one
-ships them as three deterministic exit codes with an external, unfakeable verifier —
-the cleanest illustration of "the control system is fixed; the worker is swappable."
+**Why here:** Replaces loop-kernel, whose three-exit-code stopping-condition contribution is
+now fully absorbed into [docs/27](27-loop-contract.md#reference-implementation-the-three-exit-codes)
+with direct citation, making the standalone entry redundant. This repo states the KB's own
+thesis as a repo tagline — "an agent is bounded by its verifier, not its model" — and adds
+two things loop-kernel didn't: an oracle/ledger pattern that mechanically refuses unverified
+claims, and generalization beyond code to data and research work.
 
-**Summary:** An autonomous loop that provably halts via three hard stops: success
-(`exit 0`, the real check passes), no-progress (`exit 3`, the objective score stays
-flat for K iterations), and cap (`exit 2`, hard iteration ceiling). Two ideas stand
-out: the kernel runs the real check every iteration so the worker cannot fake
-completion, and progress is defined as *the score moving* (a `score=<fraction>`
-contract), not files changing — "a busy-but-stuck agent still halts." A LEDGER keeps
-the judge's checklist alive across context compaction, and every wave must paste proof
-("an unproven wave never counts").
+**Summary:** Frozen scope, red-before-work executable oracles (the check must fail before the
+fix is attempted, proving it tests something real), per-item proofs, and a gate script
+(`fold_ledger.py`) that refuses to accept a claim the ledger cannot verify. DONE vs. KNOWN
+modes extend the same verifier-bounded discipline from code changes to data and research
+deliverables, where "done" and "known" are different, both-needed completion states.
 
 ---
 

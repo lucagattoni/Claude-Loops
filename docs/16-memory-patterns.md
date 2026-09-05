@@ -293,6 +293,33 @@ the same project, which governs *when* a claimed todo may actually be worked.)
 
 ---
 
+## Pattern J: Learned Memory Substrates
+
+Patterns A–I above are file- or ledger-based: memory is a document the loop reads and
+writes. A different family of tools makes memory a **trained substrate** that improves from
+its own recorded use rather than staying a static store.
+
+- **RuVector** — a persistent agent-memory database (semantic/episodic/procedural/working/
+  causal layers) that *learns* from recorded trajectories and rewards via small SONA
+  MicroLoRA adapters, with EWC++ consolidation against catastrophic forgetting — a
+  local-first parallel to [ruflo's AgentDB](22-learned-orchestration.md). The distinction
+  from every flat-file pattern above: retrieval quality itself improves with use, rather
+  than staying fixed at whatever the original schema supported.
+  ([ruvnet/RuVector](https://github.com/ruvnet/RuVector), Sep 2026.)
+- **funes** — an open-source persistent memory layer that indexes session traces from
+  Claude Code, Codex, and other CLI agents (vector search + BM25 + reranking) so an agent
+  can recall prior reasoning across machines and tool boundaries, rather than only within
+  one CLI's own session store. Complements [Pattern F](#pattern-f-temporal-knowledge-graph)'s
+  structured-fact approach with raw-trace retrieval for reasoning that was never distilled
+  into a fact. ([huggingface.co/blog/funes](https://huggingface.co/blog/funes), Sep 2026.)
+- **Computer History** — OpenAI's rebuild of its structured-memory research preview
+  ("Chronicle") converts captured interaction events into memories and timelines, a
+  vendor-native instance of the same session-state-persistence problem this doc otherwise
+  documents via repo-owned files.
+  ([learn.chatgpt.com, "Computer History"](https://learn.chatgpt.com/docs/customization/computer-history), Jun 2026.)
+
+---
+
 See [Long-Running Agents](25-long-running-agents.md) for the architectural pattern
 (Ralph loop / planner-worker-judge) that uses these memory strategies to coordinate
 work across multiple context windows.

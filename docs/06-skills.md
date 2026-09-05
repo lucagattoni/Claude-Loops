@@ -63,3 +63,24 @@ sync, and any loop that has the tool installed can self-onboard to it. Treat age
 first-class users of your CLIs — design the `--help` for them, not just for humans.
 
 (Simon Willison, ["shot-scraper video"](https://simonwillison.net/2026/Jun/30/shot-scraper-video/), Jun 2026.)
+
+## Compiling Expert Knowledge into Skills
+
+Skills don't have to be hand-authored procedures — they can be **compiled from a corpus**.
+mimeo extracts expert knowledge from public corpora into agent-loadable skill files,
+verifying each extracted claim against its source text before it becomes part of the skill.
+Gains are clearest on obscure, quotation-heavy questions — exactly the material a general
+model is weakest on and a hand-written skill would rarely think to cover. This is a
+production pipeline for the skill-authoring step itself, complementary to (not a
+replacement for) the manually-designed SDLC-scaffolding skills above.
+([arXiv 2609.00453, "mimeo: Compiling Public Expert Corpora into Agent Skills"](https://arxiv.org/abs/2609.00453), Aug 2026.)
+
+## Skill Compression for Progressive Loading
+
+As a project accumulates skills, the token cost of the skill library itself becomes a
+tax on every session. SkillZip Pro compresses progressively-loaded skill bundles by
+removing cross-file redundancy while preserving routing (which skill gets invoked when),
+reporting a **38% skill-bundle token reduction** and **10.4% per-run token reduction**
+with no measured quality loss — a mechanical fix for skill-library bloat, distinct from
+the discipline of writing lean skills in the first place.
+([arXiv 2608.30785, "SkillZip Pro"](https://arxiv.org/abs/2608.30785), Aug 2026.)

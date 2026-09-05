@@ -61,6 +61,40 @@ scores only 19.1% with a minimal adapter versus **73.4%** with a full adapter �
 swing from harness completeness alone, with the model held fixed.
 ([arXiv 2606.12344](http://arxiv.org/abs/2606.12344), Jun 2026.)
 
+### Two Settings Tripled a Benchmark Score — and the Vendor Didn't Sell the Harness
+
+The sharpest evidence yet for "the harness matters more than the model" came from a vendor
+demonstrating it about *itself*. OpenAI found that the "official" ARC-AGI-3 harness was
+**erasing the model's private reasoning and truncating its history every move** — enabling
+reasoning-retention plus context compaction **tripled the score (13.3%→38.3%) at 1/6th the
+tokens**, with the model held completely fixed.
+([OpenAI, "How enabling two settings tripled our scores on the ARC-AGI-3 benchmark"](https://openai.com/index/how-two-settings-tripled-our-arc-agi-3-scores), Jul 2026.) The
+compaction mechanism itself — opaque, loss-aware, server-side compression of prior
+reasoning/tool calls — is documented as a first-class API primitive precisely because
+naive truncation this badly starves a long-running loop of exactly the context it needs to
+avoid repeating dead ends.
+([OpenAI, Compaction developer guide](https://developers.openai.com/api/docs/guides/compaction), Jul 2026.)
+
+The same pattern recurred at the other end of 2026, this time *without* the vendor's own
+admission. GPT-6 Astra's headline **98.6% ARC-AGI-3 score came from an undisclosed
+evaluation harness/system** wrapped around the model — a harness OpenAI does not sell to
+developers — rather than the raw model under conditions anyone could reproduce.
+([The New Stack, "OpenAI will sell you Astra, but not the system that scored 98.6%"](https://thenewstack.io/openai-astra-harness-arc-agi-3/); [The New Stack, "GPT-6 Astra's score of 98.6% looked like AGI. Then researchers read the fine print."](https://thenewstack.io/astra-arc-agi-benchmark/), Sep 2026.) Read the two events together and the lesson sharpens past
+"the harness matters": a vendor that understands this thesis has an incentive to under-disclose
+which parts of a benchmark score are harness rather than model — see
+[Benchmark and Eval Integrity](04-verification.md#benchmark-and-eval-integrity-sept-2026-corpus)
+for the verification-side treatment of the same disclosure gap.
+
+**Persistent "megathreads" as the harness-level fix for long-running work.** A companion
+practice guide from the same period generalizes the reasoning-retention lesson into a
+standing recommendation: keep one long-lived agent thread alive and deliberately compact it
+on purpose (rather than starting fresh each task), decompose goals into independently
+verifiable steps, and decide upfront which steps get full delegation versus which keep a
+human checkpoint. This is the harness-design counterpart to
+[Long-Running Agents](25-long-running-agents.md)' session-recovery patterns — persistence by
+keeping the thread alive, rather than by reconstructing state after a reset.
+([OpenAI, "Codex-maxxing for long-running work"](https://openai.com/index/codex-maxxing-long-running-work), Jun 2026.)
+
 ### Harness Conformance Testing (harness-bench)
 
 If the harness is the leverage point, it needs its own tests — not just the code it
@@ -245,6 +279,47 @@ This is the manual, single-engineer version of what
 automated weakness-mining step — the failure class, not the individual failure, is what
 gets patched. ([Bun, "Bun, in Rust"](https://bun.com/blog/bun-in-rust), Jul 2026.)
 
+**JIT-Agent — harness intelligence as a trainable dimension, orthogonal to model scale.**
+Rather than evolving one fixed harness, a trained model synthesizes a **task-adaptive**
+harness on-the-fly for whatever off-the-shelf LLM it is paired with — enabling a smaller
+model with a JIT-synthesized harness to surpass a larger model running the generic default.
+This reframes "harness intelligence" as a capability you can train *for*, not just a
+one-time engineering artifact. ([arXiv 2608.25593, "JIT-Agent"](https://arxiv.org/abs/2608.25593), Aug 2026.)
+
+**HarnessLens — cheaper verification for harness evolution.** The self-improving approaches
+above all gate mutations on some form of re-evaluation; HarnessLens replaces full
+re-evaluation with **behavior-aware verification**, improving held-out performance by
+7.6–13.6% while using substantially less evaluation budget per candidate — the efficiency
+counterpart to Darwin Mode's train/eval-disjoint *correctness* gate above: cheaper does not
+mean less rigorous if the verification still catches regressions.
+([arXiv 2608.27311, "Verify Smarter, Evolve Further"](https://arxiv.org/abs/2608.27311), Aug 2026.)
+
+**EvoUndo — recoverability as its own gate, alongside correctness.** A framework that
+checks whether a model's self-modification to its own harness is *recoverable* before
+accepting it, independent of whether the mutation measurably improves performance. Oracle
+analysis found 197 capability-improving mutations that failed a recoverability check; an
+extended recovery calculus recovered 191 of the 197 — meaning most "good but risky"
+mutations can be made safe rather than simply rejected outright. This closes a gap none of
+the approaches above name explicitly: Darwin Mode gates on *whether a mutation helps*;
+EvoUndo gates on *whether you can undo it if it doesn't*.
+([arXiv 2608.28363, "EvoUndo"](https://arxiv.org/abs/2608.28363), Aug 2026.)
+
+**HarnessDev — can a model build its own execution infrastructure from a minimal seed?**
+Tests whether LLMs can construct and refine their own agent harness rather than only tuning
+an existing one. Generated harnesses lag human-authored references on code and search tasks,
+but match or exceed them on writing and ML-experimentation tasks — a domain-dependent
+answer, not a uniform yes or no, to the question the self-improving-harness cluster above
+otherwise treats as settled. ([arXiv 2609.01437, "HarnessDev"](https://arxiv.org/abs/2609.01437), Sep 2026.)
+
+**Harness-of-Harness — a multi-day case study.** Coding agents iteratively improve their own
+software via planning-coding-testing loops sustained over *multiple days*, reporting a
+52.25% average relative gain across three benchmarks and, as a demonstration, autonomously
+building a working FPS game over **70+ iterations**. This is the sharpest available evidence
+that the self-improving-harness pattern holds up over genuinely long horizons, not just a
+handful of iterations in a benchmark run — see
+[Long-Running Agents](25-long-running-agents.md) for the session-continuity mechanics a run
+this long depends on. ([arXiv 2609.01481, "Harness-of-Harness"](https://arxiv.org/abs/2609.01481), Sep 2026.)
+
 **The cost case, quantified.** A Hugging Face proposer/accept-reject loop that rewrote *only*
 the harness code around a frozen model matched Sonnet 4.6's legal-agent-benchmark score at
 roughly **7x lower inference cost** — and with identical model and tasks, score ranged from
@@ -302,6 +377,25 @@ instructions. The consequences for harness design:
   shifts the cost boundary but does not eliminate the need for containment
 
 ([wquguru/harness-books](https://github.com/wquguru/harness-books), AgentWay, Jun 2026.)
+
+## Generic Harness + Good Feedback Loop Beats Bespoke Scaffolding
+
+A domain-specific evaluation of computer-aided-engineering (CAE) simulation agents found
+that a **single-agent, generic multi-turn tool-use harness matches specialized systems**
+built purpose-fit for the domain — and that execution-feedback repair (re-running the
+simulation and reacting to the actual error) beats scripted reflection (a fixed
+self-critique prompt) as the correction mechanism. This is direct evidence for
+[When to Remove Harness](#when-to-remove-harness)'s removal test applied one level up: not
+just "which components of *my* harness are load-bearing," but "do I need a bespoke harness
+for this domain at all, or does a generic one plus a real feedback loop already match it."
+([arXiv 2609.03718, "What Do CAE Simulation Agents Really Need Beyond a Generic Harness?"](https://arxiv.org/abs/2609.03718), Sep 2026.)
+
+**Adversarial self-play as a harness-level robustness loop.** A red-teaming system using
+self-play to generate multi-step adversarial attack paths and improve prompt-injection
+robustness applies the same verification-loop/adversarial-review pattern this doc documents
+for correctness ([Self-Improving Harnesses](#self-improving-harnesses)) to model *safety*
+instead — the harness evolves against attacks the same way it evolves against task failures.
+([OpenAI, "GPT-Red: Unlocking Self-Improvement for Robustness"](https://openai.com/index/unlocking-self-improvement-gpt-red), Jul 2026.)
 
 ## Ledger Closure for Interrupted Tool Calls
 
@@ -483,6 +577,15 @@ running one model for everything.
   response pending Codex's validation**. Notable because the pattern now has
   official backing from a *different* vendor, not just community consensus.
   ([openai/codex-plugin-cc](https://github.com/openai/codex-plugin-cc), Jul 2026.)
+
+- **HydraFusion**: GitHub Copilot's own multi-model orchestration research preview,
+  routing across Single/Cascade/Critique workflow shapes rather than picking one model per
+  session — GitHub's announcement claims 4.9pp higher quality than Claude Opus 5 at 67%
+  lower workflow cost on TerminalBench 2.1. Treat this as a competing vendor's *self-reported*
+  benchmark rather than independently verified — but it is a first-party instance of a
+  competitor betting on orchestration-shape choice, not model choice, as the lever, which
+  corroborates this section's thesis regardless of whose numbers are right.
+  ([GitHub, "Project HydraFusion"](https://github.blog/ai-and-ml/github-copilot/project-hydrafusion-frontier-quality-via-multi-model-orchestration/); [explainx.ai coverage](https://explainx.ai/blog/github-copilot-hydrafusion-multi-model-orchestration-2026), Sep 2026.)
 
 This is the same underlying idea as [Subagents' "strong eyes, cheap hands"](07-subagents.md)
 cost-asymmetric role allocation, generalized from same-vendor subagents to

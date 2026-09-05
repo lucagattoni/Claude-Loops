@@ -18,6 +18,47 @@ Versioning follows [Semantic Versioning](https://semver.org/):
 
 ---
 
+## [3.0.1] — 20260905 12:08
+
+Largest single digest run since the tracker resumed: 108 findings scored, 101 new. No new
+doc files created — everything was folded into existing canonical docs per the Phase 4c
+consolidation rule, so this is a PATCH despite the volume.
+
+### Added
+
+- docs/21 — Sep 2026 continuation of the loops-vs-graphs debate: Karpathy's maturity-stage
+  progression, the "chorus not ensemble" parallel-review cost argument, a control-theory
+  reframing of loop failure modes, a dissenting skeptic view, academic + Google corroboration.
+- docs/27 — "Concrete STOP+Verifier Implementations (Sept 2026 cohort)": ruvnet's
+  dream-machine/autogenous/openAVO/sparc, loop.js, loop-contract-skill, DeMARS, LoopArena.
+- docs/24 — ARC-AGI-3/Astra harness-disclosure controversy; four new self-improving-harness
+  papers; generic-harness-beats-bespoke finding; GPT-Red; HydraFusion.
+- docs/33 — two new sections: hook/context trust attacks (HookPry, Context Privilege
+  Escalation) and emergent multi-agent coordination risk (rogue-agent wiki collusion,
+  DeepMind swarm self-governance).
+- docs/17 — two new failure-pattern rows (Teardown blindness, Comprehension debt).
+- docs/04 — non-probabilistic node rule; benchmark/eval-integrity corpus.
+- docs/16 — new Pattern J: Learned Memory Substrates (RuVector, funes, Computer History).
+- docs/06 — skill compilation from expert corpora (mimeo); skill-bundle compression.
+- docs/22 — training-environment evolution for terminal agents; Harness-RL; MemoryWalker.
+- docs/25 — Ralph loop origin citation (ghuntley.com); Harness-of-Harness cross-reference.
+- docs/26 — "lit vs. dark" factory naming; platform-relocation survey; scientific-computing
+  field report.
+- docs/14 — persona document as a calibration feedback channel.
+- docs/05 — "Rules Have a Half-Life."
+- docs/23 — rvm trust-driven runtime isolation; ruClip ecosystem map.
+- docs/30 — 107M-row single-goal case study; Aspire benchmark.
+- SOURCES.md — huangruiteng/loopx promoted to a tracked row.
+- KB_GAPS.md — two new gaps (retrieval-infrastructure mechanism, parallel-graph-cost claim).
+
+### Changed
+
+- docs/32 — Reference Implementations: replaced `loop-kernel` with `loop-contract-skill`
+  (loop-kernel's three-exit-code contribution is fully absorbed into docs/27's prose).
+- LOOP_ENGINEERING.md — row summaries updated for every doc touched above.
+
+---
+
 ## [3.0.0] — 20260904 19:12
 
 Restructured into **two clearly separated parts**, and corrected nine factual defects the

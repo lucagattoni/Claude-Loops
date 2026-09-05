@@ -129,6 +129,30 @@ humans orchestrating and reviewing) is provider-agnostic.
   rewrite decomposable into agent-sized units at all. ([Bun, "Bun, in
   Rust"](https://bun.com/blog/bun-in-rust), Jul 2026.)
 
+## "Lit" vs. "Dark" Factories, and Where Judgment Relocates
+
+Addy Osmani's own naming for the [Dark-Factory Ceiling](#the-dark-factory-ceiling-and-its-bottleneck)
+distinction above: a **"lit" factory** keeps a human in the loop by design; a **"dark"
+factory** runs with no human checkpoint. Built on Dex Horthy's harness-engineering
+framework, the piece argues **verification, not generation, is the real bottleneck** —
+the same underspecified-input finding this doc already documents from MindStudio,
+independently corroborated.
+([Addy Osmani, "Software Factories, Light and Dark"](https://addyo.substack.com/p/software-factories-light-and-dark), Jul 2026.)
+
+A follow-up piece surveys where **human judgment relocates** rather than disappears as
+factories mature, mapping the shift against commercial platforms (Factory, Warp,
+HumanLayer, Vercel) — corroborating this doc's [Named Factory Deployments](#named-factory-deployments)
+above with a wider platform survey rather than single case studies.
+([Addy Osmani, "Human judgment doesn't leave the software factory. It relocates."](https://addyo.substack.com/p/human-judgment-doesnt-leave-the-software), Aug 2026.)
+
+**A field report from a domain outside software.** Eight real Codex/Claude Code
+scientific-computing projects show the same shift happening in research labs: engineers
+moved from writing code to orchestration (defining goals, chunking work, validating
+outputs) because agents "could not reliably judge scientific validity" — a concrete,
+outside-software instance of "replace yourself as the person who prompts," and further
+evidence the factory-model shift is not specific to commercial software engineering.
+([OpenAI, "Scientific computing in the age of agentic AI"](https://openai.com/index/scientific-computing-agentic-ai), Jul 2026.)
+
 ## Relationship to Other Concepts
 
 - [Loop Contract](27-loop-contract.md) — the factory spec: what the loop is allowed to do and when it stops

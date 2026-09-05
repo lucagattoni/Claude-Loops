@@ -104,6 +104,34 @@ This is a direct example of the self-improvement loop pattern: a loop whose prim
 - No open-source learned orchestrator has matched Fugu Ultra's benchmark claims yet
 - This pattern is early-stage — most practitioners still use hand-designed loops
 
+## Training Environments for Terminal Agents (Sept 2026)
+
+Learned orchestration needs training environments that stay hard enough to be
+informative. **Off-policy environment evolution** keeps RL training environments near
+the model's learnable frontier, implemented via a **loop-engineered multi-agent
+harness** that evolves environments along three difficulty directions — a direct
+instance of "loop engineering" applied to the *training pipeline* rather than the
+deployed agent. Reports improving Qwen3.6-27B and Qwen3.6-35B-A3B by 14.4 and 18.0
+points respectively on Terminal-Bench 2.1.
+([arXiv 2609.04128, "Environment Evolution for Terminal Agents"](https://arxiv.org/abs/2609.04128), Sep 2026.)
+
+**Harness-RL — training the central controller, not the workers.** A black-box RL
+framework with action-args decoupling trains a **central controller** that directs a
+multi-agent harness, rather than training the worker agents themselves — the RL
+counterpart to this doc's Sakana Fugu example above, but training the orchestrator
+role specifically. Reports 42.93/47.79 average F1 with Qwen models.
+([arXiv 2608.29641, "Harness-RL"](https://arxiv.org/abs/2608.29641), Aug 2026.)
+
+**MemoryWalker — closing the train/inference mismatch from context compression.**
+Harnesses compress context during a training rollout differently than they do at
+inference, producing a train-inference mismatch that quietly degrades a trained
+orchestrator's real-world performance. LogitTree and SDCC substantially close this
+gap across 7 benchmarks — relevant to any learned-orchestration setup that trains
+against a harness with its own compaction behavior (see
+[Two Settings Tripled a Benchmark Score](24-harness-patterns.md#two-settings-tripled-a-benchmark-score-and-the-vendor-didnt-sell-the-harness)
+for why compaction settings alone can swing results this much).
+([arXiv 2609.00865, "MemoryWalker"](https://arxiv.org/abs/2609.00865), Sep 2026.)
+
 ---
 
 ## See also

@@ -151,6 +151,30 @@ org chart for the fault-tolerance guarantees of a consensus algorithm — approp
 when the fleet must keep operating correctly through individual agent crashes, not just
 coordinate cleanly when everything is healthy. ([ruvnet/ruflo](https://github.com/ruvnet/ruflo), Jul 2026.)
 
+**A fourth: runtime isolation that moves with trust.** Below all three topologies above sits
+a question they each assume away — how tightly *isolated* two coordinating agents are at
+the infrastructure level. A bare-metal hypervisor with trust/communication-driven
+**coherence domains** answers it dynamically: agents that communicate more move closer
+together (relaxed isolation, lower latency); agents whose trust score drops split apart into
+harder isolation — the runtime infrastructure analogue to [ruflo's Trust Loop
+scoring](22-learned-orchestration.md#a-second-target-for-learning-the-harness-itself-not-just-the-orchestrator),
+but enforced at the hypervisor rather than the orchestration layer. Reports sub-millisecond
+isolation-boundary switching versus
+seconds for VM-based approaches — relevant wherever fleet trust decisions need to translate
+into an actual containment change, not just a routing decision.
+([ruvnet/rvm](https://github.com/ruvnet/rvm), Sep 2026.)
+
+**Mapping how the pieces of one ecosystem interoperate.** As a fleet's supporting tooling
+grows (orchestration, harness scoring, runtime canary/rollback, memory, budget gates), the
+map of how those pieces compose becomes its own artifact worth documenting. ruClip is a
+README-level control-plane map of ruvnet's own stack — org-chart-style budget gates and
+approval-gate state machines composing ruflo (orchestration), metaharness (build-time
+scoring), autogenous (runtime canary/rollback, see
+[Loop Contract](27-loop-contract.md#concrete-stopverifier-implementations-sept-2026-cohort)),
+and RuVector+AgentDB (memory) — useful less for its own mechanism than as a worked example
+of documenting fleet-tooling composition explicitly rather than leaving it implicit across
+separate repos. ([ruvnet/ruClip](https://github.com/ruvnet/ruClip), Sep 2026.)
+
 ## Case Study: Gas Town — 20-30 Parallel Instances via Git-Persisted Work Units
 
 Steve Yegge's "Gas Town" is a concrete, named production deployment of fleet

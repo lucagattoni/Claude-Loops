@@ -26,6 +26,17 @@ rule, delete the rule. Bloated `CLAUDE.md` files cause Claude to ignore instruct
 - .env.local for secrets (never commit)
 ```
 
+## Rules Have a Half-Life
+
+"Short and surgical" above is a snapshot discipline — apply it once and the file drifts
+stale again as the model improves. A rule written to compensate for a model weakness has a
+**half-life**: as models improve, more of `CLAUDE.md` stops being necessary guidance and
+starts being unread dead weight (or worse, a rule the model now contradicts because the
+underlying behavior changed). Treat a periodic audit — not just a one-time trim — as part
+of maintaining the file, the same way [When to Remove Harness](24-harness-patterns.md#when-to-remove-harness)
+treats harness components as a depreciating asset with every model release, not a
+permanent fixture. ([Addy Osmani, "Audit your Agent files"](https://addyo.substack.com/p/audit-your-agent-files), Aug 2026.)
+
 ## What belongs where
 
 | Content | Put it in |

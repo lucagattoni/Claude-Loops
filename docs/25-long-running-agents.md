@@ -24,6 +24,21 @@ Planner → Worker → Judge → (loop back to Planner if not done)
 
 The Planner writes state; the Worker reads and updates it; the Judge is the loop's stopping condition.
 
+**Origin.** The technique traces to Geoff Huntley's "Ralph Wiggum" pattern: run a single
+monolithic agent process autonomously in a loop, one task per iteration, prioritizing
+determinism and watchability over multi-agent complexity — the community precedent Osmani
+and others cite as predating Claude Code's own built-in loop primitives.
+([ghuntley.com, "The Ralph Wiggum (as a Software Engineering technique)"](https://ghuntley.com/loop/), Jan 2026.)
+
+**A multi-day case study at scale.** Iterative planning-coding-testing loops sustained over
+*multiple days* report a 52.25% average relative gain across three benchmarks and, as a
+demonstration, autonomously build a working FPS game over 70+ iterations — see
+[Harness-of-Harness](24-harness-patterns.md#self-improving-harnesses) for the full result.
+The persistence discipline underneath a run that long is the "megathread" pattern — keep one
+agent thread alive and compact it on purpose rather than restarting fresh each task — see
+[Harness Patterns](24-harness-patterns.md#two-settings-tripled-a-benchmark-score-and-the-vendor-didnt-sell-the-harness)
+for the codex-maxxing source.
+
 ## Persistent State Management
 
 Everything that must survive a context window reset must be written to a file or

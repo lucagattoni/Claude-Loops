@@ -60,6 +60,22 @@ Updated by each `fetch-loop-news` run. Gap keywords drive targeted GitHub and we
   Search keywords: `spec quality gate agent pipeline`, `underspecified input detection
   LLM agent`, `pre-implementation ambiguity check autonomous coding`.
 
+- **Retrieval infrastructure as a multi-agent scaling constraint**: a 2026-09-03 source
+  claims retrieval engineering, not model choice, is the key constraint on scaling
+  multi-agent systems without breaking them, but names no concrete mechanism (what fails
+  first, what a retrieval-infrastructure fix actually looks like) — search keywords:
+  `retrieval infrastructure multi-agent scaling`, `agent RAG scaling failure mode`,
+  `"retrieval engineering" agentic systems`.
+
+- **Quantifying "parallel graphs cost more than sequential loops"**: docs/21 and docs/04
+  now cite Rubén Domínguez's claim that parallel review graphs often cost more than the
+  sequential loop they replace, and that same-model parallel reviewers are correlated
+  ("chorus not ensemble") — but the claim is argued, not measured. No source yet gives a
+  benchmarked cost comparison (tokens/dollars, at matched output quality) between an
+  N-way parallel review graph and an equivalent sequential loop. Search keywords:
+  `parallel review agent cost benchmark`, `"ensemble" vs "chorus" LLM reviewers`, `graph
+  vs sequential loop cost comparison agent`.
+
 ---
 
 ## Recently Filled (archive — keep last 2 entries; remove older ones)
