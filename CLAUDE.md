@@ -77,6 +77,24 @@ Claude-Loops is a living knowledge base and automated daily tracker for **loop e
   progress inside a Claude session is invisible from outside, so an agent-kept ledger is advisory
   prose, the same weakness as a gate written as instructions in a `SKILL.md`.
 
+## Sessions and handoff
+
+- **Check at every natural boundary whether to clear the session** — after a release, after a plan
+  lands, before starting work of a different shape. Long context degrades judgement and costs
+  tokens on every turn; a fresh session on a clean entry point is usually better than continuing.
+- **Never clear until the handoff is complete, and verify it rather than assuming.** Everything the
+  next session needs must be **on disk and reachable from what it will actually read** —
+  `CLAUDE.md` → the backlog plan → the file that plan points at. Research held only in a workflow
+  transcript, a task list, or the conversation is lost. Before proposing a clear, walk that chain
+  and confirm each hop resolves.
+- **Expensive research goes into `plans/` as an evidence pack, not into a reply.** If re-deriving it
+  would cost real minutes or money, it is an artifact: write it down, state its provenance and its
+  caveats, and link it from the backlog item it serves. Say what the evidence could **not** settle —
+  a pack that reads as complete when it is not is worse than no pack.
+- **A session's own work is what most often falsifies the entry points.** Re-read `CLAUDE.md` and
+  the backlog against reality before handing over; the claims most likely to be stale are the ones
+  this session just made false.
+
 ## Knowledge-base rules
 
 - **Citations must link.** Every external reference in `docs/*.md` (repo, tool, product, @handle) must be a markdown hyperlink to the official page — never a bare name. Post-edit check: `grep -rn 'repo: github\.com' docs/ | grep -v '\[github'`.
