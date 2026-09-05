@@ -137,6 +137,19 @@ BUDGET_EXCEEDED_REGEX='Exceeded USD budget'
 # --max-budget-usd tripwire) — this is Anthropic's own account-level quota.
 SESSION_LIMIT_REGEX="You've hit your session limit"
 
+# A slash command that does not resolve prints "Unknown command: /x" and EXITS 0 (verified on
+# claude 2.1.261). Both stages are invoked as slash commands, so without this the wrapper would
+# log a clean success having executed nothing — a green silence, worse than a crash. Deterministic:
+# a skill that is absent from the checked-out tree stays absent, so retrying cannot help.
+UNKNOWN_COMMAND_REGEX="Unknown command: /"
+
+# Match OUR published commit, anchored to the subject line the skill actually emits
+# ("feat: loop news run <time> — <N> findings..."). Previously an unanchored substring search over
+# `git log --oneline`, which also matched a Revert of that commit, and any human commit whose
+# subject merely mentioned the phrase — either of which would be misread as "Stage B already
+# published" and abandon a legitimately retriable failure.
+OUR_COMMIT_REGEX="^feat: loop news run "
+
 stamp() { date -u +%Y-%m-%dT%H:%M:%SZ; }
 
 # Best-effort desktop notification + log line. Never fails the script.
@@ -190,6 +203,7 @@ findings_valid() {
 # respective markers are seen, so the outer loop can stop instead of retrying a
 # deterministic (non-transient, backoff-won't-help) failure.
 BUDGET_EXCEEDED=0
+UNKNOWN_COMMAND=0
 SESSION_LIMIT=0
 run_claude() {
   local label="$1"; shift
@@ -202,7 +216,12 @@ run_claude() {
   grep -Eq "$ERROR_REGEX" "$tmp" && transient="yes"
   if grep -Eq "$BUDGET_EXCEEDED_REGEX" "$tmp"; then BUDGET_EXCEEDED=1; fi
   if grep -Fq "$SESSION_LIMIT_REGEX" "$tmp"; then SESSION_LIMIT=1; fi
+  if grep -Fq "$UNKNOWN_COMMAND_REGEX" "$tmp"; then UNKNOWN_COMMAND=1; fi
   rm -f "$tmp"
+  if (( UNKNOWN_COMMAND )); then
+    echo "[$(stamp)] ${label} invoked a slash command that does not resolve (claude exited ${code} regardless)" | tee -a "$LOG_FILE"
+    return 1
+  fi
   if [[ $code -eq 0 && $transient == "no" ]]; then return 0; fi
   echo "[$(stamp)] ${label} failed (exit=${code}, transient=${transient}, budget_exceeded=${BUDGET_EXCEEDED}, session_limit=${SESSION_LIMIT})" | tee -a "$LOG_FILE"
   return 1
@@ -248,7 +267,7 @@ while (( attempt <= MAX_ATTEMPTS )); do
     git -C "$WT_DIR" fetch origin main
     NEW_MAIN_SHA="$(git -C "$WT_DIR" rev-parse origin/main)"
     if [[ "$NEW_MAIN_SHA" != "$BASE_SHA" ]]; then
-      if git -C "$WT_DIR" log --oneline "${BASE_SHA}..${NEW_MAIN_SHA}" | grep -q "loop news run"; then
+      if git -C "$WT_DIR" log --format=%s "${BASE_SHA}..${NEW_MAIN_SHA}" | grep -qE "$OUR_COMMIT_REGEX"; then
         echo "[$(stamp)] attempt ${attempt}: origin/main already has a loop-news commit — Stage B would be redundant, skipping" | tee -a "$LOG_FILE"
         success=1; break
       fi
@@ -274,6 +293,10 @@ while (( attempt <= MAX_ATTEMPTS )); do
 
   # --- session limit is an account-level quota that resets on a clock, not a backoff:
   # never retry within this script run (the reset time is printed in the log for a human).
+  if (( UNKNOWN_COMMAND )); then
+    notify "FATAL: a stage invoked a slash command that does not resolve — the skill is missing from the checked-out tree. Not retrying (deterministic). Check .claude/skills/ on origin/main."
+    exit 4
+  fi
   if (( SESSION_LIMIT )); then
     notify "Attempt ${attempt} hit the Claude account session limit — not retrying (resets on a clock, not a backoff). Re-run manually after the reset time (see log)."
     exit 1
@@ -287,7 +310,7 @@ while (( attempt <= MAX_ATTEMPTS )); do
   git -C "$REPO_ROOT" fetch origin main
   NEW_MAIN_SHA="$(git -C "$REPO_ROOT" rev-parse origin/main)"
   if [[ "$NEW_MAIN_SHA" != "$BASE_SHA" ]]; then
-    if git -C "$REPO_ROOT" log --oneline "${BASE_SHA}..${NEW_MAIN_SHA}" | grep -q "loop news run"; then
+    if git -C "$REPO_ROOT" log --format=%s "${BASE_SHA}..${NEW_MAIN_SHA}" | grep -qE "$OUR_COMMIT_REGEX"; then
       notify "Attempt ${attempt} failed AFTER publishing (origin/main has our loop-news commit) — not retrying; check repo state."
       exit 1                           # B already pushed → never retry (would double-commit)
     fi
