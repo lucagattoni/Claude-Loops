@@ -18,6 +18,79 @@ Versioning follows [Semantic Versioning](https://semver.org/):
 
 ---
 
+## [3.1.1] — 20260905 17:00
+
+Three backlog items with sources already in hand — C6, C13, C14 — closed in one pass. PATCH by
+this file's own rule: no new `docs/*.md` file. Every claim was re-fetched from source before it
+reached a public page rather than transcribed from the evidence packs, which is what turned up the
+findings below that the packs did not contain.
+
+### Added
+
+- **`claude --worktree`, written up in full** (`C6`, `docs/03`) — path and branch naming, branching
+  from a PR/MR with per-host ref resolution, `.worktreeinclude`, the resume/cleanup lifecycle, and
+  the four hard-enforced isolation checks. The point of the section is the last one: a repo
+  convention like this project's own worktree rule is prose in a `CLAUDE.md` that holds only while
+  an agent reads and retains it, whereas `--worktree` makes the same rule a property of the harness
+  that propagates to every subagent without being restated — a STOP condition *enforced by the
+  runtime* rather than *stated in the prompt*.
+- **The `--bg` contract** (`C14`, `docs/29`) — what a background session does **not** get, the
+  per-session cost floor, the `claude agents --json` field shape, and the silent-idle trap.
+- **A version-stamped CLI gotchas table** (`docs/18`) — also closes part of `H1`.
+- **`KB_GAPS.md` § Claims Awaiting Verification** — six claims no search can settle, marked *not a
+  search target* so `fetch-loop-news` skips them.
+
+### Fixed
+
+- **Four `CLAUDE_CODE_*` claims** (`C13`). `CLAUDE_CODE_REMOTE` is `true`, not `"1"` — a hook
+  guarding on `= "1"` never fires. `CLAUDE_CODE_SUBAGENT_MODEL` overrode rungs 1 *and* 2 before
+  v2.1.251, `model: inherit` included. `docs/07`'s backticked error literal
+  `Concurrent subagent limit reached` is unsourced and is gone — replaced by a fact the reference
+  *does* state, that the cap takes plain digits and cannot be disabled. And this changelog's own
+  `[3.0.0]` entry called `CLAUDE_CODE_MAX_SUBAGENTS_PER_SESSION` "an env var that does not exist":
+  it exists, documented as removed in v2.1.224 and now a no-op. Removing the row was right; the
+  rationale was itself the over-correction the entry was written to warn about.
+- **Two copyable examples in `docs/29` that could not work.** `--bg --max-budget-usd 5.00` showed a
+  dollar cap that is silently inert on a background session, and the fan-out did
+  `claude agents --json | jq -r '.[].id'`, which emits nulls for interactive sessions — they carry
+  no `id` — and returned every session on the machine rather than the loop's own.
+- **`docs/09`'s fail-closed guidance read as universal.** `--permission-prompts none` is
+  `--print`-only, and `--bg` conflicts with `--print`, so a background session cannot fail closed
+  that way. The same is true of `--max-budget-usd`.
+- **A fail-open counterpart in `docs/08`** — a settings `env` block cannot turn
+  `CLAUDE_CODE_RESTRICTED` *on* either, so a committed `{"env": {"CLAUDE_CODE_RESTRICTED": "1"}}`
+  yields an unrestricted session and no error.
+
+### Verified
+
+- **The variadic-flag swallow is real**, reproduced two ways on `claude 2.1.261`. Seven flags take
+  variadic lists, and a variadic flag consumes the positional prompt:
+  `claude -p --mcp-config /nonexistent.json "reply with OK"` reports
+  `MCP config file not found: <cwd>/reply with OK`. **On `--bg` the same mistake is silent** — the
+  launcher prints an id, exits 0, and leaves a session marked `(idle — send a prompt to start)`
+  that never does the work. A fan-out built flags-first can start fifty of these and report
+  complete success. That is this repo's own defining defect class, found in the CLI it documents.
+- `claude agents --all` exists; `--bg -p` is rejected with the message reproduced verbatim;
+  `--max-budget-usd` is silently accepted on `--bg`; `--max-turns` is still accepted but no longer
+  listed in `claude --help`.
+- The v2.1.207 quotation at `docs/08:101` reproduces verbatim upstream — settling one of the
+  evidence pack's seven open uncertainties.
+
+### Corrected in our own records
+
+- **The backlog's cost-floor arithmetic does not reconcile.** `C14` claimed the $0.24 session floor
+  "matches to four decimals". It does not: 22,659 tokens at Opus 5's $10/MTok 1h-cache-write rate
+  is **$0.2266**, leaving **$0.0139 — 5.8% of the recorded $0.240609 — unexplained** by the three
+  published token counts. The generalisable claim survives, and is now in `docs/29` and `docs/11`
+  *with the residual stated*: the cache write is **94%** of that session's cost, the floor scales
+  with the model's price rather than the task's difficulty, and the same write costs $0.09 on
+  Sonnet 5 and $0.05 on Haiku 4.5. Logged as `V6`. The backlog entry is corrected in place.
+- Nothing was deleted for being merely unsourced. *"Not on the page we fetched" is a fact about our
+  fetch; "contradicted by the page we fetched" is a fact about the KB.* Only the second licensed an
+  edit — `waitingFor` and five other unconfirmed claims were logged, not asserted and not removed.
+
+---
+
 ## [3.1.0] — 20260905 13:43
 
 The pipeline that had been silently dead for eight weeks is now fault-tolerant. Twelve fixes,
@@ -198,9 +271,10 @@ restructure surfaced. First release since 2026-07-09; covers an eight-week track
 - **A broken anchor in docs/11**, caught by `mkdocs build --strict`.
 - **docs/23** — the Bun figures were correct but unlabelled; 535,496 / ~750,000 / 1,009,272 are
   three different measurements and are now named as such, with a practitioner counterweight.
-- **A fabricated table row this release itself introduced, then removed.** `docs/07` gained a
+- **A dead limit this release itself introduced as live, then removed.** `docs/07` gained a
   "200 total subagent spawns per session" limit with an env var, `CLAUDE_CODE_MAX_SUBAGENTS_PER_SESSION`,
-  that does not exist. The cap was real once (v2.1.212) and was **removed in v2.1.224**; the current
+  that no longer does anything. The variable is real — **removed in v2.1.224 and now a no-op** — and
+  the 200-spawn cap it once set (added v2.1.212) no longer applies; the current
   reference says plainly there is no limit on total spawns over a session. A reader would have pasted
   a dead knob into `settings.json`. Caught twice independently and simultaneously — by an adversarial
   review lens and by the changelog pass — eleven lines above this page's own warning that an

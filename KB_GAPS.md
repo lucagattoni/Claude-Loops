@@ -7,19 +7,6 @@ Updated by each `fetch-loop-news` run. Gap keywords drive targeted GitHub and we
 
 ## Active Gaps
 
-- **`claude --worktree <name>` standalone semantics**: docs/03 lists worktrees as a building
-  block and docs/29 shows `--bg --worktree "<task>"`, but the interactive flag's own semantics are
-  undocumented here — default branch/path naming (`.claude/worktrees/<name>/`, branch
-  `worktree-<name>`), branching directly from a PR/MR (`claude --worktree "#1234"`, fetching
-  `pull/<number>/head` or `merge-requests/<number>/head`), `.worktreeinclude` for copying gitignored
-  files like `.env` into each worktree, the resume/cleanup lifecycle, and — most relevant to this
-  KB — the **four hard-enforced isolation checks** (file edits outside the worktree, command working
-  directory, git redirects via `-C`/`--git-dir`/`GIT_DIR`, and unverifiable shell constructs), of
-  which the docs say "You can't turn this check off." That is mechanical enforcement rather than
-  convention, and this repo's own CLAUDE.md mandates worktree-only editing as advisory prose.
-  Source: [worktrees reference](https://code.claude.com/docs/en/worktrees), verified 2026-09-04.
-  Found by the 2026-09-04 catch-up sweep; not integrated in v3.0.0 for scope.
-
 - **F0-F3 fleet maturity indicators**: docs/23 defines the F0-F3 levels but the
   observable indicators for passing each gate are underspecified — search keywords:
   `fleet engineering maturity`, `"F0" "F1" fleet agent`, `agent fleet governance metrics`.
@@ -80,14 +67,38 @@ Updated by each `fetch-loop-news` run. Gap keywords drive targeted GitHub and we
 
 ## Recently Filled (archive — keep last 2 entries; remove older ones)
 
+- ~~**`claude --worktree <name>` standalone semantics**~~ — filled 2026-09-05 by docs/03
+  (`### The built-in flag: claude --worktree`): path/branch naming, PR/MR branching and
+  its per-host ref resolution, `.worktreeinclude`, the resume/cleanup lifecycle, and the
+  four hard-enforced isolation checks — the point being that these are *enforced by the
+  runtime*, where a CLAUDE.md worktree rule is only advisory prose)
+
 - ~~**Reviewer-freshness enforcement mechanism**~~ — filled 2026-07-07 by docs/04
   (beingcognitive/unprimed-dialectic: two independence axes — model vs. perspective —
   reviewers must see only the problem/constraints and never the draft until their own
   solution is formed; the synthesizer-bias problem addressed by logging rejections
   alongside acceptances and defining convergence as "no further changes after synthesis")
-- ~~**Held-out eval sizing for harness evolution**~~ — filled 2026-07-07 by docs/24
-  (ruvnet/metaharness's Darwin Mode: self-mutation gated on a held-out benchmark set
-  — SWE-bench Lite, LiveCodeBench — strictly disjoint from the mutation-generating
-  traces, closing the snapshot-collapse overfitting risk SEAGym flagged 2026-07-04;
-  KristopherGBaker/Sparra's evaluator-only holdout wall complements this at the
-  single-run level in docs/04)
+
+---
+
+## Claims Awaiting Verification — not search targets
+
+Each item below is a specific factual claim that **no search can settle**: it needs someone to run a
+command, read a raw value in the right environment, or reproduce a measurement. `fetch-loop-news`
+should **skip this section** — there are no useful search keywords in it. They are recorded here so
+a session with the right environment can close them, and so nobody re-derives them from scratch.
+
+They are listed rather than acted on because of the rule this KB keeps re-proving: *"not on the page
+we fetched" is a fact about our fetch; "contradicted by the page we fetched" is a fact about the KB.*
+Only the second licenses an edit. None of these is contradicted — they are simply unconfirmed.
+
+| # | Claim | How to settle |
+|---|---|---|
+| **V1** | `CLAUDE_CODE_REMOTE`'s literal value. The [env-vars reference](https://code.claude.com/docs/en/env-vars) says it is *"Set automatically to `true`"*, and `docs/12` now says `true` — but nobody has read the raw value as a shell script sees it. `"1"` was wrong; `true` is a strict improvement, not a confirmed observation | Echo `$CLAUDE_CODE_REMOTE` from a hook inside a real cloud session (a Routine) |
+| **V2** | The error text at the concurrent-subagent cap. `docs/07` used to quote `` `Concurrent subagent limit reached` ``; no fetched source contains that string, so the literal was removed while the default, variable and version stayed | Spawn 21 concurrent subagents and record the message. Restore it **with that provenance** |
+| **V3** | `docs/09`'s claim that skills under `--add-dir` still load with `--bare`. `CLAUDE_CODE_SIMPLE`'s description says skill auto-discovery is disabled and says nothing about `--add-dir` either way | `claude --bare --add-dir <dir containing a skill>`, then check whether the skill is available |
+| **V4** | The numeric default of `cleanupPeriodDays`, which governs the worktree retention sweep now referenced in `docs/03`. Named on the worktrees page, never defined there | Fetch the background-sessions and settings reference pages directly. **Publish no day count until then** |
+| **V5** | The `waitingFor` field on `claude agents --json`. Peer-reported; not present in any session state observable on 2.1.261 here (`working`, `done`, `failed`, `busy`). Absence from our observation is not absence from the CLI | Put a background session into a permission prompt, then dump `claude agents --json` |
+| **V6** | The 5.8% residual in the ClaudeWarp per-session cost floor: 22,659 tok x $10/MTok = $0.2266 against $0.240609 recorded, leaving $0.0139 unexplained by the three published token counts. The 94% conclusion does not depend on it | Recover that session's full `cost-state` — every token class, including cache reads and any 5-minute write |
+
+*Logged 20260905 by the C6/C13/C14 pass.*

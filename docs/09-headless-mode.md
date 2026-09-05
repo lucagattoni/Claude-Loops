@@ -108,10 +108,18 @@ Contrast the two ways to remove a prompt from a headless loop:
 | `--permission-prompts none` | Denied automatically; the active mode's own decisions still apply | Fail-**closed** |
 | `--dangerously-skip-permissions` | Never asked; the action runs regardless | Fail-**open** |
 
-For a scheduled or unattended loop — nobody at the terminal to answer a prompt —
+For a scheduled or unattended `--print` loop — nobody at the terminal to answer a prompt —
 `--permission-prompts none` is the safer default: an action that would have needed a human's yes
 is skipped, not silently allowed. See [Permissions & Auto Mode](08-permissions.md) for the full
 permission-mode picture.
+
+!!! warning "This is a `--print`-only guarantee"
+    `claude --help` scopes the flag explicitly — *"Who answers permission prompts **with --print**"*
+    — and `--bg` conflicts with `--print` outright, so a **background session cannot fail closed
+    this way**. Its prompts surface in the agent view and wait for a human. The same applies to
+    `--max-budget-usd`, whose help reads *"(only works with --print)"*. Verified on `claude`
+    **2.1.261**; see [Background Agents § What `--bg` does not
+    get](29-background-agents.md#what-bg-does-not-get).
 
 ## Structured output
 

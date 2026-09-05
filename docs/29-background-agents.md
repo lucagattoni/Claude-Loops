@@ -14,8 +14,8 @@ the IDE.
 # Start and detach immediately (returns session ID)
 claude --bg "refactor the auth module to use the new token service"
 
-# With budget and turn caps
-claude --bg --max-turns 50 --max-budget-usd 5.00 "run all tests and fix failures"
+# With a turn cap. NOTE: --max-budget-usd does NOT apply to --bg — see "What --bg does not get"
+claude --bg --max-turns 50 "run all tests and fix failures"
 
 # In an isolated worktree (prevents file conflicts with your active session)
 claude --bg --worktree "add input validation to all API endpoints"
@@ -29,6 +29,114 @@ claude --bg --permission-mode auto "apply all lint fixes across src/"
 
 `--bg` prints the session ID and returns immediately. The session continues running.
 
+## What `--bg` does not get
+
+`--bg` and `-p`/`--print` are **mutually exclusive**, and since v2.1.198 the CLI rejects the
+combination up front instead of guessing:
+
+```text
+$ claude --bg -p "run the tests"
+--bg and --print conflict: --print never starts the interactive session that `claude agents`
+attaches to, so the job would be unattachable. The prompt is the positional — drop --print:
+`claude --bg '<task>'`.
+```
+
+Before v2.1.198 the same command was accepted and silently created a session nothing could attach
+to. That fix matters more than it looks, because **two safety flags are documented as `--print`-only
+and are therefore unreachable from a background session**:
+
+| Flag | `claude --help` says | Consequence for `--bg` |
+|---|---|---|
+| `--max-budget-usd <amount>` | "Maximum dollar amount to spend on API calls **(only works with --print)**" | A background session has **no dollar ceiling**. The flag is accepted without warning and does nothing |
+| `--permission-prompts <target>` | "Who answers permission prompts **with --print**: `host` … or `none`" | The fail-closed `--permission-prompts none` this KB recommends for unattended loops is **not available**. Prompts surface in the agent view and wait for a human |
+
+Verified on 2.1.261: `claude --bg --max-budget-usd 5.00 "<task>"` starts normally and reports no
+conflict. The cap is accepted and silently inert — the same defect shape this KB keeps returning to,
+where **a control that cannot take effect must fail loudly, not pass quietly**
+(see [Failure Patterns](17-failure-patterns.md)).
+
+So a `--bg` session's real ceilings are only:
+
+- `--max-turns <n>` — still accepted, though **no longer listed in `claude --help`** as of 2.1.261
+- an explicit `--model` and `--effort` (the cost floor below scales with the model, not the task)
+- `claude stop <id>`
+
+Budget a background fan-out by **turns and model**, never by `--max-budget-usd`.
+
+## The per-session cost floor
+
+A fresh session pays a fixed cost before doing any work: its system prompt and tool definitions are
+written into the prompt cache. Measured by the ClaudeWarp project on a session that lived **64
+seconds** and produced 2 input / 4 output tokens with **zero** thinking tokens
+([v0.42.1](https://github.com/lucagattoni/Claude-Warp/releases/tag/v0.42.1)):
+
+| Recorded `cost-state` | Value |
+|---|---|
+| `totalCostUSD` | $0.242504 |
+| of which Opus 5 | $0.240609 |
+| Cache write | 22,659 tokens, 1-hour TTL |
+| Thinking tokens | 0 |
+
+At Opus 5 list price (1-hour cache write, $10/MTok — see [Cost Control](11-cost-control.md)), that
+write alone is **$0.2266, or 94% of the session's whole cost**. Effort did not drive it; the session
+writing its own scaffolding into a 1-hour cache did, at Opus's 2× rate, for 64 seconds of life.
+
+> **The generalisable claim:** a fresh session pays *(system prompt + tool definitions) × the model's
+> cache-write rate* before any work happens. A fan-out's budget is therefore
+> **(items × floor) + actual work**, and the floor scales with the **model's price, not the task's
+> difficulty**. The operator move is *pin a cheaper model*, not *lower the effort* — the identical
+> 22,659-token write costs $0.09 on Sonnet 5 and $0.05 on Haiku 4.5.
+
+Combined with the missing `--max-budget-usd` above, that is the whole cost story for a `--bg`
+fan-out: you cannot cap it in dollars, and every worker costs something before it starts. Size the
+fleet and pin the model.
+
+!!! note "What is and is not verified here"
+    The recorded figures are ClaudeWarp's first-hand `cost-state`; we have not reproduced the
+    measurement. The arithmetic above is ours. **$0.0139 of the recorded $0.240609 — 5.8% — is not
+    explained by the three published token counts**, so the floor is a lower bound on that session,
+    not an exact reconciliation. The 94% conclusion and the cross-model comparison do not depend on
+    the residual.
+
+## The silent-idle trap: variadic flags eat the prompt
+
+The prompt is a **positional** argument — `claude [options] [command] [prompt]` — and seven flags
+take variadic lists. A variadic flag consumes every following non-flag token, **including your
+prompt**. On 2.1.261 they are:
+
+`--add-dir <directories...>` · `--allowedTools` / `--allowed-tools <tools...>` ·
+`--betas <betas...>` · `--disallowedTools` / `--disallowed-tools <tools...>` ·
+`--file <specs...>` · `--mcp-config <configs...>` · `--tools <tools...>`
+
+```bash
+# BROKEN — "fix the flaky test" is parsed as a third tool name, not the prompt
+claude --bg --allowedTools Bash Edit "fix the flaky test"
+
+# CORRECT — prompt first, or put the variadic flag last
+claude --bg "fix the flaky test" --allowedTools Bash Edit
+```
+
+With a flag whose values are validated, the swallow is visible:
+
+```text
+$ claude -p --mcp-config /nonexistent-abc.json "reply with OK"
+Error: Invalid MCP configuration:
+MCP config file not found: /nonexistent-abc.json
+MCP config file not found: /Users/…/reply with OK
+```
+
+**On `--bg` the same mistake is silent.** The launcher prints a session id and exits 0:
+
+```text
+$ claude --bg --mcp-config <file> "x"
+backgrounded · 439afb8c (idle — send a prompt to start)
+```
+
+A live background session with no prompt, which sits idle indefinitely. `claude agents` lists it,
+the exit status is 0, and no work happens. **A fan-out that builds its command line flags-first can
+start fifty of these and report complete success.** Assert on the artifact each worker was supposed
+to produce — never on the launch succeeding.
+
 ## Managing background sessions
 
 ```bash
@@ -41,6 +149,39 @@ claude stop <session-id>         # stop a running session
 claude rm <session-id>           # remove from session list
 claude respawn <session-id>      # restart session with conversation intact
 ```
+
+### Reading `claude agents --json`
+
+`--json` prints active sessions — interactive **and** background — as a JSON array and exits; it
+does not need a TTY. `--all` additionally includes completed background sessions, and
+`--cwd <path>` narrows to background sessions started under that path.
+
+**The object shape depends on the session's kind and liveness.** Observed on 2.1.261:
+
+| Field | Present on | Notes |
+|---|---|---|
+| `id` | **background sessions only** | The 8-hex short id that `attach` / `logs` / `stop` / `rm` take |
+| `sessionId` | all | Full UUID — what `--resume` takes |
+| `pid` | running sessions only | Absent once a session has exited |
+| `kind` | all | `background` or `interactive` |
+| `cwd`, `startedAt`, `name` | all | `startedAt` is epoch milliseconds |
+| `status` | running sessions | e.g. `busy` |
+| `state` | background sessions | observed: `working`, `done`, `failed` |
+
+Two scripting consequences, both easy to get wrong:
+
+```bash
+# WRONG — interactive sessions carry no `id`, so this emits nulls; and it returns
+# every session on the machine, not the ones your loop started.
+claude agents --json | jq -r '.[].id'
+
+# RIGHT — let the CLI filter, then read the ids.
+claude agents --json --cwd "$PWD" | jq -r '.[].id'
+claude agents --json | jq -r '.[] | select(.kind=="background") | .id'
+```
+
+Most reliable of all: `claude --bg` prints the short id at launch. Capture it there rather than
+reconstructing the set afterwards from a machine-wide listing.
 
 ## Agent view
 
@@ -93,8 +234,8 @@ for mod in "${MODULES[@]}"; do
   echo "Started $mod"
 done
 
-# Get all session IDs from the agent view
-claude agents --json | jq -r '.[].id'
+# Get the session IDs this loop started — filter by cwd, not the whole machine
+claude agents --json --cwd "$PWD" | jq -r '.[].id'
 ```
 
 See [Fan-Out](10-fan-out.md) for the full pattern.

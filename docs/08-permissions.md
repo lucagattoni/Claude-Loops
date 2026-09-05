@@ -147,6 +147,20 @@ Loaded](33-agent-security-hardening.md#where-default-deny-actually-gets-loaded) 
 principle applied at the OS/sandbox layer, plus a v2.1.260 nuance worth knowing before relying
 on strict sandbox mode.
 
+The same boundary has a **fail-open** edge that points the other way, and it is easy to miss. A
+settings file's `env` block cannot turn restricted mode *on* either — the reference states it
+plainly: *"Claude Code ignores this variable in a settings file's `env` block."* So a loop that
+tries to pin its own hardening by committing
+
+```json
+{ "env": { "CLAUDE_CODE_RESTRICTED": "1" } }
+```
+
+gets an **unrestricted** session and no error: the file is read, the variable is dropped, and
+nothing reports it. Set it in the environment the loop actually runs in, or pass `--restricted`
+(v2.1.248+). This is the same defect class as a silently-defaulting pipeline check — a control
+that cannot take effect must fail loudly, not pass quietly.
+
 ### The confused-environment attack class
 
 On 2026-08-27, Simon Willison published

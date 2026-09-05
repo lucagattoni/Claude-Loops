@@ -278,7 +278,13 @@ three copy-pasteable instances behind.
 - Needs **new content**, not a correction: scope, defaults, opt-out, and how it differs from the
   loop-external patterns the doc already covers.
 
-### C6 — `claude --worktree` standalone semantics · small · **evidence pack ready, just write it**
+### C6 — ~~`claude --worktree` standalone semantics~~ · **SHIPPED**
+
+**Done 20260905, PR #36.** Written into `docs/03` as `### The built-in flag: claude --worktree`,
+from the evidence pack, with every CLI-surface claim re-corroborated against `claude 2.1.261`
+(`-w, --worktree [name]`, `--tmux` requiring `--worktree`, `--tmux=classic`, `claude rm <id>`).
+`KB_GAPS.md`'s worktree entry moved to Recently Filled. `cleanupPeriodDays` was deliberately
+left without a day count and logged as V5-adjacent (V4). Original analysis below.
 
 **Do not re-research.** Ready-to-insert doc text is in [`20260905_1349-c6-c13-evidence.md`](20260905_1349-c6-c13-evidence.md),
 Deliverable 1, verified against `claude 2.1.261`. Correction to this item as written below: the
@@ -341,7 +347,17 @@ Delivered from the same plan, for contrast: the model line-up table (`docs/11:25
 #1–#4 (`docs/07:205-217`, `:283-299`, `docs/08:5`), and ClaudeWarp as reference implementation
 + the "harness designed to shrink" lesson (`docs/35:155-160`, `docs/36:191-216`, `docs/24:843-846`).
 
-### C13 — 13 `CLAUDE_CODE_*` env vars asserted, never verified as a set · small · **evidence pack ready**
+### C13 — ~~13 `CLAUDE_CODE_*` env vars asserted, never verified as a set~~ · **SHIPPED**
+
+**Done 20260905, PR #36.** All four corrections applied, each re-fetched from the official
+env-vars reference in that session rather than taken from the pack on trust. Two improvements on
+what the pack proposed: `docs/07`'s row gained a *sourced* fact — the cap takes plain digits and
+can be adjusted but **not disabled** — instead of only losing the unsourced error literal; and
+`docs/08` gained the fail-open counterpart to its privilege-escalation section, since a settings
+`env` block cannot turn `CLAUDE_CODE_RESTRICTED` **on** either. Pack uncertainty #2 is settled:
+the v2.1.207 quotation at `docs/08:101` reproduces verbatim upstream. What stayed unsettled is
+logged in `KB_GAPS.md` § Claims Awaiting Verification (V1–V4, V6) — nothing was deleted for
+being merely unsourced. Original analysis below.
 
 **Do not re-research.** Per-variable verdict table, four concrete corrections, and — critically — a
 list of claims that are unsupported but must **NOT** be deleted, in
@@ -357,7 +373,31 @@ Full list, by frequency: `SUBAGENT_MODEL` (18), `SUBAGENT_MODEL_FORCE` (9),
 of `SIMPLE`, `SESSION_ID`, `SAFE_MODE`, `RESTRICTED`, `REMOTE`, `PRINT_BG_WAIT_CEILING_MS`,
 `MAX_CONCURRENT_SUBAGENTS`, `DISABLE_WORKFLOWS`.
 
-### C14 — Background-session CLI contract: four confirmed KB defects · small · **sources in hand**
+### C14 — ~~Background-session CLI contract: four confirmed KB defects~~ · **SHIPPED**
+
+**Done 20260905, PR #36.** Both claims this item listed as *"still peer-reported and NOT verified
+here"* are now verified locally against `claude 2.1.261`:
+
+- **The variadic-flag swallow is real.** Reproduced with
+  `claude -p --mcp-config /nonexistent.json "reply with OK"` →
+  `MCP config file not found: <cwd>/reply with OK`. Seven flags take variadic lists on 2.1.261.
+- **`claude agents --all` exists** — *"With --json: also include completed background sessions"*.
+- **`waitingFor` remains unverified** and was deliberately **not** written into the KB. Absence
+  from our observation is not absence from the CLI. Logged as V5.
+
+Two findings this item did not have, both from *running* the surface rather than reading it:
+on `--bg` the swallow is **silent** — the session starts `(idle — send a prompt to start)`, the
+launcher exits 0, and no work ever happens — and `--max-budget-usd` is **silently accepted** on
+`--bg` rather than rejected. `docs/29` was shipping both in copyable examples.
+
+**Correction to this item as written.** The session-floor arithmetic does **not** "match to four
+decimals". 22,659 tokens at Opus 5's $10/MTok 1h-cache-write rate is **$0.2266**, leaving
+**$0.0139 — 5.8% of the recorded $0.240609 — unexplained** by the three published token counts.
+The generalisable claim survives: the cache write is **94%** of that session's cost, and the
+cross-model figures check out ($0.09 on Sonnet 5, $0.05 on Haiku 4.5). Both `docs/29` and
+`docs/11` state the residual rather than rounding it off; the gap is logged as V6.
+
+Original analysis below.
 
 Reported by the ClaudeWarp session 20260904 (its
 [v0.42.0](https://github.com/lucagattoni/Claude-Warp/releases/tag/v0.42.0) sync), and **re-verified
@@ -413,7 +453,7 @@ rule this KB already states and its own pipeline did not follow (see **A1**).
 
 | # | Item | Effort | Evidence / action |
 |---|---|---|---|
-| **H1** | Part II's "version-stamped" promise unkept in 9 of 21 docs | medium | Zero `v2.1.x` markers in `03 05 06 15 16 19 29 31 35`; `docs/11` has 34. Promised at `docs/index.md:76-77` and `LOOP_ENGINEERING.md:78`. Fold into **C1** |
+| **H1** | Part II's "version-stamped" promise unkept in **6** of 21 docs | medium | Zero `v2.1.x` markers in ~~`03`~~ `05 06 15 16 19` ~~`29`~~ `31` ~~`35`~~; `docs/11` has 34. **`03`, `29` and `18` stamped 20260905 (PR #36)**; `35` re-check pending. Promised at `docs/index.md:76-77` and `LOOP_ENGINEERING.md:78`. Fold the rest into **C1** |
 | **H2** | Three repo self-descriptions are falsified, one on a published page | small | `LOOP_ENGINEERING_NEWS.md:3` credits `fetch-loop-news`, which `SKILL.md:13-16` now forbids from writing tracked files; `docs/34:319` claims "Daily cron (launchd), 05:00 local" and "L3 — commits and publishes autonomously" against `runs = 0`; `CLAUDE.md:3` predates the two-part scope |
 | **H3** | README's tracker section is stale and structurally misplaced | small | `README.md:125` lists 3 source types; **7** are in use (github 22, rss 14, x 7, html 5, github-search 3, x-search 1, linkedin 1) — the 4 undocumented types are 27 of 53 rows. Move `:121-126` back under "Add or remove a source" (`:110-113`) |
 | **H4** | The Boris Cherny "write loops" quote is unpinned in four places | small | `docs/26:29` (no link at all), `docs/32:35-42` (secondary source), `docs/20:14`, `LOOP_ENGINEERING_NEWS.md:268` — four differing reproductions. Pin one talk/interview. (`docs/39:334-347` is correctly pinned and is not part of this) |
@@ -470,12 +510,16 @@ the remote, and is marked latest.
 | 4 | **A4**, **A5**, **A6** — CI paths, `docs/index.md`, the two no-retry branches | `mkdocs build --strict` |
 | 5 | **A3** — remote staleness watchdog | Watchdog fires on a deliberately stale digest header |
 | 6 | **§6 corrections** + **C3** — stop the handover docs lying, cheapest possible win | — |
-| 7 | **C2**, **C6**, **C13**, **C14** — small content fixes with sources already in hand | Citation-link gate |
+| ~~7~~ | ~~**C2**, **C6**, **C13**, **C14** — small content fixes with sources already in hand~~ · **DONE** — C2 in PR #28, C6/C13/C14 in PR #36 | Citation-link gate |
 | 8 | **C1** + **H1** — the 14-doc fact-check, version stamps folded in | One commit per doc, each gated on `--strict` |
 | 9 | **C5**, **C8**, **C9**, **C11**, **C12** — new content and source revalidation | Resource-review rule (score ≥ 3.0 before extracting) |
 | 10 | **H2**–**H9**, **H11**, **H12** — corpus hygiene | — |
 | 11 | **C7**, **C10** — the two large sweeps | — |
 | 12 | **D2**/**H10**, **D3**/**H13** — release policy and plan archival | — |
+
+> **Status 20260905:** steps 1–7 are shipped (`v3.0.1`, `v3.1.0`, PR #36). **The next task is
+> step 8 — C1 + the remainder of H1.** The paragraph below is retained as the reasoning that
+> ordered automation ahead of content; that ordering is now spent.
 
 **Highest-value next task: steps 1-3, in one sitting.** A1 is the only item with two confirmed
 production incidents behind it, and it is a strict prerequisite for A2 — re-arming the pipeline

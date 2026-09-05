@@ -146,7 +146,7 @@ and Plan subagents' own `model` fields.
 |---|---|---|---|
 | 1 (highest) | Per-invocation `model` parameter (what Claude passes when spawning this specific subagent) | Always | Wins even over a pinned agent definition |
 | 2 | Subagent definition's `model:` frontmatter (`inherit` = main conversation's model) | Always | Wins over `CLAUDE_CODE_SUBAGENT_MODEL` **since v2.1.251 only** |
-| 3 | `CLAUDE_CODE_SUBAGENT_MODEL` env var | Sets only the *default* since v2.1.251 | **Before v2.1.251** this rung was highest-precedence and silently overrode rung 2 |
+| 3 | `CLAUDE_CODE_SUBAGENT_MODEL` env var | Sets only the *default* since v2.1.251 | **Before v2.1.251** this rung was highest-precedence and silently overrode rungs 1 **and** 2 — including `model: inherit` |
 | 4 (lowest) | Main conversation's model | Always | Applies when nothing above is set |
 | — override — | `CLAUDE_CODE_SUBAGENT_MODEL_FORCE=1` | v2.1.257+ | Ignores ranks 1–2 (per-spawn and agent-definition overrides), forcing rank 3 — or rank 4 if `CLAUDE_CODE_SUBAGENT_MODEL` is unset — onto every subagent, teammate, and workflow agent, except a `fork` and a skill run with `model: inherit` |
 
@@ -377,6 +377,21 @@ that bet session-wide for every subagent; per-agent `experimental.cacheTtl` fron
 overrides it for one agent definition specifically, and only applies when no subagent-level TTL
 setting is configured. Together they let a fleet keep the main loop's cache warm at 1h while
 short-lived worker subagents default to the cheaper 5m write.
+
+**A measured case of that bet losing.** ClaudeWarp recorded a background session that lived **64
+seconds**, did zero thinking, and produced 4 output tokens — and still cost $0.2425, of which
+$0.2406 was Opus 5. The driver was a **22,659-token 1-hour cache write**: $0.2266 at Opus 5's
+$10/MTok 1h rate, or **94% of the session's entire cost**, paid for a cache with 59 minutes of life
+left when the session ended. The identical write is **$0.09 on Sonnet 5** and **$0.05 on Haiku 4.5**.
+
+The lesson generalises past the TTL setting. Any short-lived session pays *(system prompt + tool
+definitions) × the model's cache-write rate* before doing any work, so **the floor of a fan-out
+scales with the model's price, not the task's difficulty**. For short-lived workers the lever is to
+*pin a cheaper model*, not to lower effort — effort was already zero here. Full figures and caveats
+in [Background Agents § The per-session cost
+floor](29-background-agents.md#the-per-session-cost-floor). (Measured by ClaudeWarp
+[v0.42.1](https://github.com/lucagattoni/Claude-Warp/releases/tag/v0.42.1); the arithmetic is ours,
+and 5.8% of the recorded total is not explained by the published token counts.)
 
 **Consequence for a loop:** switching model or effort mid-run to save money on the harder half
 of a task can cost more than it saves, because the next request re-processes the *entire*
