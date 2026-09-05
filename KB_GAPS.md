@@ -30,8 +30,9 @@ Updated by each `fetch-loop-news` run. Gap keywords drive targeted GitHub and we
   promote-on-confirm, 2026-07-06) and that model-family diversity beats consensus voting
   (~85-90% of findings caught by exactly one reviewer) — but *which* specific model pairs
   catch the most non-overlapping failure classes (beyond "different family") is still
-  unspecified. (2026-07-07: erikhuang76821/fable-harness-kit and KristopherGBaker/Sparra
-  both configure cross-model pairing manually per role rather than by a benchmarked
+  unspecified. (2026-07-07: erikhuang76821/fable-harness-kit and Sparra
+  ([project page](https://krisbaker.com/building/sparra/); its GitHub repo returns 404 as of
+  2026-09-05) both configure cross-model pairing manually per role rather than by a benchmarked
   selection criterion — pairing remains a user judgment call, not yet a measured one.
   2026-07-08: dev.to's 4-commercial-code-review-tool study (93.4% non-overlap, 146 PRs)
   corroborates the non-overlap finding again but is product-level, not model-pair-level —
