@@ -10,12 +10,24 @@ on:
       - mkdocs.yml
       - requirements-docs.txt
       - .github/workflows/docs.yml
+      # Published as the in-nav pages news.md / sources.md / changelog.md via symlinks in
+      # docs/. Editing a root file leaves the symlink blob unchanged, so without these a
+      # findings-only pipeline day would rebuild nothing and still show a green history.
+      - LOOP_ENGINEERING_NEWS.md
+      - SOURCES.md
+      - CHANGELOG.md
   pull_request:
     paths:
       - docs/**
       - mkdocs.yml
       - requirements-docs.txt
       - .github/workflows/docs.yml
+      # Published as the in-nav pages news.md / sources.md / changelog.md via symlinks in
+      # docs/. Editing a root file leaves the symlink blob unchanged, so without these a
+      # findings-only pipeline day would rebuild nothing and still show a green history.
+      - LOOP_ENGINEERING_NEWS.md
+      - SOURCES.md
+      - CHANGELOG.md
 
 permissions:
   contents: read
