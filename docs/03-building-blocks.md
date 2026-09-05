@@ -1,7 +1,6 @@
 # The Six Building Blocks of a Loop
 
-Addy Osmani (Google) and Boris Cherny frame every well-designed loop around six
-components.
+Addy Osmani frames every well-designed loop around six components in his June 2026 post ["Loop Engineering"](https://addyosmani.com/blog/loop-engineering/) — building on the shift from prompting to loop design voiced by Peter Steinberger ("you shouldn't be prompting coding agents anymore. You should be designing loops that prompt your agents") and echoed by Boris Cherny, head of Claude Code at Anthropic ("I don't prompt Claude anymore ... my job is to write loops").
 
 ## 1. Automations (local) and Routines (cloud)
 
@@ -14,13 +13,14 @@ you typed.
 claude -p "$(cat .claude/prompts/review.md)" --permission-mode auto
 ```
 
-**Routines** extend automations to the cloud: Anthropic-hosted loop execution that
+**Routines** (a research preview — behavior, limits, and the API surface may change) extend automations to the cloud: Anthropic-hosted loop execution that
 runs without your machine. Three trigger types — Schedule (cron), API (webhook), and
 GitHub events (PR open/close, Release). Your laptop can be off; the loop runs.
 
 ```bash
 # Inside a Claude Code session:
-/schedule   # create a Routine — choose Schedule / API / GitHub trigger
+/schedule   # create a scheduled Routine, or attach a GitHub trigger (CLI needs v2.1.225+);
+            # API triggers must be added on the web at claude.ai/code/routines
 ```
 
 See [Routines](28-routines.md) for the full model.
@@ -189,7 +189,7 @@ the tools.
 
 ```bash
 claude mcp add          # interactive setup
-claude mcp add --global # available in all projects
+claude mcp add --scope user # available in all projects
 ```
 
 ### Chrome extension — authenticated web access
@@ -210,7 +210,7 @@ Key properties:
 - Shares your browser's **existing login session** — no OAuth setup
 - Browser actions run in a **visible Chrome window** (you can watch)
 - Claude pauses and asks you to handle CAPTCHAs or login walls manually
-- Works with Chrome and Edge; not yet supported on Brave, Arc, or WSL
+- Works with Chrome, Edge, and other Chromium-based browsers (Brave, Arc, Vivaldi, Opera); not supported on WSL
 - Requires a direct Anthropic plan (Pro/Max/Team/Enterprise); not available via Bedrock/Vertex
 
 ```bash
