@@ -2,7 +2,7 @@
 
 A progression framework for developers moving from manual prompting to full loop engineering.
 Drawn from Boris Cherny's three-stage evolution and the community "14-step roadmap from
-prompter to loop designer" (@0xCodez, Jun 9 2026).
+prompter to loop designer" ([@0xCodez](https://x.com/0xCodez/status/2068784463186932059), Jun 9 2026).
 
 ---
 
@@ -14,7 +14,13 @@ prompter to loop designer" (@0xCodez, Jun 9 2026).
 | 2. Parallel sessions | Open 5–10 Claude sessions; prompt each manually | Accelerator |
 | 3. Loops | Write the system that prompts Claude; delete your IDE | Autonomous worker |
 
-The altitude shift: "from writing the code to writing the thing that writes the code."
+*Cherny himself uninstalled his IDE at the end of Stage 1 — November 2025, after Opus 4.5
+shipped — a stage before he began writing loops; by Stage 3 the IDE is gone either way.*
+
+The altitude shift, as one observer summarised it: "The job did not vanish. It moved up an
+altitude, from writing the code to writing the thing that writes the code."
+([Matt Van Horn, "WTF Is a Loop? Peter Steinberger vs. Boris Cherny"](https://x.com/mvanhorn/status/2063865685558903149),
+Jun 2026 — Van Horn's own framing, not a Cherny quotation.)
 
 ---
 
