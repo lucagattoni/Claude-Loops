@@ -97,7 +97,9 @@ attending session for one quota. Original analysis below.
   3. **`logs/launchd.log` gains a new entry** — this is the one that settles U2.
 - **Open question it resolves:** see **U2** in §7.
 
-### A3 — Failure signalling is desktop-only; no off-machine staleness watchdog · medium
+### A3 — ~~Failure signalling is desktop-only; no off-machine staleness watchdog~~ · **SHIPPED v3.1.0**
+
+**Done 20260905, PR #27.** `scripts/check-digest-freshness.sh` + a daily Actions job, 48h threshold. Six mutants killed on exit status; fired live in CI. Original analysis below.
 
 This is the mechanism that turned one bad day into eight silent weeks.
 
@@ -111,7 +113,9 @@ This is the mechanism that turned one bad day into eight silent weeks.
   watchdog shares the failure domain with the outage it would detect, so this one must be remote.
   Separately, add a durable channel to `notify()` alongside `osascript`.
 
-### A4 — CI path filter cannot see the root files the site publishes · small
+### A4 — ~~CI path filter cannot see the root files the site publishes~~ · **SHIPPED v3.1.0**
+
+**Done 20260905, PR #26.** Not yet observed firing on a root-file-only push — that happens on the next findings-only day. Original analysis below.
 
 - **Evidence:** `docs/news.md`, `docs/sources.md`, `docs/changelog.md` are **symlinks** to the root
   files and are nav entries. Editing the root file leaves the symlink blob unchanged, so a
@@ -121,7 +125,9 @@ This is the mechanism that turned one bad day into eight silent weeks.
   touch `docs/`.
 - **Do:** add `LOOP_ENGINEERING_NEWS.md`, `SOURCES.md`, `CHANGELOG.md` to both `paths:` lists.
 
-### A5 — `integrate-loop-news` never updates `docs/index.md`, the actual site home · small
+### A5 — ~~`integrate-loop-news` never updates `docs/index.md`~~ · **SHIPPED v3.1.0**
+
+**Done 20260905, PR #26.** Both indexes now named at the doc-creation step and in the Phase 4b review. Original analysis below.
 
 - **Evidence:** `grep -rn "index.md" .claude/skills/ scripts/` → no matches. `mkdocs.yml:103` sets
   `Home: index.md`; `mkdocs.yml:14` says `LOOP_ENGINEERING.md` is deliberately not published. Both
@@ -130,7 +136,9 @@ This is the mechanism that turned one bad day into eight silent weeks.
 - **Do:** name `docs/index.md` beside `LOOP_ENGINEERING.md` at `SKILL.md:75-79`, `:203-207`,
   `:257-259`; add a `docs/index.md` row to the repository map in `CLAUDE.md`.
 
-### A6 — Two deterministic failure modes still get generic retry treatment · small
+### A6 — ~~Two deterministic failure modes still get generic retry treatment~~ · **SHIPPED v3.1.0**
+
+**Done 20260905, PR #26.** Credit-balance now exit 5 on attempt 1 (was: 3 attempts, 2 backoffs, ~2 min); `ANTHROPIC_API_KEY` preflight warns rather than unsetting. Original analysis below.
 
 - **Evidence:** `ERROR_REGEX` (`scripts/run-loop-news.sh:107`) omits `Credit balance is too low`
   even though it was hit in production and is unretryable — it burns ~2h of backoff, then emits a
@@ -197,6 +205,23 @@ a check whose default outcome means success.
 Both proven with pre-fix controls. Noted because the first A9 test was itself broken — no TTY, so
 `script -q` died and the stub never ran; it passed for the wrong reason.
 
+### A10, A11, A12 — ~~neither stage could resume from where it died~~ · **SHIPPED v3.1.0**
+
+**Found and done 20260905** at the user's direction, after A2's first attempt lost Stage B to the
+account session limit and the re-run paid for the 23-minute search a second time. PRs #29, #30, #31.
+
+- **A10** — a *completed* Stage A is reused instead of re-run. The artifact was already saved to
+  `logs/` on every run and never read back.
+- **A11** — an *interrupted* Stage A resumes per source (`complete` flag + `sources_done[]`). This
+  also fixed a regression A10 itself shipped: validation required a non-empty findings array, so a
+  legitimately quiet day would have re-run the whole search three times.
+- **A12** — Stage B checkpoints as commits on a stable per-day branch. Git is the ledger
+  deliberately: an agent-maintained progress file would be advisory prose, the same weakness the A1
+  review found in the build gate.
+
+**Standing requirement set by the user 20260905:** *each stage must be resumable at any point,
+because it can die at any point.* Applies to anything expensive added to this pipeline later.
+
 ---
 
 ## 4. Tier 2 — content correctness
@@ -214,7 +239,9 @@ Both proven with pre-fix controls. Noted because the first A9 test was itself br
   order `04, 27, 05, 06, 16, 29`, then the remaining eight. One commit per doc. Fold **H1**
   (version stamps) into the same pass.
 
-### C2 — Stale `claude-opus-4-8` in three docs · small
+### C2 — ~~Superseded model IDs in copyable examples~~ · **SHIPPED v3.1.0**
+
+**Done 20260905, PR #28.** Six sites; `docs/24:828` deliberately left, being quoted third-party material. **Correction to this item as written:** `claude-opus-4-8` is superseded, not invalid — still served, same price as Opus 5. Original analysis below.
 
 A defect v3.0.0 **already diagnosed and fixed once** — commit `f5b3f79` fixed `docs/07:229` and left
 three copy-pasteable instances behind.
@@ -223,7 +250,9 @@ three copy-pasteable instances behind.
 - `docs/09` was touched twice by v3.0.0 and neither diff hunk goes near line 45 — direct proof that
   "touched" ≠ "re-checked", which is the whole premise of **C7**.
 
-### C3 — The handover documents miscount the backlog · small
+### C3 — ~~The handover documents miscount the backlog~~ · **SHIPPED**
+
+**Done 20260905, PR #20.** Original analysis below.
 
 - **Done in this plan's own commit:** `20260904_2002-v3-fact-check-gaps.md:51` said "(16 docs)" and
   then listed **20** filenames (14 + 20 + 5 = 39); `CLAUDE.md:5` inherited the same "~16 more".
