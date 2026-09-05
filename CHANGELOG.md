@@ -198,9 +198,10 @@ restructure surfaced. First release since 2026-07-09; covers an eight-week track
 - **A broken anchor in docs/11**, caught by `mkdocs build --strict`.
 - **docs/23** — the Bun figures were correct but unlabelled; 535,496 / ~750,000 / 1,009,272 are
   three different measurements and are now named as such, with a practitioner counterweight.
-- **A fabricated table row this release itself introduced, then removed.** `docs/07` gained a
+- **A dead limit this release itself introduced as live, then removed.** `docs/07` gained a
   "200 total subagent spawns per session" limit with an env var, `CLAUDE_CODE_MAX_SUBAGENTS_PER_SESSION`,
-  that does not exist. The cap was real once (v2.1.212) and was **removed in v2.1.224**; the current
+  that no longer does anything. The variable is real — **removed in v2.1.224 and now a no-op** — and
+  the 200-spawn cap it once set (added v2.1.212) no longer applies; the current
   reference says plainly there is no limit on total spawns over a session. A reader would have pasted
   a dead knob into `settings.json`. Caught twice independently and simultaneously — by an adversarial
   review lens and by the changelog pass — eleven lines above this page's own warning that an

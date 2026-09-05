@@ -190,13 +190,28 @@ Avoids running expensive hooks on every tool call.
 | Variable | Value |
 |---|---|
 | `CLAUDE_PROJECT_DIR` | Absolute path to project root |
-| `CLAUDE_CODE_SESSION_ID` | Current session ID |
+| `CLAUDE_CODE_SESSION_ID` | Current session ID. Matches the `session_id` field in the hook JSON input, and is updated on `/clear` |
 | `CLAUDE_EFFORT` | Current effort level (`low`/`medium`/`high`/`xhigh`/`max`) |
-| `CLAUDE_CODE_REMOTE` | `"1"` if running in a Routine (cloud session) |
+| `CLAUDE_CODE_REMOTE` | `true` in a cloud session (Routines run as cloud sessions) |
+| `CLAUDE_CODE_REMOTE_SESSION_ID` | The cloud session's own ID — use it to build a link back to the session transcript |
 | `CLAUDE_ENV_FILE` | Write `KEY=VALUE` here to persist env vars across Bash tool calls |
 
 `CLAUDE_ENV_FILE` is useful for hooks that inject credentials or state for subsequent
 Bash tool calls in the same session.
+
+!!! warning "Two traps in the table above"
+    **`CLAUDE_CODE_REMOTE` is `true`, not `"1"`.** A hook guarding on
+    `[ "$CLAUDE_CODE_REMOTE" = "1" ]` never fires — the reference says it is *"Set automatically
+    to `true` when Claude Code is running as a cloud session."*
+
+    **`CLAUDE_CODE_SESSION_ID` is not a stable loop key across resumes.** It is reliable on a
+    fresh session and on `--resume <session-id>`, but on `--continue`, or `--resume` without an
+    explicit ID, *"it may receive the initial startup ID instead."* A loop that keys its state
+    directory on this variable can silently write two runs into one bucket. An MCP server
+    subprocess keeps the ID it was spawned with.
+
+    *Source: [environment variables reference](https://code.claude.com/docs/en/env-vars),
+    verified against `claude` **2.1.261**, 2026-09-05.*
 
 ## Configuration example
 

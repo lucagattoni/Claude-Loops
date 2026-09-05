@@ -146,7 +146,7 @@ and Plan subagents' own `model` fields.
 |---|---|---|---|
 | 1 (highest) | Per-invocation `model` parameter (what Claude passes when spawning this specific subagent) | Always | Wins even over a pinned agent definition |
 | 2 | Subagent definition's `model:` frontmatter (`inherit` = main conversation's model) | Always | Wins over `CLAUDE_CODE_SUBAGENT_MODEL` **since v2.1.251 only** |
-| 3 | `CLAUDE_CODE_SUBAGENT_MODEL` env var | Sets only the *default* since v2.1.251 | **Before v2.1.251** this rung was highest-precedence and silently overrode rung 2 |
+| 3 | `CLAUDE_CODE_SUBAGENT_MODEL` env var | Sets only the *default* since v2.1.251 | **Before v2.1.251** this rung was highest-precedence and silently overrode rungs 1 **and** 2 — including `model: inherit` |
 | 4 (lowest) | Main conversation's model | Always | Applies when nothing above is set |
 | — override — | `CLAUDE_CODE_SUBAGENT_MODEL_FORCE=1` | v2.1.257+ | Ignores ranks 1–2 (per-spawn and agent-definition overrides), forcing rank 3 — or rank 4 if `CLAUDE_CODE_SUBAGENT_MODEL` is unset — onto every subagent, teammate, and workflow agent, except a `fork` and a skill run with `model: inherit` |
 

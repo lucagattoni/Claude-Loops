@@ -281,7 +281,7 @@ orchestrator → specialist → verifier.
 | Limit | Default | Override |
 |---|---|---|
 | Nesting depth below the main conversation | **3** | `CLAUDE_CODE_MAX_SUBAGENT_SPAWN_DEPTH` (set to `1` to disable nesting) |
-| Concurrent subagents per session | **20** — spawning a 21st fails with `Concurrent subagent limit reached` | `CLAUDE_CODE_MAX_CONCURRENT_SUBAGENTS` (requires v2.1.217+) |
+| Concurrent subagents per session | **20** — the Agent tool refuses to spawn another until one finishes. The variable takes a positive whole number in plain digits; anything else is ignored, so it can raise or lower the cap but **cannot disable it** | `CLAUDE_CODE_MAX_CONCURRENT_SUBAGENTS` (requires v2.1.217+) |
 
 There is **no cap on total spawns over a session** — only the two limits above. A 200-spawn
 per-session cap did exist (added v2.1.212) and was **removed in v2.1.224**: *"Removed the
