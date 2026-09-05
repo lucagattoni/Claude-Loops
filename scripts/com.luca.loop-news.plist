@@ -21,11 +21,12 @@
         <integer>0</integer>
     </dict>
 
-    <!-- launchd has a minimal PATH; supply homebrew + system paths explicitly -->
+    <!-- launchd has a minimal PATH; supply homebrew + system paths explicitly.
+         ~/.local/bin is where uv lives, and Phase 5c's mkdocs build gate needs it. -->
     <key>EnvironmentVariables</key>
     <dict>
         <key>PATH</key>
-        <string>/opt/homebrew/bin:/opt/homebrew/sbin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin</string>
+        <string>/Users/luca/.local/bin:/opt/homebrew/bin:/opt/homebrew/sbin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin</string>
         <key>HOME</key>
         <string>/Users/luca</string>
     </dict>

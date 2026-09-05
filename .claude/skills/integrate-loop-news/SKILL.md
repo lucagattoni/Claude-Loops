@@ -303,7 +303,34 @@ For **MAJOR** releases: leave `[Unreleased]` in place and note the major change 
 
 For **None**: skip all changelog changes and skip the commit entirely (do not push).
 
-### 5c — Commit and push
+### 5c — Build gate (blocking, run before staging anything)
+
+**The site is built from this commit and nothing on the machine will tell you if it breaks.**
+Run the same check CI runs, from the worktree root, and read its exit status directly:
+
+```bash
+uv run --with-requirements requirements-docs.txt mkdocs build --strict --site-dir /tmp/loop-news-gate
+echo "gate exit: $?"
+```
+
+- **Non-zero → STOP.** Do not stage, do not commit, do not push. Fix the reported warning and
+  re-run. If it cannot be fixed inside this run, abort the run: an unpublished digest is
+  recoverable, a broken site with a green commit history is not.
+- Run it **bare**. Never pipe it into `tail`/`head` before reading the status — a pipeline reports
+  the *last* command's status, so a failing build looks like a pass.
+- Re-run it after any later edit. Green expires at the next keystroke.
+
+**Why this exists:** runs `198c302` (2026-07-06) and `9069f28` (2026-07-07) both pushed to `main`
+and both failed this exact check in CI. `deploy` needs `build`, so neither day reached the site —
+`main` moved, the published KB did not, and nothing reported it.
+
+**The rule both incidents broke:** a link from a `docs/` page to a repo-root file
+(`KB_GAPS.md`, `README.md`, `CLAUDE.md`) must use its **absolute GitHub URL**, never a `../` path.
+Root files are not in `docs_dir`, so `--strict` fails the build. The three root files that *are*
+published — `LOOP_ENGINEERING_NEWS.md`, `SOURCES.md`, `CHANGELOG.md` — are reachable as the
+in-nav pages `news.md`, `sources.md`, `changelog.md`; link to those instead.
+
+### 5d — Commit and push
 
 Stage the KB content files (note: **includes `mkdocs.yml`** — Phase 4 edits its `nav:` —
 and does **not** stage the skills, which are feature-managed via PR):
@@ -316,5 +343,5 @@ Where `<tier>` is the release tier (e.g. `minor`, `patch`, or `none`). Omit `[no
 the message when tier is None (but in that case the commit is skipped anyway).
 
 The push publishes the run. It is the pipeline's final, atomic step — everything above
-must succeed first. (When run under `scripts/run-loop-news.sh` the push is a fast-forward
+must succeed first, **including the 5c build gate**. (When run under `scripts/run-loop-news.sh` the push is a fast-forward
 onto `main`; the wrapper handles worktree teardown and primary-checkout alignment.)
