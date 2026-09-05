@@ -80,7 +80,7 @@ exit 0  # allow
 | `PostCompact` | After context compaction | No |
 | `PreModelSwitch` | Before a model switch — block, confirm, or annotate it (v2.1.251+) | Yes |
 | `PostModelSwitch` | After a model switch completes — annotate the outcome (v2.1.251+) | No* |
-| `post-session` | After session ends, before workspace deletion | No |
+| `SessionEnd` | Session terminates | No |
 
 \* The switch has already happened by the time `PostModelSwitch` fires, so blocking applies to
 `PreModelSwitch`; the changelog states both events together as "block, confirm, or annotate a
