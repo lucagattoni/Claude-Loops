@@ -51,7 +51,24 @@ INTEGRATE_EFFORT="${LOOP_INTEGRATE_EFFORT:-high}"
 INTEGRATE_MAX_TURNS="${LOOP_INTEGRATE_MAX_TURNS:-250}"
 INTEGRATE_BUDGET_USD="${LOOP_INTEGRATE_BUDGET_USD:-20}"
 
-CLAUDE_BIN="${CLAUDE_BIN:-/opt/homebrew/bin/claude}"
+# --- Claude binary: resolve it, never assume a path ------------------------------------
+# This was hardcoded to /opt/homebrew/bin/claude. The CLI moved to the native installer
+# (~/.local/bin/claude) and the constant silently became wrong: every attempt exited 127
+# ("No such file or directory"), which matches no ERROR_REGEX, so the run burned all three
+# attempts and reported only to a desktop notification and a gitignored log. The whole of
+# the 2026-09-05 04:00 UTC scheduled run failed this way before Stage A started.
+# Resolve in priority order; an explicit CLAUDE_BIN still wins so an operator can pin one.
+resolve_claude_bin() {
+  local c
+  if [[ -n "${CLAUDE_BIN:-}" ]]; then printf '%s' "$CLAUDE_BIN"; return; fi
+  c="$(command -v claude 2>/dev/null)"
+  if [[ -n "$c" ]]; then printf '%s' "$c"; return; fi
+  for c in "$HOME/.local/bin/claude" /opt/homebrew/bin/claude /usr/local/bin/claude; do
+    if [[ -x "$c" ]]; then printf '%s' "$c"; return; fi
+  done
+  printf ''
+}
+CLAUDE_BIN="$(resolve_claude_bin)"
 
 # Production incident (2026-07-05): Stage A's parallel per-source subagents (Phase 2 —
 # one subagent per tracked source) tripped the CLI's own internal background-task wait
@@ -128,6 +145,16 @@ notify() {
   echo "[$(stamp)] NOTIFY: ${msg}" | tee -a "$LOG_FILE"
   osascript -e "display notification \"${msg}\" with title \"loop-news tracker\"" >/dev/null 2>&1 || true
 }
+
+# --- Preflight: fail fast and loudly on a missing binary ------------------------------
+# Deliberately NOT a retriable failure. A missing binary is deterministic: three attempts
+# with backoff cannot fix it, they only delay the report by two minutes. Exit 3 is distinct
+# from 1 (attempts failed) so a caller can tell "never started" from "tried and failed".
+if [[ -z "$CLAUDE_BIN" || ! -x "$CLAUDE_BIN" ]]; then
+  notify "FATAL: no usable claude binary (resolved to '${CLAUDE_BIN:-<nothing>}'). Set CLAUDE_BIN in scripts/run-loop-news.env, or put claude on PATH. Not retrying — this never resolves on its own."
+  exit 3
+fi
+echo "[$(stamp)] Using claude binary: $CLAUDE_BIN" | tee -a "$LOG_FILE"
 
 # --- Worktree: one per run, so findings.json survives across attempts ----------------
 git -C "$REPO_ROOT" worktree prune                          # clear any orphan from a crash
