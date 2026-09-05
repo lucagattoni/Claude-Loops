@@ -3,13 +3,13 @@
 Claude-Loops is a living knowledge base and automated daily tracker for **loop engineering** — designing systems that prompt Claude for you. Read `LOOP_ENGINEERING.md` (the index) and `README.md` before working. The KB grows automatically via a two-skill pipeline: `fetch-loop-news` (search) hands off to `integrate-loop-news` (integrate + restructure + publish).
 
 > **Open work — read this first.** Read `plans/20260904_2053-open-work-backlog.md` — the full ranked
-> backlog. **The automation tier (§3) is closed**: the eight-week outage is fixed and the pipeline
-> now gates its own pushes, watches itself from off-machine, and resumes either stage from an
-> arbitrary point (`v3.1.0`, A1–A12). What remains is **content** (§4–§5).
-> Start with **C6** and **C13** — their research is already done and sits in
-> `plans/20260905_1349-c6-c13-evidence.md`, ready to write up. The largest remaining risk is **C1**:
-> 14 of 39 docs have never been fact-checked, ~20 more only partially, method in
-> `plans/20260904_2002-v3-fact-check-gaps.md`. Do not re-derive any of it from scratch.
+> backlog. **The automation tier (§3) is closed** (`v3.1.0`, A1–A12), and so is **§8 step 7** —
+> C2, C6, C13 and C14 are shipped and both evidence packs are consumed (`v3.1.1`). What remains is
+> **content** (§4–§5).
+> **Start with C1**, the largest remaining risk: 14 of 39 docs have never been fact-checked and
+> ~20 more only partially. Method in `plans/20260904_2002-v3-fact-check-gaps.md`; the remainder of
+> **H1** folds into the same pass. Six claims that no search can settle are parked in
+> `KB_GAPS.md` § *Claims Awaiting Verification* — read that before re-deriving any of them.
 > **Delete this note once the backlog's §4 and §5 are empty.**
 
 ## Repository map
