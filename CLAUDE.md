@@ -47,6 +47,15 @@ Claude-Loops is a living knowledge base and automated daily tracker for **loop e
   timestamp prefix, and git history already records what changed. Decided 20260905.
 - **Verify before stamping.** "Looks merged" is not shipped: confirm each step's artifact exists in
   the tree, not just that a PR closed.
+- **Close a backlog item in the SAME PR as the work — never in a later pass.** A shipped item left
+  open, or an entry point still asserting a state the work just falsified, is a defect on the same
+  footing as a broken link. Observed twice on 20260905: `CLAUDE.md` still said "the tracker has not
+  fired since 8 July" hours after it had fired and shipped `v3.0.1`, and six items sat listed as
+  open after shipping. Deferring the close is what causes it, every time — the next agent reads the
+  stale claim and re-derives work that is already done, or trusts a claim that is no longer true.
+  So the PR that ships the fix also strikes the item, records what verified it, and corrects any
+  pointer the change falsified. **This includes correcting the backlog when the work proves the
+  backlog itself wrong** — record the correction in place rather than quietly deleting it.
 
 ## Knowledge-base rules
 

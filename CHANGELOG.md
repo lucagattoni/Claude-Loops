@@ -18,6 +18,70 @@ Versioning follows [Semantic Versioning](https://semver.org/):
 
 ---
 
+## [3.1.0] — 20260905 13:43
+
+The pipeline that had been silently dead for eight weeks is now fault-tolerant. Twelve fixes,
+each verified by mutation or a pre-fix control rather than by assertion. No KB content changed
+beyond one model-id pass, so the MINOR is for the new capabilities: an off-machine watchdog and
+resumable stages.
+
+### Added
+
+- **Off-machine staleness watchdog** (`A3`) — `scripts/check-digest-freshness.sh` plus a daily
+  Actions job that fails when the newest digest entry is more than 48h old. It runs *off* the
+  tracker's machine, because a watchdog sharing a failure domain with the thing it watches is not
+  a watchdog, and it asserts on the published artifact rather than on any run's exit status.
+  A missing file, empty file, vanished header format, unparseable stamp and future-dated stamp all
+  fail the same way a stale entry does — "I could not tell" is never reported as "fine".
+- **Resumable stages** (`A10`, `A11`, `A12`) — both stages now survive dying at an arbitrary point.
+  Stage A checkpoints per source (`complete` flag + `sources_done[]`) and a later run resumes from
+  the partial artifact; Stage B commits checkpoints to a stable per-day branch, and the wrapper
+  resumes from the branch tip. Git is deliberately the ledger for Stage B: progress inside a Claude
+  session is invisible to the wrapper, so an agent-maintained progress file would be advisory prose,
+  while a commit is something the wrapper can verify. Checkpoints are squashed before push, so
+  `main` still receives exactly one commit per run.
+- **A `mkdocs build --strict` gate before the pipeline pushes** (`A1`) — reviewed by five
+  adversarial lenses and an Opus judge before merge. On its first-ever execution it caught and
+  fixed three broken anchor links before they reached a commit.
+
+### Fixed
+
+- **`CLAUDE_BIN` pointed at a path that no longer exists** (`A7`) — the whole eight-week outage.
+  It was hardcoded to `/opt/homebrew/bin/claude`; the CLI moved to `~/.local/bin` and every run
+  exited 127 three times, reporting only to a desktop notification and a gitignored log. Replaced
+  with a resolver and a fatal preflight (exit 3).
+- **Two failures the wrapper reported as success** (`A8`, `A9`) — an unresolved slash command exits
+  0, so a missing skill made Stage B log `Run complete` having published nothing; and an unanchored
+  `grep` on commit subjects matched a `Revert` of the pipeline's own commit, abandoning retriable
+  failures.
+- **CI could not see the files the site publishes** (`A4`) — `docs/news.md`, `sources.md` and
+  `changelog.md` are symlinks, so a findings-only day matched no trigger path: no build, no deploy,
+  and a green history because no run was attempted.
+- **The skill never updated `docs/index.md`** (`A5`), the site's actual home page and a second index
+  `--strict` cannot check.
+- **"Credit balance is too low" got generic retry treatment** (`A6`) — deterministic, but it burned
+  three attempts and both backoffs before reporting. Now exit 5, immediately, naming the shadowing
+  API key as the cause.
+- **Superseded model IDs in copyable examples** (`C2`) — `claude-opus-4-8` in three docs plus three
+  more the same check missed. Note that ID is superseded, not invalid; the defect was offering a
+  previous-generation model as the generic example.
+
+### Changed
+
+- **Every timestamp is UTC `YYYYMMDD HH:MM`** (`D1`) — the previous skills-UTC/humans-local split
+  had produced three formats inside this file. Entries before this one keep their original local
+  time; restamping them would invent precision nobody measured.
+- **Pipeline-cut versions are released by a human follow-up** (`D2`) — the rule demanded a tag and
+  release "in the same turn", which the pipeline structurally cannot do. Granting an unattended
+  agent `gh release` rights on a public repo was judged a wider permission than the convenience
+  warranted.
+- **Plans retire in place** with a `Shipped as vX.Y.Z` header (`D3`), rather than moving to an
+  archive directory and breaking inbound links.
+- `plans/20260904_2053-open-work-backlog.md` — a 31-item verified backlog, now the repo's entry
+  point, produced by a 16-agent audit with adversarial verification.
+
+---
+
 ## [3.0.1] — 20260905 12:08
 
 Largest single digest run since the tracker resumed: 108 findings scored, 101 new. No new
