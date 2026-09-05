@@ -17,6 +17,17 @@ refinements) inside the artifact instead.
 
 ## Phase 1 — Load context
 
+0. **Resume check — do this first.** If `.loop-news/findings.json` already exists and its
+   `today` matches the current UTC date, a previous attempt of this run banked work. Load it and
+   keep two things: its `findings` array, and its `sources_done` list. **Every source named in
+   `sources_done` is already swept — do not sweep it again.** Carry the existing findings straight
+   through to the final artifact.
+   If `complete` is already `true`, there is nothing to do: stop and report that the artifact is
+   complete. (The wrapper normally skips this whole session in that case, so reaching here means
+   you were invoked directly.)
+   If the file is absent, unreadable, or stamped with a different date, ignore it and start clean —
+   never guess at partial state.
+
 1. Read `SOURCES.md`:
    - Extract the sources table (Actor, Type, Handle/URL, Notes)
    - Extract the relevance keywords list
@@ -32,8 +43,31 @@ refinements) inside the artifact instead.
 
 ## Phase 2 — Per-source search
 
-Launch one subagent per source in parallel. Each subagent receives the source row,
-the full keywords list, and `last_run_date`.
+Launch one subagent per source in parallel — **skipping any source listed in `sources_done`** from
+the Phase 1 resume check. Each subagent receives the source row, the full keywords list, and
+`last_run_date`.
+
+**Checkpoint as results arrive.** This stage costs ~23 minutes and real money, and it can die at
+any point — a session limit, a killed process, a closed laptop. After each batch of subagents
+returns, rewrite `.loop-news/findings.json` with everything banked so far:
+
+```json
+{ "schema": 1, "today": "...", "run_time": "...", "last_run_date": "...",
+  "complete": false,
+  "sources_done": ["@handle", "owner/repo", "..."],
+  "findings": [ ... everything gathered so far ... ],
+  "sources_to_consider": [], "source_updates": [] }
+```
+
+Rules that make the checkpoint trustworthy:
+- **`complete` stays `false` for the whole of Phase 2 and 3.** It is set to `true` exactly once,
+  in Phase 4. The wrapper reads that flag to decide whether a later run may skip this stage — set
+  it early and a dead run looks finished.
+- **Add a source to `sources_done` only after its subagent has returned.** A source listed but not
+  actually swept is silently dropped from the run, and no error will ever be raised.
+- Write the whole file each time rather than appending — a half-appended JSON file does not parse,
+  and the wrapper treats an unparseable artifact as unusable, discarding the very work this is
+  meant to protect.
 
 **The goal is to find relevant content from that source — not just recent content.**
 Search *within* the source for the keywords. Do not limit to posts newer than
@@ -273,6 +307,8 @@ If Phase 2 or Phase 3 surfaces a person or company that:
    ```json
    {
      "schema": 1,
+     "complete": true,
+     "sources_done": ["...every source swept this run..."],
      "today": "YYYY-MM-DD",
      "run_time": "YYYY-MM-DD HH:MM UTC",
      "last_run_date": "YYYY-MM-DD",
@@ -290,7 +326,12 @@ If Phase 2 or Phase 3 surfaces a person or company that:
    ```
    - `today`, `run_time`, `last_run_date` come from Phase 1. `findings` is the merged
      pre-dedup list. `sources_to_consider` / `source_updates` may be empty arrays.
-   - On a zero-finding day, still write the file with `"findings": []`.
+   - **`complete: true` is set here and only here** — this is the signal that Stage A finished.
+     `sources_done` should by now name every source in `SOURCES.md` you swept, including any
+     carried over from a resumed attempt.
+   - On a zero-finding day, still write the file with `"findings": []` **and
+     `"complete": true`** — a quiet day is a finished run, not a failed one. The wrapper
+     distinguishes the two by the flag, never by whether the array is empty.
 3. Close any Chrome tabs opened during this run.
 4. **Stop here — unconditionally, with no exceptions.** Do not edit the KB, do not
    commit, and do not invoke `/integrate-loop-news` yourself — not via the Skill tool,
