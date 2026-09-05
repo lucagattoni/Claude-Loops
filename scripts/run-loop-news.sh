@@ -217,25 +217,41 @@ git -C "$REPO_ROOT" worktree add -b "$TEMP_BRANCH" "$WT_DIR" origin/main
 # write parses but has no findings; yesterday's artifact parses and has findings; a schema bump
 # would silently change field meanings. Any failure is false — an unreadable artifact is never
 # treated as an absent one, and never as a usable one.
-artifact_valid() {
+artifact_state() {
   local f="$1"
-  [[ -f "$f" ]] || return 1
-  python3 - "$f" "$(date -u +%Y-%m-%d)" <<'EOF' 2>/dev/null
+  [[ -f "$f" ]] || { echo "absent"; return; }
+  python3 - "$f" "$(date -u +%Y-%m-%d)" <<'EOF' 2>/dev/null || echo "unusable"
 import json,sys
 try:
     d = json.load(open(sys.argv[1]))
 except Exception:
-    sys.exit(1)
-sys.exit(0 if d.get("schema") == 1
-              and d.get("today") == sys.argv[2]
-              and isinstance(d.get("findings"), list)
-              and len(d["findings"]) > 0
-         else 1)
+    print("unusable"); sys.exit(0)
+if d.get("schema") != 1 or d.get("today") != sys.argv[2] or not isinstance(d.get("findings"), list):
+    print("unusable"); sys.exit(0)
+# "complete" is written by Phase 4 of fetch-loop-news. Artifacts predating the field were only
+# ever written at the end of a run, so treat its absence as complete — the alternative would
+# re-search every historical artifact.
+print("complete" if d.get("complete", True) else "partial")
 EOF
 }
 
+# Complete = Stage A finished; the attempt loop may skip search entirely.
+# NOTE: a zero-finding day is a legitimate COMPLETE artifact — fetch-loop-news is required to
+# write `"findings": []` rather than nothing. Inferring completeness from a non-empty findings
+# array (as an earlier revision of this function did) re-ran the whole 23-minute search three
+# times on a genuinely quiet day.
+artifact_complete() { [[ "$(artifact_state "$1")" == "complete" ]]; }
+
+# Partial = Stage A died mid-sweep but banked some sources. Worth seeding: the skill reads
+# sources_done and resumes from there instead of re-sweeping what it already has.
+artifact_partial()  { [[ "$(artifact_state "$1")" == "partial"  ]]; }
+
+# Either shape is worth carrying into the new worktree.
+artifact_usable()   { case "$(artifact_state "$1")" in complete|partial) return 0;; *) return 1;; esac; }
+
 # The in-worktree artifact — what the attempt loop consults to decide "skip Stage A".
-findings_valid() { artifact_valid "$WT_DIR/.loop-news/findings.json"; }
+# Only a COMPLETE artifact skips it; a partial one still runs Stage A, which resumes from it.
+findings_valid() { artifact_complete "$WT_DIR/.loop-news/findings.json"; }
 
 # --- Stage-A resume: reuse today's search rather than paying for it twice ---------------
 # Stage A costs ~23 minutes and up to $SEARCH_BUDGET_USD. Its artifact already survived every
@@ -250,10 +266,16 @@ CONSUMED_ARTIFACT="$REPO_ROOT/logs/findings-$(date -u +%Y%m%d).consumed.json"
 
 if [[ "${LOOP_FORCE_SEARCH:-0}" == "1" ]]; then
   echo "[$(stamp)] LOOP_FORCE_SEARCH=1 — ignoring any saved artifact, Stage A will run" | tee -a "$LOG_FILE"
-elif artifact_valid "$SEED_ARTIFACT"; then
+elif artifact_usable "$SEED_ARTIFACT"; then
   mkdir -p "$WT_DIR/.loop-news"
   cp "$SEED_ARTIFACT" "$WT_DIR/.loop-news/findings.json"
-  echo "[$(stamp)] RESUME: reusing today's unconsumed Stage-A artifact ($(python3 -c 'import json,sys;print(len(json.load(open(sys.argv[1]))["findings"]))' "$SEED_ARTIFACT") findings) — skipping search. LOOP_FORCE_SEARCH=1 to re-search." | tee -a "$LOG_FILE"
+  _n="$(python3 -c 'import json,sys;d=json.load(open(sys.argv[1]));print(len(d["findings"]), len(d.get("sources_done",[])))' "$SEED_ARTIFACT" 2>/dev/null)"
+  if artifact_complete "$SEED_ARTIFACT"; then
+    echo "[$(stamp)] RESUME (complete): reusing today's unconsumed Stage-A artifact (${_n% *} findings) — skipping search. LOOP_FORCE_SEARCH=1 to re-search." | tee -a "$LOG_FILE"
+  else
+    echo "[$(stamp)] RESUME (partial): Stage A died mid-sweep — ${_n% *} findings from ${_n#* } sources already banked. Stage A will run and continue from there." | tee -a "$LOG_FILE"
+  fi
+  unset _n
 elif [[ -f "$SEED_ARTIFACT" ]]; then
   echo "[$(stamp)] A saved artifact exists but is not usable (wrong date, wrong schema, empty, or unreadable) — Stage A will run" | tee -a "$LOG_FILE"
 fi
