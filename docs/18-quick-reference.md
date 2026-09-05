@@ -39,8 +39,8 @@ Version-stamped against `claude` **2.1.261**, 2026-09-05.
 
 | Gotcha | Detail |
 |---|---|
-| `--max-turns` | Still accepted, but **no longer listed in `claude --help`**. `--max-budget-usd` is listed |
-| `--max-budget-usd` | Help reads *"(only works with --print)"* — accepted but **silently inert** on a `--bg` session |
+| `--max-turns` | Still accepted, but **no longer listed in `claude --help`** — and **silently inert on `--bg`** (measured on 2.1.261: `-p --max-turns 1` errors, `--bg --max-turns 1` runs to completion) |
+| `--max-budget-usd` | Help reads *"(only works with --print)"* — accepted but **silently inert** on a `--bg` session. With `--max-turns` also inert, a `--bg` session has **no in-band ceiling at all** |
 | `--permission-prompts` | Documented *"with --print"* only, so a `--bg` session cannot fail closed this way |
 | Variadic flags before the prompt | `--add-dir`, `--allowedTools`, `--betas`, `--disallowedTools`, `--file`, `--mcp-config` and `--tools` all take `<...>` lists and will **swallow the positional prompt**. Put the prompt first, or the variadic flag last |
 | `claude agents --json` | Interactive sessions carry no `id`. Filter with `--cwd "$PWD"` or `select(.kind=="background")` before reading `.id` |

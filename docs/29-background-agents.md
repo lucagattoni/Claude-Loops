@@ -42,8 +42,8 @@ attaches to, so the job would be unattachable. The prompt is the positional — 
 ```
 
 Before v2.1.198 the same command was accepted and silently created a session nothing could attach
-to. That fix matters more than it looks, because **two safety flags are documented as `--print`-only
-and are therefore unreachable from a background session**:
+to. That fix matters more than it looks, because **every documented way to bound a background
+session's work is scoped to `--print`, and therefore unreachable from `--bg`**:
 
 | Flag | `claude --help` says | Consequence for `--bg` |
 |---|---|---|
@@ -55,13 +55,29 @@ conflict. The cap is accepted and silently inert — the same defect shape this 
 where **a control that cannot take effect must fail loudly, not pass quietly**
 (see [Failure Patterns](17-failure-patterns.md)).
 
-So a `--bg` session's real ceilings are only:
+!!! danger "`--max-turns` is inert on `--bg` as well — measured, not inferred"
+    An earlier version of this page listed `--max-turns` as a working ceiling for `--bg`. It is
+    not. Paired test on 2.1.261, identical multi-step prompt (three sequential shell commands),
+    identical model:
 
-- `--max-turns <n>` — still accepted, though **no longer listed in `claude --help`** as of 2.1.261
-- an explicit `--model` and `--effort` (the cost floor below scales with the model, not the task)
-- `claude stop <id>`
+    ```text
+    $ claude -p  --max-turns 1 "<task>"   →  Error: Reached max turns (1)
+    $ claude --bg --max-turns 1 "<task>"  →  ran all three commands, printed a summary, "done"
+    ```
 
-Budget a background fan-out by **turns and model**, never by `--max-budget-usd`.
+    The flag is accepted and does nothing, and `claude --help` no longer lists it at all. The
+    original claim here was written from help text and the CLI reference instead of from running
+    the thing — the exact failure this KB names elsewhere: **reading finds the fact, executing
+    finds the consequence.**
+
+So a `--bg` session has **no in-band ceiling at all**. What remains:
+
+- an explicit `--model` and `--effort` — the only levers that bound spend *before* the fact, and
+  the cost floor below scales with the model rather than the task
+- `claude stop <id>` — out-of-band, and it only helps if something is watching
+
+Budget a background fan-out by **model and fleet size**, and supervise it. Neither
+`--max-budget-usd` nor `--max-turns` will stop it.
 
 ## The per-session cost floor
 
