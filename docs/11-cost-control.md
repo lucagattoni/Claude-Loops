@@ -13,7 +13,7 @@ async for message in query(
         max_turns=30,          # hard turn cap
         max_budget_usd=2.00,   # hard cost cap
         effort="high",         # reasoning depth: low|medium|high|xhigh|max
-        model="claude-sonnet-4-6",
+        model="claude-sonnet-5",
     )
 ):
     ...
@@ -29,7 +29,7 @@ and pricing pages, fetched 2026-09-04.
 | Claude Fable 5.1 | `claude-fable-5-1` | 1M | 128K | Jun 2026 | "For demanding reasoning and long-horizon agentic work" |
 | Claude Opus 5 | `claude-opus-5` | 1M | 128K | May 2026 | "For complex agentic coding and enterprise work" |
 | Claude Sonnet 5 | `claude-sonnet-5` | 1M | 128K | Jan 2026 | "The best combination of speed and intelligence" |
-| Claude Haiku 4.5 | `claude-haiku-4-5-20251001` | 200K | 64K | Feb 2025 | "The fastest model with near-frontier intelligence" |
+| Claude Haiku 4.5 | `claude-haiku-4-5` | 200K | 64K | Feb 2025 | "The fastest model with near-frontier intelligence" |
 
 (Anthropic, [Models overview](https://platform.claude.com/docs/en/about-claude/models/overview), fetched 2026-09-04.)
 

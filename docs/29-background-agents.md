@@ -21,7 +21,7 @@ claude --bg --max-turns 50 --max-budget-usd 5.00 "run all tests and fix failures
 claude --bg --worktree "add input validation to all API endpoints"
 
 # With a specific model and effort level
-claude --bg --model claude-opus-4-8 --effort high "architect the new plugin system"
+claude --bg --model claude-opus-5 --effort high "architect the new plugin system"
 
 # With custom permissions (bypass prompts for CI-like tasks)
 claude --bg --permission-mode auto "apply all lint fixes across src/"
