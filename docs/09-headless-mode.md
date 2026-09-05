@@ -42,13 +42,13 @@ claude -p "task" --system-prompt "You are a security auditor."
 claude -p "task" --append-system-prompt "Always return structured JSON."
 
 # Override model
-claude -p "task" --model claude-opus-4-8
+claude -p "task" --model claude-opus-5
 
 # Override effort level
 claude -p "task" --effort high
 
 # Fallback if primary model is unavailable (loop resilience)
-claude -p "task" --fallback-model claude-sonnet-4-6,claude-haiku-4-5
+claude -p "task" --fallback-model claude-sonnet-5,claude-haiku-4-5
 ```
 
 ## Background sessions

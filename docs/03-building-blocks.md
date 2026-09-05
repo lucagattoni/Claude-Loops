@@ -128,7 +128,7 @@ Define a specialized subagent in `.claude/agents/`:
 name: security-reviewer
 description: Audits code for injection, auth flaws, and secrets
 tools: Read, Grep, Glob, Bash
-model: claude-opus-4-8
+model: claude-sonnet-5
 ---
 You are a senior security engineer. Flag: SQL/XSS/command injection,
 auth/authz flaws, secrets in code, insecure data handling.
