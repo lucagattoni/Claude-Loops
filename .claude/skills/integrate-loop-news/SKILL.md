@@ -274,6 +274,37 @@ and whether each new theme strengthens or muddies one of these five questions.
 - Index restructures, doc merges, renames, or reorderings are **MAJOR** (see Phase 5);
   new canonical sections + cross-refs + summary updates are MINOR/PATCH.
 
+## Phase 4d — Checkpoint as you go (this stage can die at any point)
+
+Integration runs ~20 minutes and is killed by session limits, budget caps and closed laptops. The
+wrapper preserves this branch when it holds commits, so **a commit is a checkpoint** — the only
+progress that survives. Uncommitted edits do not: a failed attempt is reset before the next one.
+
+**Before you start**, check whether a previous attempt already banked work:
+
+```bash
+git log --oneline origin/main..HEAD
+```
+
+Every commit you see is already done. Read its message, confirm the change is present in the tree,
+and **do not redo it** — re-integrating a finding duplicates it in the digest and the docs.
+
+**As you work**, commit at each natural boundary, with the `wip(loop-news):` prefix so these are
+distinguishable from a published run:
+
+```bash
+git add -A && git commit -m "wip(loop-news): digest entry"
+git add -A && git commit -m "wip(loop-news): integrate docs/NN"
+git add -A && git commit -m "wip(loop-news): structural review"
+```
+
+Boundaries worth a checkpoint: the digest entry; each doc (or small batch) you finish integrating;
+the structural review; the SOURCES.md and KB_GAPS.md updates. Commit **only** work that is finished
+and internally consistent — a checkpoint is a point another session can safely build on, so half a
+doc is worse than nothing.
+
+These commits never reach `main`: Phase 5d squashes them into the single run commit before pushing.
+
 ## Phase 5 — Release determination, commit, and publish
 
 After all Phase 4 writes are complete:
@@ -339,9 +370,18 @@ Stage the KB content files (note: **includes `mkdocs.yml`** — Phase 4 edits it
 and does **not** stage the skills, which are feature-managed via PR):
 ```bash
 git add LOOP_ENGINEERING_NEWS.md LOOP_ENGINEERING.md SOURCES.md CHANGELOG.md KB_GAPS.md mkdocs.yml docs/
+
+# Fold any Phase 4d checkpoints into one commit, so main keeps exactly one commit per run.
+# --soft keeps the tree exactly as it is and only moves the branch pointer; nothing is lost.
+git reset --soft "$(git merge-base HEAD origin/main)"
+
 git commit -m "feat: loop news run <run_time> — <N> findings, <M> new docs [<tier>]"
 git push origin HEAD:main
 ```
+
+**Verify the squash before pushing** — `git log --oneline origin/main..HEAD` must show exactly one
+commit, and it must start `feat: loop news run`. If a `wip(loop-news):` commit is still listed, the
+squash did not take: fix it rather than pushing, or the checkpoints land on `main`.
 Where `<tier>` is the release tier (e.g. `minor`, `patch`, or `none`). Omit `[none]` from
 the message when tier is None (but in that case the commit is skipped anyway).
 

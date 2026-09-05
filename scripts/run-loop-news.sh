@@ -189,7 +189,9 @@ git -C "$REPO_ROOT" fetch origin main
 BASE_SHA="$(git -C "$REPO_ROOT" rev-parse origin/main)"     # captured ONCE, before any attempt
 
 WT_PARENT="$(mktemp -d -t loop-news-wt.XXXXXX)"; WT_DIR="$WT_PARENT/wt"   # add needs a non-existent leaf
-TEMP_BRANCH="loop-news-run-$(date -u +%Y%m%d-%H%M%S)"
+# Stable per UTC day, not per invocation: a run that dies mid-integration leaves its checkpoint
+# commits on this branch, and the next run today finds them by name and continues.
+TEMP_BRANCH="loop-news-run-$(date -u +%Y%m%d)"
 
 # Set once the run has published: stops cleanup re-creating the resume artifact it just retired.
 ARTIFACT_CONSUMED=0
@@ -205,11 +207,28 @@ cleanup() {
     cp "$WT_DIR/.loop-news/findings.json" "$REPO_ROOT/logs/findings-$(date -u +%Y%m%d).json" 2>/dev/null || true
   fi
   git -C "$REPO_ROOT" worktree remove --force "$WT_DIR" 2>/dev/null || rm -rf "$WT_PARENT"
-  git -C "$REPO_ROOT" branch -D "$TEMP_BRANCH" 2>/dev/null || true
+  # Keep the branch when it carries unpushed Stage-B checkpoints — it IS the resume state, and
+  # deleting it here would discard exactly the work the checkpoints exist to protect. Deleted only
+  # once the run has published, or when it never committed anything.
+  if (( ARTIFACT_CONSUMED )) || [[ -z "$(git -C "$REPO_ROOT" log --oneline "${BASE_SHA}..${TEMP_BRANCH}" 2>/dev/null)" ]]; then
+    git -C "$REPO_ROOT" branch -D "$TEMP_BRANCH" 2>/dev/null || true
+  else
+    echo "[$(stamp)] Kept branch ${TEMP_BRANCH} — it holds $(git -C "$REPO_ROOT" rev-list --count "${BASE_SHA}..${TEMP_BRANCH}" 2>/dev/null) Stage-B checkpoint commit(s). The next run today resumes from it." | tee -a "$LOG_FILE"
+  fi
 }
 trap cleanup EXIT
 
-git -C "$REPO_ROOT" worktree add -b "$TEMP_BRANCH" "$WT_DIR" origin/main
+# Resume Stage B when a previous run today left checkpoints on the per-day branch; otherwise
+# start clean from origin/main.
+STAGE_B_RESUMED=0
+if git -C "$REPO_ROOT" show-ref --verify --quiet "refs/heads/$TEMP_BRANCH" \
+   && [[ -n "$(git -C "$REPO_ROOT" log --oneline "${BASE_SHA}..${TEMP_BRANCH}" 2>/dev/null)" ]]; then
+  git -C "$REPO_ROOT" worktree add "$WT_DIR" "$TEMP_BRANCH"
+  STAGE_B_RESUMED=1
+else
+  git -C "$REPO_ROOT" branch -D "$TEMP_BRANCH" 2>/dev/null || true   # empty leftover, if any
+  git -C "$REPO_ROOT" worktree add -b "$TEMP_BRANCH" "$WT_DIR" origin/main
+fi
 
 # artifact_valid <path> — true when the file is a Stage-A artifact this run may use: parses as
 # JSON, declares the schema this wrapper understands, is stamped with the current UTC date, and
@@ -324,13 +343,22 @@ B_ARGS=(--model "$INTEGRATE_MODEL" --effort "$INTEGRATE_EFFORT"
         --allowedTools "Read,Edit,Write,WebFetch,Bash(git *),Bash(uv *)" -p "/integrate-loop-news")
 
 echo "[$(stamp)] Starting loop-news run (worktree $WT_DIR, base $BASE_SHA)" | tee -a "$LOG_FILE"
+if (( STAGE_B_RESUMED )); then
+  echo "[$(stamp)] RESUME (stage B): $(git -C "$WT_DIR" rev-list --count "${BASE_SHA}..HEAD") checkpoint commit(s) already on ${TEMP_BRANCH} — integration continues from there." | tee -a "$LOG_FILE"
+fi
 
 attempt=1; success=0
 while (( attempt <= MAX_ATTEMPTS )); do
   # Isolate this attempt: discard a failed attempt's partial TRACKED edits. The gitignored
   # .loop-news/ (findings.json) is untracked+ignored, so reset/clean leave it intact.
   git -C "$WT_DIR" fetch origin main
-  git -C "$WT_DIR" reset --hard origin/main
+  # Discard a failed attempt's UNCOMMITTED edits, but keep any Stage-B checkpoint commits — those
+  # are the resume state. Resetting to origin/main here (as this did) threw them away every retry.
+  if [[ -n "$(git -C "$WT_DIR" log --oneline "${BASE_SHA}..HEAD" 2>/dev/null)" ]]; then
+    git -C "$WT_DIR" reset --hard HEAD
+  else
+    git -C "$WT_DIR" reset --hard origin/main
+  fi
   git -C "$WT_DIR" clean -fd            # NOT -x → keeps ignored .loop-news/
 
   ok=1; BUDGET_EXCEEDED=0; SESSION_LIMIT=0
