@@ -297,7 +297,7 @@ Apply this decision table:
 For **MINOR** or **PATCH** releases:
 1. Read the most recent versioned section header in `CHANGELOG.md` (format `## [X.Y.Z]`) to determine the current version.
 2. Increment it: MINOR bumps Y and resets Z to 0; PATCH bumps Z only.
-3. In `CHANGELOG.md`, rename `## [Unreleased]` to `## [X.Y.Z] — <today's date> <TZ>` (the new version) and add a fresh `## [Unreleased]` section above it with empty `### Added` and `### Changed` subsections.
+3. In `CHANGELOG.md`, rename `## [Unreleased]` to `## [X.Y.Z] — <stamp>` (the new version) and add a fresh `## [Unreleased]` section above it with empty `### Added` and `### Changed` subsections. `<stamp>` is **UTC in `YYYYMMDD HH:MM`**, read from the clock with `date -u '+%Y%m%d %H:%M'` — never composed by hand, never local time, never a `%Z` suffix. Older entries in the file use other formats; leave them exactly as they are.
 
 For **MAJOR** releases: leave `[Unreleased]` in place and note the major change there — major releases require a manual decision.
 

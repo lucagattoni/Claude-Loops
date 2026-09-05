@@ -25,7 +25,23 @@ disagree, **the tree won** — see §6 for the list of claims those documents ge
 
 ---
 
-## 2. Decisions needed before some items can start
+## 2. Decisions — RESOLVED 20260905
+
+All three were taken by the user on 20260905 and are implemented in the same commit as this note.
+Kept here because the *reasoning* is what a later agent needs, not just the outcome.
+
+| # | Decision | Where it now lives |
+|---|---|---|
+| **D1** | **UTC everywhere**, `YYYYMMDD HH:MM`, read from the clock. Existing local-time entries stay as written. | `CLAUDE.md` "Every timestamp is UTC"; `integrate-loop-news/SKILL.md:300` |
+| **D2** | **Pipeline-cut versions are released by a human follow-up.** `gh release` rights are not granted to the unattended agent on a public repo. The 53-tags-vs-38-releases gap is visible and accepted; backfill by hand. | `CLAUDE.md` "Releases" |
+| **D3** | **Retire plans in place** with a `Shipped as vX.Y.Z` header. No archive directory — moving files breaks inbound links, and the filename prefix already sorts chronologically. | `CLAUDE.md` "Plans"; applied to both delivered plans |
+
+**H10 and H13 are now unblocked** (they were waiting on D2 and D3 respectively). **C4**'s changelog
+half is done; its zero-finding-commit contradiction is still open.
+
+### The original framing, for reference
+
+## 2b. Decisions as originally posed
 
 | # | Decision | Options | Blocks |
 |---|---|---|---|

@@ -1,5 +1,7 @@
 # Plan: Split `fetch-loop-news` into Search + Integrate skills, with worktree isolation
 
+**Shipped as v2.6.0** — 20260703. All 10 steps verified in the tree (both skills, `.gitignore:4`, `run-loop-news.sh:22,135,149,262-268`, `docs/09:203-229`, PR #7 `c34d41e`). Retained for its design rationale; the step checklist below is historical and its unticked boxes are not open work.
+
 _Created: 2026-07-03 · v1_
 _Updated: 2026-07-03 · v2 — refine-plan pass 1: fixed per-attempt worktree lifecycle, corrected success signal (exit-code, not "main advanced"), fixed BASE_SHA timing + mktemp path + primary-alignment guard, clarified that the auto classifier (not `--allowedTools`) is the real permission gate, corrected the turn-headroom claim, added B stale-artifact date guard._
 _Updated: 2026-07-03 · v3 — refine-plan pass 2: removed A-dedupes/B-dedupes contradiction; made `LOG_FILE` absolute (relative path was lost inside the disposable worktree); wrapper now copies the findings artifact out to `logs/` before teardown (it was destroyed, falsifying the "inspectable/re-runnable" claim); specified B's `git add` list to **include `mkdocs.yml`** (Phase 4 edits nav but current stage list omits it — latent bug) and drop the daily self-add of SKILL.md._
