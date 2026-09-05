@@ -1,5 +1,7 @@
 # Plan: Loop Engineering Daily News Tracker
 
+**Shipped, then superseded** — 20260626. Delivered as the original tracker; its Steps 7/9 (CronCreate scheduling) were replaced by the launchd LaunchAgent in `570ce26` (v2.3.11). See `scripts/SCHEDULING.md`. No open commitments remain here.
+
 ## Goal
 
 Run a Claude loop once a day at 8 AM UTC that searches X.com and key personal/company

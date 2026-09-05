@@ -22,6 +22,7 @@ Claude-Loops is a living knowledge base and automated daily tracker for **loop e
 | `scripts/run-loop-news.sh` | Headless wrapper — runs both skills as two sessions in one worktree |
 | `scripts/SCHEDULING.md` | Change cadence / enable-disable the launchd job — see this before editing the plist |
 | `CHANGELOG.md` · `plans/` · `KB_GAPS.md` | History, plans, gap log |
+| `docs/index.md` | The published site's home page — a **second** index, separate from `LOOP_ENGINEERING.md`; update both when adding a doc |
 
 ## Git workflow
 
@@ -33,14 +34,26 @@ Claude-Loops is a living knowledge base and automated daily tracker for **loop e
 
 ## Releases
 
-After every batch of commits that produces a new CHANGELOG version: create an annotated git tag (`git tag vX.Y.Z -m "..."`), push it (`git push origin --tags`), and create a GitHub release (`gh release create`). Do it in the same turn as the commit — never defer. Mark the newest stable release `--latest`. See the global SemVer rule for bump levels.
+**Hand-authored versions:** create an annotated git tag (`git tag vX.Y.Z -m "..."`), push it (`git push origin --tags`), and create a GitHub release (`gh release create`) in the same turn as the commit — never defer. Mark the newest stable release `--latest`. See the global SemVer rule for bump levels.
+
+**Pipeline-cut versions are released by a human follow-up, not by the pipeline.** `integrate-loop-news` bumps `CHANGELOG.md` and pushes, but deliberately does not tag or release: `gh` is not in its allowlist, and granting an unattended agent `gh release` rights on a public repo is a wider permission than the convenience is worth. Decided 20260905. The cost is visible and accepted — 53 tags against 38 releases today. When you next touch this repo by hand, backfill any tagged version that has no release.
+
+## Plans
+
+- **Retire a plan in place, never by moving it.** Once every step is verified shipped, add a
+  `**Shipped as vX.Y.Z** — <date UTC>` line under the title and leave the file where it is.
+  Moving it to an archive directory breaks inbound links (`CLAUDE.md` and other plans reference
+  plans by path) and costs more than it saves — `ls plans/` already reads chronologically from the
+  timestamp prefix, and git history already records what changed. Decided 20260905.
+- **Verify before stamping.** "Looks merged" is not shipped: confirm each step's artifact exists in
+  the tree, not just that a PR closed.
 
 ## Knowledge-base rules
 
 - **Citations must link.** Every external reference in `docs/*.md` (repo, tool, product, @handle) must be a markdown hyperlink to the official page — never a bare name. Post-edit check: `grep -rn 'repo: github\.com' docs/ | grep -v '\[github'`.
 - **Review new resources before moving on.** When a new repo/article/tool is discovered, fetch it (README + any `docs/`) and score it on unique contribution / precision / durability (0–5). Avg ≥ 3.0 → deep-read and extract; otherwise note in `KB_GAPS.md` or skip. Never add to the KB from a README skim alone.
 - **Keep docs current in the same session.** Any infra/process/pattern change updates the relevant `docs/*.md` (e.g. headless → `docs/09`, routines → `docs/28`, loop patterns → `docs/34`) and `SOURCES.md` before committing — don't wait to be asked.
-- **Timestamps: skills use UTC, humans use local.** The `fetch-loop-news`/`integrate-loop-news` skills stamp digest/run times in **UTC** (`TZ=UTC date`). For hand-authored changelog/release timestamps use local system time: `date '+%Y-%m-%d %H:%M %Z'` with no `TZ` override; never hardcode a timezone.
+- **Every timestamp is UTC, `YYYYMMDD HH:MM`.** Skills and humans alike: read the clock with `date -u '+%Y%m%d %H:%M'`, never compose or convert one. Applies to digest headers, changelog and release entries, plan filenames and branch names. **Never rewrite an existing timestamp** — entries recorded in local time (everything before `[3.0.0]`) stay exactly as written, because restamping them invents precision nobody measured. Decided 20260905; supersedes the previous skills-UTC/humans-local split, which had produced three formats inside one `CHANGELOG.md`.
 
 ## Structural review (norm after every news run)
 
