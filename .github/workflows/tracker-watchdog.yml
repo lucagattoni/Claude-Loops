@@ -1,0 +1,36 @@
+name: tracker-watchdog
+
+# Off-machine staleness alarm for the daily tracker.
+#
+# The tracker runs on a laptop via launchd and reports failures to a desktop notification and a
+# gitignored log — both on the machine that failed. Between 2026-07-20 and 2026-09-05 it published
+# nothing and nothing said so. This job runs somewhere else and asserts on the published artifact,
+# so a dead scheduler, a dead pipeline and a closed laptop all surface the same way: a red run.
+#
+# It cannot fail silently in the direction that matters: an unreadable or unparseable digest exits
+# non-zero, the same as a stale one. "I could not tell" is never reported as "fine".
+
+on:
+  schedule:
+    # 09:00 UTC daily — five hours after the tracker's 04:00 UTC slot, leaving room for retries
+    # and a slow run. GitHub may delay scheduled runs under load; the 48h threshold absorbs that
+    # without turning a late run into a false alarm.
+    - cron: '0 9 * * *'
+  workflow_dispatch:      # so the alarm can be tested on demand, not only observed in anger
+  push:
+    paths:
+      - .github/workflows/tracker-watchdog.yml
+      - scripts/check-digest-freshness.sh
+
+permissions:
+  contents: read
+
+jobs:
+  freshness:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - name: Digest freshness
+        env:
+          MAX_AGE_HOURS: '48'
+        run: bash scripts/check-digest-freshness.sh
