@@ -188,8 +188,10 @@ APIs, Linear, Figma, Slack, GitHub. Add them once, and every loop session inheri
 the tools.
 
 ```bash
-claude mcp add          # interactive setup
-claude mcp add --scope user # available in all projects
+# `name` and `commandOrUrl` are both required — there is no interactive form
+claude mcp add my-server -- npx my-mcp-server                      # stdio (default transport)
+claude mcp add --transport http sentry https://mcp.sentry.dev/mcp  # HTTP
+claude mcp add --scope user my-server -- npx my-mcp-server         # all projects (default: local)
 ```
 
 ### Chrome extension — authenticated web access
