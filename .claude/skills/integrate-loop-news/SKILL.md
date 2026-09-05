@@ -72,7 +72,10 @@ table and list all sources under "No new content". Never skip the section.
 4. For each item in "New findings", assess whether it introduces a **new concept,
    technique, or tool** not yet present in any `docs/*.md` file:
    - Read the relevant `docs/*.md` files to check coverage
-   - New concept → create `docs/<NN-topic>.md` and add a row to `LOOP_ENGINEERING.md`.
+   - New concept → create `docs/<NN-topic>.md` and add a row to **both** indexes:
+     `LOOP_ENGINEERING.md` (the repo index) and `docs/index.md` (the published site's home
+     page, `mkdocs.yml:103`). They are separate files and `--strict` cannot detect a doc
+     missing from either — only the nav is checked.
      **Link to the published Pages URL, not the repo path** (the index routes readers to
      the 3-column site): `| N | [Topic](https://lucagattoni.github.io/Claude-Loops/<NN-topic>/) | One-sentence summary |`
      (MkDocs uses directory URLs, so `docs/04-verification.md` → `.../04-verification/`).
@@ -200,7 +203,7 @@ coherent, well-structured, internally-consistent body of knowledge.
 
 **Structural coherence:**
 
-6. **Grouping**: Does `LOOP_ENGINEERING.md` still organise topics logically? New
+6. **Grouping**: Do `LOOP_ENGINEERING.md` and `docs/index.md` still organise topics logically, and still agree with each other and with `mkdocs.yml`'s nav? New
    docs added this run — do they belong in an existing section or warrant a new one?
 
 7. **Staleness**: Do any existing doc summaries in the index no longer reflect the

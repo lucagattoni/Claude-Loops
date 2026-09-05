@@ -143,6 +143,12 @@ SESSION_LIMIT_REGEX="You've hit your session limit"
 # a skill that is absent from the checked-out tree stays absent, so retrying cannot help.
 UNKNOWN_COMMAND_REGEX="Unknown command: /"
 
+# "Credit balance is too low" is what a pay-as-you-go API key with no credit returns while it
+# shadows the claude.ai subscription. Deterministic — it cannot resolve inside a run — but it was
+# absent from every regex, so the 2026-07-20 outage burned all three attempts and ~2h of backoff
+# before reporting. Distinct from BUDGET_EXCEEDED (our own --max-budget-usd tripwire).
+CREDIT_BALANCE_REGEX="Credit balance is too low"
+
 # Match OUR published commit, anchored to the subject line the skill actually emits
 # ("feat: loop news run <time> — <N> findings..."). Previously an unanchored substring search over
 # `git log --oneline`, which also matched a Revert of that commit, and any human commit whose
@@ -158,6 +164,14 @@ notify() {
   echo "[$(stamp)] NOTIFY: ${msg}" | tee -a "$LOG_FILE"
   osascript -e "display notification \"${msg}\" with title \"loop-news tracker\"" >/dev/null 2>&1 || true
 }
+
+# --- Preflight: a shadowing API key is what caused the 2026-07-20 outage ---------------
+# A pay-as-you-go ANTHROPIC_API_KEY takes precedence over the claude.ai login, and when it has no
+# credit every attempt dies with "Credit balance is too low". Warn rather than unset: silently
+# editing the operator's environment would hide a deliberate key. LOOP_ALLOW_API_KEY=1 silences it.
+if [[ -n "${ANTHROPIC_API_KEY:-}" && "${LOOP_ALLOW_API_KEY:-0}" != "1" ]]; then
+  notify "WARNING: ANTHROPIC_API_KEY is set and takes precedence over the claude.ai login. If it has no credit every attempt will fail. Unset it, or set LOOP_ALLOW_API_KEY=1 to silence this."
+fi
 
 # --- Preflight: fail fast and loudly on a missing binary ------------------------------
 # Deliberately NOT a retriable failure. A missing binary is deterministic: three attempts
@@ -204,6 +218,7 @@ findings_valid() {
 # deterministic (non-transient, backoff-won't-help) failure.
 BUDGET_EXCEEDED=0
 UNKNOWN_COMMAND=0
+CREDIT_BALANCE=0
 SESSION_LIMIT=0
 run_claude() {
   local label="$1"; shift
@@ -217,6 +232,7 @@ run_claude() {
   if grep -Eq "$BUDGET_EXCEEDED_REGEX" "$tmp"; then BUDGET_EXCEEDED=1; fi
   if grep -Fq "$SESSION_LIMIT_REGEX" "$tmp"; then SESSION_LIMIT=1; fi
   if grep -Fq "$UNKNOWN_COMMAND_REGEX" "$tmp"; then UNKNOWN_COMMAND=1; fi
+  if grep -Fq "$CREDIT_BALANCE_REGEX" "$tmp"; then CREDIT_BALANCE=1; fi
   rm -f "$tmp"
   if (( UNKNOWN_COMMAND )); then
     echo "[$(stamp)] ${label} invoked a slash command that does not resolve (claude exited ${code} regardless)" | tee -a "$LOG_FILE"
@@ -293,6 +309,10 @@ while (( attempt <= MAX_ATTEMPTS )); do
 
   # --- session limit is an account-level quota that resets on a clock, not a backoff:
   # never retry within this script run (the reset time is printed in the log for a human).
+  if (( CREDIT_BALANCE )); then
+    notify "FATAL: 'Credit balance is too low' — an API key with no credit is shadowing the claude.ai subscription. Not retrying (deterministic). Unset ANTHROPIC_API_KEY, or top up the key."
+    exit 5
+  fi
   if (( UNKNOWN_COMMAND )); then
     notify "FATAL: a stage invoked a slash command that does not resolve — the skill is missing from the checked-out tree. Not retrying (deterministic). Check .claude/skills/ on origin/main."
     exit 4
