@@ -37,8 +37,11 @@ commits work. The pattern is identical to the worktree isolation model in
 
 ## The Third LLM Paradigm
 
-> "This is the 3rd major redesign of LLM UIUX — a self-contained, persistent,
-> asynchronous entity with org-wide tools and context." — Andrej Karpathy, Jun 2026
+> "Imo this is the 3rd major redesign of LLM UIUX. The first paradigm was that the LLM is a
+> website you go to, the second was that it is an app you download to your computer. This
+> third one is that it is a self-contained, persistent, asynchronous entity with org-wide
+> tools and context, working alongside teams of humans." — Andrej Karpathy,
+> [X, Jun 2026](https://x.com/karpathy/status/2069547676849557725)
 
 | Generation | Form | Interaction model |
 |---|---|---|
@@ -53,7 +56,7 @@ loops embedded across all team tools, not just the terminal.
 ## Signal data
 - 65% of Anthropic's product team's code is created using their internal version of Claude Tag
 - Powered by Claude Opus 4.8
-- "We see Claude Tag as the beginning of an evolution of Claude Code: it makes the model even more proactive, and it works better with a full team." — Boris Cherny
+- "We see Claude Tag as the beginning of an evolution of Claude Code: it makes the model even more proactive, and it works better with a full team." — Anthropic, ["Introducing Claude Tag"](https://www.anthropic.com/news/introducing-claude-tag)
 
 ## Deployment mode comparison
 

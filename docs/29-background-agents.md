@@ -42,8 +42,8 @@ attaches to, so the job would be unattachable. The prompt is the positional — 
 ```
 
 Before v2.1.198 the same command was accepted and silently created a session nothing could attach
-to. That fix matters more than it looks, because **two safety flags are documented as `--print`-only
-and are therefore unreachable from a background session**:
+to. That fix matters more than it looks, because **every documented way to bound a background
+session's work is scoped to `--print`, and therefore unreachable from `--bg`**:
 
 | Flag | `claude --help` says | Consequence for `--bg` |
 |---|---|---|
@@ -55,13 +55,29 @@ conflict. The cap is accepted and silently inert — the same defect shape this 
 where **a control that cannot take effect must fail loudly, not pass quietly**
 (see [Failure Patterns](17-failure-patterns.md)).
 
-So a `--bg` session's real ceilings are only:
+!!! danger "`--max-turns` is inert on `--bg` as well — measured, not inferred"
+    An earlier version of this page listed `--max-turns` as a working ceiling for `--bg`. It is
+    not. Paired test on 2.1.261, identical multi-step prompt (three sequential shell commands),
+    identical model:
 
-- `--max-turns <n>` — still accepted, though **no longer listed in `claude --help`** as of 2.1.261
-- an explicit `--model` and `--effort` (the cost floor below scales with the model, not the task)
-- `claude stop <id>`
+    ```text
+    $ claude -p  --max-turns 1 "<task>"   →  Error: Reached max turns (1)
+    $ claude --bg --max-turns 1 "<task>"  →  ran all three commands, printed a summary, "done"
+    ```
 
-Budget a background fan-out by **turns and model**, never by `--max-budget-usd`.
+    The flag is accepted and does nothing, and `claude --help` no longer lists it at all. The
+    original claim here was written from help text and the CLI reference instead of from running
+    the thing — the exact failure this KB names elsewhere: **reading finds the fact, executing
+    finds the consequence.**
+
+So a `--bg` session has **no in-band ceiling at all**. What remains:
+
+- an explicit `--model` and `--effort` — the only levers that bound spend *before* the fact, and
+  the cost floor below scales with the model rather than the task
+- `claude stop <id>` — out-of-band, and it only helps if something is watching
+
+Budget a background fan-out by **model and fleet size**, and supervise it. Neither
+`--max-budget-usd` nor `--max-turns` will stop it.
 
 ## The per-session cost floor
 
@@ -186,9 +202,9 @@ reconstructing the set afterwards from a machine-wide listing.
 ## Agent view
 
 `claude agents` opens the dashboard for all running and completed sessions:
-- Live output streaming per session, side-by-side
+- One status line per session row — drawn from the session's own recent output and refreshed at most every 15 s, rewritten by a Haiku-class model at the end of each turn (and every few minutes during a long one). Press `Space` to peek at the full sentence, or `Enter`/`→` to attach and see one session's live transcript, which replaces the table
 - Permission prompts from any background session surface here for your approval
-- `! <command>` in the agent view starts a new background session inline
+- `! <command>` in the agent view runs a shell command as a background *job* — no Claude session, no model call — appearing as its own row you can attach to, watch and detach from; the row cleans up about five minutes after the command exits
 
 ## Worktree isolation
 
@@ -212,8 +228,11 @@ changes. Keep the default (isolated worktree) when running parallel agents.
 Background sessions persist and can be resumed after interruption:
 
 ```bash
-claude --continue                    # resume the most recent session
-claude --resume <session-id>         # resume a specific session
+claude --resume                      # picker of past sessions; background ones are marked "bg"
+claude --resume <sessionId>          # resume a specific session by its full session UUID
+claude attach <id>                   # attach to a background session still listed in `claude agents`
+# `claude --continue` does NOT work here — it loads the most recent conversation in the
+# current directory but explicitly skips background sessions (and -p / SDK / /loop ones).
 ```
 
 After resuming, the session can run interactively or be sent back to background.
@@ -244,12 +263,13 @@ See [Fan-Out](10-fan-out.md) for the full pattern.
 
 | Event | When | Loop use |
 |---|---|---|
-| `SubagentStart` | Agent begins | Log start time, record session ID |
-| `SubagentStop` | Agent ends | Validate output; trigger next step |
-| `post-session` | After session ends, before workspace deletion | Export logs, snapshot final state |
+| `SubagentStart` / `SubagentStop` | A subagent (Agent-tool call) is spawned or finishes *inside* a session — never when a `--bg` session itself starts or stops | Chain steps within one session's own subagent calls |
+| `Notification` (matcher `agent_completed` / `agent_needs_input`) | A background session finishes, fails, or starts waiting on input — fires only while agent view is open in a terminal | React to a background session's own completion |
+| `WorktreeRemove` | The session's worktree is being removed — at session exit, when a subagent finishes, or when you delete a background session with `claude rm` | Snapshot final state before the worktree is gone |
 
-Use `SubagentStop` with `additionalContext` to chain background agents — when one
-finishes, the hook can inspect the output and fire the next step.
+Use `Notification` with the `agent_completed` matcher, not `SubagentStop`, to chain
+background agents — when one finishes, the hook fires and can inspect the output before
+starting the next step.
 
 ## Zero-Polling Signaling (an alternative to the agent view)
 

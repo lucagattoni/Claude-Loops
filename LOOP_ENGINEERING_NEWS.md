@@ -5,6 +5,62 @@ Sources are defined in [`SOURCES.md`](https://lucagattoni.github.io/Claude-Loops
 
 ---
 
+## Fact-check pass — 2026-09-05 22:22 UTC (hand-authored, not a tracker run)
+
+> **Why this header breaks format.** `scripts/check-digest-freshness.sh` treats the newest
+> `## YYYY-MM-DD HH:MM UTC` header as proof the tracker published, and ignores the trailing
+> parenthetical. A hand-authored entry in that format would reset the staleness clock and mask a
+> real tracker outage — the exact defect class this repo exists to avoid. This header is
+> deliberately shaped so the watchdog skips it and keeps measuring the last *actual* run above.
+
+**What was checked.** The 14 docs that had never been fact-checked (`02 03 04 05 06 10 16 19 20 22
+27 29 30 31`), per [`plans/20260904_2002-v3-fact-check-gaps.md`](https://github.com/lucagattoni/Claude-Loops/blob/main/plans/20260904_2002-v3-fact-check-gaps.md).
+**341 checkable claims examined, 283 verdict-CORRECT, 59 findings raised, 49 fixes applied**, one
+commit per doc. Method: one Sonnet finder per doc → two independent Sonnet refuters per finding
+(over-correction lens, source-fidelity lens) → one Opus adjudication over the collected set → one
+Opus completeness critic. 134 agents, 8.6M tokens, 0 agent errors after a mid-run resume.
+
+**Representative fixes.** A fabricated composite quotation in `docs/31` (two sentences spliced with
+an em dash, intervening text dropped); `post-session` documented as a hook event that does not
+exist, in **three** docs; `--continue` documented for resuming background sessions when it
+explicitly skips them; Sakana Fugu pricing attributed backwards; `docs/03`'s opening framing claim
+contradicted by its own primary source; a `session-orchestrator` mechanism (`acting_on`,
+`check-file-lock.sh`) that appears nowhere in that repo's 884-commit history.
+
+**Two claims this KB published hours earlier, falsified by running them.** `--max-turns` is
+**silently inert on `--bg`** — a paired test on 2.1.261 showed `-p --max-turns 1` erroring while
+`--bg --max-turns 1` ran a three-step task to completion. `v3.1.1` had listed it as a working
+ceiling, inside the section warning that a control which cannot take effect must fail loudly. With
+`--max-budget-usd` also inert, **a background session has no in-band ceiling at all**. Separately,
+`docs/03`'s `claude mcp add   # interactive setup` cannot run: there is no interactive form.
+
+### Coverage — what was NOT swept
+
+The pass's own Opus completeness critic returned **INCOMPLETE**, and that verdict stands:
+
+- **268 lines were never examined while being reported as covered.** Commit `c6e5a66` landed +119
+  lines into `docs/03` and +149 into `docs/29` mid-run, so two finders read pre-commit copies.
+- **78 of the 98 unique URLs cited across the 14 docs were never opened** — concentrated in the two
+  docs the handover named highest-priority.
+- **Claim density ran inverted against priority**: `docs/27` 0.052 claims/line and `docs/04` 0.082,
+  against 0.31 for `docs/31`.
+- **Model IDs and pricing were never swept anywhere**, including `docs/11`, which carries the
+  densest concentration in the KB.
+
+**The dominant risk in what did land** is a failed fetch reported as an absence: an unauthenticated
+GitHub code search returned 401 and was read as "0 hits"; an SSR-truncated X thread was read as
+"phrase not found". Treat every "does not exist" verdict here as "could not be reached from here on
+2026-09-05". The two fixes that actually *remove* content were re-verified by hand with
+authenticated calls before landing, and one of those checks caught the adjudicator misattributing a
+commit message between two commits.
+
+Six residual uncertainties are logged in [`KB_GAPS.md`](https://github.com/lucagattoni/Claude-Loops/blob/main/KB_GAPS.md)
+§ *Claims Awaiting Verification* (**V7–V12**), and the coverage gaps are carried as **C1b** in
+[the backlog](https://github.com/lucagattoni/Claude-Loops/blob/main/plans/20260904_2053-open-work-backlog.md).
+**C1 is not closed.**
+
+---
+
 ## 2026-09-05 11:27 UTC (run)
 
 **Scope note.** This was the largest single-run findings set the tracker has produced since

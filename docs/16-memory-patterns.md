@@ -38,8 +38,8 @@ server:
 
 **Slack/Discord thread claiming:**
 ```
-1. Agent reads channel for messages tagged with a claim keyword (e.g. "clem:todo")
-2. Agent replies to claim the thread (marks it as in-progress)
+1. Discord: the agent claims a `#tasks` forum thread by renaming its title prefix from "[TODO]" to "[IN PROGRESS]"
+2. Slack: the agent claims a top-level `#tasks` message by adding a reaction emoji to it
 3. Agent posts progress updates to the thread as it works
 4. Agent posts final result and marks the thread resolved
 ```
@@ -47,9 +47,9 @@ server:
 **GitHub Issue label workflow:**
 ```
 1. Maintainer labels an issue "clem:todo"
-2. Agent detects the label, self-assigns the issue
+2. Agent detects the label, self-assigns the issue, and swaps "clem:todo" for "clem:in-progress"
 3. Agent implements the fix, opens a PR referencing the issue
-4. Agent labels the issue "clem:done" and removes "clem:todo"
+4. Agent labels the issue "clem:done" (or "clem:blocked" if it cannot finish) and removes "clem:in-progress"
 ```
 
 The advantage over a file-based queue: the task state is visible to the whole team
@@ -115,7 +115,7 @@ Read STATE.md
 For multi-loop deployments where stale state causes coordination failures, a temporal
 knowledge graph is a richer alternative to flat STATE.md files.
 
-**[Graphiti](https://github.com/getzep/graphiti)** (open-source, 27.9k★, [arXiv:2501.13956](https://arxiv.org/abs/2501.13956)) is a
+**[Graphiti](https://github.com/getzep/graphiti)** (open-source, 30.6k★ as of Sep 2026, [arXiv:2501.13956](https://arxiv.org/abs/2501.13956)) is a
 temporal context graph engine built for AI agents. It is the open-source core of
 [Zep](https://www.getzep.com), which runs it in production.
 
@@ -153,12 +153,14 @@ pip install graphiti-core             # base; uses Neo4j 5.26+ and OpenAI by def
 pip install graphiti-core[anthropic]  # swap in Claude as the LLM provider
 ```
 
-Supports alternative graph backends: FalkorDB, Kuzu, Amazon Neptune.
+Supports alternative graph backends: FalkorDB, Kuzu, Amazon Neptune. (Kuzu was marked deprecated upstream in Jun 2026 — still functional, but Neo4j or FalkorDB are the forward-looking choices.)
 Supports alternative LLMs: Anthropic, Groq, Google Gemini.
 
 ### Loop integration pattern
 
 ```python
+from datetime import datetime, timezone
+
 from graphiti_core import Graphiti
 
 g = Graphiti("bolt://localhost:7687", "neo4j", "password")
@@ -167,7 +169,8 @@ g = Graphiti("bolt://localhost:7687", "neo4j", "password")
 await g.add_episode(
     name="pr-88-merged",
     episode_body="PR #88 merged. Auth migration complete. Branch: feature/auth-v2.",
-    source_description="CI Sweeper loop run 2026-06-25"
+    source_description="CI Sweeper loop run 2026-06-25",
+    reference_time=datetime.now(timezone.utc),
 )
 # Graphiti extracts entities (PR #88, branch feature/auth-v2) and facts
 # (PR #88 → status → merged) and invalidates the previous "open" fact automatically.
@@ -246,8 +249,9 @@ first, falling back to raw/ only if the wiki doesn't cover it), and **lint** (pe
 check the wiki for orphaned pages, broken cross-links, and pages that duplicate content
 better owned elsewhere — the wiki's own version of [KB_GAPS.md](https://github.com/lucagattoni/Claude-Loops/blob/main/KB_GAPS.md) hygiene).
 
-This converged from three independent directions the same week — Karpathy's original
-gist, Google's Open Knowledge Format, and Garry Tan's 23-role "gstack" — suggesting the
+This converged from three independent directions within a single quarter — Karpathy's
+original gist (April), Google's Open Knowledge Format (published about two months later),
+and Garry Tan's 23-role "gstack" — suggesting the
 underlying idea (Markdown-as-agent-memory, compiled and maintained rather than replayed)
 is becoming a convention rather than one person's technique. The shared thesis: as models
 improve, the differentiator shifts from model quality to *the organisational knowledge the

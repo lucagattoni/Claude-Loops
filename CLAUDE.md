@@ -3,13 +3,15 @@
 Claude-Loops is a living knowledge base and automated daily tracker for **loop engineering** — designing systems that prompt Claude for you. Read `LOOP_ENGINEERING.md` (the index) and `README.md` before working. The KB grows automatically via a two-skill pipeline: `fetch-loop-news` (search) hands off to `integrate-loop-news` (integrate + restructure + publish).
 
 > **Open work — read this first.** Read `plans/20260904_2053-open-work-backlog.md` — the full ranked
-> backlog. **The automation tier (§3) is closed** (`v3.1.0`, A1–A12), and so is **§8 step 7** —
-> C2, C6, C13 and C14 are shipped and both evidence packs are consumed (`v3.1.1`). What remains is
-> **content** (§4–§5).
-> **Start with C1**, the largest remaining risk: 14 of 39 docs have never been fact-checked and
-> ~20 more only partially. Method in `plans/20260904_2002-v3-fact-check-gaps.md`; the remainder of
-> **H1** folds into the same pass. Six claims that no search can settle are parked in
-> `KB_GAPS.md` § *Claims Awaiting Verification* — read that before re-deriving any of them.
+> backlog. **The automation tier (§3) is closed** (`v3.1.0`, A1–A12); so is **§8 step 7** (C2, C6,
+> C13, C14 — `v3.1.1`), and **C1 is partially done** (`v3.1.2`): 49 fixes across the 14
+> never-checked docs.
+> **Start with C1b.** C1's own Opus completeness critic returned **INCOMPLETE** and its findings are
+> the next round, ranked P0–P2 in the backlog. The P0s: 268 lines of `docs/03`/`docs/29` were never
+> examined *while being reported as covered* (a commit landed mid-run), and **78 of 98 cited URLs
+> were never opened**. Do not re-spend budget on what the critic verified clean — it says which.
+> Twelve claims that no search can settle are parked in `KB_GAPS.md` § *Claims Awaiting
+> Verification*; read those before re-deriving any of them.
 > **Delete this note once the backlog's §4 and §5 are empty.**
 
 ## Repository map
@@ -72,6 +74,12 @@ Claude-Loops is a living knowledge base and automated daily tracker for **loop e
   list, or a catch that swallows and continues. And assert on the **artifact** — a commit, a
   deployed page, a fresh digest header — never on a run's exit status; "the workflow succeeded" has
   been true here while nothing shipped.
+- **Only a real tracker run may write a standard digest header.** `check-digest-freshness.sh`
+  matches `## YYYY-MM-DD HH:MM UTC` and ignores the trailing parenthetical, so *any* header in that
+  shape resets the staleness clock — a hand-authored entry would report the tracker healthy while
+  it is dead. Non-tracker entries in `LOOP_ENGINEERING_NEWS.md` use a header the regex cannot match
+  (`## Fact-check pass — YYYY-MM-DD HH:MM UTC (…)`). Found 20260905, when writing exactly such an
+  entry would have masked an outage.
 - **Every expensive stage must be resumable from any point, because it can die at any point.**
   Standing requirement, set 20260905. A session limit, a killed process or a closed laptop can end a
   stage mid-execution, so anything costing real minutes or money checkpoints its progress somewhere

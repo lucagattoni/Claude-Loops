@@ -11,7 +11,10 @@ strategy from data.
 
 [Sakana AI](https://sakana.ai)'s **[Fugu](https://sakana.ai/fugu/)** (launched 22 June 2026) is the first production system to ship this
 pattern as an API product: a 7B-parameter conductor model that learns to route tasks to a
-pool of larger LLMs, assigning Thinker / Worker / Verifier roles dynamically per task.
+pool of larger LLMs. Unlike its TRINITY predecessor, the shipped Fugu conductor does *not*
+assign roles — the selected model is always invoked as a plain worker, which narrows the
+coordination space and lowers orchestration latency. (Thinker / Worker / Verifier role
+assignment is TRINITY's design; see the TRINITY / Conductor architecture section below.)
 
 ---
 
@@ -92,13 +95,13 @@ docs; the popularity claims are not. ([ruvnet/ruflo](https://github.com/ruvnet/r
 
 ## AutoResearch: a concrete loop engineering example
 
-Sakana's own **AutoResearch** system ran 123 self-improvement experiments autonomously using Fugu as the orchestrator — each iteration proposed a hypothesis, implemented a change, evaluated results, and fed findings into the next iteration. The loop ran unattended; humans reviewed summaries.
+Sakana benchmarked Fugu-Ultra as the orchestrator on **[AutoResearch](https://github.com/karpathy/autoresearch)** — Andrej Karpathy's autonomous ML-research benchmark, not a Sakana-built system — running 123 autonomous experiments against three anonymised frontier-model baselines — each iteration proposed a hypothesis, implemented a change, evaluated results, and fed findings into the next iteration. The loop ran unattended; humans reviewed summaries.
 
 This is a direct example of the self-improvement loop pattern: a loop whose primary goal is to improve the loop itself, with a learned orchestrator deciding which experiments to run next. See [The Loop Contract](27-loop-contract.md) → self-discovery pattern.
 
 ## Current state (June 2026)
 
-- [Sakana Fugu](https://sakana.ai/fugu/) is available as an **OpenAI-compatible API** (swap endpoint, no SDK change) — two variants: Fugu ($5/$30 per 1M tokens) and Fugu Ultra ($30/$... per 1M; also $20–200/mo subscription)
+- [Sakana Fugu](https://sakana.ai/fugu/) is available as an **OpenAI-compatible API** (swap endpoint, no SDK change) — two variants: Fugu (no fixed per-token price — billed at the standard rate of whichever underlying model is active, and never stacked when several agents run) and Fugu Ultra ($5 input / $30 output per 1M tokens, rising to $10/$45 above 272K context; also a $20–200/mo subscription covering both)
 - Fugu Ultra is unavailable in EU/EEA pending GDPR compliance
 - [@steipete](https://x.com/steipete) and others are skeptical about closed-source multi-model routing performance in practice
 - No open-source learned orchestrator has matched Fugu Ultra's benchmark claims yet

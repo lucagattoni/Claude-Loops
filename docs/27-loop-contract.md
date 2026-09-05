@@ -41,7 +41,7 @@ before launching:
 
 A loop that lacks BUDGET or STOP is not a loop — it is a runaway process.
 
-> "If you can't say what done looks like, you don't have a loop. You have a wish." — Sabrina Ramonov, Jun 2026
+> "If you can't say what 'done' looks like, you don't have a loop. You have a wish." — [Sabrina Ramonov](https://www.sabrina.dev/p/loop-engineering-claude-code-goal-routines), Jun 2026
 
 ## Real Cost Data
 
@@ -75,15 +75,17 @@ scratch. ([walidboulanouar/loop-engineering](https://github.com/walidboulanouar/
 
 A refinement of the BUDGET property for loops that persist across many agent turns
 and restarts: rather than BUDGET being only a hard ceiling (spend no more than $X),
-gate *every turn* through an explicit **should-run decision** with four states —
-**proceed** (budget and priority clear it), **wait** (a higher-priority gate is
-pending), **ask** (needs a human decision before spending more), or **idle** (nothing
-actionable right now). This turns "did we run out of budget?" from a single
+gate *every turn* through an explicit **should-run decision**. loopx's own state model
+(`docs/quota-allocation.md`) recognises seven compact states — `eligible` (run now),
+`focus_wait` and `waiting` (blocked on delivery focus or external evidence), `throttled`
+(quota spent), `operator_gate` (needs a human decision), `paused`, and `blocked_health`
+(registry/contract/boundary problem) — collapsing, for this doc's purposes, to: run now,
+wait, ask a human, or stay idle. This turns "did we run out of budget?" from a single
 end-of-run check into a per-turn admission decision, and gives the loop a defined
 state for "there is budget left but proceeding isn't the right call yet" — a case a
 binary budget cap cannot express. Paired with a **safe fallback** rule: when the
 primary (P0) objective is gated, the loop may still make progress on lower-priority
-(P1/P2) work rather than sitting fully idle, provided that work is tracked with the
+(P1) work rather than sitting fully idle, provided that work is tracked with the
 same evidence and ownership discipline as the primary objective (see
 [claimed_by todo ownership](16-memory-patterns.md#pattern-d-multi-backend-task-queue)).
 ([huangruiteng/loopx](https://github.com/huangruiteng/loopx), Jul 2026.)
@@ -162,7 +164,7 @@ Two design points sharpen the taxonomy:
   worker cannot fake completion; the control system is fixed and deterministic while
   the worker is stochastic and swappable.
 
-([uppifyagency/loop-kernel](https://github.com/uppifyagency/loop-kernel), Jun 2026; the same `0`/`2`/`3` contract appears independently in [firegnu/herdr-loop-lab](https://github.com/firegnu/herdr-loop-lab), Jun 2026.)
+([uppifyagency/loop-kernel](https://github.com/uppifyagency/loop-kernel), Jun 2026; [firegnu/herdr-loop-lab](https://github.com/firegnu/herdr-loop-lab), Jun 2026, independently converges on three exit codes for its own three-way halt — `0` = all satisfied, `2` = stalled/timeout/cap, `3` = quota exhausted (resumable) — though its `2`/`3` assignment differs from loop-kernel's.)
 
 ### Extension: tamper-evident contracts and named exit codes
 
@@ -278,35 +280,36 @@ Loops can be specified declaratively (rather than as imperative scripts), making
 machine-readable and auditable:
 
 ```yaml
-# loop.yaml — VERDICT: PASS gate protocol
-name: PR Babysitter
-trigger:
-  type: cron
-  schedule: "*/15 * * * *"
-scope:
-  - src/
-  - tests/
+# .loopflow/loops/pr-babysitter.yaml — VERDICT: PASS gate protocol
+name: pr-babysitter
+description: Babysit open PRs until CI is green and reviewed.
+
 budget:
   max_usd: 1.00
-  max_turns: 40
-stop:
-  verdict: PASS          # Missing verdict = FAIL; ambiguous completion = FAIL
-  evidence: required     # Loop cannot exit without including test output or diff
-escalation:
-  after_attempts: 3      # After 3 failed verdict attempts, route to human inbox
+  max_iterations: 3    # loopflow's real field; the schema caps this at 1–20 (default 3)
+
+worktree: false        # set true to run in an isolated git worktree
+
+steps:
+  - id: fix
+    prompt: ...
+  - id: review
+    gate: true         # must emit VERDICT: PASS or VERDICT: FAIL
+    prompt: ...
 ```
 
 **VERDICT: PASS gate:** a loop iteration is not done until it explicitly outputs `VERDICT: PASS`
 with supporting evidence. An iteration that ends without a verdict is treated as `VERDICT: FAIL`.
 This eliminates "looks done" exits where the agent ran out of turns mid-task.
 
-**2-Layer Budget Ceiling:** loop-level cap (total run cost) AND per-step cap (cost per agent
-invocation within the loop):
+**Defense-in-depth budget enforcement:** one configured ceiling, enforced twice — loopflow's
+own tracker checks cumulative spend, and the *remaining* budget is passed to every Claude
+invocation as `--max-budget-usd`, so a single runaway step is capped by Claude Code itself:
 
 ```yaml
 budget:
-  loop_max_usd: 2.00        # If exceeded: loop terminates and escalates
-  step_max_budget_usd: 0.50 # Per-agent-invocation limit; passed as --max-budget-usd
+  max_usd: 2.00        # the only USD field in the schema — there is no separate per-step cap
+  max_iterations: 3    # 1–20, default 3
 ```
 
 ([faisalishfaq2005/loopflow](https://github.com/faisalishfaq2005/loopflow), Jun 2026.)

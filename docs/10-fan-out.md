@@ -19,8 +19,14 @@ wait
 ```
 
 **Test on 2-3 files first.** Refine the prompt on small batch failures, then run
-the full set. The `--allowedTools` flag prevents the fan-out from touching anything
-outside its intended scope.
+the full set. `--allowedTools` only skips the permission *prompt* for the tools it names — it does not
+bound which tools the session may call (the CLI reference says so outright: "To restrict
+which tools are available, use `--tools` instead"). Under `--permission-mode auto` a
+background classifier, not that list, decides what else may run, so this recipe alone does
+not keep the fan-out inside `Read,Edit,Bash(git commit *)`. For a fan-out that must not
+stop for input and must stay close to an exact list, use `--permission-mode dontAsk`: it
+auto-denies anything that would otherwise prompt, running only actions matching your
+`permissions.allow` rules, read-only Bash commands, and calls a PreToolUse hook approves.
 
 ## Scope-Verified Parallelism
 
@@ -35,17 +41,26 @@ file-locking discipline:
     "PreToolUse": [
       {
         "matcher": "Edit",
-        "type": "command",
-        "command": "scripts/check-file-lock.sh"
+        "hooks": [
+          {
+            "type": "command",
+            "command": "scripts/check-file-lock.sh"
+          }
+        ]
       }
     ]
   }
 }
 ```
 
-`check-file-lock.sh` reads each active session's STATE.md, extracts its `acting_on`
-file list, and exits `2` (deny) if the requested file is already claimed by another
-session. On exit `0`, it writes the current session's claim before returning.
+The hook command is a write-claim check: before an Edit lands it asks whether another live
+session already owns that file, and exits `2` (deny) if so. In
+[Kanevry/session-orchestrator](https://github.com/Kanevry/session-orchestrator) that claim is
+held by a JS lock-module family (`scripts/lib/session-lock.mjs`,
+`scripts/lib/locks/state-md-lock.mjs`) which grants ownership only after verifying a second
+identity factor — pid, host and start time — because a semantic session label is not globally
+unique. (That repo contains no `check-file-lock.sh`, and its STATE.md schema has no
+`acting_on` field; treat the shell name above as a placeholder for your own hook script.)
 
 This enables safe parallel fan-out without coordination overhead: each agent checks
 at the point of write, not at the point of task assignment.

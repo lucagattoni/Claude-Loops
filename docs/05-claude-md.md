@@ -119,7 +119,7 @@ In monorepos, exclude specific CLAUDE.md files from loading:
 ```json
 // .claude/settings.json
 {
-  "claudeMdExcludes": ["packages/legacy/**"]
+  "claudeMdExcludes": ["**/packages/legacy/**"]
 }
 ```
 

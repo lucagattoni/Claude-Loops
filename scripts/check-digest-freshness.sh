@@ -27,6 +27,14 @@ fail() { printf '%s\n' "STALE: $*" >&2; exit 1; }
 # Newest dated header. The file is newest-first, so the first match is the newest entry.
 # Format, fixed by the skill: "## YYYY-MM-DD HH:MM UTC (run)" — the trailing parenthetical varies
 # ("catch-up run — eight-week backlog"), so it is not matched.
+#
+# CONSEQUENCE, and it cuts against us: because the parenthetical is not matched, ANY header in
+# this shape resets the staleness clock — including one a human or a non-tracker pass writes.
+# That would report the tracker as healthy while it is dead, which is the precise failure this
+# script exists to catch. So a hand-authored entry in LOOP_ENGINEERING_NEWS.md MUST use a header
+# this regex does not match (e.g. "## Fact-check pass — YYYY-MM-DD HH:MM UTC (…)"). Verified
+# 20260905: the fact-check entry added that day is skipped and the clock still reads the 11:27
+# tracker run. Do not "fix" that entry's header into the standard form.
 header="$(grep -m1 -E '^## [0-9]{4}-[0-9]{2}-[0-9]{2} [0-9]{2}:[0-9]{2} UTC' "$DIGEST" || true)"
 [[ -n "$header" ]] || fail "no dated '## YYYY-MM-DD HH:MM UTC' header found in $DIGEST — the format changed, or the file is truncated"
 

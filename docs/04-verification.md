@@ -144,7 +144,7 @@ verdict — never the checklist itself. This closes a gap the basic pattern leav
 filesystem view. Cross-model pairing (e.g. Claude builds, Codex judges) is configured
 explicitly per role rather than auto-selected, which sharpens *how* to hold a test out but
 leaves *which model pair* to use an open, user-judged choice.
-([KristopherGBaker/Sparra](https://github.com/KristopherGBaker/Sparra), Jul 2026.)
+([Kristopher Baker, "Sparra"](https://krisbaker.com/building/sparra/), Jul 2026 — the GitHub repo this project page links to now returns 404, checked 2026-09-05.)
 
 **Cross-Task Defect Ledger:** When a run produces a defect (test failure, type error, security finding), the defect is logged to a shared ledger with root-cause category. Subsequent runs read the ledger before starting and explicitly check for the same root-cause categories. Defects stop being repeated rather than just fixed.
 
@@ -208,7 +208,7 @@ Never act on a claim that remains in the `source_prior` or `bounded_claim` state
 | R4 | Irreversible (data, secrets) | Explicit human approval before execution |
 | R5 | Security-critical | SECURITY_MATRIX.md gate + security reviewer (see [Agent Security Hardening](33-agent-security-hardening.md)) |
 
-([qimen039-code/claim-boundary-harness](https://github.com/qimen039-code/claim-boundary-harness), Jun 2026.)
+([qimen039-code/agent-cognitive-continuity-framework](https://github.com/qimen039-code/agent-cognitive-continuity-framework), Jun 2026.)
 
 ## A/A Baseline for Verifier Calibration
 
@@ -264,7 +264,7 @@ stop — closing the gap where the *evidence of a passing run* was itself forgea
 This is complementary to [Simplification Before Testing](#simplification-before-testing),
 not in conflict with it: simplification decides *what shape* the code and test should
 take (and may run first); freezing decides *who may change the test afterwards* (the
-implementer may not). ([orobsonn/claude-harness](https://github.com/orobsonn/claude-harness), Jun 2026.)
+implementer may not). ([orobsonn/claude-harness](https://github.com/orobsonn/claude-harness) — repo no longer publicly reachable; 404 as of 2026-09-05, Jun 2026.)
 
 **4. Provenance-bound claims — every assertion must cite a verifiable artifact.** The
 three patterns above keep the *check* honest; this one keeps the *report* honest. The
@@ -304,7 +304,7 @@ reviewer with a **structured verdict schema** that separates blocking from non-b
 findings — reviewers emit `VERDICT: PASS` / `VERDICT: BLOCK` plus advisory `SUGGEST:` lines —
 and gate completion on a **dual stop condition**: the loop terminates only when the mechanical
 test command exits 0 **and** the reviewer raises no `BLOCK`. Multiple reviewers on the same
-workspace aggregate by "any blocker ⇒ blocked." ([Happenmass/Cliclaw](https://github.com/Happenmass/Cliclaw),
+workspace aggregate by "any blocker ⇒ blocked." ([Happenmass/omux](https://github.com/Happenmass/omux),
 [mateaix/loope](https://github.com/mateaix/loope), [firegnu/herdr-loop-lab](https://github.com/firegnu/herdr-loop-lab),
 [Llicklair/forja](https://github.com/Llicklair/forja), Jun 2026.)
 
@@ -343,8 +343,8 @@ disagreements don't stall the loop. ([houshuang/compound-review](https://github.
 **The same non-overlap holds outside LLM-judge harnesses, in shipped code-review
 products.** Four commercial AI code reviewers (CodeRabbit, Sentry Seer, Greptile,
 Cursor BugBot) run in parallel across 146 real PRs over three weeks produced 679
-findings, and **93.4% were caught by exactly one tool** — no pair of tools ever
-flagged the same line. This corroborates the ~85–90% figure above with an
+findings, and **93.4% were caught by exactly one tool**, and no line was ever flagged by all four tools at
+once (37 lines drew exactly two, 4 drew exactly three). This corroborates the ~85–90% figure above with an
 independent, non-LLM-judge data source: the non-overlap is not an artifact of how
 LLM-as-judge harnesses are built, it recurs in production tools built by different
 vendors on different review philosophies. ([dev.to, "Best AI Code Reviewer in 2026?"](https://dev.to/_vjk/best-ai-code-reviewer-in-2026-we-ran-4-in-parallel-for-3-weeks-146-prs-679-findings-1c0f), Jul 2026.)
@@ -454,10 +454,12 @@ reviews at a [handoff](14-human-in-the-loop.md) checkpoint.
 specifically designed for LLM output quality — not just pass/fail exit codes.
 
 **Evaluation metrics** (callable via `.score()` API):
-- `hallucination` — detects factual claims not grounded in the context
-- `answer_relevance` — scores whether the agent's output addresses the actual task
-- `context_precision` — measures how precisely the context supports the answer
-- `moderation` — flags unsafe or policy-violating output
+- `Hallucination` — detects factual claims not grounded in the context
+- `AnswerRelevance` — scores whether the agent's output addresses the actual task
+- `ContextPrecision` — measures how precisely the context supports the answer
+- `Moderation` — flags unsafe or policy-violating output
+
+(Instantiate the class, then call `.score(...)` on it — e.g. `Hallucination().score(...)`.)
 
 **Online Evaluation Rules** — configure continuous scoring against a running production loop:
 a judge model monitors every run and alerts when metric scores fall below a threshold.
@@ -476,7 +478,7 @@ repo: [github.com/comet-ml/opik](https://github.com/comet-ml/opik)
 
 ## Real-world case study: Mozilla Firefox security harness
 
-Brian Grinstead (Anthropic, Jun 2026) built a security bug-finding harness for
+Brian Grinstead (Mozilla, Jun 2026) built a security bug-finding harness for
 Mozilla Firefox with explicit verification at every stage:
 
 1. **LLM file prioritization** — a scoring model ranked files by bug likelihood before
@@ -547,8 +549,8 @@ The self-coverage check differs from test pass/fail:
 
 ## Oracle Problem in AI-Generated Tests
 
-When the same agent writes both code and tests in the same session, tests exhibit
-~6% precision — they verify what the implementation *does* rather than what it *should* do.
+When the same agent writes both code and tests in the same session, tests exhibit very low
+precision — they verify what the implementation *does* rather than what it *should* do.
 
 This is the **oracle leakage** problem: the agent uses its knowledge of the implementation
 to construct tests that are tautologically true. A test for `add(2, 3)` that expects `5`

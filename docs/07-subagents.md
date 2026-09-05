@@ -79,7 +79,7 @@ verifier and gates around it are strong (frozen tests, external checks — see
 [Verifier Integrity](04-verification.md#verifier-integrity-keeping-the-check-unfakeable)).
 This pairs the maker/checker split with the cost discipline in [Cost & Turn Control](11-cost-control.md).
 
-([orobsonn/claude-harness](https://github.com/orobsonn/claude-harness), Jun 2026.)
+([orobsonn/claude-harness](https://github.com/orobsonn/claude-harness) — repo no longer publicly reachable; 404 as of 2026-09-05, Jun 2026.)
 
 **Refinement: route eye-tier by severity, not by role alone.** A fixed cheap/mid/strong
 split still spends "strong eyes" budget on low-stakes reviews. A `resolveEyeTier`
@@ -89,7 +89,7 @@ changes skip review entirely. It also **conditionally re-gates**: a grave fix
 (irreversible, sensitive-path, re-architecture, multi-integration) demands a fresh
 full Opus pass, while other HIGH-severity fixes only need a locked-test-plus-spot-check
 pass — spending the expensive reviewer where the blast radius, not just the role,
-justifies it. ([orobsonn/claude-harness v0.20.0](https://github.com/orobsonn/claude-harness/releases/tag/v0.20.0), Jul 2026.)
+justifies it. ([orobsonn/claude-harness v0.20.0](https://github.com/orobsonn/claude-harness/releases/tag/v0.20.0) — repo no longer publicly reachable; 404 as of 2026-09-05, Jul 2026.)
 
 ### Tuning evaluator agents
 

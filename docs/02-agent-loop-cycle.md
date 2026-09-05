@@ -45,9 +45,12 @@ The functional lens names the four jobs every non-trivial loop performs:
   attributed to the right layer. Without it you cannot tell whether execution,
   verification, or orchestration broke — you only see that the loop failed.
 
-> "Loop engineering is the right frame — execution, verification, and orchestration are
-> the primitives." ([@miltonheyan](https://x.com/miltonheyan/status/2070432513307357388), Jun 2026) —
-> with **observability as the prerequisite fourth**: the others are undiagnosable without it.
+> "loop engineering is the right frame — execution, verification, and orchestration are
+> the primitives, but without observability you can't tell which layer failed."
+> ([@miltonheyan](https://x.com/miltonheyan/status/2070432513307357388), Jun 2026)
+>
+> **Observability is the prerequisite fourth** — already the tweet's own point, made
+> explicit here: the other three are undiagnosable without it.
 
 The mechanical lens is the [Six Building Blocks](03-building-blocks.md) you actually
 configure to realise those functions. Observability in practice means run logs, the
@@ -64,5 +67,6 @@ enforce the design-time [Stop Condition Taxonomy](27-loop-contract.md#stop-condi
 - Claude produces a text-only response (no tool calls) — `success` (enforces a completion check)
 - `max_turns` is reached — `error_max_turns` (enforces budget / max-iteration stops)
 - `max_budget_usd` is exceeded — `error_max_budget_usd` (enforces the budget stop)
+- Structured-output validation keeps failing after retries — `error_max_structured_output_retries` (enforces the completion-check stop for `--json-schema` / `outputFormat` runs)
 - A Stop hook rejects the result — loop re-enters (a completion check that has not yet passed)
 - An unrecoverable error occurs — `error_during_execution`

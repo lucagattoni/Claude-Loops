@@ -112,4 +112,4 @@ working local server.
 - [The Loop Contract](27-loop-contract.md) — define TRIGGER/SCOPE/STOP before creating a Routine
 - [Headless & Non-Interactive Mode](09-headless-mode.md) — local headless alternative when cloud is not needed
 - [Background Agents](29-background-agents.md) — detached sessions within a single machine session
-- [Hooks](12-hooks.md) — `post-session` hook fires after a Routine run completes
+- [Hooks](12-hooks.md) — hook events available inside a Routine's cloud session
