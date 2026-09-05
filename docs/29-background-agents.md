@@ -186,9 +186,9 @@ reconstructing the set afterwards from a machine-wide listing.
 ## Agent view
 
 `claude agents` opens the dashboard for all running and completed sessions:
-- Live output streaming per session, side-by-side
+- One status line per session row — drawn from the session's own recent output and refreshed at most every 15 s, rewritten by a Haiku-class model at the end of each turn (and every few minutes during a long one). Press `Space` to peek at the full sentence, or `Enter`/`→` to attach and see one session's live transcript, which replaces the table
 - Permission prompts from any background session surface here for your approval
-- `! <command>` in the agent view starts a new background session inline
+- `! <command>` in the agent view runs a shell command as a background *job* — no Claude session, no model call — appearing as its own row you can attach to, watch and detach from; the row cleans up about five minutes after the command exits
 
 ## Worktree isolation
 
@@ -212,8 +212,11 @@ changes. Keep the default (isolated worktree) when running parallel agents.
 Background sessions persist and can be resumed after interruption:
 
 ```bash
-claude --continue                    # resume the most recent session
-claude --resume <session-id>         # resume a specific session
+claude --resume                      # picker of past sessions; background ones are marked "bg"
+claude --resume <sessionId>          # resume a specific session by its full session UUID
+claude attach <id>                   # attach to a background session still listed in `claude agents`
+# `claude --continue` does NOT work here — it loads the most recent conversation in the
+# current directory but explicitly skips background sessions (and -p / SDK / /loop ones).
 ```
 
 After resuming, the session can run interactively or be sent back to background.
@@ -244,12 +247,13 @@ See [Fan-Out](10-fan-out.md) for the full pattern.
 
 | Event | When | Loop use |
 |---|---|---|
-| `SubagentStart` | Agent begins | Log start time, record session ID |
-| `SubagentStop` | Agent ends | Validate output; trigger next step |
-| `post-session` | After session ends, before workspace deletion | Export logs, snapshot final state |
+| `SubagentStart` / `SubagentStop` | A subagent (Agent-tool call) is spawned or finishes *inside* a session — never when a `--bg` session itself starts or stops | Chain steps within one session's own subagent calls |
+| `Notification` (matcher `agent_completed` / `agent_needs_input`) | A background session finishes, fails, or starts waiting on input — fires only while agent view is open in a terminal | React to a background session's own completion |
+| `WorktreeRemove` | The session's worktree is being removed — at session exit, when a subagent finishes, or when you delete a background session with `claude rm` | Snapshot final state before the worktree is gone |
 
-Use `SubagentStop` with `additionalContext` to chain background agents — when one
-finishes, the hook can inspect the output and fire the next step.
+Use `Notification` with the `agent_completed` matcher, not `SubagentStop`, to chain
+background agents — when one finishes, the hook fires and can inspect the output before
+starting the next step.
 
 ## Zero-Polling Signaling (an alternative to the agent view)
 
