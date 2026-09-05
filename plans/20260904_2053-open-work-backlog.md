@@ -55,7 +55,13 @@ half is done; its zero-finding-commit contradiction is still open.
 
 This tier is why the KB has an eight-week hole. Do it before any content work.
 
-### A1 — No `mkdocs build --strict` gate before the pipeline pushes to `main` · **blocking** · small
+### A1 — ~~No `mkdocs build --strict` gate before the pipeline pushes to `main`~~ · **SHIPPED v3.0.1**
+
+**Done 20260905, PR #21.** Phase 5c added; 5-lens adversarial review + Opus judge before merge.
+On its first-ever execution it caught and fixed **3 broken anchor links** before they reached a
+commit — the exact defect class that failed CI on 07-06 and 07-07. Residual risk, unchanged: the
+gate is prose an agent can skip, and `--strict` is structural only (it passes malformed digest
+tables and dead external citations). Original analysis below.
 
 The pipeline commits straight to `main` with no build gate, and has **already broken the published
 site twice**.
@@ -72,7 +78,12 @@ site twice**.
   to the skill: links from `docs/` to a repo-root file use the absolute URL, never `../`.
 - **Gate:** deliberately introduce a broken link, confirm the new step aborts, revert.
 
-### A2 — The tracker has never been validated by a real run · **blocking** · small
+### A2 — ~~The tracker has never been validated by a real run~~ · **SHIPPED v3.0.1**
+
+**Done 20260905.** Attended run: commit `904c127`, 101 findings, build **and** deploy jobs green,
+live site serving the new digest. Verified by artifact, not exit status. One earlier attempt died
+when Stage B hit the account session limit — worth knowing that an *attended* run competes with the
+attending session for one quota. Original analysis below.
 
 - **Evidence:** `launchctl print gui/501/com.luca.loop-news` → `runs = 0`,
   `last exit code = (never exited)`, job enabled. Newest run log is `logs/loop-news-20260720.log`.
@@ -131,7 +142,10 @@ This is the mechanism that turned one bad day into eight silent weeks.
 - **Do:** add a `CREDIT_BALANCE_REGEX` no-retry branch with its own `notify()` text; add
   `unset ANTHROPIC_API_KEY` (or detect-and-warn) near the top of the script, before `A_ARGS`/`B_ARGS`.
 
-### A7 — `CLAUDE_BIN` points at a path that does not exist · **blocking A2** · small
+### A7 — ~~`CLAUDE_BIN` points at a path that does not exist~~ · **SHIPPED v3.0.1**
+
+**Done 20260905, PR #22.** Resolver + fatal preflight (exit 3), verified by a five-case behaviour
+matrix under `env -i`. This was the whole outage. Original analysis below.
 
 **The tracker cannot succeed today even if launchd fires.** Found 20260904 by applying a peer
 report from the ClaudeWarp session as a hypothesis about this repo rather than reading it as a
@@ -166,6 +180,22 @@ is one level worse — not a PATH assumption but a hardcoded absolute path that 
 wrong when the binary moved. Checked and **not applicable** here: `grep -n timeout
 scripts/run-loop-news.sh` returns nothing, so the `timeout`/`gtimeout` defect does not affect us
 (neither binary exists on this machine, confirmed).
+
+### A8, A9 — ~~two more failures the wrapper reported as success~~ · **SHIPPED v3.0.1**
+
+**Found and done 20260905, PR #24**, after the backlog was written. Both are the same class as A3:
+a check whose default outcome means success.
+
+- **A9** — `claude -p "/no-such-skill"` prints `Unknown command` and **exits 0** (verified on
+  v2.1.261). Stage A was already protected by `findings_valid()`'s artifact check; **Stage B was
+  not** — reproduced pre-fix as `Run complete (succeeded on attempt 1)`, exit 0, nothing published.
+  Now a no-retry branch, exit 4.
+- **A8** — `grep -q "loop news run"` on commit subjects also matched `Revert "feat: loop news
+  run …"` and any human commit mentioning the phrase, which would abandon a retriable failure. Now
+  anchored on `^feat: loop news run `.
+
+Both proven with pre-fix controls. Noted because the first A9 test was itself broken — no TTY, so
+`script -q` died and the stub never ran; it passed for the wrong reason.
 
 ---
 
@@ -365,7 +395,7 @@ this backlog, not a separate task.
 
 | Document | Claim | Reality |
 |---|---|---|
-| `20260904_2002-v3-fact-check-gaps.md:14-15` and `LOOP_ENGINEERING_NEWS.md:13` | the tracker was **"re-armed"** | **False.** `runs = 0`, `last exit code = (never exited)`. Claimed done, actually open — see **A2** |
+| `20260904_2002-v3-fact-check-gaps.md:14-15` and `LOOP_ENGINEERING_NEWS.md:13` | the tracker was **"re-armed"** | **True after all** — and this backlog was wrong to call it false. `runs = 0` on 20260904 meant the re-arm predated its first 04:00 trigger, not that it had failed. It fired on schedule 20260905 and the sole fault was **A7**. Both now moot: the tracker has published (`v3.0.1`). |
 | `plans/split-fetch-loop-news.md:499-556` | 0 of 10 steps checked | **All 10 shipped** as `v2.6.0`: both skills exist, `.gitignore:4`, `run-loop-news.sh:22,135,149,262-268`, `docs/09:203-229`, `CHANGELOG.md:373`, tag `v2.6.0`, release 2026-07-03, PR #7 (`c34d41e`) |
 | `plans/loop-engineering-tracker.md:150-166` | Steps 7/9 describe CronCreate scheduling | Superseded by launchd (`570ce26`, v2.3.11); `scripts/SCHEDULING.md:3` states it plainly. No open commitment — just wrong about how the system runs |
 | `LOOP_ENGINEERING_NEWS.md:118-119` | "9 docs never fact-checked" | Superseded by the corrected, worse list of **14**. The digest is the stale artifact on this point |
@@ -385,7 +415,7 @@ the remote, and is marked latest.
 | # | Unknown | How to settle |
 |---|---|---|
 | **U1** | Whether the **2026-07-01 → 07-14** window was ever swept. Round-1 critics flagged it "essentially uncovered" (high severity); the final digest's own "what was NOT swept" section (`LOOP_ENGINEERING_NEWS.md:114-131`) does not mention it, and no finding dates to it. Either round 2 closed it and the digest omits saying so, or the digest missed its own honesty standard | Re-run a source sweep scoped to that window, or recover round 2's per-source date coverage. Add an explicit disclosure line either way |
-| **U2** | **Partially answered by A7 — two faults, not one.** **Why launchd went quiet.** `logs/launchd.log` has no entry after `2026-07-08T05:21:52Z`, yet the 2026-07-20 run exists in its own log — starting 17:49:54Z, 13+ hours off the 04:00 UTC slot, so almost certainly a hand-run `bash scripts/run-loop-news.sh`. Reading: launchd may not have fired since **8 July**, which the API-key fix does nothing about | **A2**'s validation run — specifically whether `logs/launchd.log` gains a new entry |
+| **U2** | **RESOLVED 20260905 — one fault, not two.** launchd was firing correctly all along (`runs = 2`, a scheduled run at `04:00:38Z` on 20260905). The backlog's original claim that it was not firing was **wrong** — inferred from absent logs, when the re-arm simply predated its first trigger. The sole fault was A7. | Settled by the 20260905 run. |
 
 ---
 
