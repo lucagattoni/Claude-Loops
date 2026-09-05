@@ -18,6 +18,74 @@ Versioning follows [Semantic Versioning](https://semver.org/):
 
 ---
 
+## [3.1.2] — 20260905 22:23
+
+The 14 never-fact-checked docs, checked. **341 claims examined, 49 fixes applied**, one commit per
+doc. PATCH by this file's own rule: no new `docs/*.md`. The pass also falsified two claims
+`v3.1.1` had shipped eight hours earlier — both are corrected here.
+
+Method: one Sonnet finder per doc → two independent Sonnet refuters per finding (over-correction
+lens, source-fidelity lens) → one Opus adjudication over the collected set → one Opus completeness
+critic. 134 agents, 8.6M tokens, 0 errors after a mid-run resume from cache.
+
+### Fixed
+
+- **A fabricated composite quotation** in `docs/31`: two sentences spliced with an em dash and the
+  intervening text dropped, presented as verbatim.
+- **`post-session` is not a Claude Code hook event** — and it appeared in **three** docs
+  (`12`, `28`, `29`), only one of which was in the reviewed set. Caught by the adjudicator's
+  cross-doc pass, which is the one thing no per-doc agent could do.
+- **`--continue` documented for resuming background sessions**, in a section about exactly that,
+  when both the CLI reference and the sessions page say it skips them.
+- **Sakana Fugu pricing attributed backwards** in `docs/22`, plus a role-assignment mechanism
+  attributed to Fugu that its own technical report says it does not do.
+- **A `session-orchestrator` mechanism that does not exist** in `docs/10`: `acting_on` and
+  `check-file-lock.sh` appear nowhere in that repo's 884-commit history.
+- **`docs/03`'s opening framing claim** contradicted by its own primary source; `claude mcp add
+  --global` is not a flag; the Chrome-support list excluded browsers the official doc includes.
+- Four dead or renamed citations, kept with dated notes rather than deleted, plus `docs/20`'s last
+  bare `@handle`.
+
+### Corrected — claims this project published hours earlier
+
+- **`--max-turns` is silently inert on `--bg`.** Paired test on 2.1.261: `-p --max-turns 1`
+  errors `Reached max turns (1)`; `--bg --max-turns 1` ran a three-step task to completion.
+  `v3.1.1` listed it as a working ceiling — inside the section warning that a control which cannot
+  take effect must fail loudly. With `--max-budget-usd` also inert, **a `--bg` session has no
+  in-band ceiling at all**. The original claim was written from help text instead of from running it.
+- **`docs/03`'s `claude mcp add   # interactive setup` cannot run.** There is no interactive
+  form. Replaced with three examples taken from `claude mcp add --help` itself.
+
+### Added
+
+- **A guard on the freshness watchdog's own blind spot.** `check-digest-freshness.sh` matches
+  `## YYYY-MM-DD HH:MM UTC` and ignores the trailing parenthetical, so *any* header in that shape
+  resets the staleness clock — a hand-authored digest entry would have reported the tracker healthy
+  while it was dead. This release's own digest entry uses a non-matching header, the constraint is
+  documented in the script and in `CLAUDE.md`, and the watchdog verifiably still measures the
+  11:27 tracker run.
+- **`KB_GAPS.md` V7–V12** — six claims no search can settle, and a note on the two that were
+  settled by running them instead of logging them.
+
+### Known incomplete — stated, not glossed
+
+C1's own Opus completeness critic returned **INCOMPLETE**, and **C1 is not closed**:
+
+- **268 lines were never examined while being reported as covered** — `c6e5a66` landed +119 lines
+  into `docs/03` and +149 into `docs/29` mid-run, so two finders read pre-commit copies.
+- **78 of the 98 unique URLs** cited across the 14 docs were never opened.
+- **Claim density ran inverted against priority** — `docs/27` 0.052 claims/line against
+  `docs/31`'s 0.31.
+- **Model IDs and pricing were never swept**, including `docs/11`, the densest concentration in
+  the KB.
+
+The dominant risk in what *did* land is a failed fetch reported as an absence — an unauthenticated
+code search returned 401 and was read as "0 hits". The two fixes that actually remove content were
+re-verified by hand with authenticated calls first, and that check caught the adjudicator
+misattributing a commit message between two commits. Carried as **C1b**.
+
+---
+
 ## [3.1.1] — 20260905 17:00
 
 Three backlog items with sources already in hand — C6, C13, C14 — closed in one pass. PATCH by

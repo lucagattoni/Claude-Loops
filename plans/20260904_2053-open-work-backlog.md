@@ -226,6 +226,78 @@ because it can die at any point.* Applies to anything expensive added to this pi
 
 ## 4. Tier 2 — content correctness
 
+### C1 — Fact-check the 14 never-touched docs · **PARTIALLY SHIPPED 20260905, PR #37** · large
+
+**What landed.** 341 checkable claims examined across all 14 docs; **49 fixes applied**, one commit
+per doc, plus four cross-doc extensions the per-doc agents could not see. Method: one Sonnet finder
+per doc → two independent Sonnet refuters per finding (over-correction lens and source-fidelity
+lens) → one Opus adjudication over the collected set → one Opus completeness critic. 134 agents,
+8.6M tokens. Of 59 raw findings: 29 survived both lenses, 24 contested, 6 refuted. The adjudicator
+merged conflicting fixes, **rejected 10** — including framings inside findings that had survived
+both lenses — and **rescued one** from the refuted pile.
+
+**This item is NOT closed.** The completeness critic's verdict, verbatim:
+
+> *"INCOMPLETE — the pass cannot be treated as having covered its 14 docs."*
+
+Three structural defects in the pass itself, all real:
+
+1. **Two finders read pre-commit copies of their file.** `c6e5a66` landed +119 lines into `docs/03`
+   and +149 into `docs/29` while the run was in flight, so **268 lines of the KB's newest and most
+   version-sensitive content were never examined** — while being reported as covered.
+2. **78 of the 98 unique URLs cited across the 14 docs were never opened**, concentrated in the two
+   docs the handover plan named highest-priority.
+3. **Claim density ran inverted against priority**: `docs/27` got 0.052 claims/line and `docs/04`
+   0.082, against 0.31 for `docs/31` and 0.32 for `docs/22`.
+
+**The dominant risk in what did land**, from the adjudicator's own risk note: *a failed or partial
+fetch reported as an absence*. An unauthenticated GitHub code search returned 401 and was read as
+"0 hits"; an SSR-truncated X thread was read as "phrase not found". Every fix whose evidence is
+absence could be wrong the same way. The two fixes that actually **remove** content were therefore
+re-verified by hand before landing, both with authenticated calls:
+
+- `docs/04`'s `~6%` figure — the source retracted it as fabricated (`e6ecf262`,
+  *"drop fabricated critic stat"*, 2026-07-04; the removal diff is in `c37b246`). **Correction to
+  the adjudicator:** it attributed `e6ecf262`'s commit message to `c37b246`. Substance confirmed,
+  provenance was wrong.
+- `docs/10`'s session-orchestrator paragraph — `acting_on` and `check-file-lock.sh` both return
+  zero via authenticated search, and the two replacement paths
+  (`scripts/lib/session-lock.mjs`, `scripts/lib/locks/state-md-lock.mjs`) were confirmed to exist
+  before being written in.
+
+**Settled by running rather than logged** — both were live-verified and fixed in this PR:
+`--max-turns` is **silently inert on `--bg`** (falsifying a claim `v3.1.1` shipped hours earlier),
+and `claude mcp add` has no interactive form. Six residual uncertainties are in `KB_GAPS.md`
+§ *Claims Awaiting Verification* as **V7–V12**.
+
+### C1b — Close the coverage the C1 pass did not reach · large · **the next round**
+
+Produced by the C1 completeness critic (Opus), which had the whole fan-out's output in front of it.
+Ordered by its own priority.
+
+| Pri | Gap | Next action |
+|---|---|---|
+| **P0** | Two finders read PRE-COMMIT copies of their file. Commit c6e5a66 ("Content: close C6, C13 and C14", 2026-09-05 18:03) landed +119 lines into docs/03 and +149 into docs/29 mid-pass. `git show c6e5a66~1` proves docs/03 was 151 lines / 0 version markers and docs/29 was 145 lines / 0 markers at read time; they are now 270/5 and 286/6. This explains every anomaly in the report at once: the docs/29 find | Re-run docs/03 and docs/29 against current HEAD, scoped to the c6e5a66 diff (`git show c6e5a66 -- docs/03-building-blocks.md docs/29-background-agents.md`), independently of plans/20260905_1349-c6-c13-evidence.md so it is a check and not a re-read. Re-answer H1 for both from the current file. Before |
+| **P0** | 78 of the 98 unique URLs cited across the 14 docs were never opened (33 third-party GitHub repos, 34 articles/blogs/X posts, 11 arXiv — I have now cleared the arXiv ones myself). The gap is concentrated in the two top-priority docs. docs/04's largest section, "Verifier Integrity: Keeping the Check Unfakeable" (lines 226-398, 172 lines), rests on 8 repos of which ZERO were opened: uppifyagency/loop | Run a second fan-out keyed to SOURCES, not to docs: one Sonnet agent per unopened repo/article, tasked with verifying every KB sentence attributed to it (grep the repo name across docs/ first, since most are cited in 2+ files). Start with the 16 repos anchoring docs/04:226-398 and docs/27:387-458. R |
+| **P0** | Claim density ran inverted against the handover plan's own priority ranking. The plan named docs/04 ("the KB's own non-negotiable foundation, highest-value doc in Part I") and docs/27 ("the KB's stated design spine") as the top tier. They received the LOWEST coverage of the 14: docs/27 = 24 claims / 463 lines = 0.052 per line; docs/04 = 52 / 636 = 0.082. Against that, docs/31 got 0.31 (20/65) and  | Re-scope docs/04 and docs/27 as multi-agent targets rather than one-agent-per-doc: split docs/04 by its 23 H2 sections and docs/27 by its 18, and require a minimum claim count proportional to section length. Treat any future finder reporting fewer than ~0.15 claims/line on a claim-dense doc as a fai |
+| **P1** | A falsified claim-of-absence — the repo's own defining defect class — sits in docs/23:272-273, reached directly from a docs/04 cross-reference and built on the same source the pass had open. The KB says: "Token cost at this concurrency is unmeasured for the Bun port itself... Neither Bun's post nor Anthropic's names a token or dollar figure for the 64-instance run." I fetched bun.com/blog/bun-in-r | Rewrite docs/23:272-280 around the real figures ($165,000 at API pricing; 5.9B uncached input / 690M output / 72B cached-read tokens) and keep the HN datapoint only as a note on per-seat plan economics, not as evidence of an unmeasured cost. Add docs/23 and docs/26 to the fact-check set — both carry |
+| **P1** | Same claim in two docs, only one checked — and the pass checked the wrong one. docs/04:388-390 (reviewed) says "one Claude Code instance implemented while a separate instance — with no visibility into the implementer's reasoning — was charged with a single mandate." The Bun post says "1 implementer, 2 or more adversarial reviewers per implementer" and "Every line of code was reviewed by two separa | Fix docs/04:388-390 to the 1-implementer/2-reviewer ratio, matching docs/23:237. Then add a generic step to the fact-check method: for every finding, grep the source name across all of docs/ and reconcile every doc that cites it, rather than fixing only the file the agent was assigned. |
+| **P1** | An uncited, named-company financial claim survives in the KB's spine doc. docs/27:48-50: "Uber engineers burned their entire annual AI budget in 4 months before a $1,500/month per-tool cap was imposed" — under an H2 literally titled "Real Cost Data", with no link of any kind. This violates the repo's own committed rule ("Citations must link. Every external reference in docs/*.md must be a markdown | Fetch the explainx.ai article named at docs/news.md:1422, confirm the Uber figures verbatim, and either cite it inline at docs/27:48 or cut the paragraph. Then run `grep -rnE '\*\*[^*]*(budget|\\$[0-9]|[0-9]+%)[^*]*\*\*' docs/*.md` and check every bolded statistic for an adjacent citation — this is  |
+| **P1** | Quoted third-party material was the pass's highest-yield class and was barely sampled. It found 3 defects (Karpathy composite splice at docs/31:40, miltonheyan sentence truncated at an altered clause boundary at docs/02:48, Van Horn line rendered as a Cherny quote at docs/20:54) and every one was confirmed. Unsampled: 344 blockquote lines KB-wide, plus 66 inline quoted spans of 25+ characters insi | Run the repo-wide blockquote audit the pass recommended but sized at 344 lines + 66 inline spans, one Sonnet agent per source. Prioritise the six named quotes above. For docs/04:257-260 specifically, decide now whether verbatim quotes may stand on a dead source at all — that is a policy question the |
+| **P1** | The H1 version-stamp question was answered per doc, but two of the fourteen answers are factually false about the doc's own contents, and both are false for the same reason as gap 1. docs/03's verdict says "Zero v2.1.x (or any) version markers anywhere in this doc" — it now has 5 (v2.1.233 at line 60, v2.1.212 at 144, v2.1.211 at 146, v2.1.206 at 147) plus an explicit verification stamp at line 15 | Re-answer H1 for docs/03 and docs/29 from current HEAD. Extend docs/03's existing line-156 stamp convention to the Routines, MCP and Chrome sections rather than dropping stamps from them, and reinstate the v2.1.261 marker on the Routines fix. Add a mechanical precondition to the H1 lens: the agent m |
+| **P2** | Model IDs and pricing — the KB's most volatile class — were never swept anywhere. docs/11-cost-control.md carries by far the densest concentration (Fable 5.1 x10, Sonnet 5 x7, Opus 5 x7, Opus 4.7 x4, Fable 5 x4, Haiku 4.5 x3, Opus 4.8 x2, plus literal ids `claude-sonnet-5` and `claude-fable-5-1`) and sits in the plan's 'touched, only new content verified' tier, so no agent has ever checked it. Rel | Add docs/11-cost-control.md to the next fact-check round as a dedicated target, verified against the live model/pricing pages rather than memory (the claude-api skill is the right entry point). Separately, add the Claude Fable 5 / Mythos-class attribution to the Bun passages in docs/04 and docs/23. |
+| **P2** | The `main`-vs-`master` assumption will manufacture false absences in the next round, which is the exact failure the pass's own risk_note flags as dominant. The fix list's method used `raw.githubusercontent.com/<owner>/<repo>/main/README.md` throughout (clem, graphiti, goal-engineering, opik). I hit the counterexample immediately: houshuang/compound-review serves its README only from `master` — the | Mandate `curl -s https://api.github.com/repos/<owner>/<repo> | jq -r .default_branch` (or a git ls-remote) before any raw fetch, and make every 404/401/403 a hard stop that reports UNVERIFIABLE rather than absence. Re-run the two content-removing checks under that rule before landing them, as the ri |
+| **P2** | The 93.4% fix was not re-read against the sentence that follows it. docs/04:346-350 currently reads "93.4% were caught by exactly one tool — no pair of tools ever flagged the same line. This corroborates the ~85-90% figure above...". The fix rewrites the first sentence to admit that 37 lines drew exactly two reviewers and 4 drew three, but leaves the following sentence untouched. I verified the ~8 | Re-read docs/04:331-352 as a whole after applying the 93.4% fix and reword the corroboration sentence to 'largely non-overlapping' rather than absolute. Add the 'past ~3 rounds introduces bugs' rationale at docs/04:340. Generally: require the fix applier to re-read the full paragraph around every ed |
+| **P2** | Four classes are now VERIFIED CLEAN by me and must not consume next-round budget; two cross_doc recommendations are overstated as a result. (1) All 70 cross-doc anchored links resolve — I validated with python-markdown's real slugify (strip punctuation, then collapse runs of [-\s]); a naive slugifier reports 68 false breaks, so anyone re-running this must use the correct collapse rule. (2) All 98  | Record these as closed in the backlog so the next round does not re-derive them, and downgrade cross_doc items 9 and 8's link-rot framing. Do still add the URL sweep to the pipeline as a regression guard (it is cheap and the KB is public), but as prevention, not remediation — there is nothing curren |
+
+**Verified clean by the critic — do NOT re-spend budget here:** all 70 cross-doc anchored links,
+all 98 cited URLs bar the 2 known 404s, all 10 arXiv IDs and titles, and the Bun and
+compound-review numbers. The critic also **downgrades its own fan-out's "link rot is systemic"
+claim** — only 2 renames exist KB-wide and both are already fixed.
+
+<details>
+<summary>Original C1 analysis, for reference</summary>
+
 ### C1 — Fact-check the 14 never-touched docs · large
 
 `02 03 04 05 06 10 16 19 20 22 27 29 30 31` — including `docs/04` (the KB's stated foundation) and
@@ -238,6 +310,8 @@ because it can die at any point.* Applies to anything expensive added to this pi
 - **Do:** follow `20260904_2002-v3-fact-check-gaps.md` §3–§4 verbatim, in a worktree, in priority
   order `04, 27, 05, 06, 16, 29`, then the remaining eight. One commit per doc. Fold **H1**
   (version stamps) into the same pass.
+
+</details>
 
 ### C2 — ~~Superseded model IDs in copyable examples~~ · **SHIPPED v3.1.0**
 
@@ -465,6 +539,7 @@ rule this KB already states and its own pipeline did not follow (see **A1**).
 | **H10** | No tag/release step in the pipeline; 15 tags have no release | small | 53 tags, 53 CHANGELOG versions, 38 releases. Missing: `v1.1.0 v1.2.0 v2.0.1 v2.0.2 v2.1.1 v2.1.2 v2.3.1`–`v2.3.9`. Needs **D2** |
 | **H11** | Structural review (Phase 4b/4c) has caught none of H5/H7/H8 across ~20 runs | small | The review is mandated after every run by `CLAUDE.md`; three structural defects survived it. Tighten the phase's checklist with concrete queries (orphan check, heading check, duplicate-coverage check) |
 | **H12** | Co-resident session-leak security claim: neither verified nor tracked | medium | Exists as one sentence at `LOOP_ENGINEERING_NEWS.md:125`; `grep -rn 'co-resident' docs/ KB_GAPS.md` → nothing, and `docs/19` has no session-isolation content. At minimum log it in `KB_GAPS.md`; ideally reproduce with a two-session test and publish the finding *or its refutation* |
+| **H14** | The tracker's "04:00 UTC" slot expires on 2026-10-25 | small | `StartCalendarInterval` is **local** time (`Hour: 5`), so `05:00 local = 04:00 UTC` holds only during IST. When Ireland leaves IST the slot becomes 05:00 UTC and `tracker-watchdog.yml:15` plus `CHANGELOG.md:867` go stale. The watchdog keeps 4h of margin either way, so this is doc accuracy, not an operational break. Found 20260905 |
 | **H13** | `plans/` has no retirement policy | small | `find . -iname '*archive*'` → nothing. Needs **D3**; then archive the two delivered plans in §6 |
 
 ---
@@ -511,7 +586,8 @@ the remote, and is marked latest.
 | 5 | **A3** — remote staleness watchdog | Watchdog fires on a deliberately stale digest header |
 | 6 | **§6 corrections** + **C3** — stop the handover docs lying, cheapest possible win | — |
 | ~~7~~ | ~~**C2**, **C6**, **C13**, **C14** — small content fixes with sources already in hand~~ · **DONE** — C2 in PR #28, C6/C13/C14 in PR #36 | Citation-link gate |
-| 8 | **C1** + **H1** — the 14-doc fact-check, version stamps folded in | One commit per doc, each gated on `--strict` |
+| ~~8~~ | ~~**C1** + **H1** — the 14-doc fact-check~~ · **PARTIAL** — 49 fixes shipped in PR #37; coverage gaps carried to **C1b**, H1 answered per doc (6 of 14 docs legitimately need no stamp) | One commit per doc, each gated on `--strict` |
+| 8b | **C1b** — the coverage the C1 pass did not reach, P0 items first | Re-run `docs/03`/`docs/29` against HEAD; open the 78 unopened URLs |
 | 9 | **C5**, **C8**, **C9**, **C11**, **C12** — new content and source revalidation | Resource-review rule (score ≥ 3.0 before extracting) |
 | 10 | **H2**–**H9**, **H11**, **H12** — corpus hygiene | — |
 | 11 | **C7**, **C10** — the two large sweeps | — |
