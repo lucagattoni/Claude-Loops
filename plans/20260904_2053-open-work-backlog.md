@@ -278,7 +278,13 @@ three copy-pasteable instances behind.
 - Needs **new content**, not a correction: scope, defaults, opt-out, and how it differs from the
   loop-external patterns the doc already covers.
 
-### C6 — `claude --worktree` standalone semantics · small · research already done
+### C6 — `claude --worktree` standalone semantics · small · **evidence pack ready, just write it**
+
+**Do not re-research.** Ready-to-insert doc text is in [`20260905_1349-c6-c13-evidence.md`](20260905_1349-c6-c13-evidence.md),
+Deliverable 1, verified against `claude 2.1.261`. Correction to this item as written below: the
+gap note's "four isolation checks" is **right**, but the fourth is named **"Command shape"** (not
+"unverifiable shell constructs"), the *"You can't turn this check off"* sentence belongs to that
+check **alone**, and the git-redirect list also includes `GIT_WORK_TREE` and a plain `cd`.
 
 Fully cited in `KB_GAPS.md:9-21` (source: `code.claude.com/docs/en/worktrees`, verified 2026-09-04),
 never written up. `docs/03:31-36` and `docs/29:20-67` cover only the building-block mention and
@@ -335,7 +341,13 @@ Delivered from the same plan, for contrast: the model line-up table (`docs/11:25
 #1–#4 (`docs/07:205-217`, `:283-299`, `docs/08:5`), and ClaudeWarp as reference implementation
 + the "harness designed to shrink" lesson (`docs/35:155-160`, `docs/36:191-216`, `docs/24:843-846`).
 
-### C13 — 13 `CLAUDE_CODE_*` env vars asserted, never verified as a set · small
+### C13 — 13 `CLAUDE_CODE_*` env vars asserted, never verified as a set · small · **evidence pack ready**
+
+**Do not re-research.** Per-variable verdict table, four concrete corrections, and — critically — a
+list of claims that are unsupported but must **NOT** be deleted, in
+[`20260905_1349-c6-c13-evidence.md`](20260905_1349-c6-c13-evidence.md), Deliverable 2. The inventory pass flagged
+`CLAUDE_CODE_SIMPLE` and `CLAUDE_CODE_SAFE_MODE` as suspected fabrications; **both are real**.
+Seven items the evidence could not settle are listed there rather than rounded off.
 
 The fabricated `CLAUDE_CODE_MAX_SUBAGENTS_PER_SESSION` row is confirmed gone from `docs/`. The
 remaining assertions have never had one systematic pass against the official env-vars reference —
