@@ -8,6 +8,16 @@ a verifiable criterion is met.
 
 (Cobus Greyling, ["Goal Engineering"](https://cobusgreyling.substack.com/p/goal-engineering), Substack, Jun 2026.)
 
+> **Scope note:** this page describes Cobus Greyling's *goal engineering* reference
+> implementation, built for [xAI's Grok Build CLI `/goal`](https://github.com/cobusgreyling/goal-engineering)
+> — not Claude Code's own `/goal`. Claude Code ships a native
+> [`/goal` command](https://code.claude.com/docs/en/goal) (since v2.1.139) with a different
+> mechanism: a small fast model (Haiku by default) evaluates a plain-language completion
+> condition after every turn and returns *Not yet met*, *Met*, or *Impossible*. There is no
+> G0–G3 score, no required `GOAL.md`, and no canonical pattern library in the built-in
+> version. Treat the GOAL.md / G0–G3 / pattern discipline below as an optional practice you
+> layer on top of Claude Code's `/goal`, not as how it behaves out of the box.
+
 ## Goals vs. Loops
 
 Use this decision framework before designing a task:
@@ -105,24 +115,26 @@ Reference patterns for common goal types ([cobusgreyling/goal-engineering](https
 | **Tests Green** | All tests in \<scope\> pass | CI exit code |
 | **Migrate Module** | \<module\> migrated; zero legacy imports remain | grep for old import paths |
 | **Fix Bug** | \<issue #N\> closed; regression test present | Test suite + issue state |
-| **Refactor** | Code simplification pass complete; no new test failures | Test suite + diff line count |
-| **Docs Update** | All referenced APIs present in docs; no broken links | link checker + grep |
-| **Security Scan** | \<scope\> scanned; all findings triaged or resolved | Scan report exit code |
+| **Refactor Safely** | Behavior-preserving refactor complete; no new test failures | Test suite + diff line count |
+| **Implement Feature** | Scoped feature complete; acceptance criteria hold | Acceptance checklist + test suite |
+| **Coverage Target** | Test coverage raised to \<threshold\>% | Coverage report exit code |
 
 Use these as starting points — always replace the objective with a concrete bounded statement before launching.
 
 ## G0–G3 Goal Readiness Scoring
 
-Before launching a goal, score its readiness across four axes (0 = not met, 1 = met):
+Before launching a goal, check the Four Primitives are all in place — a concrete verifiable
+objective, a verifier that is not the implementer, a GOAL.md the agent can read and write,
+and an explicit budget/deny list. Readiness itself is scored by the auditor
+(`npx @cobusgreyling/goal-audit . --suggest`), which computes a 0–100 score from weighted
+signals — GOAL.md, skills, verifier, tests, CI, budget and run-log freshness — and buckets it:
 
-| Axis | Score 0 | Score 1 |
+| Level | Score | Meaning |
 |---|---|---|
-| **Objective clarity** | "Improve X" — vague | Concrete, verifiable: "all /auth tests pass" |
-| **Verifier independence** | Same agent grades own output | Separate agent, CI check, or test suite |
-| **State file** | No GOAL.md | GOAL.md in repo, agent can read/write it |
-| **Budget defined** | No turn/cost cap | Explicit --max-turns and --max-budget-usd |
-
-**G0** (0/4) — do not launch; clarify first. **G1** (1-2/4) — high failure risk; address gaps before launching. **G2** (3/4) — acceptable for non-critical goals. **G3** (4/4) — production-ready goal.
+| **G0** | < 40 | Ad hoc `/goal` usage |
+| **G1** | 40–59 | GOAL.md + assisted goals |
+| **G2** | 60–79 | Verifier + test gates |
+| **G3** | 80+ | CI, budget, run log |
 
 ([cobusgreyling/goal-engineering](https://github.com/cobusgreyling/goal-engineering), Jun 2026.)
 
@@ -144,7 +156,7 @@ launching rather than discovering the cost after a runaway. This is the a-priori
 counterpart to post-hoc cost tracking (see [Cost & Turn Control](11-cost-control.md));
 pair them — estimate from the pattern, then cap with the measured ceiling.
 
-([cobusgreyling/goal-engineering](https://github.com/cobusgreyling/goal-engineering) `goal-cost`, v1.1.0, Jun 2026.)
+([cobusgreyling/goal-engineering v1.1.0 — "Stack release (Loop + Goal)"](https://github.com/cobusgreyling/goal-engineering/releases/tag/v1.1.0) `goal-cost`, Jun 2026. The `goal-cost` package itself is v1.0.0 and, unlike `goal-audit`/`goal-init`, is not published to npm — `npx @cobusgreyling/goal-cost` and `npx @cobusgreyling/goal` both 404 as of 2026-09-05, so check `npm view @cobusgreyling/goal-cost version` before relying on the commands above.)
 
 ## Case Study: 107M Rows on a Single Goal
 
