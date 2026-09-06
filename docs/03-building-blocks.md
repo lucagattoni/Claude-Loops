@@ -147,12 +147,14 @@ the mechanical version and keep the prose for what the harness cannot check. See
 | `EnterWorktree` prompt | Entering a path outside `.claude/worktrees/` always asks first — it moves the session's working directory, write access, and project config. An `EnterWorktree` allow-rule or "don't ask again" does not suppress it; only `bypassPermissions` does. Before v2.1.206 Claude could enter any existing worktree path without asking |
 | Non-git VCS | Worktrees require a git repository; other version control systems need `WorktreeCreate`/`WorktreeRemove` hooks replacing the git logic entirely |
 
-Background sessions compose with all of this: `claude --bg --worktree "<task>"` gives each
-worker its own enforced sandbox — see [Background Agents](29-background-agents.md).
+Background sessions compose with all of this: `claude --bg --worktree <name> "<task>"` gives each
+worker its own enforced sandbox — pass the worktree name explicitly, because `--worktree [name]`
+takes an optional value and will otherwise swallow the prompt as the name (reproduced on 2.1.263:
+`state: failed`, "Error creating worktree: Invalid worktree name", no worktree created) — see [Background Agents](29-background-agents.md).
 
 *Source: [worktrees reference](https://code.claude.com/docs/en/worktrees),
 [CLI reference](https://code.claude.com/docs/en/cli-reference), and
-[settings reference](https://code.claude.com/docs/en/settings); cross-checked against
+[settings reference](https://code.claude.com/docs/en/settings-reference); cross-checked against
 `claude --version` **2.1.261**, 2026-09-05.*
 
 ## 3. Skills
@@ -213,7 +215,7 @@ Key properties:
 - Browser actions run in a **visible Chrome window** (you can watch)
 - Claude pauses and asks you to handle CAPTCHAs or login walls manually
 - Works with Chrome, Edge, and other Chromium-based browsers (Brave, Arc, Vivaldi, Opera); not supported on WSL
-- Requires a direct Anthropic plan (Pro/Max/Team/Enterprise); not available via Bedrock/Vertex
+- Requires a direct Anthropic plan (Pro/Max/Team/Enterprise); not available via Amazon Bedrock, Google Cloud's Agent Platform (formerly Vertex AI), or Microsoft Foundry
 
 ```bash
 # Enable by default so every session has browser access

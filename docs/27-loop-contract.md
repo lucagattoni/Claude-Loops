@@ -87,7 +87,7 @@ binary budget cap cannot express. Paired with a **safe fallback** rule: when the
 primary (P0) objective is gated, the loop may still make progress on lower-priority
 (P1) work rather than sitting fully idle, provided that work is tracked with the
 same evidence and ownership discipline as the primary objective (see
-[claimed_by todo ownership](16-memory-patterns.md#pattern-d-multi-backend-task-queue)).
+[claimed_by todo ownership](16-memory-patterns.md#pattern-i-durable-objectives-with-evidence-logs)).
 ([huangruiteng/loopx](https://github.com/huangruiteng/loopx), Jul 2026.)
 
 ## Two Quality Gates
@@ -103,7 +103,7 @@ Gate 2 maps directly to the STOP property in the Loop Contract above. Gate 1 is
 what enforces it at runtime — without objective evidence, the loop cannot know
 whether STOP has been met.
 
-(Wooheum Xin, ["Stop Writing Prompts: The True Nature of Loop Engineering"](https://zenn.dev/acrosstudioblog/articles/38509c0473683a), Zenn, Jun 2026.)
+(Wooheum Xin, ["もうプロンプトを書くな──「Loop Engineering」という新しいパラダイムの正体"](https://zenn.dev/acrosstudioblog/articles/38509c0473683a) — "Stop Writing Prompts: The True Nature of the New Paradigm Called Loop Engineering" (translated from Japanese), Zenn, Jun 2026.)
 
 ## Stop Condition Taxonomy
 
@@ -117,14 +117,14 @@ is the **canonical taxonomy** — other docs reference it rather than re-definin
 
 **"Done" scales with who's asking, not just what the task is.** A practical framework for
 setting the completion check itself, by organizational scale: at enterprise scale, build
-internal eval systems ("schools for agents" — cites Block's Goose and Shopify's River),
+internal eval systems ("school for agents" — cites Block's Goose and Shopify's River),
 integrate into the tools the team already uses, and tie evals to company standards rather
 than generic benchmarks — a code-review test being "can your second- or third-best
-engineer understand a random agent-written file within 20 minutes?" At SMB scale, reuse
-existing tools/channels with evals reflecting real business standards under tighter
-resource constraints. At solo/small-business scale, tie the metric to an observable
-business outcome (replies earned, not emails sent; problems resolved, not tickets closed)
-and have the owner personally verify domain-expert areas. The sharpest line, applicable at
+engineer understand a random agent-written file within 20 minutes?" At SMB and solo scale —
+which the source treats as one group, since neither can build an enterprise-style internal eval
+system and both stay closer to their own tools — tie the metric to an observable business outcome
+(replies earned, not emails sent; problems resolved, not tickets closed) and have the owner
+personally verify domain-expert areas. The sharpest line, applicable at
 every scale: *"agents optimize for the grader, not the goal"* — the completion check *is*
 the spec, as far as the agent is concerned, so a grader that doesn't match the real goal
 gets gamed by construction, not by malice.
@@ -187,9 +187,12 @@ Three exit codes are the floor, not the ceiling. A **Product Contract** — the 
 acceptance criteria, verification commands, and stop conditions — can itself be
 tampered with (by the agent under pressure to declare success, or by an external
 edit); hashing the contract at approval time and treating any mismatch as its own
-stop condition (`NEEDS_SPEC_DECISION`) closes a gap the basic taxonomy doesn't
+stop condition — a hard, fail-closed refusal to start (exit 2) before the run ever begins —
+closes a gap the basic taxonomy doesn't
 address: *the spec drifting is a different failure than the work drifting*, and needs
-its own detectable, named exit state. Expanding from 3 to **8 named exit codes**
+its own detectable, named exit state. Expanding from 3 to more named exit codes (loop-kit's own README described its stopping model as
+"eight named states with exit codes" at this doc's Jul 2026 writing; the project has grown since —
+12 named states across 6 distinct exit codes as of Sep 2026)
 (rather than reusing one code for several distinct failure classes) makes the caller
 able to distinguish "no progress" from "spec tampered" from "reviewer disagreed"
 without parsing log text.
@@ -261,17 +264,17 @@ confusion forward. Instead:
 ```
 
 > "Clean iterations with recorded learnings will outperform long, polluted
-> conversations every single time." — Martin Dilger, Jun 2026
+> conversations every single time." — Martin Dilger, ["Loop Engineering — or why you should never argue with an agent"](https://www.linkedin.com/pulse/loop-engineering-why-you-should-never-argue-agent-martin-dilger-uql8e), Jun 2026
 
 ## Governed Cross-Session Learning
 
 Experience Encoding (above) captures per-iteration learning. Cross-session learning
-accumulates patterns across 5+ sessions and promotes them to standing rules:
+accumulates patterns across 2+ sessions and promotes them to standing rules:
 
 | Skill | What it does | When to use |
 |---|---|---|
-| `/evolve` | Analyses session transcripts, extracts recurring patterns, drafts rule proposals | After ≥5 completed sessions on a loop |
-| `/reconcile` | Converts extracted proposals into reviewable `.claude/rules/` files | Before any pattern is applied standing |
+| `/evolve` | Analyses session transcripts, extracts recurring patterns, records them as learnings | After 2+ completed sessions on a loop |
+| `/reconcile` | Promotes eligible learnings into proposed `.claude/rules/` files for operator approval | Before any pattern is applied standing |
 
 **Implementation note:** `/evolve` and `/reconcile` are not built-in Claude Code commands.
 They are implemented as Claude Code [Skills](06-skills.md) — on-demand workflows
@@ -347,7 +350,12 @@ Schedule → Discover → Build → Verify → Repeat
 Self-discovery eliminates the manual queue maintenance step: the loop knows what to work on
 because it reads the same signals a human engineer would check in morning triage.
 
-([Anthropic engineering practices](https://www.anthropic.com/engineering), Jun 2026.)
+(Attribution corrected 2026-09-06: this pattern is **not** from Anthropic's engineering blog —
+that index carries no June 2026 post and nothing resembling this five-step loop. It is a community
+synthesis that circulated around Jun 2026; the closest checkable primary source is
+[Addy Osmani, "Loop Engineering"](https://addyosmani.com/blog/loop-engineering/) (7 Jun 2026),
+which quotes Boris Cherny and Peter Steinberger on the framing. Re-attribute to a specific,
+verified source before this section is quoted onward — see `KB_GAPS.md`.)
 
 ## Relationship to Goal Engineering
 
@@ -365,11 +373,14 @@ without requiring a human to summarise it.
 ```markdown
 # .loopflow/memory/pr-babysitter.md  (appended after each run, prepended to next run's prompt)
 
-## Run 2026-06-25 06:41 UTC
-- **Outcome:** VERDICT: PASS — 2 stale PRs closed, 1 draft marked ready
-- **Cost:** $0.31 (headroom: 69%)
-- **Notable:** PR #88 auth migration — merge blocked on CI flake, not code
-- **Next run:** re-check PR #88 first; CI flake in auth-tests is a known issue
+## Run 2026-06-25T06:41:00.000Z
+- Outcome: success (iterations used: 2)
+- Cost: $0.31
+- Steps: fix ✓, review ✓
+
+### Notes
+2 stale PRs closed, 1 draft marked ready. PR #88 auth migration — merge blocked on CI flake,
+not code; re-check PR #88 first next run.
 ```
 
 "The agent forgets; the repo doesn't."
@@ -387,7 +398,7 @@ the next iteration — not just the gate step's prompt.
 
 Standard retry pattern: gate fires → same loop re-runs → gate fires again.
 
-Gate feedback injection: gate fires → rejection reason prepended to EVERY agent's system
+Gate feedback injection: gate fires → rejection reason prepended to EVERY agent's task
 prompt → next iteration starts with every sub-agent aware of why the previous attempt failed.
 
 This is distinct from simply retrying. The failure context propagates laterally to agents
@@ -458,7 +469,8 @@ production.
   code to data and research work.
   ([hdkhosravian/loop-contract-skill](https://github.com/hdkhosravian/loop-contract-skill), Aug 2026.)
 - **DeMARS** — outside software entirely: a computational-materials-science framework
-  combining deterministic algorithms, bounded LLM judgment, task-specific verification, and
+  combining deterministic algorithms, bounded LLM-based judgment, task-specific verification,
+  episodic maturation, and
   complete delegation — a Loop-Contract-style SCOPE/verifier pattern applied to scientific
   computing, evidence the contract shape generalizes past coding agents.
   ([arXiv 2609.00795, "Agentic programs: an emerging form of scientific software"](https://arxiv.org/abs/2609.00795), Sep 2026.)

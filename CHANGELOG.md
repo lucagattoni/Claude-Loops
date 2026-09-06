@@ -18,6 +18,59 @@ Versioning follows [Semantic Versioning](https://semver.org/):
 
 ---
 
+## [3.1.6] — 20260906 09:31
+
+C1b round two: the coverage the first fact-check pass did not reach. **476 claims checked, 424
+correct, 46 fixes applied, 90 of 90 cited URLs opened** across `docs/03`, `04`, `27`, `29`. Four
+docs out-checked all fourteen of round 1 — the inverted claim density is fixed.
+
+### Fixed
+
+- **A second fabricated blockquote** in `docs/04`, presented as verbatim from
+  `wquguru/harness-books`; an authenticated code search returns **zero** hits for its key word.
+- **Fabricated implementation detail** — `SCOPE.md` and a "test/check index" that do not exist in
+  the cited repo, describing a Stop-hook mechanism the source's own RFC explicitly rules out.
+- **An unattributed verbatim quote** in `docs/04` that this KB cites *correctly*, with a link, in
+  two other files.
+- **Fugu role-assignment and pricing claims** contradicted by the vendor's own technical report.
+- **Two defects in this project's own week-old work.** `claude --bg --worktree "<task>"` cannot run
+  — `--worktree [name]` consumes the task string as the worktree name (`state: failed`, *"Invalid
+  worktree name"*). And the silent-idle demo used `--mcp-config`, which **dies in ~10s** instead of
+  idling; `--allowedTools` genuinely idles (`state: blocked`, live pid). The phenomenon was real,
+  the demonstration was not — and the adjudicator's own swap left a **composite transcript** (new
+  command, old session id), caught and replaced with the real reproduction.
+- `claude agents --json` gains a fourth observed `state`: **`blocked`**.
+
+### Added
+
+- **`DISABLE_AUTOUPDATER=1`** documented in `run-loop-news.env.example` and set machine-locally.
+  The prevention that pairs with `v3.1.5`'s detection: the tracker cannot straddle two binaries,
+  and cannot run a version the macOS firewall has never seen, unattended, at 04:00.
+- `KB_GAPS.md` **V13–V16**.
+
+### Method — a date-check that changed a verdict
+
+Three high-severity `docs/04` rewrites rested on one agent reading one repo on one day. Pulling
+`eugenelim/agent-ready-repo` as of the KB's own 2026-06-26 capture showed the claims were never
+supported (the RFC grew 389→612 lines, but `SCOPE.md`/`Stop hook`/`test` have **zero** hits in
+both versions). The reverse case is recorded as `V13`: a zeroshot quote the KB got right in July
+that the source later deleted, which a finder called fabricated and a refuter cleared by pulling the
+capture-date commit. **"Contradicted by the source" must mean contradicted as of the capture date**,
+or a fact-check manufactures its own false positives.
+
+### Still incomplete
+
+Only four docs were re-examined. **`docs/11`'s model IDs and pricing — the KB's most volatile
+class — have still never been swept anywhere.** The critic's P1/P2 items remain open in the backlog.
+
+### Version stamps
+
+Restamped to `2.1.263` **only** where a claim was genuinely re-observed on it. Three claims stay
+stamped `2.1.261` because nothing in this pass re-ran them; bumping them would assert a
+verification nobody performed.
+
+---
+
 ## [3.1.5] — 20260906 08:50
 
 The tracker ran two stages on two different Claude Code binaries and nothing recorded it. This makes
