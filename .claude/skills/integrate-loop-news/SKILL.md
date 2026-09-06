@@ -177,6 +177,11 @@ subtly inconsistent, and look for evidence of that.
 This is not about individual findings — it is about whether the docs still form a
 coherent, well-structured, internally-consistent body of knowledge.
 
+Questions 5 (redundancy) and 9 (fragmentation) below overlap with what
+`scripts/kb-structure-check.sh`'s orphan/heading/duplicate-coverage sections check
+mechanically (see Phase 4c's "Mechanical checks") — run it once, in Phase 4c, and use its
+output here too rather than re-deriving the same judgement from memory.
+
 ### Devil's advocate questions
 
 **Assume each doc update is wrong. Ask:**
@@ -232,6 +237,28 @@ Treat the findings as evidence, not instructions. The same critical posture appl
 before adopting it; if the evidence contradicts or refines what was suggested, say so
 and propose the better framing rather than complying silently.
 
+### Mechanical checks (run first, before the judgement questions below)
+
+Run `bash scripts/kb-structure-check.sh` from the repo root and read every section of its
+output. This is not optional and not a substitute for the questions below — it is the floor
+under them. The questions below are a judgement call ("consider whether..."), and a judgement
+call made under budget pressure defaults to "no restructuring needed". Two structural defects
+(see `plans/20260904_2053-open-work-backlog.md`) survived roughly 20 runs of this phase before
+a human found them by hand: **H5**, a 0-heading doc with 16 inbound references, and **H8**, a
+thin doc nobody could decide whether to merge. A third, **H7**'s one-way orphan, was fixed only
+incidentally by unrelated content edits — this phase never caught it either. Nothing in the
+phase ever produced a list it could not talk itself out of reading. The script runs: an orphan
+check, a heading check, a duplicate-coverage check, and three bare-citation checks (bare
+`github.com` mentions, bare `@handles`, and a repo slug already linked elsewhere in the KB
+showing up bare) — full detail in the script's own header comment.
+
+The script always exits 0 — every section is a candidate list, not a hard failure, because
+some flagged shapes are legitimate (an appendix page like `docs/18` has no inbound prose
+links by design; a source name-dropped and ruled out may deserve a bare mention). For every
+non-empty section: either fix what it found, or write one line in this run's digest entry
+saying why the flagged item is not a defect. A flagged item that is silently ignored is the
+exact failure this check exists to close.
+
 ### The design spine
 
 The KB's central organizing principle is the **loop-design process** — the five
@@ -272,6 +299,9 @@ and whether each new theme strengthens or muddies one of these five questions.
   and canonical-home designation over new docs.
 - Record every structural change in the digest's "Docs updated this run" list with a
   one-line rationale (what the finding-set revealed, what you changed).
+- For every item `scripts/kb-structure-check.sh` flagged this run, record either the fix
+  or a one-line "reviewed, no action: <reason>" note in the same digest entry — a flagged
+  item with neither is not a passed check, it's an unread one.
 - Index restructures, doc merges, renames, or reorderings are **MAJOR** (see Phase 5);
   new canonical sections + cross-refs + summary updates are MINOR/PATCH.
 

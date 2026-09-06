@@ -37,7 +37,8 @@ and the concept of "vibe coding" as the new technical debt.
 
 **Why here:** Secondary coverage, not primary — checked directly (Sep 2026): this piece
 reports the "my job is to write loops" line via an embedded third-party tweet
-(@Av1dlive) describing a video clip, not from an interview conducted for the piece
+([@Av1dlive](https://x.com/Av1dlive/status/2064321381953675599)) describing a video
+clip, not from an interview conducted for the piece
 itself. The primary source is Cherny's own on-stage remarks at [Acquired Unplugged,
 presented by WorkOS](https://www.youtube.com/watch?v=RkQQ7WEor7w&t=11m45s) (~11:45,
 Jun 2026). Kept here for its framing of where the discipline is headed, not as the

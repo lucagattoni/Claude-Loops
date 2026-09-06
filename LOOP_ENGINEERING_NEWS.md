@@ -18,7 +18,9 @@ reproduced this line with differing wording: `docs/03`, `docs/26` and `docs/32` 
 citation was wrong about its own status — it called [thenewstack.io](https://thenewstack.io/loop-engineering/)
 "Primary source ... in his own words." Checked directly (`curl` + strip-tags, not WebFetch):
 that piece is a news explainer that reports the line via an embedded third-party tweet
-(@Av1dlive) describing a video clip. It is secondary.
+([@Av1dlive](https://x.com/Av1dlive/status/2064321381953675599)) describing a video clip.
+It is secondary. (That permalink is taken from the article's own embed markup, not fetched
+from x.com, which this repo's tooling cannot reach.)
 
 The primary source is Cherny's own on-stage remarks in ["Boris Cherny: Claude Code & the
 Future of Engineering" — *Acquired Unplugged*, presented by WorkOS](https://www.youtube.com/watch?v=RkQQ7WEor7w)
