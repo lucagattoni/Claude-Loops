@@ -403,9 +403,15 @@ rewrite cannot influence." ([Bun, "Bun, in Rust"](https://bun.com/blog/bun-in-ru
 
 **Blind adversarial review, quantified on a full production rewrite.** A concrete
 large-scale instance of the information-asymmetry pattern above: on the same Bun rewrite,
-one Claude Code instance implemented while a separate instance — with no visibility into
-the implementer's reasoning — was charged with a single mandate: "find bugs & reasons why
-the code does not work." Run at fleet scale (peak 64 parallel instances across 4
+one Claude Code instance implemented while **two or more** separate instances — with no
+visibility into the implementer's reasoning — were each charged with a single mandate: "find
+bugs & reasons why the code does not work." Bun states the ratio and the role separation
+verbatim: "1 implementer, 2 or more adversarial reviewers per implementer... The implementer
+doesn't review. The reviewer doesn't implement," and "Every line of code was reviewed by two
+separate adversarial reviewers (also Claude) and went through a round of fixes before
+committing." The duplication is not redundancy for its own sake — two independent reviewers
+are what make a single reviewer's miss recoverable, which is the same argument
+[Fleet Engineering](23-fleet-engineering.md) records at fleet scale. Run at fleet scale (peak 64 parallel instances across 4
 worktrees, see [Fleet Engineering's case
 study](23-fleet-engineering.md#case-study-bun-64-parallel-instances-rewriting-535k-lines-in-11-days)),
 this produced 128 bug fixes in the v1.4.0 release with only 19 regressions introduced
