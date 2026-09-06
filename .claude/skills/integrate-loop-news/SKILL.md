@@ -259,6 +259,14 @@ non-empty section: either fix what it found, or write one line in this run's dig
 saying why the flagged item is not a defect. A flagged item that is silently ignored is the
 exact failure this check exists to close.
 
+**If the script cannot be run at all — missing file, permission denied, `perl` absent, a
+non-zero exit — ABORT this phase and say so loudly in the digest and the run log. Do not
+continue as though it passed.** "Exits 0" is only meaningful when the script actually ran; a
+check that could not tell must fail, never pass. The wrapper grants exactly
+`Bash(bash scripts/kb-structure-check.sh*)` in `B_ARGS` (`scripts/run-loop-news.sh`) — if that
+allowlist entry is ever removed or the script is renamed, this step becomes unrunnable, and the
+correct behaviour is a visible failure, not a quiet skip.
+
 ### The design spine
 
 The KB's central organizing principle is the **loop-design process** — the five
