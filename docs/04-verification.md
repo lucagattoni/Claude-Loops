@@ -374,6 +374,102 @@ above with an independent, non-LLM-judge data source: the non-overlap is not an 
 LLM-as-judge harnesses are built, it recurs in production tools built by different
 vendors on different review philosophies. ([dev.to, "Best AI Code Reviewer in 2026?"](https://dev.to/_vjk/best-ai-code-reviewer-in-2026-we-ran-4-in-parallel-for-3-weeks-146-prs-679-findings-1c0f), May 2026.)
 
+#### Which pair, and in which direction — two 2026 results that sharpen this
+
+The advice above stops at *"use a different family."* Two controlled studies push past it, and the
+second complicates the first.
+
+**1. The pairing is asymmetric — order matters more than difference.** A controlled experiment over
+**116 hard and medium LiveCodeBench tasks**, across six conditions (both solo baselines, both
+cross-model orderings, both same-model orderings), with the reviewer seeing the problem and the
+draft but unable to execute tests:
+
+| Condition | Pass rate |
+|---|---|
+| Codex solo | 71.6% |
+| **Claude reviewing Codex** | **89.7%** (p_BH = .001) |
+| Codex self-review | 84.5% (p_BH = .022) |
+| Claude solo | 91.4% |
+| **Codex reviewing Claude** | **82.8%** — *worse than solo* (p_BH = .046) |
+| Claude self-review | 91.4%, unchanged |
+
+Its own conclusion: *"the useful pairing is asymmetric: use Claude to review Codex, not the other
+way around."* Note the shape, which generalises past these two models: a cross-model reviewer can
+make results **worse than no review**, and *"Codex self review raises them to 84.5%"* — a same-family
+reviewer beat the cross-family one in that direction. So "different family" is not the operative
+property, and a pairing must be validated in the direction you intend to run it.
+([arXiv 2607.21656](https://arxiv.org/abs/2607.21656), Xiang et al., Jul 2026; accepted at Agentic
+SE @ KDD'26 per the paper's own comment field.)
+
+**2. And diversity may not come from lineage at all.** In the adjacent domain of *trusted
+monitoring* — a cheap trusted model scoring a stronger untrusted model's actions on backdoored code
+— a study of **24 open-weight monitors across nine pretraining lineages** found that buying
+decorrelation through family diversity **does not pay**: *"At matched member capability, cross-lineage
+panels detect no better (permutation p = 0.13)."* What predicts a monitor's agreement with the pool
+is its **skill**, not its lineage (Spearman 0.84). Worse for panel-building generally: *"Panel gain
+over the best member falls monotonically with panel skill"*, and *"no correlation-weighted selection
+beats picking the single best monitor out of sample."*
+
+**How to hold these together without overreading either.** The domains differ — backdoor detection
+by trusted monitors is not code review — and this does **not** overturn the ~85–90% non-overlap
+finding above, which is about *what gets caught*, not about *where the diversity comes from*. Both
+can hold: findings are largely non-overlapping, **and** pretraining family may not be the reason.
+The practical correction is to stop treating "different family" as the design rule and treat it as a
+proxy that has now failed one direct test:
+
+- **Prefer a strong reviewer over a merely different one.** At matched cost, a second reviewer that
+  is *better* beats one that is *differently descended*.
+- **Validate the pair you actually run, in the direction you run it.** Result 1 shows the same two
+  models helping in one direction and hurting in the other.
+- **Diminishing returns arrive fast.** Panel gain over the best member fell as panel skill rose —
+  ensembles help most when every member is weak.
+
+(*[Decorrelation Is Not Complementarity: Skill, Not Lineage, Governs Trusted-Monitor
+Ensembles](https://arxiv.org/abs/2608.16190)*, Anik Jha, arXiv, Aug 2026. Worth reading for its
+method as much as its result: it reports a failure **against itself** — *"on our own 22-monitor pool
+the same test read +0.104 at p = 0.037 until two monitors were added"* — which is the behaviour this
+KB asks of its own claims.)
+
+#### Two-tier verdicts: never let a judgement call fail the build
+
+A verifier that emits one verdict has to answer two different questions with it — *did a mechanical
+check fail?* and *does this look wrong?* — and the second is an inference that can misread. Collapse
+them and you get one of two bad outcomes: block on a guess, or downgrade the certainties to match
+the uncertainties.
+
+A release-readiness gate that separates them splits every finding in two:
+
+| Tier | Applies to | Fires when |
+|---|---|---|
+| **BLOCK** (hard, fail-closed) | **mechanical** boundaries — objective, zero inference | the check has a single right answer and it failed |
+| **WARN** (advisory, surfaced to a human) | the **one judgement** call | a classification *suspects* a mismatch |
+
+Its BLOCK set is entirely decidable — version bumped, version is valid SemVer, changelog has a
+matching dated entry, tag does not already exist, `[Unreleased]` not left populated, working tree
+clean. Its single WARN is whether the severity of the changes matches the size of the version bump,
+which is an LLM judgement. The rule attached to it is the transferable part, verbatim:
+
+> **Never escalate this to a BLOCK** — the classification is an inference and can misread;
+> auto-blocking a legitimate release on a guess is exactly the verifier-theater the constitution
+> forbids. Be explicit that this is a *suspicion*, not a verdict.
+
+**Why this belongs in a loop's stop condition.** An unattended loop cannot ask, so its verifier must
+be honest about which of its outputs are facts and which are opinions. Give the loop **fail-closed
+authority over the decidable set only**, and route everything inferential to a human as a labelled
+suspicion. A loop that blocks on inference will be switched off after its second false positive; a
+loop that blocks on nothing is [Verifier Theater](17-failure-patterns.md). The split is what lets one
+verifier be both trustworthy and unattended.
+
+([Claude-Warp `claude-warp-release`](https://github.com/lucagattoni/Claude-Warp/blob/main/skills/claude-warp-release/SKILL.md),
+read 20260906. **First-party**: same maintainer as this KB — see
+[the disclosure](36-development-workflow.md#a-worked-reference-implementation). Presented as a
+worked example of the split, not as independent evidence for it.)
+
+**What is still not settled.** No source found gives a *general* ranking of which model pairs catch
+the most distinct failure classes in code review. Result 1 is two models on one benchmark; result 2
+is a different task. Treat pair selection as something you measure on your own diffs, not something
+you look up. Logged in `KB_GAPS.md` as still open after four retries.
+
 **Per-criterion independent verification as the stopping condition.** A distinct
 refinement of pattern 1 above: instead of one verifier judging the whole diff, define
 "done" as a **manifest of acceptance criteria**, and spawn one independent verifier

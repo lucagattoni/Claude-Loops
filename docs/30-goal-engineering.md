@@ -138,6 +138,78 @@ signals — GOAL.md, skills, verifier, tests, CI, budget and run-log freshness �
 
 ([cobusgreyling/goal-engineering](https://github.com/cobusgreyling/goal-engineering), Jun 2026.)
 
+## Catching an underspecified goal before it propagates
+
+The readiness score above asks whether the *scaffolding* is in place — a `GOAL.md`, a verifier, a
+budget. It does not ask whether the **objective itself is unambiguous**, and that is the failure
+this KB kept naming without a mechanism: once implementation, review and deploy are all automated,
+underspecified input becomes the dominant bottleneck, because every downstream stage faithfully
+executes the wrong thing. Catching bad *output* is the expensive way to find out.
+
+Four 2026 results supply the missing mechanism. Together they answer *what to check*, *who checks
+it*, and — the surprising one — *when checking still helps*.
+
+**The gate: a separate agent that can halt the implementer.** The strongest coding-specific result
+decouples detection from execution: a Main Agent with the usual edit/execute tools, and a separate
+**Intent Agent** that watches the state history and fires a single binary decision when the
+instruction or repo context is missing information. On an **underspecified variant of SWE-bench
+Verified** the scaffold reaches a **69.40% resolve rate**, *"significantly outperforming a standard
+single-agent setup and closing the performance gap with agents operating on fully specified
+instructions."* It also *"exhibits well-calibrated information-seeking behavior, conserving queries
+on simple tasks while proactively seeking information on more complex issues"* — the property that
+makes an ambiguity gate survivable rather than a nag.
+([arXiv 2603.26233](https://arxiv.org/abs/2603.26233), Edwards & Schuster, Mar 2026.)
+
+The transferable shape is the separation, not the paper's specific scaffold: **the thing that
+decides "this is too vague to build" must not be the thing that wants to start building.** That is
+the same maker/checker independence [Verification](04-verification.md) argues for, moved to the
+front of the loop.
+
+**The policy: ask only when the question is worth its cost.** A clarifying-question gate that fires
+constantly gets disabled. SAGE-Agent formalises the decision over tool parameters and their domains,
+separating *specification* uncertainty (what the user wants) from *model* uncertainty (what the LLM
+predicts), and scores each candidate question by **Expected Value of Perfect Information** against a
+redundancy cost — reporting *"7-39% higher coverage on ambiguous tasks"* while asking materially
+fewer questions.
+([arXiv 2511.08798](https://arxiv.org/abs/2511.08798), Suri et al., Nov 2025, rev. Apr 2026.)
+
+**The timing, which is the counterintuitive part.** A forced-injection study — **84 task variants,
+6,000+ runs**, four frontier models, clarifications injected at controlled points in the trajectory
+— found that *"earlier is always better"* is wrong, and that the decay depends on **what** is
+missing:
+
+| Missing information | How long clarification retains value |
+|---|---|
+| **Goal** | *"loses nearly all value after 10% of execution"* (pass@3 drops from 0.78 to baseline) |
+| **Input** | *"retains value through roughly 50%"* |
+| **Any type, past mid-trajectory** | *"degrades performance below never asking at all"* |
+
+That last row is the one to design against: **a late clarification is worse than none.** An agent
+that asks at 70% has already built on the wrong assumption, and the question now costs a turn and
+buys a contradiction. The same study found *"no current frontier model asks within the empirically
+optimal window,"* with **52% of sessions over-asking** and others never asking at all — so this is
+not a behaviour to expect for free.
+([arXiv 2605.07937](https://arxiv.org/abs/2605.07937), May 2026.)
+
+**Prior art outside agents, worth knowing.** Requirements engineering has run this gate on humans
+for years: an in-context-learning classifier labels each requirement ambiguous/unambiguous **with a
+mandatory rationale**, before the spec reaches design or implementation — validated on real
+industrial requirements with two named partners. The mandatory-explanation part is the transferable
+bit: a gate that says *"ambiguous"* without saying *why* cannot be acted on.
+([Bashir et al., ICSME 2025 Industry Track](https://ieeexplore.ieee.org/document/11185947/).)
+
+**What this means for a loop contract.** Underspecification is a `SCOPE` defect, and it is cheapest
+to catch before `TRIGGER`:
+
+1. **Gate the goal, not just the scaffolding.** Add an ambiguity check ahead of the readiness score
+   — the score can be 100 on a goal nobody can interpret.
+2. **Put it in a different agent from the implementer**, and let it halt.
+3. **Budget the questions**, or the gate gets turned off — 52% of unassisted sessions over-ask.
+4. **Set a deadline for asking, not just a policy.** After roughly the first tenth of execution, a
+   goal-level question is close to worthless; past the midpoint it is actively harmful. If the loop
+   has not resolved its ambiguity early, the correct move is to **stop and re-scope**, not to ask
+   mid-flight.
+
 ## A-Priori Goal-Cost Estimation
 
 The Budget primitive is usually set by guesswork. Because the six canonical patterns

@@ -412,7 +412,22 @@ three copy-pasteable instances behind.
 - **Same file, same pass (D1):** `SKILL.md:300` emits `## [X.Y.Z] — <today's date> <TZ>`, which will
   stamp the next release `2026-09-05 05:12 BST`, one entry after v3.0.0 established `20260904 19:12`.
 
-### C5 — `docs/16-memory-patterns.md` has zero auto-memory coverage · medium
+### C5 — ~~`docs/16-memory-patterns.md` has zero auto-memory coverage~~ · **SHIPPED 20260906**
+
+**Done.** `docs/16` opens with *"First: the harness has its own memory now — and it is not this"*:
+what auto memory is, a sourced reference table, the five properties that disqualify it as loop
+state, three issue-tracker failure modes, and the in-the-repo test. Every version claim
+(v2.1.32/.33/.59/.63/.74/.210/.214/.234) re-verified bullet-by-bullet against the raw official
+changelog, and all three GitHub issues opened via `gh api` for title/state/labels — two are closed
+**as `stale`, not fixed**, which the doc says. **Also closes H1's `docs/16` item**: zero `v2.1.x`
+markers → eight.
+
+**Correction to this item as written:** it called this "medium" and framed it as one missing topic.
+The load-bearing content turned out to be the *distinction* — four different things are called
+"memory" (auto memory, CLAUDE.md-as-memory-file, the API memory tool, third-party memory products)
+and two of the four evidence agents conflated the first two, dating the feature to v2.1.59 (when it
+was *named*) rather than v2.1.32 (when it shipped). Anything reworking this section must keep that
+separation. Original analysis below.
 
 - `grep -in "auto.mem\|native memory\|built-in memory\|memory tool\|/memory" docs/16` → nothing.
   Only KB-wide hit is a passing flag mention at `docs/09:83`.
@@ -470,7 +485,31 @@ anything. A 200 proves reachable, not useful. The `SOURCES.md` rule — *a sourc
 for more than ~3 consecutive runs must be re-fetched by hand* — remains the only check for that,
 and nothing automates it.
 
-### C9 — KB_GAPS gaps 2–5 have had no targeted search in 8+ weeks · small to schedule
+### C9 — ~~KB_GAPS gaps 2–5 have had no targeted search in 8+ weeks~~ · **SHIPPED 20260906**
+
+**Done. Three of four closed; the fourth closed as *still open* with a recommendation to stop.**
+
+| Gap | Outcome | Landed in |
+|---|---|---|
+| F0–F3 fleet maturity indicators | **FILLED** | `docs/23` |
+| Effort-vs-tooling budget boundary | **FILLED** | `docs/11` |
+| Underspecified-input mitigation | **FILLED** | `docs/30` |
+| Cross-model reviewer pairing | **still open after a 4th retry** — two real advances written up anyway | `docs/04` |
+
+**Three corrections to this item as written.**
+
+1. **The numbering was stale.** "Gaps 2–5" was numbered against `4ed29ff`, where gap 2 was
+   `claude --worktree` — filled on 20260905. The set actually run was gaps **1, 3, 4, 5**.
+   Gap 1 (F0–F3) was outside the item's stated range and had also gone unsearched since 07-08.
+2. **"Small to schedule" was right about scheduling and wrong about value.** Three long-open gaps
+   closed in one pass, two of them by material that changes doc-level advice.
+3. **The F0–F3 answer was never a search problem.** It was inside
+   `cobusgreyling/fleet-engineering` — a repo `docs/23` already cited **three times** — in two files
+   nobody had opened. Three prior retries each looked for a *new* source. **Process rule now in
+   `docs/23`: exhaust the repos already in `SOURCES.md` before searching outward; a citation is not
+   a read.**
+
+Original analysis below.
 
 All four confirmed still open. v3.0.0 was a fact-check/restructure pass that never ran their
 keywords, so incidental discovery is the only thing that has been tried. Gap 3
@@ -484,14 +523,80 @@ covers v2.1.235+), run the Added/Changed/Removed filter over the unswept range, 
 over `Fixed` bullets for behaviour-changing language ("now", "previously", "no longer").
 No changelog-category logic exists in either skill, so this filter was one-off, not recurring.
 
-### C11 — X never fetched directly; LinkedIn person-search never run · medium
+### C11 — ~~X never fetched directly; LinkedIn person-search never run~~ · **SHIPPED 20260906**
+
+**Done. Both sweeps run and measured; evidence pack:
+[`20260906_1259-c11-x-linkedin-baseline.md`](20260906_1259-c11-x-linkedin-baseline.md).**
+
+**X.** Head-to-head on @bcherny, both methods minutes apart: profile read **4** posts, keyword
+search **7**, union **9**, **overlap 2**. Neither finds two-thirds of the union, and the blindness
+is structural in each direction. `SKILL.md` and `SOURCES.md` now mandate **both** passes, with the
+profile pass explicitly **unfiltered**. Two on-topic `@bcherny` posts the KB never had were found
+and integrated (`docs/28`, `docs/03`), including **388 PRs opened / 180 merged** from a named daily
+routine fleet.
+
+**LinkedIn — this item was measured and its recommendation reversed.** The person-search row was
+**not** added. Person-search is network-biased rather than topic-ranked, matches résumé keywords
+rather than published work (2 on-topic posts in 120 for the strongest candidate), and surfaced
+**none** of the three authors the existing content row finds. The existing content row's keywords
+were broadened instead, and the ruled-out strategy is recorded in `SOURCES.md` so it is not
+re-proposed.
+
+**Two corrections to this item as written.**
+
+1. **"X never fetched directly" is wrong about the skill, right about the runs.**
+   `fetch-loop-news/SKILL.md:95-97` *did* instruct a profile visit. The real defect was subtler and
+   worse: it **keyword-gated that pass too**, so untracked vocabulary was invisible on *both* paths
+   — while the line's own parenthetical claimed it caught exactly that. `git log -S` also shows the
+   direct read was the **original** strategy, demoted to a trailing clause in `4fc6fca`.
+2. **"Seven `x` rows" is now nine** — Hanako and Kirill were added by the 2026-09-06 run.
+
+Original analysis below.
 
 Seven `x` rows are the plan on paper, but `SOURCES.md:136` still describes the strategy as keyword
 search, and keyword search cannot quantify what it missed. The only LinkedIn row is a content
 search. Have `x` rows read profile timelines directly; add a `linkedin` person-search row and run a
 baseline.
 
-### C12 — Plan §4b/§4c commitments never delivered · medium
+### C12 — ~~Plan §4b/§4c commitments never delivered~~ · **SHIPPED 20260906 (3 of 4 delivered, 1 refused with cause)**
+
+**Done**, and the pass falsified the plan's own headline framing.
+
+| Commitment | Outcome |
+|---|---|
+| ClaudeWarp as a named case study (G0–G3, R0–R5, BLOCK/WARN) | **Partly.** BLOCK/WARN → `docs/04`. **R0–R5 deliberately NOT added** — see below |
+| `/ultraplan`; the `/agents` wizard removed in v2.1.198 | **Both delivered** — `docs/24` and `docs/07` |
+| `/batch`, `/code-review`, `/security-review`, Desktop scheduled tasks | **`/code-review` corrected** in `docs/36`; the rest re-verified, see below |
+| ClaudeWarp recorded in `CHANGELOG.md` | **Delivered** in this release's entry |
+
+**The headline lesson was false as stated, and the correction is the more valuable finding.** §4b
+said *"`/claude-warp-sync` … retires ClaudeWarp components the moment a native feature covers
+them"*, and `docs/24`, `docs/35` and `docs/36` had all repeated it in the indicative. Measured
+against ClaudeWarp's own changelog: the mechanism is real and complete, has run **twice** across
+**65** Claude Code releases, and has retired **zero** components — both runs record *"no Harness row
+is superseded"*. Its one `Removed` component was superseded by another ClaudeWarp skill. All three
+docs corrected; `docs/24` now carries the measurement and the three lessons that follow.
+
+**`/ultraplan` was removed in v2.1.222**, so the commitment to document it as a native primitive was
+moot as written. Recorded instead as the sharper lesson it became: *native features also depart*, so
+retiring your own component is a bet on the native one surviving.
+
+**R0–R5 was refused, not forgotten.** `docs/04` already carries an R0–R5 ladder labelled as this
+KB's own; ClaudeWarp's is near-identical row-for-row; and ClaudeWarp ships
+`/claude-warp-sync-research`, whose documented job is to fetch **this repository** and implement
+what it finds. Citing it back as an external case study would cite the KB to itself. Caught by the
+completeness critic.
+
+**A first-party disclosure was added to all five docs citing ClaudeWarp** (`11`, `22`, `24`, `29`,
+`35`, canonical note in `36`). The KB flags vendor bias for BrainGrid and Hindsight/Vectorize and
+was applying none to the maintainer's own tool.
+
+**Correction to the row for `/code-review`:** this item's table implied the KB said v2.1.218 moved
+it *to a plugin*. The KB says **background subagent**, which matches the changelog verbatim. The
+real defect there was different and is now fixed — `docs/36`'s v2.1.215 claim that Claude no longer
+runs it on its own **no longer holds**, since v2.1.246 says Claude *"can also start it on its own"*.
+
+Original analysis below.
 
 From `20260904_1658-two-pillar-restructure.md` §4b, "these go into Part II **regardless** of the
 ClaudeWarp framing":
@@ -613,7 +718,7 @@ rule this KB already states and its own pipeline did not follow (see **A1**).
 
 | # | Item | Effort | Evidence / action |
 |---|---|---|---|
-| **H1** | Part II's "version-stamped" promise unkept in **6** of 21 docs | medium | Zero `v2.1.x` markers in ~~`03`~~ `05 06 15 16 19` ~~`29`~~ `31` ~~`35`~~; `docs/11` has 34. **`03`, `29` and `18` stamped 20260905 (PR #36)**; `35` re-check pending. Promised at `docs/index.md:76-77` and `LOOP_ENGINEERING.md:78`. Fold the rest into **C1** |
+| **H1** | Part II's "version-stamped" promise unkept in ~~6~~ **5** of 21 docs | medium | Zero `v2.1.x` markers in ~~`03`~~ `05 06 15` ~~`16`~~ `19` ~~`29`~~ `31` ~~`35`~~ — **`16` closed 20260906 by C5, 0 → 8 markers**; `docs/11` has 34. **`03`, `29` and `18` stamped 20260905 (PR #36)**; `35` re-check pending. Promised at `docs/index.md:76-77` and `LOOP_ENGINEERING.md:78`. Fold the rest into **C1** |
 | ~~**H2**~~ | ~~Three repo self-descriptions are falsified~~ · **SHIPPED 20260906, PR #38** | small | `LOOP_ENGINEERING_NEWS.md:3` **and** `KB_GAPS.md:4` both credited `fetch-loop-news`, which writes only `.loop-news/findings.json` — both now credit `integrate-loop-news`. **Correction to this item:** the `docs/34` half is not falsified. `:317`'s "05:00 local" is *correct* (it is the watchdog comment's "04:00 UTC" that drifts — see **H14**), and `:321`'s "L3 — commits and publishes autonomously" became **true** when the tracker published on 20260905; it was only false against the since-superseded `runs = 0`. `CLAUDE.md:3` was rewritten in `v3.1.0`. So: 2 real, 1 self-resolved, 1 already fixed |
 | ~~**H3**~~ | ~~README's tracker section is stale and structurally misplaced~~ · **SHIPPED 20260906, PR #38** | small | Both halves fixed: the example + type list moved back under "Add or remove a source", and all **7** types are now documented as a table with row counts. Counts corrected — **28 of 54** rows were of undocumented types (github **23**, not 22; 54 rows, not 53) |
 | **H4** | The Boris Cherny "write loops" quote is unpinned in four places | small | `docs/26:29` (no link at all), `docs/32:35-42` (secondary source), `docs/20:14`, `LOOP_ENGINEERING_NEWS.md:268` — four differing reproductions. Pin one talk/interview. (`docs/39:334-347` is correctly pinned and is not part of this) |
@@ -674,15 +779,25 @@ the remote, and is marked latest.
 | ~~7~~ | ~~**C2**, **C6**, **C13**, **C14** — small content fixes with sources already in hand~~ · **DONE** — C2 in PR #28, C6/C13/C14 in PR #36 | Citation-link gate |
 | ~~8~~ | ~~**C1** + **H1** — the 14-doc fact-check~~ · **PARTIAL** — 49 fixes shipped in PR #37; coverage gaps carried to **C1b**, H1 answered per doc (6 of 14 docs legitimately need no stamp) | One commit per doc, each gated on `--strict` |
 | ~~8b~~ | ~~**C1b** — the coverage the C1 pass did not reach~~ · **DONE** — P0s in PR #40 (`v3.1.6`), P1/P2 in `v3.1.8` | Re-run `docs/03`/`docs/29` against HEAD; open the 78 unopened URLs |
-| 9 | **C5**, **C8**, **C9**, **C11**, **C12** — new content and source revalidation | Resource-review rule (score ≥ 3.0 before extracting) |
+| ~~9~~ | ~~**C5**, **C8**, **C9**, **C11**, **C12**~~ · **DONE 20260906** — C5/C9/C11/C12 shipped this pass; C8 was already done | Resource-review rule (score ≥ 3.0 before extracting) |
 | 10 | **H2**–**H9**, **H11**, **H12** — corpus hygiene | — |
 | 11 | **C7**, **C10** — the two large sweeps | — |
 | 12 | **D2**/**H10**, **D3**/**H13** — release policy and plan archival | — |
 
-> **Status 20260906:** steps 1–8b are shipped (`v3.0.1`, `v3.1.0`, PR #36, PR #37, PR #40,
-> `v3.1.8`). **The next task is step 9 — C5, C9, C11, C12** (C8 is already done). The two large
-> sweeps, **C7** and **C10**, remain the biggest unclaimed content risk after that, and **H1**'s
-> remainder (`05 06 15 16 19 31`, plus the `35` re-check) folds into C7 rather than standing alone.
+> **Status 20260906 (updated after step 9):** steps 1–9 are shipped. Step 9 closed C5, C9, C11 and
+> C12 — three KB_GAPS entries filled, a fourth closed as still-open, both missing source sweeps run
+> and measured, and a **false claim about ClaudeWarp corrected in three docs**.
+> **The next task is step 10 — H2–H9, H11, H12 (corpus hygiene)**, then step 11's two large sweeps,
+> **C7** and **C10**, which remain the biggest unclaimed content risk. **H1**'s remainder is now
+> `05 06 15 19 31` plus the `35` re-check — **`16` was closed by C5** — and folds into C7.
+>
+> **Three things step 9 established that later steps should not re-derive:**
+> 1. **Exhaust the repos already in `SOURCES.md` before searching outward.** F0–F3 sat open through
+>    three retries while the answer was in a repo `docs/23` cited three times. A citation is not a read.
+> 2. **ClaudeWarp cannot corroborate this KB.** It ships a skill whose job is to read this repo, so
+>    agreement between them is shared origin. All five citing docs now carry a first-party disclosure.
+> 3. **Cross-model reviewer pairing is closed as still-open after four retries.** Do not schedule a
+>    fifth unless someone publishes a replication.
 > The paragraph below is retained as the reasoning that ordered automation ahead of content; that
 > ordering is now spent.
 

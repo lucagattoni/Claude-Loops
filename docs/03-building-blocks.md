@@ -109,6 +109,21 @@ they are older than your `cleanupPeriodDays` setting. Separately, `claude rm <id
 background session "and its worktree when that is safe", including for sessions that have already
 exited (`claude --help`; not documented on the worktrees page).
 
+**Do not assume the sweep covers your case.** On 11 Aug 2026 the creator of Claude Code described
+handling this himself, in full:
+
+> Worktrees can be rough when they pile up. I use a loop to clean up stale worktrees. Should we
+> build this into Claude Code?
+
+— [Boris Cherny (@bcherny), 11 Aug 2026](https://x.com/bcherny/status/2087024157196489117).
+
+Read narrowly, that is one practitioner's setup and an open product question — not proof the
+built-in sweep was absent or inadequate. Read for what it is good for: the sweep above is scoped to
+worktrees **Claude created** for subagents and background sessions, so worktrees you create with
+`git worktree add` are outside it, and a cleanup loop of your own is the documented-by-example
+remedy. The numeric default of `cleanupPeriodDays` is still unpublished — logged as `V4` in
+`KB_GAPS.md`; **publish no day count until someone reads it.**
+
 #### Four isolation checks — enforcement, not convention
 
 While a session is in a worktree, Claude Code applies **four** checks:

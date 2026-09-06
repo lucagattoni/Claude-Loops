@@ -154,10 +154,15 @@ If several loops pass the three tests, you stop building loops one at a time and
 that builds them — a harness. That is [Part I](24-harness-patterns.md)'s subject, and
 [ClaudeWarp](https://github.com/lucagattoni/Claude-Warp) is a worked reference implementation on
 top of Claude Code: durable state in git, budget caps on every scaffold, independent checkers, and
-a `/claude-warp-sync` skill that **retires its own components** as Claude Code absorbs them
+a `/claude-warp-sync` skill built to **retire its own components** as Claude Code absorbs them
 natively.
 
-That last property is the one to copy. A harness should be designed to shrink.
+That last property is the one to copy. A harness should be designed to shrink — though *designed
+to* is the honest phrasing: across the two sync runs that project has recorded, the mechanism
+retired **nothing**. See [Harness Patterns § When to Remove
+Harness](24-harness-patterns.md#when-to-remove-harness) for what that measurement means, and
+[the first-party disclosure](36-development-workflow.md#a-worked-reference-implementation) —
+ClaudeWarp shares this KB's maintainer.
 
 ---
 

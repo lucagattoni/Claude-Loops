@@ -9,24 +9,6 @@ targeted GitHub and web searches.
 
 ## Active Gaps
 
-- **F0-F3 fleet maturity indicators**: docs/23 defines the F0-F3 levels but the
-  observable indicators for passing each gate are underspecified — search keywords:
-  `fleet engineering maturity`, `"F0" "F1" fleet agent`, `agent fleet governance metrics`.
-  (2026-07-06 retry: thirai-classlab/hirai-method's F1-F3 naming looked promising but
-  turned out to be unrelated enforcement-gate layers, not fleet maturity — false lead,
-  ruled out. 2026-07-07 retry: chf3198/megingjord-harness documents F0-F3-consistent
-  fleet-aware routing/telemetry/policy infrastructure but — like every source checked so
-  far — stops short of the concrete, checkable per-gate signal; still open. 2026-07-08
-  retry: ruvnet/ruflo's Trust Loop scores individual agents, not fleet-wide gate
-  readiness — adjacent but not a fleet maturity indicator either; still open.)
-
-- **Effort-vs-tooling budget boundary**: docs/11 documents that reasoning effort dominates
-  tool access for *first-try reliability* on a greenfield spec'd build (arXiv 2607.02436), but
-  *when does a testing tool / checker pass actually pay off* (e.g. large existing codebases,
-  regression-heavy work, long-horizon tasks) rather than just adding cost is still unspecified.
-  Search keywords: `agent testing tool ROI codebase size`, `"reasoning effort" vs tools
-  agentic benchmark`, `when checker pass pays off agent`.
-
 - **Cross-model reviewer selection criteria**: docs/04 documents *how* to arbitrate when
   cross-model reviewers disagree (houshuang/compound-review's verdict-driven severity +
   promote-on-confirm, 2026-07-06) and that model-family diversity beats consensus voting
@@ -39,16 +21,22 @@ targeted GitHub and web searches.
   2026-07-08: dev.to's 4-commercial-code-review-tool study (93.4% non-overlap, 146 PRs)
   corroborates the non-overlap finding again but is product-level, not model-pair-level —
   still no source names which *specific* model pairs catch the most distinct classes.)
+  **2026-09-06 retry — two real advances, gap still open, and this is the fourth retry.**
+  Both are now written into `docs/04`. (a) [arXiv 2607.21656](https://arxiv.org/abs/2607.21656)
+  names a specific pair *with a direction*: Claude reviewing Codex lifts 71.6%→89.7%, while Codex
+  reviewing Claude **drops** 91.4%→82.8% — so pairing is asymmetric and can be worse than no
+  review. (b) [arXiv 2608.16190](https://arxiv.org/abs/2608.16190) complicates the premise: at
+  matched capability, cross-lineage monitor panels detect no better (p = 0.13); *skill*, not
+  lineage, predicts pool agreement. Neither gives a general which-pair-catches-what ranking for
+  code review — (a) is two models on one benchmark, (b) is a different task.
+  **Ruled out this run, do not re-check:** a Milvus/Zilliz post carrying per-model catch rates on
+  15 PRs was reachable only through a rewriting reader proxy (publisher returns **403** to a direct
+  fetch, re-confirmed 20260906), so its numbers are deliberately **not** in the KB.
+  **Recommendation: stop searching.** Four retries (07-07, 07-08, 09-06) have not produced a
+  multi-pair code-review benchmark. Treat pair selection as something a team measures on its own
+  diffs. Re-open only if someone publishes a replication.
   Search keywords: `cross-model reviewer pairing benchmark`, `"model diversity"
   code review coverage`, `which LLM pair catches most bugs`.
-
-- **Underspecified-input mitigation for autonomous pipelines**: Multiple 2026-07-08
-  sources (MindStudio's dark-factory pipeline, Kaola-Workflow's DAG planner) name
-  underspecified input as the dominant bottleneck once implementation/review/deploy are
-  all automated, but none specify a *mechanism* for catching underspecification before
-  it propagates through the pipeline (as opposed to catching bad output after the fact).
-  Search keywords: `spec quality gate agent pipeline`, `underspecified input detection
-  LLM agent`, `pre-implementation ambiguity check autonomous coding`.
 
 - **Retrieval infrastructure as a multi-agent scaling constraint**: a 2026-09-03 source
   claims retrieval engineering, not model choice, is the key constraint on scaling
@@ -81,19 +69,37 @@ targeted GitHub and web searches.
 
 ## Recently Filled (archive — keep last 2 entries; remove older ones)
 
+- ~~**Three gaps closed in one targeted pass**~~ — filled 2026-09-06 by the backlog's **C9**. Kept
+  as a single entry because they were one dated pass; the durable record is the doc section each
+  landed in.
+    1. ~~**F0–F3 fleet maturity indicators**~~ → `docs/23`. The answer was inside
+       [cobusgreyling/fleet-engineering](https://github.com/cobusgreyling/fleet-engineering) —
+       **a repo this doc already cited three times** — in `docs/maturity-model.md` and
+       `docs/fleet-ready-score.md`, which nobody had opened. File-existence exit criteria per
+       transition plus a runnable `fleet-audit` score (F0 0–39 · F1 40–64 · F2 65–84 · F3 85–100).
+       Written up beside the KB's *own* F0–F3 scale and explicitly distinguished from it — same
+       four labels, different criteria, different authors. **Process lesson: a citation is not a
+       read. Exhaust the repos already in `SOURCES.md` before searching outward.**
+    2. ~~**Effort-vs-tooling budget boundary**~~ → `docs/11`. Closed by
+       [arXiv 2608.28795](https://arxiv.org/abs/2608.28795), a controlled follow-up by the *same
+       author* as the paper `docs/11` already cited. The boundary is not codebase size or task
+       horizon but **reach**: a checker pays off only where it covers how the thing actually fails.
+       1,116 apps, 6 models, 8 tool configurations; a boot probe removes nearly all launch failures
+       at ~35% of a full shell's token cost, while a full shell costs 2.35× the no-tool baseline.
+    3. ~~**Underspecified-input mitigation for autonomous pipelines**~~ → `docs/30`. Four sources
+       supply the missing mechanism: a separate **Intent Agent** that halts the implementer
+       ([2603.26233](https://arxiv.org/abs/2603.26233), 69.40% on underspecified SWE-bench
+       Verified), an EVPI-scored question policy ([2511.08798](https://arxiv.org/abs/2511.08798)),
+       an industrial ambiguity classifier with mandatory rationale (ICSME 2025), and — the
+       counterintuitive one — **clarification timing decays**
+       ([2605.07937](https://arxiv.org/abs/2605.07937)): goal clarification loses nearly all value
+       after 10% of execution, and asking past mid-trajectory is *worse than never asking*.
+
 - ~~**`claude --worktree <name>` standalone semantics**~~ — filled 2026-09-05 by docs/03
   (`### The built-in flag: claude --worktree`): path/branch naming, PR/MR branching and
   its per-host ref resolution, `.worktreeinclude`, the resume/cleanup lifecycle, and the
   four hard-enforced isolation checks — the point being that these are *enforced by the
   runtime*, where a CLAUDE.md worktree rule is only advisory prose)
-
-- ~~**Reviewer-freshness enforcement mechanism**~~ — filled 2026-07-07 by docs/04
-  (beingcognitive/unprimed-dialectic: two independence axes — model vs. perspective —
-  reviewers must see only the problem/constraints and never the draft until their own
-  solution is formed; the synthesizer-bias problem addressed by logging rejections
-  alongside acceptances and defining convergence as "no further changes after synthesis")
-
----
 
 ## Claims Awaiting Verification — not search targets
 

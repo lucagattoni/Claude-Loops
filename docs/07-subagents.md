@@ -242,6 +242,25 @@ Invoke with: `Use a subagent: security-reviewer — review @src/auth/`.
 Agent files are loaded from (in priority order): managed settings → `--agents` CLI
 flag → `.claude/agents/` → `~/.claude/agents/` → plugin `agents/`.
 
+**Hand-editing that file is now the only path — the wizard is gone.** v2.1.198, verbatim:
+
+> Removed the `/agents` wizard; ask Claude to create or manage subagents, or edit `.claude/agents/`
+> directly.
+
+`/agents` still exists as a command; running it now prints that reminder rather than opening the
+interactive **Running** / **Library** interface it opened on v2.1.197 and earlier. The file format,
+frontmatter fields and the two directory locations are unchanged — only the authoring UI went.
+The nudges went with it: v2.1.232 also removed *"the startup tip and `/powerup` nudge to create
+custom subagents."*
+
+For a loop this is the useful direction of travel, not a loss: a subagent defined by a **file in the
+repo** is reviewable, diffable and reproducible on another machine, which a wizard-created one never
+was. Generate the file from a template if you make many.
+
+(Three of this KB's other claims also come from v2.1.198 — background-by-default subagents above,
+`claude --bg -p` rejection in [Background Agents](29-background-agents.md), and the Explore agent's
+model inheritance below. They are four separate bullets in one release; do not merge them.)
+
 ### Which model actually wins — the env var is a default, not a ceiling
 
 A pinned `model:` field above looks authoritative, but it is not the only thing that decides
