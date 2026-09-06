@@ -507,7 +507,7 @@ the room. (["Getting started with loops", claude.com/blog](https://claude.com/bl
 ## Three-Agent Full-Stack Harness (Anthropic Engineering)
 
 For complex, multi-feature applications, Anthropic extended the two-part harness
-into a three-agent system (Prithvi Rajasekaran, Mar 2026):
+into a three-agent system ([Prithvi Rajasekaran, "Harness design for long-running application development"](https://www.anthropic.com/engineering/harness-design-long-running-apps), Mar 2026):
 
 | Agent | Role | Key behaviour |
 |---|---|---|

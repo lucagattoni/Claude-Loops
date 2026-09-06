@@ -35,18 +35,25 @@ and the concept of "vibe coding" as the new technical debt.
 ### [The Anthropic leader who built Claude Code now writes loops](https://thenewstack.io/loop-engineering/) — The New Stack
 **Added:** 2026-06-24 · **Published:** Jun 2026
 
-**Why here:** Primary source — Boris Cherny (Claude Code's creator) in his own words.
-The phrase "my job is to write loops" comes from this piece. Gives the creator's
-framing of where the discipline is headed, not a third-party interpretation.
+**Why here:** Secondary coverage, not primary — checked directly (Sep 2026): this piece
+reports the "my job is to write loops" line via an embedded third-party tweet
+([@Av1dlive](https://x.com/Av1dlive/status/2064321381953675599)) describing a video
+clip, not from an interview conducted for the piece
+itself. The primary source is Cherny's own on-stage remarks at [Acquired Unplugged,
+presented by WorkOS](https://www.youtube.com/watch?v=RkQQ7WEor7w&t=11m45s) (~11:45,
+Jun 2026). Kept here for its framing of where the discipline is headed, not as the
+quote's origin.
 
-**Summary:** Interview with Boris Cherny explaining the shift from prompt engineering
-to loop engineering. Describes how Anthropic internally structures agent workflows,
-why the terminal is just the first surface ("Claude Everywhere"), and how the role
-of a software engineer changes when implementation is no longer the bottleneck.
+**Summary:** News explainer on the loop-engineering trend — not an interview — reporting
+Boris Cherny's public shift from prompting to writing loops (via a third-party tweet)
+alongside Peter Steinberger's and Addy Osmani's related posts that named the pattern.
+Describes how Anthropic internally structures agent workflows, why the terminal is just
+the first surface ("Claude Everywhere"), and how the role of a software engineer
+changes when implementation is no longer the bottleneck.
 
 ---
 
-### [Loop Engineering: Designing the Execution Harness Around an LLM](https://medium.com/p/loop-engineering-designing-the-execution-harness-around-an-llm-936afeb6a72d) — @roanbrasil
+### [Loop Engineering: Designing the Execution Harness Around an LLM](https://medium.com/p/loop-engineering-designing-the-execution-harness-around-an-llm-936afeb6a72d) — [@roanbrasil](https://x.com/roanbrasil)
 **Added:** 2026-06-24 · **Published:** Jun 2026
 
 **Why here:** The best quantified argument for loops over single-turn prompting.

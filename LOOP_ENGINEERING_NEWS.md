@@ -6,6 +6,51 @@ Sources are defined in [`SOURCES.md`](https://lucagattoni.github.io/Claude-Loops
 
 ---
 
+## Fact-check pass — 2026-09-06 14:57 UTC (hand-authored, not a tracker run)
+
+> Header deliberately does not start with a digit. Two mechanisms parse this file's headers —
+> `check-digest-freshness.sh` and `fetch-loop-news`'s `last_run_date` — and a hand-authored entry
+> in the standard shape would reset the staleness clock and mis-date the next sweep.
+
+**H4 — the Boris Cherny "write loops" quote, pinned to its primary source.** Four docs
+reproduced this line with differing wording: `docs/03`, `docs/26` and `docs/32` quote it,
+`docs/20` paraphrases it in a maturity-table row. Only `docs/32` carried a citation, and that
+citation was wrong about its own status — it called [thenewstack.io](https://thenewstack.io/loop-engineering/)
+"Primary source ... in his own words." Checked directly (`curl` + strip-tags, not WebFetch):
+that piece is a news explainer that reports the line via an embedded third-party tweet
+([@Av1dlive](https://x.com/Av1dlive/status/2064321381953675599)) describing a video clip.
+It is secondary. (That permalink is taken from the article's own embed markup, not fetched
+from x.com, which this repo's tooling cannot reach.)
+
+The primary source is Cherny's own on-stage remarks in ["Boris Cherny: Claude Code & the
+Future of Engineering" — *Acquired Unplugged*, presented by WorkOS](https://www.youtube.com/watch?v=RkQQ7WEor7w)
+(WorkOS's own YouTube channel, published 2026-06-02). Verified against the video's own
+caption track at ~11:45–11:53:
+
+> "I don't prompt Claude anymore. I have loops that are running. They're the ones that are
+> prompting Claude and kind of figuring out what to do. My job is to write loops."
+
+Note the "kind of" — every published paraphrase drops it, and so did this KB. `docs/20` now
+quotes the line in full; the other three link the same video. *Caveat:* these are
+auto-generated captions, not an official transcript. The wording above matches the caption
+track exactly; nobody has spot-checked it against the audio.
+
+**H6 — a bare citation left standing on purpose.** The 2026-07-06 run's "OpenAI Symphony
+(github.com/openai/symphony)" bullet is a bare reference. It is **not** fixed in place: it sits
+inside that day's dated run record, and this file is append-only. The link, for anyone reading
+that entry, is [github.com/openai/symphony](https://github.com/openai/symphony). The step-10
+sweep briefly edited it and reverted — the rule applies to this pass's own convenience too.
+
+> **Not rewritten below, per this file's append-only convention.** The 2026-07-07 run (line
+> ~808) summarises this quote as a "Boris Cherny ... post" while its link points at
+> `x.com/rohanpaul_ai/...` — a different account, not Cherny's. Whether that tweet is a repost
+> or a paraphrase could not be checked (x.com is not fetchable from this repo's tooling), so
+> only the account mismatch is asserted here. The 2026-09-06 04:00 run (line ~86) quotes
+> explainx.ai's truncated version of the same line. Both are left as written; this entry is
+> the correction of record.
+
+---
+
 ## Fact-check pass — 2026-09-06 09:31 UTC (hand-authored, not a tracker run)
 
 > Header deliberately does not start with a digit. Two mechanisms parse this file's headers —

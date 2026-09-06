@@ -14,6 +14,11 @@ prompter to loop designer" ([@0xCodez](https://x.com/0xCodez/status/206878446318
 | 2. Parallel sessions | Open 5–10 Claude sessions; prompt each manually | Accelerator |
 | 3. Loops | Write the system that prompts Claude; delete your IDE | Autonomous worker |
 
+Cherny's own words for Stage 3: ["I don't prompt Claude anymore. I have loops that are
+running. They're the ones that are prompting Claude and kind of figuring out what to do.
+My job is to write loops."](https://www.youtube.com/watch?v=RkQQ7WEor7w&t=11m45s) — *Acquired
+Unplugged*, presented by WorkOS, Jun 2026 (~11:45).
+
 *Cherny himself uninstalled his IDE at the end of Stage 1 — November 2025, after Opus 4.5
 shipped — a stage before he began writing loops; by Stage 3 the IDE is gone either way.*
 

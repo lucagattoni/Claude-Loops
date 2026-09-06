@@ -2,24 +2,29 @@
 
 Claude-Loops is a living knowledge base and automated daily tracker for **loop engineering** — designing systems that prompt Claude for you. Read `LOOP_ENGINEERING.md` (the index) and `README.md` before working. The KB grows automatically via a two-skill pipeline: `fetch-loop-news` (search) hands off to `integrate-loop-news` (integrate + restructure + publish).
 
-> **Open work — read this first.** Read `plans/20260904_2053-open-work-backlog.md` — the full ranked
-> backlog. Closed: the automation tier §3 (`v3.1.0`), §8 step 7 (`v3.1.1`), C1's first pass
-> (`v3.1.2`), C8 + H2 + H3 (`v3.1.3`), C1b's P0s (`v3.1.6`), C1b's P1/P2 (`v3.1.8`), the release
-> backfill (`v3.1.9`), and **all of §8 step 9 — C5, C9, C11, C12** (`v3.2.0`).
-> **Start at the backlog's §8 step 10 — H2–H9, H11, H12 (corpus hygiene).** The largest unclaimed
-> content risk after that is step 11's pair of large sweeps, **C7** (20 partially-verified docs) and
-> **C10** (the unswept changelog range); H1's remainder (`05 06 15 19 31`, plus the `35` re-check)
-> folds into C7.
+> **Open work — read this first.** `plans/20260904_2053-open-work-backlog.md` is the full ranked
+> backlog and records what each step shipped; **§8's status paragraph is the authority on progress
+> — do not duplicate it here.** Steps 1–10 and 12 are done.
+> **Start at §8 step 11 — C7 (20 partially-verified docs) and C10 (the unswept changelog range)**,
+> the largest unclaimed content risk. H1's remainder folds into it (`05 06 19 31 35` — `35` was
+> never actually stamped, despite an earlier strikethrough). **H14** is step 13, expiring 2026-10-25.
+>
+> **A manual sweep's claim to be complete is worth nothing.** A five-angle sweep of 39 docs reported
+> the repo-slug angle clean; `scripts/kb-structure-check.sh` found five bare slugs on its first run
+> (three real, two already linked nearby). It is now Phase 4c's mandatory first step. It is a
+> candidate generator, not a verdict — triage every hit, and record a waiver in the digest for any
+> you do not fix. An unaccounted flag is an unread check, not a passed one. Run it before believing
+> any completeness claim, including your own.
 >
 > **Do not re-spend budget on:** what C1's critic verified clean (it names the four classes);
 > `docs/11`, `docs/23`, `docs/27`, `docs/04`'s quoted material, or the blockquote corpus (swept
-> 20260906); the four KB_GAPS entries step 9 closed; or **cross-model reviewer pairing, which is
-> closed as still-open after four retries** — do not schedule a fifth.
-> **Sixteen** claims no search can settle are parked in `KB_GAPS.md` § *Claims Awaiting
-> Verification*; read them before re-deriving any. **V13 is the one to read first**: it records a
-> quote the KB got *right* that the source later deleted, which a finder wrongly called fabricated.
-> "Contradicted by the source" means **contradicted as of the capture date** — and its converse,
-> proved twice on 20260906: a source that 404s where you looked is not a source that is gone.
+> 20260906); the four KB_GAPS entries step 9 closed; or **cross-model reviewer pairing, closed as
+> still-open after four retries** — do not schedule a fifth.
+> **Seventeen** claims no search can settle are parked in `KB_GAPS.md` § *Claims Awaiting
+> Verification*; read them before re-deriving any. **V13 first**: it records a quote the KB got
+> *right* that the source later deleted, which a finder wrongly called fabricated. "Contradicted by
+> the source" means **contradicted as of the capture date** — and its converse, proved twice on
+> 20260906: a source that 404s where you looked is not a source that is gone.
 >
 > **Three rules step 9 paid for. Apply them before searching or citing:**
 > 1. **A citation is not a read.** Exhaust the repos already in `SOURCES.md` before searching
@@ -49,8 +54,7 @@ Claude-Loops is a living knowledge base and automated daily tracker for **loop e
 
 ## Git workflow
 
-- **Always work in a git worktree — never in the primary checkout.** Keep the primary checkout on a clean `main`; do feature/plan work in a separate worktree on its branch (`git worktree add <path> <branch>`), and commit/push from there. This keeps the primary clean and isolated, matching the daily loop's own worktree isolation.
-- **Remove every worktree once its work is finished** — as soon as its branch is merged (or the work is abandoned), `git worktree remove <path>` and delete the branch (local + `git push origin --delete <branch>`). Don't leave finished worktrees lying around "just in case."
+- **Always work in a git worktree — never in the primary checkout** (`git worktree add <path> <branch>`); commit and push from there, keeping the primary on a clean `main`. This matches the daily loop's own worktree isolation. **Remove the worktree and delete the branch (local + remote) as soon as its work is merged or abandoned.**
 - **Plans and features → own branch + PR.** Never commit feature work directly to `main`. Name branches meaningfully (`feature/...`, `plan/...`).
 - **Exception — automated content goes direct to `main`.** The daily pipeline commits its own output (`LOOP_ENGINEERING_NEWS.md`, `docs/`, `LOOP_ENGINEERING.md`, `SOURCES.md`, `mkdocs.yml`, `CHANGELOG.md`, `KB_GAPS.md`) directly to `main` — `integrate-loop-news`'s Phase 5 commits and `push origin HEAD:main`. This is generated content, not a code feature.
 - When iterating/refining (devil's-advocate or review rounds), **commit AND push at each iteration** — treat each round as a shippable increment; never batch rounds into one commit.
@@ -59,7 +63,7 @@ Claude-Loops is a living knowledge base and automated daily tracker for **loop e
 
 **Hand-authored versions:** create an annotated git tag (`git tag vX.Y.Z -m "..."`), push it (`git push origin --tags`), and create a GitHub release (`gh release create`) in the same turn as the commit — never defer. Mark the newest stable release `--latest`. See the global SemVer rule for bump levels.
 
-**Pipeline-cut versions are released by a human follow-up, not by the pipeline.** `integrate-loop-news` bumps `CHANGELOG.md` and pushes, but deliberately does not tag or release: `gh` is not in its allowlist, and granting an unattended agent `gh release` rights on a public repo is a wider permission than the convenience is worth. Decided 20260905. The cost is visible and accepted — 53 tags against 38 releases today. When you next touch this repo by hand, backfill any tagged version that has no release.
+**Pipeline-cut versions are released by a human follow-up, not by the pipeline.** `integrate-loop-news` bumps `CHANGELOG.md` and pushes but deliberately does not tag or release: `gh` is not in its allowlist, and granting an unattended agent `gh release` rights on a public repo is wider permission than the convenience is worth (decided 20260905). The standing cost: **every pipeline-cut version needs a manual backfill.** Tags and releases were reconciled to 65/65 on 20260906 — check `git tag | wc -l` against `gh release list` rather than trusting this number.
 
 ## Plans
 

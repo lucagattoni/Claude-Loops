@@ -220,7 +220,8 @@ gates — is shared with [qimen039-code/agent-cognitive-continuity-framework](ht
 read/write/prod/security ladder: R0 is the default for trivial tasks, R1 read-only inspection,
 R2 artifact/report, R3 implementation or governance-doc edits, R5 confirmed destructive actions
 (`git push`, delete). It defines no `SECURITY_MATRIX.md` — that is this KB's own convention,
-sourced in [Agent Security Hardening](33-agent-security-hardening.md) to jahwag/clem.
+sourced in [Agent Security Hardening](33-agent-security-hardening.md) to
+[jahwag/clem](https://github.com/jahwag/clem).
 The adjacent `source_prior` / `bounded_claim` / `validated` taxonomy above *is* verbatim from
 that project's README and stays as written.
 

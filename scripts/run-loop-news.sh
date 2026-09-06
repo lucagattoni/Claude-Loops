@@ -365,7 +365,7 @@ A_ARGS=(--model "$SEARCH_MODEL" --effort "$SEARCH_EFFORT"
         --disallowedTools "Bash(git *),Bash(gh *),Skill" -p "/fetch-loop-news")
 B_ARGS=(--model "$INTEGRATE_MODEL" --effort "$INTEGRATE_EFFORT"
         --max-turns "$INTEGRATE_MAX_TURNS" --max-budget-usd "$INTEGRATE_BUDGET_USD"
-        --allowedTools "Read,Edit,Write,WebFetch,Bash(git *),Bash(uv *)" -p "/integrate-loop-news")
+        --allowedTools "Read,Edit,Write,WebFetch,Bash(git *),Bash(uv *),Bash(bash scripts/kb-structure-check.sh*)" -p "/integrate-loop-news")
 
 echo "[$(stamp)] Starting loop-news run (worktree $WT_DIR, base $BASE_SHA)" | tee -a "$LOG_FILE"
 if (( STAGE_B_RESUMED )); then

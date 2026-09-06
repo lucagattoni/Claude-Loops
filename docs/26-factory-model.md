@@ -26,7 +26,7 @@ Factory model engineers think like engineering managers:
 - Design the workflow, not just the task
 - Verify output at each stage before handing it to the next agent
 
-"My job is to write loops" (Boris Cherny) is the factory model expressed in one
+["My job is to write loops"](https://www.youtube.com/watch?v=RkQQ7WEor7w&t=11m45s) (Boris Cherny, on stage at *Acquired Unplugged*, presented by WorkOS, Jun 2026) is the factory model expressed in one
 sentence: the engineer's output is the production system, not the individual work
 product.
 

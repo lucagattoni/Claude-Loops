@@ -94,7 +94,9 @@ Start every fleet at F0, regardless of engineer experience. F3 requires F2 evide
 
 This section carried an open gap for two months: the levels above describe *postures*, and a
 posture is not a checkable signal. Three sources were checked and ruled out
-(`thirai-classlab/hirai-method`, `chf3198/megingjord-harness`, `ruvnet/ruflo` — each documenting
+([thirai-classlab/hirai-method](https://github.com/thirai-classlab/hirai-method),
+[chf3198/megingjord-harness](https://github.com/chf3198/megingjord-harness),
+[ruvnet/ruflo](https://github.com/ruvnet/ruflo) — each documenting
 infrastructure a passing fleet would have, not a test that it passed). The example worth keeping:
 a governance-first harness enforcing shared policy across Copilot, Claude Code and Codex via a
 "baton workflow" (Manager → Collaborator → Admin → Consultant) documents fleet-aware routing,
