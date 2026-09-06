@@ -16,6 +16,36 @@ Versioning follows [Semantic Versioning](https://semver.org/):
 ### Added
 ### Changed
 
+---
+
+## [3.3.0] — 20260906 15:39
+
+Backlog `§8 step 10` — **corpus hygiene, H4–H9, H11 and H12, all eight closed** — plus `H10`, `H13`
+and step 12, found already resolved and never struck off. Cut **MINOR** rather than PATCH on the
+same reasoning as `3.2.0`: no new `docs/*.md` file was created (this repo's table would say PATCH),
+but a new executable capability shipped — `scripts/kb-structure-check.sh`, made a mandatory step of
+`integrate-loop-news`'s Phase 4c — and the unattended agent's Bash allowlist widened to run it. A
+pipeline-contract change is a capability change the file-count table does not cover.
+
+### Added
+
+- **`scripts/kb-structure-check.sh` — six mechanical structural checks (H11).** Orphan check,
+  heading check, duplicate-coverage check, and three bare-citation checks (bare `github.com`
+  mentions, bare `@handles`, and a repo slug linked elsewhere in the KB appearing bare). Phase 4c
+  has been mandatory after every run for ~20 runs and caught none of `H5`, `H7` or `H8`, because it
+  asked for a judgement rather than producing a list. It is a **report, not a hard gate** — exit 0
+  for findings, since several legitimate doc shapes trip the heuristics — but it **aborts with
+  exit 1 if it cannot run at all** (bad repo root, no docs matched) rather than reporting clean.
+  Phase 4c must fix or explicitly waive every hit in the digest. `B_ARGS` in
+  `scripts/run-loop-news.sh` grants exactly `Bash(bash scripts/kb-structure-check.sh*)`.
+- **`KB_GAPS` V19 (H12)** — the co-resident session-leak security claim, which existed as one
+  sentence in a digest's "deliberately excluded" list and was never logged. A sweep found no CVE,
+  advisory or locatable post; two adjacent reports are recorded as explicitly *not* this claim.
+  Nothing was added to `docs/19` or `docs/33` — an unverified security claim in a public doc is
+  worse than no claim.
+
+### Changed
+
 - **H4 — pinned the Boris Cherny "write loops" quote to one primary source.** `docs/03` and
   `docs/26` reproduced the quote with differing wording and no citation; `docs/32` cited it but
   mis-called a secondary report (thenewstack.io, itself embedding a third-party tweet) "Primary
@@ -26,6 +56,39 @@ Versioning follows [Semantic Versioning](https://semver.org/):
   video's caption track at ~11:45. `docs/03` is an instance the backlog's four-location list
   missed; `LOOP_ENGINEERING_NEWS.md`'s two captures are append-only history and are corrected
   by a new hand-authored entry rather than rewritten.
+- **H5 — `docs/17` now applies the taxonomy it declared.** The intro named three root-cause
+  categories and no row was labelled with one; the file had **0** `## ` headings across 37 rows and
+  13 inbound references, so nothing in it could be deep-linked. Rows regrouped under
+  `## Underspecification` (5), `## Capability errors` (2) and `## Harness errors` (31), verified
+  programmatically: all 37 original row lines survive byte-for-byte, the intro verbatim, all 17 URLs
+  preserved. One row added — **silent scheduler death**, this repo's own eight-week outage, labelled
+  as such. Anchors confirmed generated in the built site.
+- **H6 — eight bare citations linked, and two completeness claims corrected.** `openai/symphony`
+  (recorded, not rewritten — append-only), three Prithvi Rajasekaran attributions (`docs/11`,
+  `docs/13`, `docs/24`), three in `docs/17` (Dilger, Ronacher ×2), and `@roanbrasil` in `docs/32`.
+  Every URL fetched and every repo confirmed via `gh api` before linking. A five-angle manual sweep
+  had reported the repo-slug angle clean; the new script found five slugs on its first run — of
+  which **three** were real (`jahwag/clem`, `thirai-classlab/hirai-method`, `ruvnet/ruflo`) and two
+  were already linked a few lines away. **The mechanical check is a candidate generator, not a
+  verdict.**
+- **H7 — `docs/21`'s one-way-orphan premise was already false**, fixed incidentally by two unrelated
+  commits on two different days. The original grep misled by matching plain-text mentions in the
+  news/changelog symlinks while missing real inline links. The `docs/13` link was added anyway.
+- **H8 — `docs/15` substantiated in place rather than merged** (user's decision). The stated
+  duplication with `docs/36` does not exist — they share no content, and `docs/36` cites `docs/15`
+  by link as its Planning-phase mechanism. 26 → 79 lines, five headings, every claim verified
+  against Anthropic's live permission-modes page. `LOOP_ENGINEERING.md` and `docs/index.md` synced.
+- **H9 — `integrate-loop-news` Phase 0 now aborts on a `schema != 1` artifact.** The wrapper already
+  asserted it; the skill's abort list did not mention it, and the two can drift. The phase-collision
+  half was checked and found already disambiguated at every live cross-file reference.
+- **H10, H13 and step 12 struck off** — resolved by the 20260905 decisions and the `v3.1.9` backlog,
+  and simply never marked. Tags and releases reconciled at 65/65; `CLAUDE.md` now says to count them
+  rather than quote a number that goes stale on every release.
+- **Corrected this pass's own output after an adversarial review.** Ten defects, all self-inflicted:
+  a nullglob hole that made the new gate report a clean corpus it never read; an append-only
+  violation inside a dated run record; a fabricated "16 inbound references" count; a stale `H1` list
+  that this pass's own `H8` work had falsified; and a waiver whose premise (1 of 27 entries, not
+  ~25) did not survive measurement.
 
 ---
 
