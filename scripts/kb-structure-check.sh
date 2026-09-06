@@ -138,5 +138,55 @@ done
 [ "$found4c" -eq 0 ] && echo "   (none)"
 
 echo
+echo "## 5. Source-table drift — README.md's type table vs SOURCES.md's actual rows"
+echo "   (README states counts as prose; SOURCES.md is the only authority. They drifted"
+echo "    silently once, caught by hand in the step-10 audit.)"
+if [ ! -f SOURCES.md ] || [ ! -f README.md ]; then
+  echo "kb-structure-check.sh: SOURCES.md or README.md missing — aborting, NOT reporting clean" >&2
+  exit 1
+fi
+# The source table is the one whose header row is "| Actor | Type | Handle / URL | Notes |".
+src_start=$(grep -n '^| Actor | Type | Handle / URL | Notes |' SOURCES.md | head -1 | cut -d: -f1)
+[ -n "$src_start" ] || {
+  echo "kb-structure-check.sh: cannot locate the SOURCES.md source table header — aborting, NOT reporting clean" >&2
+  exit 1
+}
+actual=$(awk -v s="$src_start" 'NR>s+1 { if ($0 !~ /^\|/) exit; print }' SOURCES.md \
+  | awk -F'|' '{gsub(/^[ \t]+|[ \t]+$/,"",$3); if ($3 != "") print $3}' | sort | uniq -c \
+  | awk '{printf "%s=%s\n", $2, $1}' | sort)
+[ -n "$actual" ] || {
+  echo "kb-structure-check.sh: SOURCES.md source table parsed to zero rows — aborting, NOT reporting clean" >&2
+  exit 1
+}
+# README states each count as: | `type` | description | N |
+stated=$(grep -oE '^\| `[a-z-]+` \| [^|]* \| [0-9]+ \|' README.md \
+  | sed -E 's/^\| `([a-z-]+)` \| [^|]* \| ([0-9]+) \|$/\1=\2/' | sort)
+found5=0
+while IFS= read -r row; do
+  [ -z "$row" ] && continue
+  t=${row%%=*}
+  if ! printf '%s\n' "$stated" | grep -qxF "$row"; then
+    was=$(printf '%s\n' "$stated" | grep -E "^${t}=" | cut -d= -f2)
+    echo "   type '$t': SOURCES.md has ${row#*=}, README says ${was:-<absent>}"
+    found5=1
+  fi
+done <<< "$actual"
+while IFS= read -r row; do
+  [ -z "$row" ] && continue
+  t=${row%%=*}
+  printf '%s\n' "$actual" | grep -qE "^${t}=" || { echo "   type '$t': in README, absent from SOURCES.md"; found5=1; }
+done <<< "$stated"
+src_total=$(printf '%s\n' "$actual" | awk -F= '{n+=$2} END{print n+0}')
+readme_total=$(grep -oE '^\| \*\*Total\*\* \| *\| \*\*[0-9]+\*\* \|' README.md | grep -oE '[0-9]+' | head -1)
+if [ -z "$readme_total" ]; then
+  echo "   README has no **Total** row — add one so the total cannot drift unnoticed (SOURCES.md: $src_total)"
+  found5=1
+elif [ "$readme_total" != "$src_total" ]; then
+  echo "   total: SOURCES.md has $src_total rows, README says $readme_total"
+  found5=1
+fi
+[ "$found5" -eq 0 ] && echo "   (none — $src_total rows, $(printf '%s\n' "$actual" | wc -l | tr -d ' ') types, README agrees)"
+
+echo
 echo "Done. A non-empty section is a candidate list to review, not an automatic fix —"
 echo "read every hit and either fix it or write down why it stands (Phase 4c Output)."
