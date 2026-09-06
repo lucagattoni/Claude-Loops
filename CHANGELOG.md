@@ -18,6 +18,63 @@ Versioning follows [Semantic Versioning](https://semver.org/):
 
 ---
 
+## [3.1.3] — 20260906 00:27
+
+Source-list revalidation, run **before** the next unattended tracker fire rather than after it —
+a dead source row costs a run's yield silently, and this repo has lost two months to that twice.
+
+### Fixed
+
+- **One dead source, found by measurement.** All **47 checkable URLs** in `SOURCES.md` were
+  fetched; **45 returned 200**. AI Breakfast was `rss` against a feed that has 404'd since at
+  least 2026-07-08. `/feed`, `/feed.xml`, `/rss` and `rss.beehiiv.com/feeds/aibreakfast.xml`
+  all 404, and the homepage carries **no `<link rel=alternate>` and no beehiiv feed id** — no
+  discoverable feed exists. Switched `rss` → `html` against the index page, the same defect and
+  the same fix The Batch needed. **Its own note said "try `/rss` next run" and sat unactioned for
+  two months** — a row that records its own breakage is not a fixed row.
+- arXiv row normalised `http://` → `https://` (it was 301-redirecting on every run).
+- **README documented 3 source types; 7 are in use** — the 4 undocumented ones cover **28 of 54**
+  rows. All seven are now a table with row counts, and the block moved back under
+  "Add or remove a source", where it belongs (**H3**).
+
+### Added
+
+- A dated revalidation record at the top of `SOURCES.md`, so the next agent can tell *checked and
+  live* from *never checked* — the distinction the file's own warning is about.
+- README guidance to **prefer `html` over `rss` when no feed is discoverable**, with the reason.
+
+### Fixed — two ambiguities this project introduced yesterday
+
+- **`last_run_date` could have been read off a hand-authored entry.** `fetch-loop-news` step 2 said
+  *"find the most recent dated section header"*. `v3.1.2`'s fact-check entry sits directly above the
+  last real run header and contains a date, so an agent could plausibly have taken `last_run_date`
+  as 22:22 instead of the real 11:27 — **silently skipping ~11 hours of source content**, with
+  nothing to report it. Now: match `## YYYY-MM-DD HH:MM UTC (…)` and skip any `##` not beginning
+  with a digit. The freshness watchdog was already safe because it uses a regex; this instruction is
+  prose read by a model, and *"dated header"* was ambiguous exactly where the regex was not.
+- **`KB_GAPS.md`'s new V-items could have been pruned.** `integrate-loop-news` Phase 7 removes gaps
+  filled by a run's doc writes. The V-items are verified research a run will never fill, so the
+  section now carries an explicit contract: `fetch-loop-news` must not derive search keywords from
+  it, `integrate-loop-news` must not prune it.
+- **Two files credited the wrong skill** (**H2**). `LOOP_ENGINEERING_NEWS.md` and `KB_GAPS.md` both
+  said `fetch-loop-news` updates them; it writes only `.loop-news/findings.json` and never touches a
+  tracked file. **Correction to H2 as filed:** its `docs/34` half was not falsified — `"05:00 local"`
+  is correct, and `"L3 — commits and publishes autonomously"` became true when the tracker published
+  on 20260905.
+
+### Corrected in our own records
+
+**C8 was mis-sized.** The backlog said "52 of 53 rows carry no confirmation newer than Jul 2026",
+which was true and misleading: *undated* is not *dead*. Measured, **1 of 47 was broken**, making
+this a ~20-minute task rather than the medium sweep implied. Row counts were stale too — 54 rows,
+not 53; `github` 23, not 22. Both corrected in place.
+
+**Still not validated, and never was in scope:** whether a live URL actually *yields* anything. A
+200 proves reachable, not useful. Only `SOURCES.md`'s own "3 consecutive silent runs" rule covers
+that, and nothing automates it.
+
+---
+
 ## [3.1.2] — 20260905 22:23
 
 The 14 never-fact-checked docs, checked. **341 claims examined, 49 fixes applied**, one commit per

@@ -32,8 +32,14 @@ refinements) inside the artifact instead.
    - Extract the sources table (Actor, Type, Handle/URL, Notes)
    - Extract the relevance keywords list
 2. Read `LOOP_ENGINEERING_NEWS.md`:
-   - Find the most recent dated section header (format: `## YYYY-MM-DD`)
-   - Record that date as `last_run_date`
+   - Find the most recent **run** header. A run header starts with the date immediately after
+     `##`: `## YYYY-MM-DD HH:MM UTC (…)`. Match that shape and nothing else.
+   - **Skip any section whose `##` does not begin with a digit.** The digest also carries
+     hand-authored entries (e.g. `## Fact-check pass — YYYY-MM-DD HH:MM UTC (hand-authored, not a
+     tracker run)`), which are *not* runs. Treating one as the last run silently narrows this
+     sweep's window and skips everything published in between — a coverage hole nothing would
+     report. Added 20260906 after such an entry was written directly above a real run header.
+   - Record that run's date as `last_run_date`
 3. Get the current UTC time by running:
    ```bash
    TZ=UTC date '+%Y-%m-%d %H:%M UTC'

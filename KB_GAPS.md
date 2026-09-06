@@ -1,7 +1,9 @@
 # KB Gaps — Topics Needing Deeper Coverage
 
 This file tracks areas of the loop engineering KB that are currently thin or missing.
-Updated by each `fetch-loop-news` run. Gap keywords drive targeted GitHub and web searches.
+Updated by `integrate-loop-news` at the end of each run — `fetch-loop-news` writes only
+`.loop-news/findings.json` and never touches a tracked file. Gap keywords drive the next run's
+targeted GitHub and web searches.
 
 ---
 
@@ -85,9 +87,18 @@ Updated by each `fetch-loop-news` run. Gap keywords drive targeted GitHub and we
 ## Claims Awaiting Verification — not search targets
 
 Each item below is a specific factual claim that **no search can settle**: it needs someone to run a
-command, read a raw value in the right environment, or reproduce a measurement. `fetch-loop-news`
-should **skip this section** — there are no useful search keywords in it. They are recorded here so
-a session with the right environment can close them, and so nobody re-derives them from scratch.
+command, read a raw value in the right environment, or reproduce a measurement.
+
+> **Both pipeline skills: leave this section alone.**
+> `fetch-loop-news` — **do not derive search keywords from it.** There are none; a search cannot
+> close any of these, so querying them wastes the run's budget.
+> `integrate-loop-news` — **do not prune it.** Phase 7 removes *gaps filled by that run's doc
+> writes*. These are not gaps of that kind and a run will never fill one, so a pruning pass that
+> treats them as stale would silently delete verified research. Only a session that actually
+> settles an item removes its row, and it says how it settled it.
+
+They are recorded here so a session with the right environment can close them, and so nobody
+re-derives them from scratch.
 
 They are listed rather than acted on because of the rule this KB keeps re-proving: *"not on the page
 we fetched" is a fact about our fetch; "contradicted by the page we fetched" is a fact about the KB.*

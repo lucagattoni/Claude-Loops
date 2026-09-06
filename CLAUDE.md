@@ -74,12 +74,13 @@ Claude-Loops is a living knowledge base and automated daily tracker for **loop e
   list, or a catch that swallows and continues. And assert on the **artifact** — a commit, a
   deployed page, a fresh digest header — never on a run's exit status; "the workflow succeeded" has
   been true here while nothing shipped.
-- **Only a real tracker run may write a standard digest header.** `check-digest-freshness.sh`
-  matches `## YYYY-MM-DD HH:MM UTC` and ignores the trailing parenthetical, so *any* header in that
-  shape resets the staleness clock — a hand-authored entry would report the tracker healthy while
-  it is dead. Non-tracker entries in `LOOP_ENGINEERING_NEWS.md` use a header the regex cannot match
-  (`## Fact-check pass — YYYY-MM-DD HH:MM UTC (…)`). Found 20260905, when writing exactly such an
-  entry would have masked an outage.
+- **Only a real tracker run may write a digest header starting with a date.** Two independent
+  mechanisms parse `LOOP_ENGINEERING_NEWS.md` headers, and a hand-authored entry breaks both:
+  `check-digest-freshness.sh` would report the tracker healthy while it is dead, and
+  `fetch-loop-news` would take it as `last_run_date` and silently skip everything published since
+  the real run. So non-tracker entries use a header beginning with a **word**, not a digit —
+  `## Fact-check pass — YYYY-MM-DD HH:MM UTC (hand-authored, not a tracker run)`. Both consumers
+  now say so explicitly. Found 20260905–06, from writing exactly such an entry.
 - **Every expensive stage must be resumable from any point, because it can die at any point.**
   Standing requirement, set 20260905. A session limit, a killed process or a closed laptop can end a
   stage mid-execution, so anything costing real minutes or money checkpoints its progress somewhere

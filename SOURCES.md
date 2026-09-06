@@ -70,6 +70,12 @@ substantively relevant to loop engineering practice (not just a passing mention)
 > **A source yielding nothing for more than ~3 consecutive runs must be re-fetched by hand before
 > its silence is believed.** Rows carrying a `404` note are in that state now: treat them as
 > *unswept*, not as *quiet*.
+>
+> **Revalidated 2026-09-06 00:26 UTC.** Every one of the 47 checkable URLs in this table was
+> fetched. **45 returned 200.** One was dead — AI Breakfast, fixed below by the same `rss` → `html`
+> switch The Batch needed, because no discoverable feed exists. One stored an `http://` URL that
+> 301-redirects; it now stores the `https://` form. The remaining 7 rows carry handles or search
+> queries rather than URLs and are not URL-checkable. **No other row is broken.**
 
 | Actor | Type | Handle / URL | Notes |
 |---|---|---|---|
@@ -93,7 +99,7 @@ substantively relevant to loop engineering practice (not just a passing mention)
 | The Rundown AI | rss | https://rss.beehiiv.com/feeds/2R3C6Bt5wj.xml | Daily AI newsletter (Beehiiv); scan for loop engineering / agentic workflow coverage. Feed URL rediscovered Jul 2026 (original `/feed` 404'd) |
 | TLDR AI | rss | https://tldr.tech/api/rss/ai | Daily AI digest RSS; scan for Claude Code, agent loop, agentic workflow coverage. Feed URL rediscovered Jul 2026 (`/ai/rss` 404'd; `tldr.tech/rss` is the general-tech feed, not AI-specific) |
 | Ben's Bites | rss | https://bensbites.com/feed | Daily AI news digest RSS; scan for loop engineering / agent loop coverage. Feed URL rediscovered Jul 2026 (moved off beehiiv to its own domain) |
-| AI Breakfast | rss | https://aibreakfast.beehiiv.com/feed | Daily AI newsletter (Beehiiv RSS); scan for agentic workflow and Claude Code coverage. **Still 404 as of 2026-07-08** (also tried `/feed.xml`); only the homepage resolves — try `/rss` next run or check beehiiv RSS settings |
+| AI Breakfast | html | https://aibreakfast.beehiiv.com/ | Daily AI newsletter; scan for agentic workflow and Claude Code coverage. Switched `rss` → `html` on 2026-09-06 after the same failure as The Batch: `/feed` has 404'd since at least 2026-07-08, `/feed.xml` and `/rss` also 404, `rss.beehiiv.com/feeds/aibreakfast.xml` 404s, and the homepage carries **no `<link rel=alternate>` and no beehiiv feed id** — so no discoverable feed exists. The index page resolves 200 and lists ~9 posts as `/p/<slug>` links; scrape it directly. The row's previous note said "try `/rss` next run" and sat unactioned for two months |
 | X search — loop engineering | x-search | https://x.com/search?q=loop%20engineering&src=typed_query&f=live | Live keyword search; dynamically loaded — scroll ≥3 times to surface 20+ posts |
 | LinkedIn search — loop engineering | linkedin | https://www.linkedin.com/search/results/content/?keywords=loop+engineering | Professional community posts; dynamically loaded — scroll ≥3 times to surface 20+ posts |
 | Harness Books (AgentWay) | html | https://harness-books.agentway.dev | Essay collection on harness design theory — unstable components, ledger closure, input governance, reactive compact |
@@ -115,7 +121,7 @@ substantively relevant to loop engineering practice (not just a passing mention)
 | Happenmass/Cliclaw | github | https://github.com/Happenmass/Cliclaw | Cross-model maker/checker (Claude implements / Codex reviews) over tmux; auto-continue gate model, tmux-pane state scraping (hook-free), two-tier hybrid memory; 107★ (Jun 2026) |
 | Happenmass/omux | github | https://github.com/Happenmass/omux | Second repo from the same author (Cliclaw above) — 106★; tmux-based parallel orchestration of Claude Code/Codex with cross-session two-tier SQLite memory (Jul 2026) |
 | firegnu/herdr-loop-lab | github | https://github.com/firegnu/herdr-loop-lab | Three-layer (inner/fleet/epic) cross-model adversarial judge + mechanical gate; exit-code stop contracts (0/2/3), stateless worktree rounds, AC-N acceptance criteria (Jun 2026) |
-| arXiv — harness/loop research | rss | http://export.arxiv.org/api/query?search_query=all:%22agent+harness%22+OR+%22loop+engineering%22+OR+%22self-improving+harness%22&sortBy=submittedDate&sortOrder=descending&max_results=30 | arXiv Atom API; primary source for harness-engineering research (Self-Harness 2606.09498, AHE 2604.25850, HarnessX 2606.14249). Added Jul 2026 after 3 arXiv findings in one run |
+| arXiv — harness/loop research | rss | https://export.arxiv.org/api/query?search_query=all:%22agent+harness%22+OR+%22loop+engineering%22+OR+%22self-improving+harness%22&sortBy=submittedDate&sortOrder=descending&max_results=30 | arXiv Atom API; primary source for harness-engineering research (Self-Harness 2606.09498, AHE 2604.25850, HarnessX 2606.14249). Added Jul 2026 after 3 arXiv findings in one run |
 | peterCheng123321/loop-engineering | github | https://github.com/peterCheng123321/loop-engineering | Convergence layer over /loop, ralph-loop, Agent SDK loops; progress.md as DP "memo table" — cache solved steps, prune failed branches, survive compaction (Jul 2026) |
 | Sungmin-Cho/claude-deep-loop | github | https://github.com/Sungmin-Cho/claude-deep-loop | Control-plane/execution-plane split: kernel is sole authorized writer, skill agents read-only and write via kernel subcommands; content-hash-anchored state + append-only events across sessions (Jul 2026) |
 | shouryasrivastava/ctxcarry | github | https://github.com/shouryasrivastava/ctxcarry | "Repo owns your context, not the agent": local-first .ctxcarry/ durable memory, worktree generators, evaluators-assume-broken, token-budgeted multi-tool handoff (Jul 2026) |
