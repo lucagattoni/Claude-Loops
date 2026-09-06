@@ -18,6 +18,24 @@ Versioning follows [Semantic Versioning](https://semver.org/):
 
 ---
 
+## [3.1.9] — 20260906 10:18
+
+### Changed
+
+- **Backfilled the 15 tagged versions that had no GitHub release** — `v1.1.0`, `v1.2.0`, `v2.0.1`,
+  `v2.0.2`, `v2.1.1`, `v2.1.2`, and `v2.3.1`–`v2.3.9`. Each release body is that version's own
+  `CHANGELOG.md` section, verbatim, with a note explaining why the tag had no release. All created
+  with `--latest=false`, so `latest` still points at `v3.1.8`. The repo now has **63 tags and 63
+  releases, 0 missing** (it was 53/38 when the gap was logged).
+
+  This closes the *backfill* half of backlog item **H10**. The other half stands: the pipeline
+  still creates no releases, by the deliberate decision in `CLAUDE.md` § Releases — granting an
+  unattended agent `gh release` rights on a public repo is a wider permission than the convenience
+  is worth. The consequence is that every pipeline-cut version re-opens this gap and needs the same
+  manual backfill, which is the standing cost **D2** has yet to settle.
+
+---
+
 ## [3.1.8] — 20260906 10:12
 
 Closes **every remaining P1 and P2 item** in the C1b backlog, including the one the entry point
