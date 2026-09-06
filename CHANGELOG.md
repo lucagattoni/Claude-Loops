@@ -43,6 +43,25 @@ a dead source row costs a run's yield silently, and this repo has lost two month
   live* from *never checked* — the distinction the file's own warning is about.
 - README guidance to **prefer `html` over `rss` when no feed is discoverable**, with the reason.
 
+### Fixed — two ambiguities this project introduced yesterday
+
+- **`last_run_date` could have been read off a hand-authored entry.** `fetch-loop-news` step 2 said
+  *"find the most recent dated section header"*. `v3.1.2`'s fact-check entry sits directly above the
+  last real run header and contains a date, so an agent could plausibly have taken `last_run_date`
+  as 22:22 instead of the real 11:27 — **silently skipping ~11 hours of source content**, with
+  nothing to report it. Now: match `## YYYY-MM-DD HH:MM UTC (…)` and skip any `##` not beginning
+  with a digit. The freshness watchdog was already safe because it uses a regex; this instruction is
+  prose read by a model, and *"dated header"* was ambiguous exactly where the regex was not.
+- **`KB_GAPS.md`'s new V-items could have been pruned.** `integrate-loop-news` Phase 7 removes gaps
+  filled by a run's doc writes. The V-items are verified research a run will never fill, so the
+  section now carries an explicit contract: `fetch-loop-news` must not derive search keywords from
+  it, `integrate-loop-news` must not prune it.
+- **Two files credited the wrong skill** (**H2**). `LOOP_ENGINEERING_NEWS.md` and `KB_GAPS.md` both
+  said `fetch-loop-news` updates them; it writes only `.loop-news/findings.json` and never touches a
+  tracked file. **Correction to H2 as filed:** its `docs/34` half was not falsified — `"05:00 local"`
+  is correct, and `"L3 — commits and publishes autonomously"` became true when the tracker published
+  on 20260905.
+
 ### Corrected in our own records
 
 **C8 was mis-sized.** The backlog said "52 of 53 rows carry no confirmation newer than Jul 2026",

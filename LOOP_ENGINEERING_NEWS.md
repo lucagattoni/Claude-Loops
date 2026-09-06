@@ -1,6 +1,7 @@
 # Loop Engineering News
 
-Newest-first digest. Updated by the `fetch-loop-news` skill on each run.
+Newest-first digest. Written by `integrate-loop-news` at the end of each run — `fetch-loop-news`
+searches and writes only `.loop-news/findings.json`, never a tracked file.
 Sources are defined in [`SOURCES.md`](https://lucagattoni.github.io/Claude-Loops/sources/).
 
 ---
