@@ -17,8 +17,10 @@ claude --bg "refactor the auth module to use the new token service"
 # With a turn cap. NOTE: --max-budget-usd does NOT apply to --bg — see "What --bg does not get"
 claude --bg --max-turns 50 "run all tests and fix failures"
 
-# In an isolated worktree (prevents file conflicts with your active session)
-claude --bg --worktree "add input validation to all API endpoints"
+# In an isolated worktree (prevents file conflicts with your active session).
+# Name the worktree explicitly — `--worktree [name]` takes an optional value and will
+# otherwise consume the prompt as the worktree name and fail.
+claude --bg --worktree api-validation "add input validation to all API endpoints"
 
 # With a specific model and effort level
 claude --bg --model claude-opus-5 --effort high "architect the new plugin system"
@@ -94,7 +96,7 @@ seconds** and produced 2 input / 4 output tokens with **zero** thinking tokens
 | Thinking tokens | 0 |
 
 At Opus 5 list price (1-hour cache write, $10/MTok — see [Cost Control](11-cost-control.md)), that
-write alone is **$0.2266, or 94% of the session's whole cost**. Effort did not drive it; the session
+write alone is **$0.2266, or 93% of the session's whole cost**. Effort did not drive it; the session
 writing its own scaffolding into a 1-hour cache did, at Opus's 2× rate, for 64 seconds of life.
 
 > **The generalisable claim:** a fresh session pays *(system prompt + tool definitions) × the model's
@@ -144,12 +146,18 @@ MCP config file not found: /Users/…/reply with OK
 **On `--bg` the same mistake is silent.** The launcher prints a session id and exits 0:
 
 ```text
-$ claude --bg --mcp-config <file> "x"
-backgrounded · 439afb8c (idle — send a prompt to start)
+$ claude --bg --allowedTools Bash Edit "fix the flaky test"
+backgrounded · 5a92d93a (idle — send a prompt to start)
 ```
 
-A live background session with no prompt, which sits idle indefinitely. `claude agents` lists it,
-the exit status is 0, and no work happens. **A fan-out that builds its command line flags-first can
+A live background session with no prompt, which sits idle indefinitely — reproduced on **2.1.263**,
+still `"state": "blocked"` with a live `pid` twenty seconds later. `claude agents` lists it, the
+exit status is 0, and no work happens.
+
+Pick the demonstrating flag with care: the same mistake made with `--mcp-config` does **not** idle.
+That session dies within ~10s because the swallowed prompt is then parsed as a second, invalid
+config path — visibly failing rather than silently idling. The variadic flags that leave a session
+genuinely stuck are the ones whose values are never validated. **A fan-out that builds its command line flags-first can
 start fifty of these and report complete success.** Assert on the artifact each worker was supposed
 to produce — never on the launch succeeding.
 
@@ -172,7 +180,7 @@ claude respawn <session-id>      # restart session with conversation intact
 does not need a TTY. `--all` additionally includes completed background sessions, and
 `--cwd <path>` narrows to background sessions started under that path.
 
-**The object shape depends on the session's kind and liveness.** Observed on 2.1.261:
+**The object shape depends on the session's kind and liveness.** Observed on 2.1.263:
 
 | Field | Present on | Notes |
 |---|---|---|
@@ -182,7 +190,7 @@ does not need a TTY. `--all` additionally includes completed background sessions
 | `kind` | all | `background` or `interactive` |
 | `cwd`, `startedAt`, `name` | all | `startedAt` is epoch milliseconds |
 | `status` | running sessions | e.g. `busy` |
-| `state` | background sessions | observed: `working`, `done`, `failed` |
+| `state` | background sessions | observed: `working`, `done`, `failed`, `blocked` — `blocked` means waiting on input, including a session whose prompt was swallowed at launch |
 
 Two scripting consequences, both easy to get wrong:
 
@@ -229,7 +237,7 @@ Background sessions persist and can be resumed after interruption:
 
 ```bash
 claude --resume                      # picker of past sessions; background ones are marked "bg"
-claude --resume <sessionId>          # resume a specific session by its full session UUID
+claude --resume <session-id-or-name>  # resume by session ID, or by a name set with --name/-n
 claude attach <id>                   # attach to a background session still listed in `claude agents`
 # `claude --continue` does NOT work here — it loads the most recent conversation in the
 # current directory but explicitly skips background sessions (and -p / SDK / /loop ones).
@@ -247,10 +255,13 @@ MODULES=(auth payments notifications search)
 declare -a SIDS
 
 for mod in "${MODULES[@]}"; do
-  # Reliable: use claude agents --json after launch to get session IDs
-  claude --bg --permission-mode auto \
-    "Review the $mod module for security issues. Write findings to findings-$mod.md"
-  echo "Started $mod"
+  # Capture the id `claude --bg` prints at launch — more reliable than reconstructing
+  # the set afterwards from a machine-wide listing.
+  out=$(claude --bg --permission-mode auto \
+    "Review the $mod module for security issues. Write findings to findings-$mod.md")
+  sid=$(echo "$out" | grep -oE '[0-9a-f]{8}' | head -1)
+  SIDS+=("$sid")
+  echo "Started $mod ($sid)"
 done
 
 # Get the session IDs this loop started — filter by cwd, not the whole machine
@@ -306,11 +317,12 @@ conversation and continue with fresh, currently-authorized shell commands or del
 work — without the user re-sending the original request. This is the harness restoring
 the session itself, as distinct from this doc's `PROGRESS.md`-style pattern where the
 *agent* externalises state for its own next invocation to read; OpenClaw's version
-additionally handles long-conversation performance (bounded transcript pages, shortened
-tool-output previews) as part of the same restart path.
+ships in the same release as a separate long-conversation performance improvement (bounded
+transcript pages, shortened tool-output previews for large histories) — a distinct feature, not
+part of the restart-recovery path.
 ([OpenClaw v2026.9.2 release notes](https://docs.openclaw.ai/releases/2026.9.2), Sep 2026.)
 Separately, [Peter Steinberger](https://x.com/steipete) — OpenClaw's developer — describes
-working toward sub-second cloud-session starts via repo snapshotting, to replace the
+working toward second-scale cloud-session starts via repo snapshotting, to replace the
 latency of a fresh clone on every detached session start.
 ([@steipete](https://x.com/steipete/status/2096400749869830325), Sep 2026.)
 
