@@ -430,6 +430,41 @@ method as much as its result: it reports a failure **against itself** — *"on o
 the same test read +0.104 at p = 0.037 until two monitors were added"* — which is the behaviour this
 KB asks of its own claims.)
 
+#### Two-tier verdicts: never let a judgement call fail the build
+
+A verifier that emits one verdict has to answer two different questions with it — *did a mechanical
+check fail?* and *does this look wrong?* — and the second is an inference that can misread. Collapse
+them and you get one of two bad outcomes: block on a guess, or downgrade the certainties to match
+the uncertainties.
+
+A release-readiness gate that separates them splits every finding in two:
+
+| Tier | Applies to | Fires when |
+|---|---|---|
+| **BLOCK** (hard, fail-closed) | **mechanical** boundaries — objective, zero inference | the check has a single right answer and it failed |
+| **WARN** (advisory, surfaced to a human) | the **one judgement** call | a classification *suspects* a mismatch |
+
+Its BLOCK set is entirely decidable — version bumped, version is valid SemVer, changelog has a
+matching dated entry, tag does not already exist, `[Unreleased]` not left populated, working tree
+clean. Its single WARN is whether the severity of the changes matches the size of the version bump,
+which is an LLM judgement. The rule attached to it is the transferable part, verbatim:
+
+> **Never escalate this to a BLOCK** — the classification is an inference and can misread;
+> auto-blocking a legitimate release on a guess is exactly the verifier-theater the constitution
+> forbids. Be explicit that this is a *suspicion*, not a verdict.
+
+**Why this belongs in a loop's stop condition.** An unattended loop cannot ask, so its verifier must
+be honest about which of its outputs are facts and which are opinions. Give the loop **fail-closed
+authority over the decidable set only**, and route everything inferential to a human as a labelled
+suspicion. A loop that blocks on inference will be switched off after its second false positive; a
+loop that blocks on nothing is [Verifier Theater](17-failure-patterns.md). The split is what lets one
+verifier be both trustworthy and unattended.
+
+([Claude-Warp `claude-warp-release`](https://github.com/lucagattoni/Claude-Warp/blob/main/skills/claude-warp-release/SKILL.md),
+read 20260906. **First-party**: same maintainer as this KB — see
+[the disclosure](36-development-workflow.md#a-worked-reference-implementation). Presented as a
+worked example of the split, not as independent evidence for it.)
+
 **What is still not settled.** No source found gives a *general* ranking of which model pairs catch
 the most distinct failure classes in code review. Result 1 is two models on one benchmark; result 2
 is a different task. Treat pair selection as something you measure on your own diffs, not something

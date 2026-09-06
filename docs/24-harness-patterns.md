@@ -1123,6 +1123,34 @@ both read 20260906. ClaudeWarp shares this KB's maintainer — see
    rather than only the changelog. A release-reading loop that never reads the artifact is the
    Verifier Theater this KB keeps naming; see [Verification](04-verification.md).
 
+### Native features also go away — the other half of the bet
+
+"Design your harness to shrink" quietly assumes native features only ever *arrive*. They do not.
+
+`/ultraplan` was a **built-in slash command**: it sent a planning task to a Claude Code on the web
+session — *"Kick off plan mode in the cloud from your terminal, then review the result in your
+browser. Claude drafts the plan in a Claude Code on the web session while your terminal stays
+free"* — present from at least **v2.1.101**, improved across several releases, and then, at
+**v2.1.222**: *"Removed ultraplan feature."* The commands reference now carries the row as
+*"Removed. Use plan mode instead."*
+
+So the platform boundary moves in **both** directions, and that changes the retirement rule:
+
+- **Retiring your component is a bet on the native one surviving.** Delete a scaffold because native
+  covers it, and you inherit the platform's deprecation risk. The safe version of shrink-on-native
+  is to **stub and keep the migration note** — which is what a `superseded` status plus a dated
+  migration entry actually buys you — rather than deleting the code outright.
+- **Check for removals, not only additions.** A sync that greps releases for "added" and "now
+  supports" will read a removal as silence. `/ultraplan`'s removal is a single five-word bullet in a
+  6,362-line changelog.
+- **Prefer native features with a migration path named in the removal.** This one had one — plan
+  mode — stated in the docs row. A removal that names no successor is the expensive kind.
+
+(Verified 20260906 against the
+[official changelog](https://raw.githubusercontent.com/anthropics/claude-code/main/CHANGELOG.md) and
+[`/docs/en/commands`](https://code.claude.com/docs/en/commands). This KB never documented
+`/ultraplan` while it existed — it is recorded here for the lesson, not as a feature to use.)
+
 ## Harness Update File Safety Contract
 
 When the harness ships updates that modify shared files (CLAUDE.md, loop templates,
