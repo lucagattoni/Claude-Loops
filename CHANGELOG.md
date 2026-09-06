@@ -18,6 +18,29 @@ Versioning follows [Semantic Versioning](https://semver.org/):
 
 ---
 
+## [3.1.7] — 20260906 09:34
+
+### Fixed
+
+- **`scripts/run-loop-news.env.example` was corrupted in v3.1.6 and no longer parsed as shell.**
+  The section added in that release was written through an **unquoted heredoc**, so backticks around
+  a command name were executed as command substitution and the command's output was injected into
+  the file. `bash -n` failed with `syntax error near unexpected token '('`.
+
+  The live `run-loop-news.env` was unaffected (written with a quoted heredoc), so the tracker never
+  broke. But the template's own instruction is to copy it to `run-loop-news.env`, and the wrapper
+  **sources** that file — so anyone following the instruction would have broken their next run.
+
+  Rewritten without backticks and verified three ways: `bash -n` exits 0, zero residual command
+  output, and a copy-to-`.env` round trip sources cleanly.
+
+  Two lessons, both already rules here and both broken in the same minute: **quote the heredoc
+  delimiter unless you specifically want expansion**, and **a gate's exit status must be what the
+  next command reads** — the check that would have caught this was run as
+  `bash -n file | head`, which reports `head`'s status, so it printed the error and still looked green.
+
+---
+
 ## [3.1.6] — 20260906 09:31
 
 C1b round two: the coverage the first fact-check pass did not reach. **476 claims checked, 424
