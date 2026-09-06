@@ -60,7 +60,7 @@ Two strategies when a context window fills during a long task:
 mistakes, reversals, and dead ends remain in context: subsequent reasoning is anchored
 to that accumulated wreckage rather than the current goal.
 
-Findings from Anthropic engineering (Prithvi Rajasekaran, Mar 2026):
+Findings from Anthropic engineering ([Prithvi Rajasekaran, "Harness design for long-running application development"](https://www.anthropic.com/engineering/harness-design-long-running-apps), Mar 2026):
 - Claude Sonnet 4.5 exhibited significant context anxiety — resets were essential for reliable output
 - Claude Opus 4.6 largely eliminated this behaviour — compaction is often sufficient
 

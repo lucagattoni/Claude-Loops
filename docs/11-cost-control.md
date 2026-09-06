@@ -213,7 +213,7 @@ loop), then raise after observing actual consumption on real runs.
 
 ## Real project cost benchmarks
 
-From Anthropic's own harness engineering work (Prithvi Rajasekaran, Mar 2026):
+From Anthropic's own harness engineering work ([Prithvi Rajasekaran, "Harness design for long-running application development"](https://www.anthropic.com/engineering/harness-design-long-running-apps), Mar 2026):
 
 | Task | Architecture | Time | Cost | Result |
 |---|---|---|---|---|

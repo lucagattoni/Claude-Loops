@@ -1051,7 +1051,7 @@ sources rather than the "Anthropic senior engineer" the viral tweet claimed.
 - **Nick Puru** (@NicholasPuru, X) — detailed, well-researched loop-engineering field-guide articles; only one data point so far, watch for a second before promoting to a tracked row
 - **André Lindenberg** (LinkedIn, "Artificial Engineering" newsletter) — planning/governance framing (Loop Engineering Canvas) distinct from most sources; one data point so far
 - **Prithvi Rajasekaran** (Anthropic) and **Steve Kaliski** (Stripe) — cited as primary sources behind this week's viral PDF; their original posts/talks not yet located directly
-- **OpenAI Symphony** (github.com/openai/symphony) — open-source multi-agent orchestration framework, cross-vendor relevance
+- **OpenAI Symphony** ([github.com/openai/symphony](https://github.com/openai/symphony)) — open-source multi-agent orchestration framework, cross-vendor relevance
 - Several single-repo GitHub candidates from this run (gomilesf/convergo, houshuang/compound-review, mcpharbour/mcpharbour, codeafix/agent-assistant, saagpatel/cross-provider-egress-guard) were valuable enough to cite directly in docs this run but don't yet clear the "2+ pieces" bar for a tracked SOURCES.md row
 
 ---
