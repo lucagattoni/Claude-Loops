@@ -10,6 +10,7 @@ Verification *is* the loop's success stop: it is the **completion check** in the
 max-iteration, and no-progress stops only contain a loop; the completion check is the
 only one that lets it succeed — and it is exactly as trustworthy as the verifier behind
 it. "An agent loop without a verifier just compounds its own mistakes on a schedule."
+([@bojan_ai](https://x.com/bojan_ai/status/2070433693957558636), Jun 2026.)
 
 A check is anything that returns a pass/fail signal Claude can read:
 
@@ -89,8 +90,10 @@ Before acting on any persistent memory record:
 2. Re-read the original source rather than trusting the memory summary
 3. Treat any memory record older than a defined threshold (e.g. 24h) as unverified
 
-> "Stale memory records must be revalidated against present reality before
-> recommendations." — [wquguru/harness-books](https://github.com/wquguru/harness-books)
+> "…memory records can become stale; before giving recommendations from memory, verify
+> current state; when memory conflicts with present reality, trust the current observed
+> state and update or delete stale memory."
+> — [wquguru/harness-books](https://github.com/wquguru/harness-books), ch. 7 §7.7
 
 Apply this specifically to: STATE.md watchlists, GOAL.md execution logs,
 PROGRESS.md task statuses, and any cached API responses.
@@ -104,7 +107,7 @@ Before designing a verifier, classify the work being verified:
 | Type | Definition | Verification approach |
 |---|---|---|
 | **Type A** | Fully automatable mechanics — dispatch, execution, evidence collection, commit, index update | Machine-checkable gates (CI, exit codes, diff counts) — no human needed |
-| **Type B** | Human judgment gates — design decisions, ambiguity resolution, irreversible actions requiring context | Mandatory human approval; cannot be delegated to an automated verifier |
+| **Type B** | Human judgment gates — reviewing raw run output for trustworthiness and failure points, real-time calls when an agent is stuck on policy or permissions, and approving irreversible actions (e.g. merging a PR) | Mandatory human approval; the resulting lessons feed future automated-verifier design, but the judgment itself cannot be delegated to one |
 
 The loop's job is to automate Type A completely and route Type B to humans reliably. A loop that tries to auto-verify Type B work (using LLM judges to approve irreversible actions) introduces [Verifier Theater](17-failure-patterns.md).
 
@@ -197,7 +200,10 @@ When agent output contains factual claims (about APIs, configurations, security 
 
 Never act on a claim that remains in the `source_prior` or `bounded_claim` state for irreversible actions (deploys, security changes, data migrations). Require `validated` evidence.
 
-**R0–R5 Risk Classification** — score tasks at intake before execution:
+**R0–R5 Risk Classification** — score tasks at intake before execution. The ladder below is
+this KB's own generalized tiering (its R5 row folds in this KB's own
+[SECURITY_MATRIX.md](33-agent-security-hardening.md) convention); it is not a verbatim policy
+from any single cited project:
 
 | Level | Risk | Policy |
 |---|---|---|
@@ -208,16 +214,24 @@ Never act on a claim that remains in the `source_prior` or `bounded_claim` state
 | R4 | Irreversible (data, secrets) | Explicit human approval before execution |
 | R5 | Security-critical | SECURITY_MATRIX.md gate + security reviewer (see [Agent Security Hardening](33-agent-security-hardening.md)) |
 
-([qimen039-code/agent-cognitive-continuity-framework](https://github.com/qimen039-code/agent-cognitive-continuity-framework), Jun 2026.)
+The additive risk-routing *idea* — classify at intake, keep the highest level, union the required
+gates — is shared with [qimen039-code/agent-cognitive-continuity-framework](https://github.com/qimen039-code/agent-cognitive-continuity-framework)
+(Jun 2026), but that project's own R0–R5 tiers route by *task shape*, not by this
+read/write/prod/security ladder: R0 is the default for trivial tasks, R1 read-only inspection,
+R2 artifact/report, R3 implementation or governance-doc edits, R5 confirmed destructive actions
+(`git push`, delete). It defines no `SECURITY_MATRIX.md` — that is this KB's own convention,
+sourced in [Agent Security Hardening](33-agent-security-hardening.md) to jahwag/clem.
+The adjacent `source_prior` / `bounded_claim` / `validated` taxonomy above *is* verbatim from
+that project's README and stays as written.
 
 ## A/A Baseline for Verifier Calibration
 
 Before trusting a verifier's verdicts, establish a noise floor using A/A testing:
 
 1. **Baseline run:** run the verifier on two identical implementations — it should produce identical verdicts; any disagreement is pure noise
-2. **Noise floor:** if the verifier disagrees on ≥5% of identical cases, its signal is too noisy to trust for pass/fail gates
+2. **Noise floor:** derive the noise floor empirically from the A/A run itself rather than assuming a fixed cutoff — agent-ab's own design note calls an assumed threshold (its example, "3× median") "the exact fragility this tool exists to avoid". Treat any specific disagreement percentage as a per-verifier rule of thumb you calibrate, not a figure from this source
 3. **Only deterministic graders** for binary gates: test exit codes, diff line counts, grep match counts — never LLM-generated scores
-4. **Bootstrap confidence intervals:** when comparing two configurations, require ≥95% CI overlap to confirm a real improvement vs. noise
+4. **Bootstrap confidence intervals:** when comparing two configurations, compute a 95% bootstrap confidence interval on the *difference* of means — if that interval excludes zero, the effect is larger than run-to-run noise (agent-ab's own criterion; it is not a test of two intervals "overlapping")
 
 Verifiers calibrated only on happy-path inputs will fail on the edge cases that matter most — the A/A baseline catches this before deployment.
 
@@ -232,9 +246,8 @@ the check honest:
 **1. The external verifier — the loop runs the check, not the agent.** In the
 `loop-kernel` design the control loop itself executes the real check command every
 iteration and reads the exit code; the worker never reports its own success.
-"The kernel runs your REAL check every iteration (worker can't fake)" and "editing or
-skipping your tests changes nothing — the kernel re-runs the real command every
-iteration." The principle: **the control system is fixed and deterministic; the worker
+The repo puts it plainly: "The **kernel** runs it, not the worker. Editing or skipping
+your tests changes nothing — the kernel re-runs the real command every iteration." The principle: **the control system is fixed and deterministic; the worker
 is stochastic and swappable.** This is the architectural cure for [Verifier Theater](17-failure-patterns.md)
 — the agent cannot approve itself because approval lives outside the agent.
 ([uppifyagency/loop-kernel](https://github.com/uppifyagency/loop-kernel), Jun 2026.)
@@ -246,10 +259,11 @@ is stochastic and swappable.** This is the architectural cure for [Verifier Thea
 | **Mechanical gate** | Runtime properties only the environment can see | `gate.sh` exit code, build, test suite, CI |
 | **Adjudicator** | Whether a diff satisfies discrete acceptance criteria | read-only judge agent emitting structured JSON |
 
-Keeping them separate is what prevents infinite loops: "adjudicators cannot mistake
-weakened tests for correctness; gates catch what agents cannot verify structurally."
-Correctness rests on `git + exit codes + structured JSON contracts`, decoupled from
-the agent's output format. ([firegnu/herdr-loop-lab](https://github.com/firegnu/herdr-loop-lab), Jun 2026.)
+Keeping them separate is what prevents infinite loops: adjudicators cannot mistake weakened
+tests for correctness, and gates catch what agents cannot verify structurally. The repo's own
+framing is "两道闸:机械门(退出码)+ 跨模型对抗裁判" — two gates: a mechanical exit-code gate
+plus a cross-model adversarial judge. Correctness rests on "git + exit codes + a structured JSON
+contract, decoupled from agent output format." ([firegnu/herdr-loop-lab](https://github.com/firegnu/herdr-loop-lab), Jun 2026.)
 
 **3. Frozen tests — pin the contract before the implementer can touch it.** A separate
 role authors the test, it is pinned by **content-hash** and made read-only, and only
@@ -301,7 +315,10 @@ the maker made because it reasons from the same priors; a *different* model is l
 catch what the first is systematically blind to, and the two models' disagreement becomes the
 productive tension that drives another iteration. These harnesses pair the cross-model
 reviewer with a **structured verdict schema** that separates blocking from non-blocking
-findings — reviewers emit `VERDICT: PASS` / `VERDICT: BLOCK` plus advisory `SUGGEST:` lines —
+findings — mateaix/loope's reviewers emit `VERDICT: PASS` / `VERDICT: BLOCK` plus advisory
+`SUGGEST:` lines, while the other harnesses use their own verdict vocabularies (herdr-loop-lab's
+judge emits `met`/`unmet` per acceptance criterion in JSON; forja's emits `VEREDICTO: PASS |
+REJECT | BLOCKER`) —
 and gate completion on a **dual stop condition**: the loop terminates only when the mechanical
 test command exits 0 **and** the reviewer raises no `BLOCK`. Multiple reviewers on the same
 workspace aggregate by "any blocker ⇒ blocked." ([Happenmass/omux](https://github.com/Happenmass/omux),
@@ -347,7 +364,7 @@ findings, and **93.4% were caught by exactly one tool**, and no line was ever fl
 once (37 lines drew exactly two, 4 drew exactly three). This corroborates the ~85–90% figure above with an
 independent, non-LLM-judge data source: the non-overlap is not an artifact of how
 LLM-as-judge harnesses are built, it recurs in production tools built by different
-vendors on different review philosophies. ([dev.to, "Best AI Code Reviewer in 2026?"](https://dev.to/_vjk/best-ai-code-reviewer-in-2026-we-ran-4-in-parallel-for-3-weeks-146-prs-679-findings-1c0f), Jul 2026.)
+vendors on different review philosophies. ([dev.to, "Best AI Code Reviewer in 2026?"](https://dev.to/_vjk/best-ai-code-reviewer-in-2026-we-ran-4-in-parallel-for-3-weeks-146-prs-679-findings-1c0f), May 2026.)
 
 **Per-criterion independent verification as the stopping condition.** A distinct
 refinement of pattern 1 above: instead of one verifier judging the whole diff, define
@@ -478,21 +495,25 @@ repo: [github.com/comet-ml/opik](https://github.com/comet-ml/opik)
 
 ## Real-world case study: Mozilla Firefox security harness
 
-Brian Grinstead (Mozilla, Jun 2026) built a security bug-finding harness for
+Brian Grinstead, Christian Holler, and Frederik Braun (Mozilla, May 2026) built a security
+bug-finding harness for
 Mozilla Firefox with explicit verification at every stage:
 
 1. **LLM file prioritization** — a scoring model ranked files by bug likelihood before
    allocating agents; agents spent time on high-signal targets, not a full codebase scan
-2. **score → fix → verify pipeline** — three mandatory sequential stages; no stage was
-   skipped even when previous output "looked correct"
+2. **score → verify → fix pipeline** — a bug candidate is confirmed real (a proof-of-concept
+   testcase that trips the sanitizer) before any fix is attempted, not after
 3. **Dedicated verifier subagent** — a fresh agent, not the bug-finder, confirmed each
    fix and eliminated false positives; tuned explicitly to avoid accepting fixes with
    unresolved edge cases
 
 **Result:** 423 security bug fixes in one month.
 
-> "The harness was responsible for roughly 50% of the results — the model alone
-> wouldn't have delivered this." — Brian Grinstead
+Brian Grinstead has put the credit close to 50/50 between harness and model — the harness did
+about as much of the work as the model itself. (Paraphrased: the interview is a podcast and the
+exact wording could not be verified against a transcript, so it is not quoted here.)
+
+(Mozilla Hacks — Brian Grinstead, Christian Holler & Frederik Braun, ["Behind the Scenes Hardening Firefox with Claude Mythos Preview"](https://hacks.mozilla.org/2026/05/behind-the-scenes-hardening-firefox/), May 2026; credit-split framing from Brian Grinstead interviewed by Claire Vo, ["How Claude Mythos found a 15-year-old bug in Mozilla Firefox"](https://www.lennysnewsletter.com/p/how-claude-mythos-found-a-15-year), Jun 2026.)
 
 ## "Surface" — the Canonical Stopping Verb
 
@@ -522,7 +543,7 @@ A mode-mismatched test passes for the wrong reason.
 |---|---|---|
 | **TDD** | Pure functions, state machines, protocols | Test must pin a real invariant — not mirror the implementation. Tests that change in lockstep with production code are mirrors, not contracts. |
 | **Goal-based check** | Verify an artifact exists or has a shape | The one-liner verification *is* the contract; no extra test file needed. |
-| **Visual / manual QA** | UI behaviour, rendering, layout | Invariants must be named (not "no crash"); input variation must be recorded or seeded reproducibly. |
+| **Visual / manual QA** | UI behaviour, rendering, layout | Invariants must be explicitly named — e.g. "no crash, no overflow, layout holds" — rather than left implicit; input variation must be recorded or seeded reproducibly. |
 
 **Level-of-abstraction rule:** verification level must match the behavior boundary being tested.
 UI behaviors need tests that simulate the user's gesture and assert on rendered/visible state —
@@ -533,7 +554,10 @@ the wrong reason."
 
 ## Self-Coverage Gate
 
-A formal stopping condition that requires every item in the loop's declared scope to have at least one verification artifact before the loop can exit (eugenelim/agent-ready-repo, RFC-0051, Jun 2026).
+A design-decision-disposition discipline for a loop's convergence gate: every open design or
+scope item must be marked either **resolved-with-referent** (cite what settled it) or
+**surfaced-with-reason** (value origination, irreversible risk, or value conflict) before the
+loop can declare its gate reached ([eugenelim/agent-ready-repo](https://github.com/eugenelim/agent-ready-repo), RFC-0051, Jun 2026).
 
 **The gate asks:** for every scope item, does a corresponding artifact exist (test, goal-check, visual proof)? If not, the loop is incomplete — it has missing coverage, not just failing tests.
 
@@ -541,9 +565,16 @@ The self-coverage check differs from test pass/fail:
 - Test failure → implementation is wrong; retry
 - Coverage failure → the verification layer itself is incomplete; the loop must write the missing check before it can exit
 
-**Implementation:** a Stop hook reads SCOPE.md and checks every scope item against the current test/check index. Items without coverage artifacts fail the gate and prevent the turn from closing. See [Hooks](12-hooks.md) for the Stop hook exit code contract.
+**Implementation:** the gate is enforced as a done-checklist refusal inside the loop controller's
+own context — the loop may not declare itself done until the disposition record exists and every
+fresh-context finding is resolved. RFC-0051 is explicit that this is doctrine, not a runtime lock:
+"Make it non-skippable by a controller-gate + checklist-refusal mechanism — doctrine + a mechanical
+coverage record, not a runtime lock."
 
-**Traceability-lint** — a related gate checking that every output artifact carries a traceable chain from scope item → task → implementation → verification → done evidence. A traceability-lint failure means the evidence chain is broken: the artifact exists, but its link to the original scope requirement is missing. Implemented as a pre-commit hook that validates task metadata.
+**Traceability-lint** — a related gate checking that every output artifact carries a traceable chain from scope item → task → implementation → verification → done evidence. A traceability-lint failure means the evidence chain is broken: the artifact exists, but its link to the original scope requirement is missing. Invoked in one of two sanctioned ways — as an agent-run finish-time checklist step, or as an
+explicit CI gate. It walks the nine-node chain (outcome → opportunity → capability → screen →
+action → service → contract → spec → component) and flags structural orphans: nodes with no
+producer above them or no consumer below them.
 
 ([eugenelim/agent-ready-repo](https://github.com/eugenelim/agent-ready-repo), RFC-0048/RFC-0051, Jun 2026.)
 
@@ -577,8 +608,10 @@ over time. Critic output should use structured finding categories:
 | `contention` | Two concurrent loop changes conflict with each other | Route to coordination layer |
 | `scope_conflict` | Change touches paths outside the declared scope | Reject; loop must re-scope |
 
-`harness_bug` and `contention` are non-retriable: they should surface as `handoff` verdicts
-and never trigger automatic retry.
+All six categories are retryable in some form in tenet; there is no non-retriable `handoff`
+verdict. `harness_bug` is retried or remediated with scope limited to build/CI/scripts, and
+`contention` is retried from report scope with a context steer — either one escalates to a human
+only when the source job is report-only, or when contention recurs after a readiness re-check.
 
 ([JeiKeiLim/tenet](https://github.com/JeiKeiLim/tenet), Jun 2026.)
 
@@ -593,7 +626,8 @@ something that returns the same verdict on the same input every time) on every c
 verification path, not just LLM judges. The reasoning is the same one behind
 [Verifier Integrity](#verifier-integrity-keeping-the-check-unfakeable)'s cross-model
 independence pattern, sharpened with a cost argument: **parallel same-model reviewers are
-correlated, not independent** — "a chorus, not an ensemble." Three instances of the same
+correlated, not independent — the article's own framing is that a fan-out of identical reviewers
+"is not an ensemble. It is a chorus" by default. Three instances of the same
 model reviewing the same output in parallel can share the same blind spot the way three
 microphones on one melody add volume, not information, and that redundant spend often costs
 *more* than a single well-verified sequential pass. A deterministic node breaks the
@@ -652,15 +686,17 @@ than practitioners assume.
   agent reliability holds *across releases* — treating eval as a one-time pre-ship check
   rather than a standing gate is how regressions ship silently.
   ([The New Stack, "AI agent evaluations are part of the product"](https://thenewstack.io/ai-agent-evaluation-gates/), Sep 2026.)
-- **DISH — closing the simulation-deployment gap.** A Deployment-Imitating SWE-Agent Harness
-  plus critique refinement narrows the gap between how a coding agent is evaluated and how it
-  actually runs in deployment — a structural fix for the same class of problem as the
-  Astra disclosure above: an eval environment that doesn't match deployment conditions
-  produces a score deployment can't reproduce.
-  ([arXiv 2609.02302](https://arxiv.org/abs/2609.02302), Sep 2026.)
+- **DISH — making safety audits harder to detect.** DISH (Deployment-Imitating SWE-Agent
+  Harness) wraps a target model in an agent harness such as Claude Code so its system prompt,
+  tool definitions and system reminders match deployment. Paired with "critique refinement", it
+  addresses *evaluation awareness*: a capable model that can tell it is inside a safety audit
+  behaves differently, which weakens what the audit can conclude. This is a different class of
+  problem from the Astra story above — that one is a benchmark score depending on an undisclosed
+  harness; this one is about making a safety test indistinguishable from deployment.
+  ([arXiv 2609.02302, "Improving Evaluation Realism with Inference-Time Compute and Deployment Scaffolds"](https://arxiv.org/abs/2609.02302), Sep 2026.)
 - **A consumer-facing instance of the same discipline.** A "Loop Method" guide for improving
   ChatGPT workflows runs three improvement loops with a **panel of sub-agents adversarially
   reviewing each cycle**, identifying the biggest weakness and validating against success
   criteria before proceeding — the same maker/checker discipline this doc documents for
   coding agents, appearing independently in a non-engineering product context.
-  ([therundown.ai, "Use the loop method to get better results from ChatGPT"](https://app.therundown.ai/guides/use-the-loop-method-to-get-better-results-from-chatgpt), Sep 2026.)
+  ([therundown.ai, "Use the loop method to get better results from ChatGPT"](https://app.therundown.ai/guides/use-the-loop-method-to-get-better-results-from-chatgpt), Aug 2026.)
