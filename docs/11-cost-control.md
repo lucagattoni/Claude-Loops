@@ -33,6 +33,12 @@ and pricing pages, fetched 2026-09-04.
 
 (Anthropic, [Models overview](https://platform.claude.com/docs/en/about-claude/models/overview), fetched 2026-09-04.)
 
+The Haiku 4.5 row lists the **alias**. Its pinned snapshot ID is `claude-haiku-4-5-20251001`;
+`claude-haiku-4-5` is a convenience pointer that resolves to it, because Haiku 4.5 predates the
+4.6 generation. The other three IDs in the table are themselves pinned snapshots — from 4.6 on,
+Anthropic ships dateless IDs and "every Claude model ID is a pinned snapshot, including the
+dateless IDs used from the 4.6 generation on." **Never append a date suffix to a dateless ID.**
+
 Pricing per MTok — base input / 5-minute cache write / 1-hour cache write / cache read / output:
 
 | Model | Base input | 5m cache write | 1h cache write | Cache read | Output |
@@ -57,8 +63,12 @@ cheaper for free on the upgrade. The general cache-pricing rule, verbatim:
 **Context footnote, verbatim:** "1M tokens is roughly 555k words or 2.5M Unicode characters on
 the current tokenizer (introduced with Claude Opus 4.7); models before it fit about 750k words
 in 1M tokens." (Same source.) Part of a 1M-context model's headroom pays for its own tokenizer:
-the newer tokenizer produces roughly 30% more tokens for the same text than the one Sonnet 4.6
-and earlier models used.
+the newer tokenizer "produces approximately 30% more tokens for the same text" than the one
+Sonnet 4.6 and earlier models used — with the caveat the same page attaches, "the exact increase
+depends on the content and workload shape." Anthropic's Sonnet 5 announcement puts the same
+effect as a range: "roughly 1.0–1.35x depending on the content type." Budget against the range,
+not the midpoint. (Anthropic, [Pricing](https://platform.claude.com/docs/en/about-claude/pricing),
+and [Introducing Claude Sonnet 5](https://www.anthropic.com/news/claude-sonnet-5).)
 
 ### Timeline
 
@@ -78,6 +88,13 @@ and earlier models used.
   Changelog, verbatim: "Added Claude Fable 5.1 (`claude-fable-5-1`), now the default Fable
   model — 1M context, $10/$50 per Mtok with $0.25/Mtok cache reads." ([v2.1.257 release
   notes](https://github.com/anthropics/claude-code/releases/tag/v2.1.257).)
+
+*Every model ID, price, context window, cutoff and positioning quote in this section was
+re-verified against the live [Models overview](https://platform.claude.com/docs/en/about-claude/models/overview)
+and [Pricing](https://platform.claude.com/docs/en/about-claude/pricing) pages on 2026-09-06, and
+every release-note quote against `CHANGELOG.md` at its tag in
+[anthropics/claude-code](https://github.com/anthropics/claude-code). All 30 figures in the pricing
+table matched.*
 
 ## Choosing a Model for the Job
 
@@ -172,7 +189,12 @@ See [Subagents → Custom agents](07-subagents.md#custom-agents-claudeagents) fo
 **The Explore trap this interacts with:** `Explore` is a built-in subagent, so it is not
 exempt from any of the above — and since v2.1.198 it inherits the *main conversation's* model
 by default rather than always running on Haiku, so "Explore is cheap because it's Haiku" is no
-longer true unless you pin it. See [Subagents → built-in subagent types](07-subagents.md#built-in-subagent-types)
+longer true unless you pin it. On the Claude API that inheritance is **capped at Opus** — a main
+conversation on a higher tier still runs Explore on Opus, and a session on Sonnet or Haiku runs
+it on that same model — so on Fable 5.1 ($10/MTok) Explore bills at Opus 5's $5/MTok, not Fable's.
+The cap is Claude-API-only: on Bedrock, Google Cloud, Foundry and Claude Platform on AWS, Explore
+inherits the main conversation's model directly, uncapped. Setting only
+`CLAUDE_CODE_SUBAGENT_MODEL_FORCE` leaves the cap in place. See [Subagents → built-in subagent types](07-subagents.md#built-in-subagent-types)
 for the full mechanics and the fix (a project `Explore` agent definition with `model: haiku`).
 
 ## Token consumption benchmarks
@@ -311,8 +333,15 @@ Two things worth pulling out of that table:
 
 - **`high` is the default on every current model** — Fable 5.1, Opus 5, and Sonnet 5 alike
   default to `high`, per Anthropic's own [models comparison table](https://platform.claude.com/docs/en/about-claude/models/overview).
-  Opus 4.7 (a legacy model, not Opus 5) is the sole exception that still defaults to `xhigh`.
-  Don't assume a newer or pricier model defaults to deeper reasoning — check `/model`.
+  Opus 4.7 (a legacy model, not Opus 5) is the sole exception — but **that exception is a Claude
+  Code default, not an API one.** The table above is Claude Code's, and Claude Code resolves
+  "`high` on every model that supports effort, except that Opus 4.7 defaults to `xhigh`." Calling
+  the same model through the API gets `high`: "The API default is `high`. To use `xhigh`, set
+  `effort` explicitly." Same model, two surfaces, two defaults — a loop that runs partly in Claude
+  Code and partly through the SDK will silently run at two different depths, and pay two different
+  bills, unless it sets effort explicitly. (Anthropic, [Effort](https://platform.claude.com/docs/en/build-with-claude/effort),
+  fetched 2026-09-06.) Don't assume a newer or pricier model defaults to deeper reasoning — check
+  `/model`.
 - **`ultracode` is not "one level deeper than `max`."** It is a qualitatively different
   setting: layered on top of `xhigh` reasoning, it **auto-triggers a [dynamic
   workflow](39-dynamic-workflows.md)** for every substantive task in the session — Claude
