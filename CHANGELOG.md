@@ -18,6 +18,53 @@ Versioning follows [Semantic Versioning](https://semver.org/):
 
 ---
 
+## [3.1.5] — 20260906 08:50
+
+The tracker ran two stages on two different Claude Code binaries and nothing recorded it. This makes
+that impossible to miss again.
+
+### Fixed
+
+- **The pipeline could not tell which CLI version produced a run.** It logged the binary *path*;
+  `claude` is a symlink into `~/.local/share/claude/versions/<v>`, and the auto-updater can
+  repoint it **between stages**. On 2026-09-06 it did: stage A ran `2.1.261`, the symlink flipped
+  at 04:17, and stage B ran `2.1.263`. The run log, the findings artifact and the digest all
+  recorded a single clean success; the only surviving evidence was file mtimes.
+
+  Now every stage logs its resolved version, and a change mid-run is reported to the log **and** to
+  `notify()`. Deliberately **not** fatal — a self-updating CLI would otherwise skip a run every
+  time it updated — but never silent.
+
+  The version reader is hardened to return a bare semver **or nothing**: a probe that emits an
+  unexpected banner would otherwise yield a garbage token, compare unequal, and raise a false drift
+  alarm on every stage. Proven by test, not assumed — same-version does not fire, a 2.1.261→2.1.263
+  change does fire, and unreadable output does not.
+
+### Added
+
+- **docs/17 — "Toolchain changes under the loop mid-run".** The generalisable form, which is not
+  about Claude Code specifically: an unattended loop resolves its agent binary once, but a
+  self-updating toolchain can swap it between stages, so behaviour may differ across what is
+  reported as one run. And on macOS a per-binary firewall rule (LuLu, Little Snitch) is keyed to the
+  **executable path**, so a new version inherits no rule — its outbound calls can be blocked, or
+  held at a prompt nobody is awake to answer. That is a partial network loss which looks exactly
+  like "that source had nothing today", which is this KB's defining defect class.
+- `scripts/SCHEDULING.md` — the one-liner for checking which version actually ran.
+
+### Measured, and stated as inconclusive
+
+Whether the 2026-09-06 run was actually degraded could not be settled. **Stage A was not**: it ran
+on the approved binary and out-collected the previous day (126 candidates vs 108), with all 54
+sources swept. **Stage B was not blocked outright**: it integrated 17 docs, committed and pushed.
+But the content that run added carries roughly **1.8x the defect density** of the surrounding text
+(5 findings per 104 added lines against 44 per ~1,680 in the same four docs), and all five are
+source-fidelity errors — a misquotation, a singular changed to a plural, two conflated features, and
+"sub-second" where the source said "seconds". That is the signature of working from a summary rather
+than re-reading the primary source, which is consistent with degraded fetches; ordinary integration
+error looks the same. Recorded as suggestive, not proven.
+
+---
+
 ## [3.1.4] — 20260906 04:39
 
 Loop news run 2026-09-06 04:00 UTC — 83 new findings after deduplication (126 scored, 43

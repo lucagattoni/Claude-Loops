@@ -181,7 +181,25 @@ if [[ -z "$CLAUDE_BIN" || ! -x "$CLAUDE_BIN" ]]; then
   notify "FATAL: no usable claude binary (resolved to '${CLAUDE_BIN:-<nothing>}'). Set CLAUDE_BIN in scripts/run-loop-news.env, or put claude on PATH. Not retrying — this never resolves on its own."
   exit 3
 fi
-echo "[$(stamp)] Using claude binary: $CLAUDE_BIN" | tee -a "$LOG_FILE"
+# Record the binary AND the version behind it. `claude` is normally a symlink into
+# ~/.local/share/claude/versions/<v>, and the auto-updater can repoint it BETWEEN stages — so the
+# path alone says nothing about what actually ran. Observed 2026-09-06: Stage A ran 2.1.261 and
+# Stage B ran 2.1.263, and nothing anywhere recorded it. A version change mid-run is not a failure,
+# but it IS a confounder (different behaviour, and on macOS a per-binary firewall rule that the new
+# path does not inherit), so it must be visible rather than inferred afterwards from file mtimes.
+CLAUDE_REAL="$(cd "$(dirname "$CLAUDE_BIN")" && readlink "$(basename "$CLAUDE_BIN")" 2>/dev/null || printf '%s' "$CLAUDE_BIN")"
+# Returns a bare semver, or nothing. Anything that is not a version — a broken binary, an
+# unexpected banner, an error on stdout — yields EMPTY rather than a garbage token, because a
+# garbage token compares unequal and would raise a false drift alarm on every stage.
+claude_version() {
+  "$CLAUDE_BIN" --version 2>/dev/null | awk '{print $1}' | grep -Eo '^[0-9]+\.[0-9]+\.[0-9]+$' || true
+}
+CLAUDE_VERSION_START="$(claude_version)"
+echo "[$(stamp)] Using claude binary: $CLAUDE_BIN -> ${CLAUDE_REAL} (version ${CLAUDE_VERSION_START:-unknown})" | tee -a "$LOG_FILE"
+if [[ -z "$CLAUDE_VERSION_START" ]]; then
+  # Could not tell. Say so loudly rather than recording a blank and moving on.
+  notify "WARNING: could not read \`claude --version\` at startup. The run continues, but its version provenance is unknown."
+fi
 
 # --- Worktree: one per run, so findings.json survives across attempts ----------------
 git -C "$REPO_ROOT" worktree prune                          # clear any orphan from a crash
@@ -312,7 +330,14 @@ SESSION_LIMIT=0
 run_claude() {
   local label="$1"; shift
   local tmp; tmp="$(mktemp -t loop-news-attempt.XXXXXX)"
-  echo "[$(stamp)] ${label} starting" | tee -a "$LOG_FILE"
+  local v_now; v_now="$(claude_version)"
+  echo "[$(stamp)] ${label} starting (claude ${v_now:-unknown})" | tee -a "$LOG_FILE"
+  if [[ -n "$v_now" && -n "$CLAUDE_VERSION_START" && "$v_now" != "$CLAUDE_VERSION_START" ]]; then
+    # Deliberately NOT fatal: Claude Code updates often, and aborting would skip a day's run every
+    # time it did. But the run's output is now split across two binaries, so the record must say so.
+    echo "[$(stamp)] VERSION DRIFT: run started on ${CLAUDE_VERSION_START}, ${label} is running ${v_now}" | tee -a "$LOG_FILE"
+    notify "Claude Code changed mid-run: started ${CLAUDE_VERSION_START}, ${label} on ${v_now}. The run continues. Re-check anything this stage published — a new binary does not inherit a per-binary firewall rule, and stage behaviour may differ."
+  fi
   ( cd "$WT_DIR" && script -q "$tmp" "$CLAUDE_BIN" --permission-mode auto "$@" )
   local code=$?
   cat "$tmp" >> "$LOG_FILE"
