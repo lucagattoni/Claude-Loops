@@ -43,11 +43,28 @@ A loop that lacks BUDGET or STOP is not a loop — it is a runaway process.
 
 > "If you can't say what 'done' looks like, you don't have a loop. You have a wish." — [Sabrina Ramonov](https://www.sabrina.dev/p/loop-engineering-claude-code-goal-routines), Jun 2026
 
-## Real Cost Data
+## A Cost Datapoint — and How Far to Trust It
 
-Uber engineers burned their **entire annual AI budget in 4 months** before a
-$1,500/month per-tool cap was imposed. The Loop Contract's BUDGET property exists
-to prevent exactly this. See also [Cost & Turn Control](11-cost-control.md).
+The most-cited number for why BUDGET exists, quoted exactly as its source states it:
+
+> "Uber capped engineers at $1,500 per person per tool per month for Claude Code and
+> Cursor after burning its annual AI budget in four months, per June 2026 reporting in
+> the discourse."
+>
+> — explainx.ai, ["Loop Engineering: How to Design Coding Agent Loops That Run While You
+> Sleep (2026 Guide)"](https://explainx.ai/blog/loop-engineering-coding-agents-claude-code-guide-2026), Jun 2026
+
+Three things the KB previously got wrong or dropped, now restored: the cap is **per person
+per tool** per month, not a flat per-tool cap; it covers **two** tools (Claude Code and
+Cursor); and the source itself claims no primary reporting — it attributes the figure to
+"reporting in the discourse," meaning social-media discussion, not a filing, a press
+report, or Uber. **Treat it as a widely-repeated anecdote, not a measurement.** No primary
+source has been located (`KB_GAPS.md` **V17**).
+
+That caveat does not weaken the design point, because the design point does not rest on
+the number: a per-seat spend cap imposed after the fact is what BUDGET-by-design exists to
+make unnecessary. See also [Cost & Turn Control](11-cost-control.md), which carries cost
+figures that *are* primary-sourced and arithmetic-checked.
 
 ## The Anchor File Pattern
 
