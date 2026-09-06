@@ -24,6 +24,7 @@ launchd's `<uid>` in the commands below is your user id — get it once with `id
 
 ```bash
 launchctl list | grep loop-news                              # quick: PID / last exit code / label
+grep -E 'Using claude binary|VERSION DRIFT' logs/loop-news-*.log   # which CLI version actually ran
 launchctl print gui/$(id -u)/com.luca.loop-news               # full status: schedule, paths, state
 tail -f /Users/luca/Code/repos/github_lucagattoni/Claude-Loops/logs/launchd.log
 ```
