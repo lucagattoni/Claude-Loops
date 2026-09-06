@@ -25,6 +25,11 @@ GitHub events (PR open/close, Release). Your laptop can be off; the loop runs.
 
 See [Routines](28-routines.md) for the full model.
 
+*Source: [Routines reference](https://code.claude.com/docs/en/routines) — research-preview
+status, the three trigger types, the API-trigger-is-web-only rule and the v2.1.225 CLI floor
+for GitHub triggers all confirmed there; cross-checked against `claude --version` **2.1.263**,
+2026-09-06.*
+
 ## 2. Worktrees
 
 Parallel work in isolated git checkouts so edits from different loop instances do
@@ -183,6 +188,10 @@ Fix GitHub issue: $ARGUMENTS
 
 Invoke it: `/fix-issue 1234`
 
+*Source: [Skills reference](https://code.claude.com/docs/en/skills) — the `SKILL.md` layout and
+`disable-model-invocation: true` confirmed there; cross-checked against `claude --version`
+**2.1.263**, 2026-09-06.*
+
 ## 4. Plugins / Connectors
 
 MCP servers that give the loop access to external systems: databases, browsers,
@@ -228,6 +237,12 @@ claude --chrome -p "go to x.com/mikenevermiss and extract his last 5 posts about
 **For scraping research inputs into a loop:** this is the cleanest path — navigate
 directly, extract text, write it to a local file, then pipe it into your loop prompt.
 
+*Source: [Chrome reference](https://code.claude.com/docs/en/chrome) — the shared login session,
+visible window, CAPTCHA pause, the Chromium browser list (Brave, Arc, Vivaldi, Opera), the WSL
+exclusion and the direct-plan requirement (not Bedrock, Google Cloud's Agent Platform, or
+Microsoft Foundry) all confirmed there; `claude mcp add`'s required `name` argument reproduced
+on the CLI. Cross-checked against `claude --version` **2.1.263**, 2026-09-06.*
+
 ## 5. Sub-agents
 
 Isolated Claude sessions spawned from the parent loop to handle focused subtasks.
@@ -257,6 +272,10 @@ You are a senior security engineer. Flag: SQL/XSS/command injection,
 auth/authz flaws, secrets in code, insecure data handling.
 Provide file:line references and suggested fixes.
 ```
+
+*Source: [Sub-agents reference](https://code.claude.com/docs/en/sub-agents) — `name` and
+`description` required, `tools` and `model` optional, confirmed in its frontmatter table;
+cross-checked against `claude --version` **2.1.263**, 2026-09-06.*
 
 ## 6. Memory
 

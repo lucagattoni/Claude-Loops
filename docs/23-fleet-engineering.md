@@ -269,10 +269,36 @@ to 64 concurrent instances than it is evidence that *dynamic workflows specifica
 as opposed to worktrees plus adversarial review, which Gas Town also uses without
 dynamic workflows — caused the result.
 
-**Token cost at this concurrency is unmeasured for the Bun port itself, and heavy at
-comparable scale elsewhere.** Neither Bun's post nor Anthropic's names a token or dollar
-figure for the 64-instance run. Other users of the same feature, on smaller, unrelated
-jobs, reported burning through paid-plan allocations fast:
+**Token cost for the Bun port is published, and it is large.** Bun's own post gives the
+whole-port figure verbatim: "Pre-merge, this took 5.9 billion uncached input tokens, 690
+million output tokens, and 72 billion cached input token reads — around $165,000 at API
+pricing." Read the scope before reusing the number: it covers the entire eleven-day,
+~50-workflow port up to merge, **not** one 64-instance wave. The post publishes no per-run or
+per-instance breakdown, so the figure bounds the whole effort rather than pricing a single
+fleet.
+
+**Which rate card — and what the same work would cost on another.** The post names the model:
+"I used a pre-release version of Claude Fable 5, a Mythos-class model." Repricing its own
+published token counts against [Fable 5's rates](11-cost-control.md#model-reference-september-2026)
+($10 input / $50 output / $1.00 cache read per MTok) gives **$165,500** — within 0.3% of the
+$165,000 quoted, which is what makes the Fable-5 basis legible rather than assumed. The same
+tokens on the other current tiers (our arithmetic, not Bun's):
+
+| Rate card | Same 5.9B in / 690M out / 72B cached reads |
+|---|---|
+| Fable 5 — $10 / $50 / $1.00 *(what was used)* | ~$165,500 |
+| Fable 5.1 — $10 / $50 / $0.25 | ~$111,500 |
+| Opus 5 — $5 / $25 / $0.50 | ~$82,750 |
+| Sonnet 5 — $2 / $10 / $0.20 | ~$33,100 |
+
+**The cached reads dominate.** 72 billion of them at Fable 5's $1.00/MTok is $72,000 — 44% of
+the bill, more than input and output combined. Fable 5.1 reads at 4x cheaper for the same
+$10/$50 base, so the identical run costs ~$54,000 less with no change to the harness. In a
+fleet this shape the lever is the **cache-read** price, not the output price — see
+[Cost & Turn Control](11-cost-control.md).
+
+**Per-seat plan economics are a separate question,** and there the reports are of hitting
+limits fast. Other users of the same feature, on smaller, unrelated jobs:
 
 > "Tested this out on a 5x max plan, turns out I spun up 62 Opus 4.8 1M sub-agents for my
 > dynamic workflow and maxed out my ~5hr cap in..... 18 minutes?"

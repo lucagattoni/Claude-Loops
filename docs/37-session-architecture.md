@@ -70,11 +70,25 @@ That matters because of what the token multiples are:
 | Multi-agent vs. chat | ~15× tokens |
 | Multi-agent vs. single-agent, equivalent task | 3–10× tokens |
 
-**Independent corroboration under controlled budgets.** Tran & Kiela find that single-agent LLMs
-match or exceed multi-agent systems on multi-hop reasoning **when thinking-token budgets are held
-equal**, across three model families, with an information-theoretic argument for why. The practical
-reading: unaccounted compute is the usual explanation for a reported multi-agent win. If you are
-comparing architectures, hold the budget fixed or you are measuring spend.
+**Independent corroboration under controlled budgets.** Tran & Kiela find that single-agent systems
+"consistently match or outperform" multi-agent ones on multi-hop reasoning **when reasoning tokens
+are held constant**, with an information-theoretic argument — grounded in the Data Processing
+Inequality — for why a single agent is more information-efficient under a fixed budget. Their own
+conclusion: "many reported advantages of multi-agent systems are better explained by unaccounted
+computation and context effects rather than inherent architectural benefits." They also find that
+multi-agent systems *do* become competitive when a single agent's effective context utilization
+degrades — which is the condition this doc's own [fan-out](10-fan-out.md) guidance describes.
+The practical reading: unaccounted compute is the usual explanation for a reported multi-agent win.
+If you are comparing architectures, hold the budget fixed or you are measuring spend.
+
+**Read the scope before generalising it to Claude.** The controlled study covers three model
+families — Qwen3, DeepSeek-R1-Distill-Llama, and Gemini 2.5 — and **no Claude model**. The
+information-theoretic argument is model-independent; the measurements are not. The paper also
+reports "significant artifacts in API-based budget control (particularly in Gemini 2.5)", so its
+own budget-matching is imperfect by its own account.
+([Dat Tran and Douwe Kiela, *Single-Agent LLMs Outperform Multi-Agent Systems on Multi-Hop
+Reasoning Under Equal Thinking Token Budgets*, arXiv 2604.02460](https://arxiv.org/abs/2604.02460),
+Apr 2026.)
 
 ### The one multi-agent pattern that consistently works
 

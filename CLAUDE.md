@@ -4,18 +4,19 @@ Claude-Loops is a living knowledge base and automated daily tracker for **loop e
 
 > **Open work — read this first.** Read `plans/20260904_2053-open-work-backlog.md` — the full ranked
 > backlog. Closed: the automation tier §3 (`v3.1.0`, A1–A12), §8 step 7 (C2, C6, C13, C14 —
-> `v3.1.1`), C1's first pass (`v3.1.2`), C8 + H2 + H3 (`v3.1.3`), and **C1b's three P0 gaps**
-> (`v3.1.6` — 476 claims checked, 46 fixes, 90 of 90 cited URLs opened across `docs/03/04/27/29`).
-> **Start with C1b's P1/P2 items**, listed in the backlog. The single largest untouched risk is
-> **`docs/11`'s model IDs and pricing — the KB's most volatile class, still never swept anywhere.**
-> Also open: `docs/23`'s falsified claim-of-absence, the `docs/04`/`docs/23` implementer-reviewer
-> ratio, `docs/27`'s uncited Uber figures, and a repo-wide blockquote audit (344 lines + 66 inline
-> spans) — quoted material was this project's highest-yield defect class two rounds running.
-> **Do not re-spend budget on what C1's critic verified clean** — it names the four classes.
-> **Sixteen** claims no search can settle are parked in `KB_GAPS.md` § *Claims Awaiting
-> Verification* (V1–V16); read them before re-deriving any. **V13 is the one to read first**: it
-> records a quote the KB got *right* that the source later deleted, which a finder wrongly called
-> fabricated. "Contradicted by the source" means **contradicted as of the capture date**.
+> `v3.1.1`), C1's first pass (`v3.1.2`), C8 + H2 + H3 (`v3.1.3`), C1b's three P0 gaps (`v3.1.6`),
+> and **all of C1b's P1/P2 items** (`v3.1.8` — `docs/11`'s model IDs and pricing swept for the
+> first time, the Bun and Uber sources re-read, the repo-wide blockquote audit run).
+> **Start at the backlog's §8 step 9 — C5, C9, C11, C12.** The largest unclaimed content risk after
+> that is the pair of large sweeps, **C7** (20 partially-verified docs) and **C10** (the unswept
+> changelog range); H1's remainder folds into C7.
+> **Do not re-spend budget on what C1's critic verified clean** — it names the four classes — or on
+> `docs/11`, `docs/23`, `docs/27`, `docs/04`'s quoted material, or the blockquote corpus, all swept
+> 20260906. **Sixteen** claims no search can settle are parked in `KB_GAPS.md` § *Claims Awaiting
+> Verification*; read them before re-deriving any. **V13 is the one to read first**: it records a
+> quote the KB got *right* that the source later deleted, which a finder wrongly called fabricated.
+> "Contradicted by the source" means **contradicted as of the capture date** — and its converse,
+> proved twice on 20260906: a source that 404s where you looked is not a source that is gone.
 > **Delete this note once the backlog's §4 and §5 are empty.**
 
 ## Repository map
@@ -123,6 +124,19 @@ Claude-Loops is a living knowledge base and automated daily tracker for **loop e
   page is not "does not exist". Prefer `curl` + strip-tags over WebFetch for anything quoted
   verbatim; WebFetch's summariser has silently truncated quotes here. And **never edit quoted
   third-party material to make it look current** — correct the KB's own text around it instead.
+- **Quoting a source that has since died.** A verbatim quote may stand on a dead source, but only
+  when the citation carries all three: that it is dead, the date checked, and an explicit note that
+  the wording can no longer be re-verified. Link a Wayback snapshot where one exists. **Never delete
+  a quote merely because its source went away** — it was captured when the source was live, and
+  deleting it repeats the `V13` over-correction. Prefer re-sourcing from the author's own site
+  (what Sparra got) over dropping the claim. Decided 20260906, closing `KB_GAPS` V10; applied to
+  the three `orobsonn/claude-harness` quotes in `docs/04` and `docs/07` (no snapshot exists).
+- **Check the whole repo before calling a quote absent.** A README-only fetch is not a search. Use
+  authenticated `gh api search/code` scoped to the repo, and look up `default_branch` before any
+  raw fetch — `main` is an assumption, not a fact (`houshuang/compound-review` serves only
+  `master`). Two live examples: `harness-books`' quoted sentence is in a chapter file, absent from
+  the README; `v2.1.243` has a git tag and a `CHANGELOG.md` entry but **no GitHub Release**, so the
+  releases API 404s on a citation that is perfectly good. Report **UNVERIFIABLE**, never absence.
 - **Keep docs current in the same session.** Any infra/process/pattern change updates the relevant `docs/*.md` (e.g. headless → `docs/09`, routines → `docs/28`, loop patterns → `docs/34`) and `SOURCES.md` before committing — don't wait to be asked.
 - **Every timestamp is UTC, `YYYYMMDD HH:MM`.** Skills and humans alike: read the clock with `date -u '+%Y%m%d %H:%M'`, never compose or convert one. Applies to digest headers, changelog and release entries, plan filenames and branch names. **Never rewrite an existing timestamp** — entries recorded in local time (everything before `[3.0.0]`) stay exactly as written, because restamping them invents precision nobody measured. Decided 20260905; supersedes the previous skills-UTC/humans-local split, which had produced three formats inside one `CHANGELOG.md`.
 

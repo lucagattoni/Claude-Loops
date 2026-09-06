@@ -41,7 +41,9 @@ The core rule: **never let the AI grade its own output.** A DOER is biased towar
 work it produced — the CHECKER must be a fresh session with no attachment to the
 implementation.
 
-> "The AI was never the hard part — the CHECKER is." — Sabrina Ramonov, Jun 2026
+> "The AI was never the hard part. The CHECKER is."
+>
+> — Sabrina Ramonov, ["Loop Engineering"](https://www.sabrina.dev/p/loop-engineering-claude-code-goal-routines), Jun 2026
 
 **Why external evaluation enables improvement** (and self-assessment does not):
 A generator agent assessing its own output has no gradient — it rated the work
@@ -79,7 +81,7 @@ verifier and gates around it are strong (frozen tests, external checks — see
 [Verifier Integrity](04-verification.md#verifier-integrity-keeping-the-check-unfakeable)).
 This pairs the maker/checker split with the cost discipline in [Cost & Turn Control](11-cost-control.md).
 
-([orobsonn/claude-harness](https://github.com/orobsonn/claude-harness) — repo no longer publicly reachable; 404 as of 2026-09-05, Jun 2026.)
+([orobsonn/claude-harness](https://github.com/orobsonn/claude-harness) — repo no longer publicly reachable; 404 as of 2026-09-05, Jun 2026. **The quotes above cannot be re-verified:** this source was live when they were captured (Jun–Jul 2026) and has since been withdrawn, with no Wayback snapshot (checked 2026-09-06). They are kept, dated, and flagged rather than deleted — see `CLAUDE.md` § *Quoting a source that has since died*.)
 
 **Refinement: route eye-tier by severity, not by role alone.** A fixed cheap/mid/strong
 split still spends "strong eyes" budget on low-stakes reviews. A `resolveEyeTier`

@@ -385,8 +385,8 @@ agents in parallel, and larger budgets only when each cycle's output is trustwor
 
 ## The "Unstable Components" Design Axiom
 
-> "Models may speak like teammates, but they do not automatically gain
-> teammate-grade stability."
+> "Models may speak like teammates, but they do not automatically gain teammate-grade
+> stability, accountability, or sustained judgment."
 
 This is the foundational posture for harness design: treat the model as an
 **unreliable runtime component requiring containment**, not a collaborator requiring
@@ -397,7 +397,9 @@ instructions. The consequences for harness design:
 - Stability comes from the harness, not from model capability — model improvement
   shifts the cost boundary but does not eliminate the need for containment
 
-([wquguru/harness-books](https://github.com/wquguru/harness-books), AgentWay, Jun 2026.)
+([wquguru/harness-books](https://github.com/wquguru/harness-books), AgentWay, Jun 2026 — the
+sentence is in `book1-claude-code/locales/en/chapter-09-ten-principles.md` § 9.1, not the README;
+a README-only check reports it missing.)
 
 ## Generic Harness + Good Feedback Loop Beats Bespoke Scaffolding
 

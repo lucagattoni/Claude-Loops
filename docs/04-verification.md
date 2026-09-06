@@ -278,7 +278,7 @@ stop — closing the gap where the *evidence of a passing run* was itself forgea
 This is complementary to [Simplification Before Testing](#simplification-before-testing),
 not in conflict with it: simplification decides *what shape* the code and test should
 take (and may run first); freezing decides *who may change the test afterwards* (the
-implementer may not). ([orobsonn/claude-harness](https://github.com/orobsonn/claude-harness) — repo no longer publicly reachable; 404 as of 2026-09-05, Jun 2026.)
+implementer may not). ([orobsonn/claude-harness](https://github.com/orobsonn/claude-harness) — repo no longer publicly reachable; 404 as of 2026-09-05, Jun 2026. **The quotes above cannot be re-verified:** this source was live when they were captured (Jun–Jul 2026) and has since been withdrawn, with no Wayback snapshot (checked 2026-09-06). They are kept, dated, and flagged rather than deleted — see `CLAUDE.md` § *Quoting a source that has since died*.)
 
 **4. Provenance-bound claims — every assertion must cite a verifiable artifact.** The
 three patterns above keep the *check* honest; this one keeps the *report* honest. The
@@ -355,14 +355,22 @@ independently-*confirmed* bug at high severity regardless of how mild the origin
 reviewer rated it. Cross-reviewer overlap is tracked mechanically (a findings database
 with an `agreement_n` count per finding) rather than argued about at review time, and the
 whole reconciliation is bounded to 3 rounds, gating only on blocker/high severity so minor
-disagreements don't stall the loop. ([houshuang/compound-review](https://github.com/houshuang/compound-review), Jun 2026.)
+disagreements don't stall the loop. The cap is not arbitrary, and the reason is the useful part:
+the source's own second design rule is that "iterating a fix→re-review loop past ~3 rounds
+*introduces* bugs." Rounds four and up are not diminishing returns — they are negative ones. Nits
+go to a backlog and never extend the loop, and re-reviews are scoped to "are these prior blockers
+fixed, any new blocker?" rather than re-run whole.
+([houshuang/compound-review](https://github.com/houshuang/compound-review), Jun 2026 — README
+read from `master`, which is this repo's default branch; `main` does not exist and a raw fetch
+against it 404s.)
 
 **The same non-overlap holds outside LLM-judge harnesses, in shipped code-review
 products.** Four commercial AI code reviewers (CodeRabbit, Sentry Seer, Greptile,
 Cursor BugBot) run in parallel across 146 real PRs over three weeks produced 679
-findings, and **93.4% were caught by exactly one tool**, and no line was ever flagged by all four tools at
-once (37 lines drew exactly two, 4 drew exactly three). This corroborates the ~85–90% figure above with an
-independent, non-LLM-judge data source: the non-overlap is not an artifact of how
+findings, of which **93.4% were caught by exactly one tool**. No line was ever flagged by all four
+at once, and overlap where it did occur was thin: 37 lines drew exactly two tools, 4 drew exactly
+three. That is *largely* non-overlapping, not perfectly so — and it corroborates the ~85–90% figure
+above with an independent, non-LLM-judge data source: the non-overlap is not an artifact of how
 LLM-as-judge harnesses are built, it recurs in production tools built by different
 vendors on different review philosophies. ([dev.to, "Best AI Code Reviewer in 2026?"](https://dev.to/_vjk/best-ai-code-reviewer-in-2026-we-ran-4-in-parallel-for-3-weeks-146-prs-679-findings-1c0f), May 2026.)
 
@@ -403,9 +411,15 @@ rewrite cannot influence." ([Bun, "Bun, in Rust"](https://bun.com/blog/bun-in-ru
 
 **Blind adversarial review, quantified on a full production rewrite.** A concrete
 large-scale instance of the information-asymmetry pattern above: on the same Bun rewrite,
-one Claude Code instance implemented while a separate instance — with no visibility into
-the implementer's reasoning — was charged with a single mandate: "find bugs & reasons why
-the code does not work." Run at fleet scale (peak 64 parallel instances across 4
+one Claude Code instance implemented while **two or more** separate instances — with no
+visibility into the implementer's reasoning — were each charged with a single mandate: "find
+bugs & reasons why the code does not work." Bun states the ratio and the role separation
+verbatim: "1 implementer, 2 or more adversarial reviewers per implementer... The implementer
+doesn't review. The reviewer doesn't implement," and "Every line of code was reviewed by two
+separate adversarial reviewers (also Claude) and went through a round of fixes before
+committing." The duplication is not redundancy for its own sake — two independent reviewers
+are what make a single reviewer's miss recoverable, which is the same argument
+[Fleet Engineering](23-fleet-engineering.md) records at fleet scale. Run at fleet scale (peak 64 parallel instances across 4
 worktrees, see [Fleet Engineering's case
 study](23-fleet-engineering.md#case-study-bun-64-parallel-instances-rewriting-535k-lines-in-11-days)),
 this produced 128 bug fixes in the v1.4.0 release with only 19 regressions introduced
