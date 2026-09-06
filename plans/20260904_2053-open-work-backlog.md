@@ -305,10 +305,42 @@ claim-of-absence, the `docs/04`/`docs/23` implementer-reviewer ratio, `docs/27`'
 figures, the repo-wide blockquote audit (344 lines + 66 inline spans), and `docs/11`'s model IDs
 and pricing — **the KB's most volatile class, still never swept anywhere**.
 
-### C1b — the remaining P1/P2 gaps
+### C1b — the remaining P1/P2 gaps · **SHIPPED 20260906 as `v3.1.8`**
 
 Produced by the C1 completeness critic (Opus), which had the whole fan-out's output in front of it.
 Ordered by its own priority.
+
+**All P1 and P2 items are now closed.** What each one turned out to be:
+
+| Gap | Outcome |
+|---|---|
+| `docs/11` model IDs + pricing (P2, the largest untouched risk) | **Swept, ~60 claims.** All 30 pricing figures, 4 model IDs, context windows, cutoffs and positioning quotes matched the live pages exactly. 4 precision fixes, no fabrications |
+| `docs/23` falsified claim-of-absence (P1) | **Confirmed and rewritten.** Bun publishes the figure: 5.9B / 690M / 72B tokens, ~$165,000. Scope stated (whole port, not one 64-instance wave). Model attribution added and arithmetic-corroborated |
+| `docs/04`/`docs/23` implementer-reviewer ratio (P1) | **Confirmed and fixed** to 1:2+, with role separation, matching `docs/23:237` |
+| `docs/27` uncited Uber figures (P1) | **Source found; the fix was bigger than a link.** The cap is *per person* per tool, covers two tools, and the source itself sources it to "reporting in the discourse". Heading renamed, provenance stated, `V17` logged |
+| Repo-wide blockquote audit (P1) | **Done — 414 lines / 113 blocks, plus 224 inline spans.** 2 defects: a mid-sentence truncation in `docs/24`, an em-dash splice of two sentences in `docs/07` |
+| H1 version stamps, `docs/03`/`docs/29` (P1) | **Re-answered from HEAD.** `docs/29` correctly needs none (per-claim inline markers already). `docs/03` gained 4 earned stamps at 2.1.263 |
+| `docs/04` 93.4% paragraph (P2) | **Re-read whole and reworded** to "largely non-overlapping". `V16` settled — the ~85–90% figure is verbatim in its source |
+| `main`-vs-`master` method rule (P2) | **Written into `CLAUDE.md`**, with three counterexamples this pass actually hit |
+| Four verified-clean classes (P2) | Already recorded below; not re-spent |
+
+**Two corrections to this backlog, from doing the work:**
+
+1. The blockquote item said `docs/04:257-260` rests on a dead source. Those lines cite
+   [firegnu/herdr-loop-lab](https://github.com/firegnu/herdr-loop-lab), which is **live** and
+   carries its quoted strings (22 code-search hits). The line reference had drifted; the real
+   dead-source quotes are `docs/04:281` and `docs/07:73`/`:76`.
+2. The `docs/11` item predicted the KB's most volatile class would be its most defective. It was
+   its *cleanest* — every price and ID was right. The defects were one surface-conflation
+   (Claude Code's effort default vs. the API's), one miscited figure, and two omissions.
+
+**Method findings worth carrying forward** (both now in `CLAUDE.md`):
+
+- **`v2.1.243` has a git tag and a `CHANGELOG.md` entry but no GitHub Release** (releases jump
+  241 → 245). Its `/releases/tag/` URL still serves 200. Checking Claude Code quotes via the
+  releases API would have manufactured four false "fabricated quote" findings — the `V13` shape.
+- **A README-only fetch is not a search.** `harness-books`' quoted sentence lives in a chapter
+  file with zero README hits; authenticated `gh api search/code` found it in one call.
 
 | Pri | Gap | Next action |
 |---|---|---|
@@ -586,7 +618,7 @@ rule this KB already states and its own pipeline did not follow (see **A1**).
 | ~~**H3**~~ | ~~README's tracker section is stale and structurally misplaced~~ · **SHIPPED 20260906, PR #38** | small | Both halves fixed: the example + type list moved back under "Add or remove a source", and all **7** types are now documented as a table with row counts. Counts corrected — **28 of 54** rows were of undocumented types (github **23**, not 22; 54 rows, not 53) |
 | **H4** | The Boris Cherny "write loops" quote is unpinned in four places | small | `docs/26:29` (no link at all), `docs/32:35-42` (secondary source), `docs/20:14`, `LOOP_ENGINEERING_NEWS.md:268` — four differing reproductions. Pin one talk/interview. (`docs/39:334-347` is correctly pinned and is not part of this) |
 | **H5** | `docs/17` declares a taxonomy it never applies and has no headings | medium | `grep -c '^## ' docs/17` → 0, with 33 ungrouped rows, an empty on-page TOC and no deep-linkable anchors despite 10 inbound links. Add a row for **silent scheduler death** — the failure this repo just lived through. `docs/15` (26 lines) and `docs/18` (34 lines) share the zero-heading shape |
-| **H6** | Two bare citations, and the sweep that found them is unreliable | small | `docs/20:5` (`@0xCodez` — a working link for the same source already exists at `LOOP_ENGINEERING_NEWS.md:1322`) and `LOOP_ENGINEERING_NEWS.md:477` (`github.com/openai/symphony`). The auditor claimed a complete pass over all 39 docs and still missed `docs/20:5`, so **"only these two" is unproven** — re-run a full sweep |
+| **H6** | Two bare citations, and the sweep that found them is unreliable | small | `docs/20:5` (`@0xCodez` — a working link for the same source already exists at `LOOP_ENGINEERING_NEWS.md:1322`) and `LOOP_ENGINEERING_NEWS.md:477` (`github.com/openai/symphony`). The auditor claimed a complete pass over all 39 docs and still missed `docs/20:5`, so **"only these two" is unproven** — re-run a full sweep. **Confirmed wrong 20260906:** a third was found and fixed — `docs/37:73` attributed a finding to "Tran & Kiela" by name with no link anywhere in the KB (it is [arXiv 2604.02460](https://arxiv.org/abs/2604.02460)). Found by sweeping bolded statistics for a nearby URL, not by re-reading. The remaining two are still open |
 | **H7** | `docs/21` is a one-way orphan | small | `grep -rln "21-context-vs-loop-engineering" docs/` → only `docs/index.md`, while `docs/21` links out to seven docs. Add an inbound link from `docs/13` |
 | **H8** | `docs/15` duplicates `docs/36` | medium | 26 lines beside `docs/36:26-48`, same ground. Merge, or give it substance worth nav slot 6.3 |
 | **H9** | `findings.json` `"schema": 1` is written but never checked; phase numbers collide | small | `fetch-loop-news/SKILL.md:275` writes it; `grep -n schema integrate-loop-news/SKILL.md` → nothing; `findings_valid()` (`run-loop-news.sh:152-157`) reads only `today`. Add a `schema == 1` assertion to Phase 0's abort list. Both skills define a different `## Phase 4`, referenced unqualified from `CLAUDE.md` and `docs/34:319` |
@@ -641,15 +673,18 @@ the remote, and is marked latest.
 | 6 | **§6 corrections** + **C3** — stop the handover docs lying, cheapest possible win | — |
 | ~~7~~ | ~~**C2**, **C6**, **C13**, **C14** — small content fixes with sources already in hand~~ · **DONE** — C2 in PR #28, C6/C13/C14 in PR #36 | Citation-link gate |
 | ~~8~~ | ~~**C1** + **H1** — the 14-doc fact-check~~ · **PARTIAL** — 49 fixes shipped in PR #37; coverage gaps carried to **C1b**, H1 answered per doc (6 of 14 docs legitimately need no stamp) | One commit per doc, each gated on `--strict` |
-| 8b | **C1b** — the coverage the C1 pass did not reach, P0 items first | Re-run `docs/03`/`docs/29` against HEAD; open the 78 unopened URLs |
+| ~~8b~~ | ~~**C1b** — the coverage the C1 pass did not reach~~ · **DONE** — P0s in PR #40 (`v3.1.6`), P1/P2 in `v3.1.8` | Re-run `docs/03`/`docs/29` against HEAD; open the 78 unopened URLs |
 | 9 | **C5**, **C8**, **C9**, **C11**, **C12** — new content and source revalidation | Resource-review rule (score ≥ 3.0 before extracting) |
 | 10 | **H2**–**H9**, **H11**, **H12** — corpus hygiene | — |
 | 11 | **C7**, **C10** — the two large sweeps | — |
 | 12 | **D2**/**H10**, **D3**/**H13** — release policy and plan archival | — |
 
-> **Status 20260905:** steps 1–7 are shipped (`v3.0.1`, `v3.1.0`, PR #36). **The next task is
-> step 8 — C1 + the remainder of H1.** The paragraph below is retained as the reasoning that
-> ordered automation ahead of content; that ordering is now spent.
+> **Status 20260906:** steps 1–8b are shipped (`v3.0.1`, `v3.1.0`, PR #36, PR #37, PR #40,
+> `v3.1.8`). **The next task is step 9 — C5, C9, C11, C12** (C8 is already done). The two large
+> sweeps, **C7** and **C10**, remain the biggest unclaimed content risk after that, and **H1**'s
+> remainder (`05 06 15 16 19 31`, plus the `35` re-check) folds into C7 rather than standing alone.
+> The paragraph below is retained as the reasoning that ordered automation ahead of content; that
+> ordering is now spent.
 
 **Highest-value next task: steps 1-3, in one sitting.** A1 is the only item with two confirmed
 production incidents behind it, and it is a strict prerequisite for A2 — re-arming the pipeline

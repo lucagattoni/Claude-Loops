@@ -4,18 +4,19 @@ Claude-Loops is a living knowledge base and automated daily tracker for **loop e
 
 > **Open work — read this first.** Read `plans/20260904_2053-open-work-backlog.md` — the full ranked
 > backlog. Closed: the automation tier §3 (`v3.1.0`, A1–A12), §8 step 7 (C2, C6, C13, C14 —
-> `v3.1.1`), C1's first pass (`v3.1.2`), C8 + H2 + H3 (`v3.1.3`), and **C1b's three P0 gaps**
-> (`v3.1.6` — 476 claims checked, 46 fixes, 90 of 90 cited URLs opened across `docs/03/04/27/29`).
-> **Start with C1b's P1/P2 items**, listed in the backlog. The single largest untouched risk is
-> **`docs/11`'s model IDs and pricing — the KB's most volatile class, still never swept anywhere.**
-> Also open: `docs/23`'s falsified claim-of-absence, the `docs/04`/`docs/23` implementer-reviewer
-> ratio, `docs/27`'s uncited Uber figures, and a repo-wide blockquote audit (344 lines + 66 inline
-> spans) — quoted material was this project's highest-yield defect class two rounds running.
-> **Do not re-spend budget on what C1's critic verified clean** — it names the four classes.
-> **Sixteen** claims no search can settle are parked in `KB_GAPS.md` § *Claims Awaiting
-> Verification* (V1–V16); read them before re-deriving any. **V13 is the one to read first**: it
-> records a quote the KB got *right* that the source later deleted, which a finder wrongly called
-> fabricated. "Contradicted by the source" means **contradicted as of the capture date**.
+> `v3.1.1`), C1's first pass (`v3.1.2`), C8 + H2 + H3 (`v3.1.3`), C1b's three P0 gaps (`v3.1.6`),
+> and **all of C1b's P1/P2 items** (`v3.1.8` — `docs/11`'s model IDs and pricing swept for the
+> first time, the Bun and Uber sources re-read, the repo-wide blockquote audit run).
+> **Start at the backlog's §8 step 9 — C5, C9, C11, C12.** The largest unclaimed content risk after
+> that is the pair of large sweeps, **C7** (20 partially-verified docs) and **C10** (the unswept
+> changelog range); H1's remainder folds into C7.
+> **Do not re-spend budget on what C1's critic verified clean** — it names the four classes — or on
+> `docs/11`, `docs/23`, `docs/27`, `docs/04`'s quoted material, or the blockquote corpus, all swept
+> 20260906. **Sixteen** claims no search can settle are parked in `KB_GAPS.md` § *Claims Awaiting
+> Verification*; read them before re-deriving any. **V13 is the one to read first**: it records a
+> quote the KB got *right* that the source later deleted, which a finder wrongly called fabricated.
+> "Contradicted by the source" means **contradicted as of the capture date** — and its converse,
+> proved twice on 20260906: a source that 404s where you looked is not a source that is gone.
 > **Delete this note once the backlog's §4 and §5 are empty.**
 
 ## Repository map

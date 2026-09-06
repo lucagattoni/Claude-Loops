@@ -18,6 +18,90 @@ Versioning follows [Semantic Versioning](https://semver.org/):
 
 ---
 
+## [3.1.8] — 20260906 10:12
+
+Closes **every remaining P1 and P2 item** in the C1b backlog, including the one the entry point
+called the largest untouched risk: `docs/11`'s model IDs and pricing.
+
+### Fixed
+
+- **`docs/11-cost-control.md` — the KB's densest concentration of model IDs and prices, swept for
+  the first time.** ~60 claims checked against live sources. It came back the *cleanest* doc this
+  project has audited, not the most defective: all **30 figures** in the 6-row pricing table, all
+  four model IDs, context windows, knowledge cutoffs and positioning quotes matched the live
+  Models-overview and Pricing pages exactly, as did the cache-pricing, tokenizer and
+  cache-invalidation blockquotes, the 6-row effort table, the subagent precedence order, and the
+  release-note quotes for v2.1.243/.248/.251/.257. Four precision defects fixed:
+    - the Opus 4.7 `xhigh` default was stated as flat fact while citing the **API** models table.
+      `xhigh` is *Claude Code's* default; the API default for the same model is `high`. A loop split
+      across Claude Code and the SDK silently runs at two depths and pays two bills.
+    - the "roughly 30% more tokens" tokenizer figure was uncited and sat under a "(Same source.)"
+      pointing at the wrong page. Now cited, with the caveat that page attaches and the
+      1.0–1.35x range from the Sonnet 5 announcement.
+    - the Explore-inheritance note omitted the Claude API's **Opus cap** — the cost-relevant half,
+      and Claude-API-only.
+    - the model table's "API ID" column lists Haiku 4.5's *alias*, not its pinned snapshot ID.
+- **`docs/23` — a falsified claim-of-absence, this repo's defining defect class.** The KB claimed
+  "Neither Bun's post nor Anthropic's names a token or dollar figure." Bun's post names both:
+  "5.9 billion uncached input tokens, 690 million output tokens, and 72 billion cached input token
+  reads — around $165,000 at API pricing." Rewritten around the real figures **with the scope
+  stated** — that covers the whole 11-day port, not one 64-instance wave. Added the model
+  attribution the backlog asked for ("a pre-release version of Claude Fable 5, a Mythos-class
+  model") and a repricing table; Bun's own token counts on Fable 5's rate card give $165,500,
+  0.3% off its quoted figure. Which exposes the real lesson: the 72B cached reads are **44% of
+  that bill**, more than input and output combined.
+- **`docs/04` — implementer-to-reviewer ratio corrected to 1:2+**, with the role separation the
+  source states, now matching `docs/23`. The earlier pass had checked the other copy of the claim.
+- **`docs/27` — the uncited Uber figure, where citing it was necessary but not sufficient.** The
+  source says "per person per tool per month", covers Claude Code *and* Cursor, and sources itself
+  to "reporting in the discourse". An anecdote cannot sit under a heading promising *Real Cost
+  Data*; heading renamed, quote given exactly, provenance stated.
+- **`docs/37` — a named academic source with no link anywhere in the KB.** Found by sweeping every
+  bolded statistic in `docs/` for a nearby citation (37 hits, 1 real defect). Identified and
+  verified as [arXiv 2604.02460](https://arxiv.org/abs/2604.02460) (Tran & Kiela); every element of
+  the KB's sentence was accurate. Now cited — with the caveat a Claude-focused KB owes it: the
+  three model families tested are Qwen3, DeepSeek-R1-Distill-Llama and Gemini 2.5, **no Claude
+  model**, and the paper reports artifacts in its own budget control.
+- **Repo-wide blockquote audit** — 414 blockquote lines across 113 blocks, plus 224 inline quoted
+  spans. Two defects, both in quoted third-party material:
+    - `docs/24` truncated a sentence mid-clause: "...do not automatically gain teammate-grade
+      stability." The source ends "...stability, accountability, or sustained judgment."
+    - `docs/07` joined two of Sabrina Ramonov's sentences with an em-dash, and carried a named
+      attribution with no URL.
+- **`docs/04` — the 93.4% paragraph re-read whole**, so the corroboration sentence no longer
+  asserts absolute non-overlap while the sentence before it admits 37 two-tool and 4 three-tool
+  lines. Added the round-cap rationale: the cap is 3 because iterating "past ~3 rounds
+  *introduces* bugs".
+
+### Added
+
+- **`CLAUDE.md` § *Quoting a source that has since died*** — the policy question the backlog left
+  open, now decided. A verbatim quote may stand on a dead source only when the citation says it is
+  dead, dates it, and states the wording can no longer be re-verified; link a Wayback snapshot
+  where one exists; never delete a quote merely because its source went away. Applied to the three
+  `orobsonn/claude-harness` quotes; confirmed neither dead repo has a snapshot. Closes `KB_GAPS` V10.
+- **`CLAUDE.md` § *Check the whole repo before calling a quote absent*** — a README-only fetch is
+  not a search. Three counterexamples this pass hit: `harness-books`' quoted sentence lives in a
+  chapter file with zero README hits; `compound-review` serves only `master`; and **`v2.1.243` has
+  a git tag and a `CHANGELOG.md` entry but no GitHub Release**, so the releases API 404s on four
+  perfectly good citations — the `V13` shape, avoided.
+- **Four earned verification stamps in `docs/03`**, extending the section-2 convention to Routines,
+  Skills, Connectors/Chrome and Sub-agents. Each was checked before it was stamped, at the CLI
+  version actually installed (2.1.263). Section 6 is conceptual and correctly gets none; section
+  2's existing 2.1.261 stamp is left exactly as written rather than restamped.
+- `KB_GAPS.md` **V17** (no primary source for the Uber figure) and **V18** (`docs/27` may credit a
+  repeater — a second explainx article attributes the Loop Contract to Developers Digest).
+
+### Changed
+
+- `KB_GAPS.md` — **V16 settled**: `docs/04`'s ~85–90% reviewer non-overlap figure is verbatim in
+  its cited source, traced via `git log -S` to `198c302`. **V10 settled** by the new policy.
+- The backlog and `CLAUDE.md`'s entry-point note now point at §8 step 9, and record two corrections
+  the work produced: `docs/04:257-260` rests on a **live** source, not a dead one, and H6's "only
+  these two bare citations" is disproved by the `docs/37` find.
+
+---
+
 ## [3.1.7] — 20260906 09:34
 
 ### Fixed
