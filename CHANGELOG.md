@@ -18,6 +18,82 @@ Versioning follows [Semantic Versioning](https://semver.org/):
 
 ---
 
+## [3.2.0] — 20260906 13:26
+
+Backlog `§8 step 9` — **C5, C9, C11, C12**, all four closed. Cut **MINOR** rather than PATCH: no new
+`docs/*.md` file was created (this repo's table would say PATCH), but `fetch-loop-news`'s fetch
+contract changed — the `type: x` procedure now mandates a second, **unfiltered** pass — which is a
+capability change the file-count table does not cover.
+
+### Added
+
+- **`docs/16` — native auto memory, the section it never had.** The doc covered ten loop-external
+  patterns and said nothing about the memory the harness writes for itself, on by default since
+  **v2.1.59**. Adds what it is, a sourced reference table, the **five properties that disqualify it
+  as loop state** (agent-curated, machine-local, invisible to subagents, unenforced, unversioned),
+  three issue-tracker failure modes, and the rule: *if losing it would break the loop, it goes in
+  the repo*. Also closes **H1**'s `docs/16` item — zero `v2.1.x` markers to eight.
+- **`docs/23` — observable F0–F3 per-gate indicators**, closing a gap open since Jul 2026. File-
+  existence exit criteria per transition plus a runnable `fleet-audit` score, from two files in
+  [cobusgreyling/fleet-engineering](https://github.com/cobusgreyling/fleet-engineering) that nobody
+  had opened — **a repo `docs/23` already cited three times**. Explicitly distinguished from this
+  KB's own F0–F3 scale, which shares the four labels and nothing else.
+- **`docs/11` — the reach rule.** A checker pays off *"only where its reach covers the way the
+  application actually fails"* — not by codebase size or task horizon. A boot probe removes nearly
+  all launch failures at ~35% of a full shell's token cost; a full shell costs 2.35× the no-tool
+  baseline. ([arXiv 2608.28795](https://arxiv.org/abs/2608.28795).)
+- **`docs/30` — catching an underspecified goal before it propagates.** A halting Intent Agent, an
+  EVPI-scored question budget, an industrial ambiguity classifier, and the counterintuitive timing
+  result: goal clarification loses nearly all value after **10%** of execution, and asking past
+  mid-trajectory is *worse than never asking*.
+- **`docs/04` — cross-model pairing is asymmetric**, and lineage diversity may not be what buys
+  ensemble gain. Plus **two-tier BLOCK/WARN verdicts**: never escalate an inference to a hard
+  failure — the split is what lets one verifier be both trustworthy and unattended.
+- **`docs/28` — Anthropic's own maintenance fleet**, from a primary source the KB had missed:
+  **388 PRs opened, 180 merged** (46%) by named daily routines, a two-day instrument-then-decide
+  verifier, and an outer loop that tunes the routines.
+- **`docs/07`** — the `/agents` wizard removal (**v2.1.198**); **`docs/03`** — the worktree-cleanup
+  loop; **`docs/24`** — `/ultraplan`'s removal (**v2.1.222**) as the other half of the shrink bet:
+  native features also *depart*.
+- **`SOURCES.md` § Ruled-out source strategies** — why LinkedIn person-search was measured and
+  **not** adopted.
+- **`plans/20260906_1259-c11-x-linkedin-baseline.md`** — the C11 evidence pack.
+
+### Changed
+
+- **Corrected a false claim the KB made in three places.** `docs/24`, `docs/35` and `docs/36` said
+  ClaudeWarp's `/claude-warp-sync` *retires* its components as Claude Code absorbs them. Measured
+  against that project's own changelog: the mechanism is real and complete, has run **twice across
+  65 Claude Code releases, and has retired zero**. `docs/36`'s wording is a quotation and stands
+  untouched, with a measured counterweight beside it. The measurement is the better lesson — a
+  retirement mechanism is cheap and retirement is rare.
+- **First-party disclosure on all five docs citing ClaudeWarp** (`11`, `22`, `24`, `29`, `35`;
+  canonical note in `36`). Same maintainer as this KB, figures self-reported — and it ships a skill
+  whose job is to read *this* repo, so agreement between them is shared origin, never corroboration.
+  That circularity is why ClaudeWarp's R0–R5 was **deliberately not** added to `docs/04`.
+- **`fetch-loop-news` — the `type: x` procedure now requires two passes, and the profile pass is
+  unfiltered.** The skill already told the run to visit the profile page but **keyword-gated that
+  pass too**, so untracked vocabulary was invisible on both paths while the line's own parenthetical
+  claimed otherwise. Measured on @bcherny: search **7** posts, profile **4**, union **9**,
+  **overlap 2**.
+- **`SOURCES.md`** — `x` strategy rewritten to match; `linkedin` content-row keywords broadened to
+  include `harness engineering`.
+- **`docs/36` — `/code-review` currency.** The **v2.1.215** claim that Claude no longer runs it on
+  its own no longer holds: **v2.1.246** says Claude *"can also start it on its own"*. No bullet
+  records where autostart was reinstated, so the gap is stated rather than inferred.
+- **`KB_GAPS.md`** — three Active Gaps filled; cross-model reviewer pairing annotated as **still
+  open after a fourth retry, with a recommendation to stop searching**.
+
+### Verification
+
+Every version claim re-verified against the raw official changelog; every arXiv ID, title, date and
+author against the arXiv API; all three GitHub issues via `gh api` (two are closed **as `stale`, not
+fixed**). A source reachable only through a rewriting reader proxy was **not** cited — the publisher
+returns 403 to a direct fetch. No binary-derived internals, absolute `/Users/...` paths or local
+machine state were published: this repo is public.
+
+---
+
 ## [3.1.9] — 20260906 10:18
 
 ### Changed

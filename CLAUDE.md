@@ -3,20 +3,33 @@
 Claude-Loops is a living knowledge base and automated daily tracker for **loop engineering** — designing systems that prompt Claude for you. Read `LOOP_ENGINEERING.md` (the index) and `README.md` before working. The KB grows automatically via a two-skill pipeline: `fetch-loop-news` (search) hands off to `integrate-loop-news` (integrate + restructure + publish).
 
 > **Open work — read this first.** Read `plans/20260904_2053-open-work-backlog.md` — the full ranked
-> backlog. Closed: the automation tier §3 (`v3.1.0`, A1–A12), §8 step 7 (C2, C6, C13, C14 —
-> `v3.1.1`), C1's first pass (`v3.1.2`), C8 + H2 + H3 (`v3.1.3`), C1b's three P0 gaps (`v3.1.6`),
-> and **all of C1b's P1/P2 items** (`v3.1.8` — `docs/11`'s model IDs and pricing swept for the
-> first time, the Bun and Uber sources re-read, the repo-wide blockquote audit run).
-> **Start at the backlog's §8 step 9 — C5, C9, C11, C12.** The largest unclaimed content risk after
-> that is the pair of large sweeps, **C7** (20 partially-verified docs) and **C10** (the unswept
-> changelog range); H1's remainder folds into C7.
-> **Do not re-spend budget on what C1's critic verified clean** — it names the four classes — or on
-> `docs/11`, `docs/23`, `docs/27`, `docs/04`'s quoted material, or the blockquote corpus, all swept
-> 20260906. **Sixteen** claims no search can settle are parked in `KB_GAPS.md` § *Claims Awaiting
+> backlog. Closed: the automation tier §3 (`v3.1.0`), §8 step 7 (`v3.1.1`), C1's first pass
+> (`v3.1.2`), C8 + H2 + H3 (`v3.1.3`), C1b's P0s (`v3.1.6`), C1b's P1/P2 (`v3.1.8`), the release
+> backfill (`v3.1.9`), and **all of §8 step 9 — C5, C9, C11, C12** (`v3.2.0`).
+> **Start at the backlog's §8 step 10 — H2–H9, H11, H12 (corpus hygiene).** The largest unclaimed
+> content risk after that is step 11's pair of large sweeps, **C7** (20 partially-verified docs) and
+> **C10** (the unswept changelog range); H1's remainder (`05 06 15 19 31`, plus the `35` re-check)
+> folds into C7.
+>
+> **Do not re-spend budget on:** what C1's critic verified clean (it names the four classes);
+> `docs/11`, `docs/23`, `docs/27`, `docs/04`'s quoted material, or the blockquote corpus (swept
+> 20260906); the four KB_GAPS entries step 9 closed; or **cross-model reviewer pairing, which is
+> closed as still-open after four retries** — do not schedule a fifth.
+> **Sixteen** claims no search can settle are parked in `KB_GAPS.md` § *Claims Awaiting
 > Verification*; read them before re-deriving any. **V13 is the one to read first**: it records a
 > quote the KB got *right* that the source later deleted, which a finder wrongly called fabricated.
 > "Contradicted by the source" means **contradicted as of the capture date** — and its converse,
 > proved twice on 20260906: a source that 404s where you looked is not a source that is gone.
+>
+> **Three rules step 9 paid for. Apply them before searching or citing:**
+> 1. **A citation is not a read.** Exhaust the repos already in `SOURCES.md` before searching
+>    outward — a two-month-old gap was closed by two files in a repo `docs/23` cited three times.
+> 2. **ClaudeWarp cannot corroborate this KB.** It ships a skill whose documented job is to read
+>    this repository, so agreement between them is shared origin, never independent support. All
+>    five citing docs carry a first-party disclosure; keep it on any new citation.
+> 3. **Reverse-engineered strings are not a source.** This repo is public: never publish binary
+>    greps, undocumented flags, absolute `/Users/...` paths, or local machine state.
+>
 > **Delete this note once the backlog's §4 and §5 are empty.**
 
 ## Repository map
