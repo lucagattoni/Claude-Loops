@@ -82,7 +82,7 @@ they move — this knowledge base had to correct eight stale facts in `v3.0.0` f
 ### 6. The Workflow
 - [6.1 The Development Workflow](36-development-workflow.md) — plan → execute → operate, and the five skills
 - [6.2 Session Architecture](37-session-architecture.md) — one session or many
-- [6.3 Explore → Plan → Implement → Commit](15-explore-plan-implement.md)
+- [6.3 Explore → Plan → Implement → Commit](15-explore-plan-implement.md) — plan mode's keybindings, what it does and does not auto-approve, and the read-only subagents that do the exploring
 
 ### 7. Your Setup
 - [7.1 CLAUDE.md](05-claude-md.md)

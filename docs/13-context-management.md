@@ -69,6 +69,11 @@ drifting from the original goal across turns, switch from compaction to resets.
 Encode the learnings externally first (see [Experience Encoding](27-loop-contract.md)),
 then start the next iteration from a clean window.
 
+A reset that recurs on every iteration is worth escalating past prompt-level fixes: if
+state keeps needing an explicit handoff between clean windows, the task may be better
+modelled as an explicit graph of steps than as a single loop leaning on compaction — see
+[the loops-vs-graphs debate](21-context-vs-loop-engineering.md#a-second-debate-loops-vs-graphs-jul-2026).
+
 ## Auto-compact thresholds by model (version-stamped)
 
 The point at which auto-compact fires has moved as 1M-context models' compaction windows were

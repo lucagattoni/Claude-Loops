@@ -13,10 +13,11 @@ to `main`. It does **no** searching — everything it needs is in `.loop-news/fi
 ## Phase 0 — Load the handoff artifact
 
 1. Read `.loop-news/findings.json`.
-2. **Abort with a clear error** if the file is absent, is not valid JSON, or its `today`
-   field does not equal the current UTC date (`TZ=UTC date '+%Y-%m-%d'`). A stale or
-   missing artifact means the search half did not complete this run — do not proceed, and
-   do not commit anything. Print what was wrong so the wrapper's logs show it.
+2. **Abort with a clear error** if the file is absent, is not valid JSON, its `schema`
+   field is not `1`, or its `today` field does not equal the current UTC date
+   (`TZ=UTC date '+%Y-%m-%d'`). A stale, missing, or schema-mismatched artifact means the
+   search half did not complete this run (or wrote a format this skill predates) — do not
+   proceed, and do not commit anything. Print what was wrong so the wrapper's logs show it.
 3. Extract `today`, `run_time`, `last_run_date`, `findings`, `sources_to_consider`, and
    `source_updates`. Use these throughout — never re-derive the time or re-search.
 4. **Already-published check — do this before reading any docs or reasoning about the
