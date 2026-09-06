@@ -2,6 +2,36 @@
 
 The context window is your most important resource. Performance degrades as it fills.
 
+## The New Rules for Claude 5-Generation Models (version-stamped)
+
+Anthropic rewrote how it prompt-engineers Claude Code's *own* system prompt for the Opus
+5 / Fable 5 generation, removing **over 80% of it with no measurable loss on internal
+coding evaluations** — a direct, first-party data point on the shift from prescriptive
+rules to model judgement. Three stated framing shifts, each with a concrete before/after:
+
+| Then | Now |
+|---|---|
+| Give Claude rules | Let Claude use judgement |
+| Put it all upfront | Use progressive disclosure |
+| Give Claude examples | Design interfaces |
+
+The comments-style-rule example makes this concrete. The old system-prompt text: *"In
+code: default to writing no comments. Never write multi-paragraph docstrings or
+multi-line comment blocks — one short line max. Don't create planning, decision, or
+analysis documents unless the user asks for them — work from conversation context, not
+intermediate files."* The replacement: *"Write code that reads like the surrounding code:
+match its comment density, naming, and idiom."* One long enumerated rule became one
+judgement-calibrating sentence. Progressive disclosure moved verification guidance out of
+the system prompt entirely, into optional Skills loaded only when the task needs them —
+the same "load only what's needed, when it's needed" principle this doc's own [Input
+Governance Pipeline](#input-governance-pipeline) applies to conversation history.
+
+**What this means for a `CLAUDE.md` you maintain, not just Anthropic's own prompt**: this
+is the same direction as [CLAUDE.md's "Rules Have a Half-Life"](05-claude-md.md), now with
+an official data point behind it — an enumerated rule a newer model already gets right by
+judgement is a rule worth cutting, not just tolerating.
+([Anthropic, "The new rules of context engineering for Claude 5-generation models"](https://claude.com/blog/the-new-rules-of-context-engineering-for-claude-5-generation-models), Jul 2026.)
+
 ## Rules
 
 - `/clear` between unrelated tasks — start each task with clean context

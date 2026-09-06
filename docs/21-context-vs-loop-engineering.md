@@ -190,6 +190,25 @@ connected agents, distinct from handling any one agent's Loop or Harness — ano
 independent publisher treating the term as a practice rather than a joke's residue, adding to
 the two guides already cited below.
 ([@peaceandwhisky](https://x.com/peaceandwhisky/status/2096167196200439901), Sep 2026.)
+A second cloud-engineering paper, published a week later, makes the identical three-way
+split part of its own architecture rather than just naming it: a Graph Orchestrator
+coordinates repo generation/review/execution/verification/release/monitoring agents, gates
+lifecycle transitions on verifiable execution evidence, and separately constrains
+repo-generation/review/repair via "agent harness engineering" — the same three disciplines
+as orthogonal concerns, now appearing in two independent papers three weeks apart rather
+than one.
+([arXiv 2608.29615, "Forward-Deployed Full-Stack Engineering for Autonomous Cloud MLOps"](https://arxiv.org/abs/2608.29615), Aug 2026.)
+
+**A practical decision rule for when to reach past a loop.** Untangling the debate from a
+different angle — separating *knowledge graphs* (a data structure), *graph-orchestration*
+(LangGraph-style explicit control flow), and *loops* (Claude Code/Codex-style
+prompt→act→observe→repeat) as three distinct things colliding under one name —
+explainx.ai proposes a concrete test: *"does my workflow have more than a handful of
+branching states that need independent inspection and resumability? If yes, graph; if no,
+loop."* Harrison Chase (LangChain's creator) is quoted making the same point this doc
+already documents from a different angle: *"So i didn't really know what graph
+engineering is, and i still don't really… but it's basically just langgraph?"*
+([explainx.ai, "Graphs vs. Loops"](https://explainx.ai/blog/graphs-vs-loops-agentic-ai-debate-linear-andrew-ng-2026), Jul 2026.)
 
 ### Is "Graph Engineering" a named discipline?
 
@@ -203,6 +222,15 @@ alongside its existing *Loop Engineering Guide*, and
 [explainx.ai's *Graph Engineering* guide](https://explainx.ai/blog/graph-engineering-ai-agents-multi-agent-organizations-2026).
 That is enough independent, sustained use to list it below — but treat it as newer and less
 settled than the four Greyling named.
+
+A separate essay traces the same churn as a naming *progression*, not a rivalry:
+harness → loop → graph, each new term arriving once the previous abstraction's bottleneck
+had been solved. Its account of what graphs specifically add is worth stating alongside
+the synthesis above — graphs separate **topology** (versioned, reviewed like a schema)
+from **prompts** (treated like queries against that topology), which clarifies which
+architectural constraints are load-bearing (the topology) versus temporary implementation
+detail (this quarter's prompt wording).
+([ikangai.com, "Graph Engineering Is Harness Engineering With a Diff"](https://ikangai.com/graph-engineering-is-harness-engineering-with-a-diff/), Sep 2026.)
 
 ---
 

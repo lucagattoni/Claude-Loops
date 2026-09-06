@@ -102,6 +102,24 @@ data point — the underlying pattern (agents doing the bulk of token-generating
 humans orchestrating and reviewing) is provider-agnostic.
 ([OpenAI, "How agents are transforming work"](https://openai.com/index/how-agents-are-transforming-work/), Jul 2026.)
 
+**The primary source for the "dark factory" name, cited here directly rather than only
+through secondary coverage.** Dan Shapiro's original taxonomy names six levels, explicitly
+modeled on NHTSA's driving-automation levels: **0 Manual** ("not a character hits the disk
+without your approval"), **1 Task Offloading** (discrete delegated tasks), **2
+Collaborative Pairing** (working with the AI like a colleague), **3 Human-in-Loop Manager**
+(reviewing diffs from parallel agent branches), **4 Autonomous Execution** (the developer
+acts as PM, writing specs and checking results later), **5 Dark Factory** (spec in,
+software out, no humans involved). His framing of Level 5, quoted directly: *"It's dark,
+because it's a place where humans are neither needed nor welcome"* — referencing the Fanuc
+factory staffed entirely by robots that gave the concept its name.
+([Dan Shapiro, "The Five Levels: from Spicy Autocomplete to the Software Factory"](https://www.danshapiro.com/blog/2026/01/the-five-levels-from-spicy-autocomplete-to-the-software-factory/), Jan 2026.)
+A later MindStudio piece reports the first concrete Level 5 case at this KB's [dark-factory
+ceiling](#the-dark-factory-ceiling-and-its-bottleneck) above: an AI tutor chatbot
+(simple chat-over-knowledge-base) built and shipped with zero human code review — framed
+explicitly as *"reliable enough for prototypes and spiking product ideas,"* not yet
+critical systems or complex state management.
+([MindStudio, "What Is an AI Software Factory?"](https://www.mindstudio.ai/blog/ai-software-factory-dark-factory/), Sep 2026.)
+
 ## Named Factory Deployments
 
 - **Droid Shield 2.0** (Factory.ai): a coordinator agent decomposes work and

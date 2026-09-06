@@ -111,6 +111,16 @@ bumps without explicit approval. Opens PRs, runs tests, merges if CI passes.
 | Safe | Security patches, patch version bumps in test files |
 | Escalate | Minor/major bumps, lockfile changes, dependency removals |
 
+**This pattern is harder than it looks.** DEPBENCH — 203 real dependency-upgrade tasks
+across 5 package ecosystems, each with *hidden* code-level breakage (signature/API/runtime-
+semantic changes the upstream changelog never mentions) — found the best-performing
+agent-harness-ecosystem combination solves only **51.2%** of tasks. Read as a caution
+against the "merges if CI passes" framing above: CI passing on a patch bump is necessary
+but the benchmark's whole point is that upstream breakage is often silent and
+un-changelogged, so a sweeper needs its own regression suite, not just the upstream
+project's stated compatibility promise, to catch what green CI on a stale test suite
+would miss. ([arXiv 2608.30300, "Update from Hell"](https://arxiv.org/abs/2608.30300), Aug 2026.)
+
 ---
 
 ### Post-Merge Cleanup

@@ -618,7 +618,35 @@ than practitioners assume.
   [Harness Patterns' quantified harness>model corpus](24-harness-patterns.md#the-harness-as-an-org-level-artifact):
   the same fact that makes harness investment worthwhile (the harness dominates the score) is
   exactly what makes an undisclosed harness a misleading benchmark claim.
-  ([The New Stack, "OpenAI will sell you Astra, but not the system that scored 98.6%"](https://thenewstack.io/openai-astra-harness-arc-agi-3/); [The New Stack, "GPT-6 Astra's score of 98.6% looked like AGI. Then researchers read the fine print."](https://thenewstack.io/astra-arc-agi-benchmark/), Sep 2026.)
+  ([The New Stack, "OpenAI will sell you Astra, but not the system that scored 98.6%"](https://thenewstack.io/openai-astra-harness-arc-agi-3/); [The New Stack, "GPT-6 Astra's score of 98.6% looked like AGI. Then researchers read the fine print."](https://thenewstack.io/astra-arc-agi-benchmark/), Sep 2026.) The
+  benchmark itself is explicitly designed around this gap: ARC-AGI-3 scores **action
+  efficiency** on novel, turn-based environments with no explicit instructions or win
+  conditions given, specifically to penalize brute-forcing — as of March 2026, humans solve
+  100% of its environments while frontier AI systems solve under 1%, a far starker gap than
+  the model-generation benchmarks this KB usually cites.
+  ([ARC Prize Foundation, arXiv 2603.24621](https://arxiv.org/pdf/2603.24621), Apr 2026.)
+- **A rubric induced before execution, not graded after it.** AutoSciRub builds a
+  task-specific, *executable* rubric before a research agent runs — decomposing a vague
+  instruction into atomic, literature-grounded goals — then uses that rubric both to guide
+  execution and to grade the result, rather than writing the grading criteria after seeing
+  what the agent produced. Reported gains: **+2.08 points** across three backbone models
+  under a fixed harness, **+2.95 points** across three different harnesses under a fixed
+  backbone, and **+16.8 points** on a research-discovery benchmark subset — three separate
+  comparisons, not one continuous range. The design principle generalizes past research
+  agents: writing the verifier before the run, from the spec rather than from the output,
+  is the same discipline [Goal Engineering](30-goal-engineering.md)'s GOAL.md schema applies
+  to coding tasks. ([arXiv 2608.31076, "Learning to Evaluate Before Improving"](https://arxiv.org/abs/2608.31076), Aug 2026.)
+- **Early-trajectory confidence does not predict failure — only late-trajectory confidence
+  does.** On long-horizon research tasks, verbal self-reported confidence reliably
+  distinguishes a failing run from a succeeding one only at the very end of the trajectory
+  (mean AUROC 0.85 at completion); every uncertainty signal tested stays below AUROC 0.60 at
+  the halfway point. The proposed cause is "path switching" — agents frequently abandon
+  their current approach mid-run, which decouples an early confidence reading from the
+  eventual outcome. Practical implication for a loop's own stopping condition: a
+  low-confidence *mid-run* signal is not yet reliable evidence to abort early — save an
+  uncertainty-based abort decision for the run's final step, or rely on an external
+  verifier instead of the agent's self-reported confidence for early intervention.
+  ([arXiv 2608.29685, "Last Step Matters"](https://arxiv.org/abs/2608.29685), Aug 2026.)
 - **Eval gates belong in the product, not just the test suite.** Repeatable evaluation gates,
   fixed test scenarios, and execution-path tracing need to be built into the product itself so
   agent reliability holds *across releases* — treating eval as a one-time pre-ship check

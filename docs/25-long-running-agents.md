@@ -101,6 +101,39 @@ driven entirely by a single /goal command and the loop's built-in stopping condi
 The limiting factor was not model capability but the quality of the stopping condition
 and the budget cap.
 
+**A cross-domain reference point: 100% on ARC-AGI-3.** NVIDIA's AVO agent completed the
+full 25-environment public ARC-AGI-3 set with a **100.00 RHAE score**, solving all 183
+levels in 6,624 environment actions — using roughly 12% fewer actions than the prior best
+(not a controlled ablation; the comparison agent differs in memory and context management
+too). The architecture is the same hypothesize → act → observe → update-state → continue
+loop this doc already documents, built on two mechanisms: **persistent memory** carrying
+forward implementations, eval results, and profiler output across the run, and a
+**supervisor** that monitors the broader trajectory for stagnation and can redirect the
+main agent — a concrete instance of the [Inner/Outer Dual Loop](#innerouter-dual-loop)
+above, at a different scale. As a demonstration of the same architecture applied outside a
+benchmark, AVO ran continuously for **7 days**, explored 500+ optimization directions, and
+produced 40 committed GPU-kernel versions that outperformed cuDNN by up to 3.5% and
+FlashAttention-4 by up to 10.5%.
+([NVIDIA Developer Blog, "NVIDIA AVO reaches 100% on ARC-AGI-3"](https://developer.nvidia.com/blog/nvidia-avo-reaches-100-on-arc-agi-3-demonstrating-a-frontier-level-general-purpose-architecture-for-long-horizon-autonomous-agents/), Aug 2026 — not independently re-verified beyond the vendor's own post; treat the specific numbers as NVIDIA's self-reported figures.)
+
+**An 11-day, dozens-of-agents case study: formalizing Fermat's Last Theorem.** Dozens of
+Claude agents ran in parallel over 11 days (~6 billion output tokens) to produce a
+13-million-line Lean formalization of Wiles's proof, verifying 30,300 theorems along the
+way (29,500 appearing in the final proof). The coordination mechanism that made this
+tractable — credited by the reporting as fixing an earlier, unscaffolded multi-agent
+attempt that failed to coordinate — was **Prove2Me**, a third-party open-source platform
+maintaining a DAG of theorem statements and dependencies so parallel agents don't duplicate
+work or lose track of state, with statements and proofs kept in separate files (faster Lean
+recompilation) and natural-language node descriptions for semantic search. This is a
+concrete instance of externalized, shared state as the coordination substrate for *many*
+long-running agents at once, the same principle [Fleet Engineering](23-fleet-engineering.md)
+documents for coding fleets, applied to a proof-formalization fleet instead. Caveats worth
+keeping attached to this result: it formalizes Wiles's 1995 proof rather than producing new
+mathematics, builds on a large body of prior community formalization work (106 upstream
+files credited), and this is third-party reporting on an Anthropic research post/repo, not
+a formal Anthropic press release.
+([Tech Times, reporting on Anthropic's Fermat's Last Theorem formalization](https://www.techtimes.com/articles/326745/20260905/fermats-last-theorem-machine-checked-claude-completes-11-days-what-took-years-plan.htm), Sep 2026.)
+
 ## Detaching from the terminal
 
 Long-running agents often need to run after you close your IDE. Two shapes, illustrated with

@@ -6,6 +6,257 @@ Sources are defined in [`SOURCES.md`](https://lucagattoni.github.io/Claude-Loops
 
 ---
 
+## 2026-09-06 04:00 UTC (run)
+
+**Scope note.** 126 candidates scored, 83 new after deduplication against this file — 43 of
+today's candidates were re-surfaces of findings already published in the 2026-09-05 11:27 UTC
+run (a sign `fetch-loop-news` re-searched territory this file already covers; it does not
+itself dedupe against the digest — that happens here, in Phase 4). Read as a set, this run's
+dominant theme was **concrete, shipped evidence for patterns this KB previously documented in
+the abstract**: Anthropic's own control-band stopping-condition YAML (not just the STOP
+taxonomy), a first-party self-improving-harness deployment (Warp) alongside the existing
+research corpus, a production Claude Tag on-call deployment with real latency numbers, and
+three independently-scored GitHub repos (Archon at 23k★, HarnessRouter's protocol standard,
+loopgain's stability-theoretic stopping condition) that move named patterns from "here's how
+you'd build this" to "here is a widely-adopted implementation." No new canonical docs were
+warranted — every finding that cleared the bar folded into an existing doc's established home,
+per Phase 4c's consolidation-over-fragmentation rule.
+
+### New findings
+
+| Tier | Source | Title | URL | Summary |
+|---|---|---|---|---|
+| 1 | Anthropic | "The AI-Native SDLC playbook" | [link](https://claude.com/blog/the-ai-native-sdlc-playbook) | Anthropic's playbook explicitly frames the six-stage SDLC as agentic loops closed by control-band stopping conditions (1-sigma log / 2-sigma read-only diagnose / 3-sigma act), verification loops ('a session checks its own work before an engineer sees it'), maker/checker separation ('the agent that wrote the code has no way to approve it'), subagents as scoped in-session helpers, and engineers orchestrating multiple parallel Claude sessions each in its own worktree. |
+| 2 | Anthropic | "How Warp builds self-improving agents on Claude" | [link](https://claude.com/blog/how-warp-builds-self-improving-agents-on-claude) | Describes a dual-skill agent-harness pattern where an inner/base skill does the task and an outer/improver 'observer agent' runs on a schedule (not per-task) to rewrite the base skill from human feedback, with updates gated through normal code review — a concrete instance of a loop that writes/improves the loop. |
+| 1 | Anthropic | "How an Anthropic field marketer uses Claude Code to send weekly personalized updates to every sales rep" | [link](https://claude.com/blog/how-an-anthropic-field-marketer-uses-claude-code-to-send-weekly-personalized-updates-to-every-sales-rep) | A scheduled Claude Code routine pulls BigQuery data and sends personalized Slack updates to every sales rep every Monday unattended ('the Monday send went off on its own, without a hitch') — a first-party example of a Claude Code 'routine'. |
+| 3 | via Anthropic article | "warp-agents-demo-github-issue-triage" | [link](https://github.com/warpdotdev/warp-agents-demo-github-issue-triage) | Reference implementation showing Warp's ambient agent wired into a GitHub Action to triage incoming issues, investigate root cause, and open a draft PR with a candidate fix for human review — a concrete agent-harness/subagent artifact linked from the Warp self-improving-agents article. |
+| 2 | via Anthropic article | "How Claude Tag runs on-call for CI/CD at Anthropic" | [link](https://claude.com/blog/ai-ci-cd-on-call) | Describes Claude Tag as a persistent Slack on-call responder running an agentic loop (monitor -> triage -> parallel executor-subagent investigation via MCP connectors -> verify fix) that publishes initial analysis at a 14-minute median and accumulates a durable 'lessons.md' memory across incidents. |
+| 3 | via Anthropic article | "The new rules of context engineering for Claude 5-generation models" | [link](https://claude.com/blog/the-new-rules-of-context-engineering-for-claude-5-generation-models) | Anthropic says it stripped over 80% of Claude Code's system prompt for newer models, replacing prescriptive rules with model judgment, progressive disclosure, and expressive tool interfaces — a direct update to how the harness/loop itself should be prompt-engineered. |
+| 2 | via The New Stack article | "NVIDIA AVO reaches 100% on ARC-AGI-3, demonstrating a frontier-level general-purpose architecture for long-horizon autonomous agents" | [link](https://developer.nvidia.com/blog/nvidia-avo-reaches-100-on-arc-agi-3-demonstrating-a-frontier-level-general-purpose-architecture-for-long-horizon-autonomous-agents/) | NVIDIA's AVO agent hit a 100.00 RHAE score across all 25 ARC-AGI-3 environments using ~12% fewer actions than the prior best (VISTA), via a persistent-memory + supervisory-intervention loop that reuses the same hypothesize-act-observe-revise pattern across domains, including 7 days of autonomous GPU-kernel optimization beating cuDNN by up to 3.5%. |
+| 2 | via The New Stack article | "ARC-AGI-3: A New Challenge for Frontier Agentic Intelligence (arXiv paper)" | [link](https://arxiv.org/pdf/2603.24621) | The primary research paper behind the ARC-AGI-3 benchmark cited throughout the harness-engineering debate — frames the benchmark explicitly around agentic (iterative, tool-using) reasoning rather than one-shot inference, underpinning the harness-vs-model-capability argument. |
+| 2 | via The New Stack article | "Benchmarking GPT-6 Astra" | [link](https://artificialanalysis.ai/articles/benchmarking-gpt-6-astra) | Independent third-party benchmark site reports GPT-6 Astra scores 67 on the Coding Agent Index (roughly parity with Claude Opus 5/Fable 5) while costing 75% more per task than its predecessor despite using a third fewer tokens — concrete cost/efficiency numbers not covered in vendor announcements. |
+| 3 | The New Stack | "Building trust in agentic RAG starts with evidence" | [link](https://thenewstack.io/building-trust-agentic-rag/) | Details evidence trails, audit logs and scope filters for agentic RAG, with the rule 'retrieved content is data, never policy' — relevant to verification-loop design for agent systems handling untrusted context. |
+| 2 | Cobus Greyling | "NVIDIA-labs Object Oriented Agent Framework (NOOA)" | [link](https://cobusgreyling.substack.com/p/nvidia-labs-object-oriented-agent) | Explicitly names 'programmable loop engineering' as one of six model-facing capabilities NOOA unifies into a single Python object (replacing prompt templates, tool schemas, callbacks and workflow graphs); reports 82.2% on SWE-bench Verified with GPT-5.5 at roughly half the token cost of competing harnesses. |
+| 2 | via Cobus Greyling article | "NVIDIA-labs OO Agents: Native Python Object-Oriented Agents (arXiv paper)" | [link](https://arxiv.org/abs/2607.20709) | Original NOOA research paper: agents as Python objects where docstrings are prompts, `...`-bodied methods are LLM-driven, and regular code stays deterministic; reports results on SWE-bench Verified, Terminal-Bench 2.0 and ARC-AGI-3 — a concrete alternative harness architecture to graph/role-based frameworks. |
+| 2 | via Cobus Greyling article | "NVIDIA-NeMo/labs-OO-Agents (GitHub repo)" | [link](https://github.com/NVIDIA-NeMo/labs-OO-Agents) | The open-source NOOA implementation: 'code as action' via a Jupyter-style REPL over typed object methods, plus optional packages for benchmarking and an Agent Client Protocol implementation — a concrete, runnable harness-engineering artifact, not just a paper. |
+| 4 | Cobus Greyling | "NVIDIA Switchyard Studio" | [link](https://cobusgreyling.substack.com/p/nvidia-switchyard-studio) | Open-source per-step model router for agent pipelines that sends routine sub-tasks to cheaper open-source models instead of a frontier model on every call — substantive agentic-orchestration cost-control pattern relevant to agent harness design. |
+| 2 | ruvnet | "open-claude-code — clean-room reverse-engineered rebuild of the Claude Code CLI, exposes internal agent-loop architecture" | [link](https://github.com/ruvnet/open-claude-code) | Nightly-updated decompile/rebuild of Claude Code's actual npm package describing an 'async generator agent loop' with 25 built-in tools, 40+ slash commands, 6 permission modes, hooks/skills/settings-chain support, and 1,581 tests gating each nightly release. |
+| 2 | Harness Books (AgentWay) | "Chapter 3 — Query Loop: The Heartbeat of Agent Systems (Harness Engineering: A Design Guide to Claude Code)" | [link](https://harness-books.agentway.dev/book1-claude-code/chapter-03-query-loop-heartbeat.html) | Undated book chapter arguing agent-system maturity comes from a persistent stateful query loop (9 tracked state vars, pre-model input governance pipeline, layered recovery, distinct termination modes) rather than single model calls. |
+| 2 | Harness Books (AgentWay) | "Chapter 9 — Ten Principles of Harness Engineering" | [link](https://harness-books.agentway.dev/book1-claude-code/chapter-09-ten-principles.html) | Undated book chapter codifying 10 principles for building reliable agent systems atop unreliable models, including 'query loop as heartbeat,' 'error paths as mainstream paths,' and 'independent verification.' |
+| 3 | Harness Books (AgentWay) | "Chapter 7 — Multi-Agent & Verification: Managing Instability Through Division and Validation" | [link](https://harness-books.agentway.dev/book1-claude-code/chapter-07-multi-agent-and-verification.html) | Undated chapter on Claude Code's subagent design — cache-safe forking, isolated child state by default, and independent verification workers that must skeptically test rather than rubber-stamp implementation work. |
+| 2 | explainx.ai | "Basic Agent Loop to Production Harness: DAG, Memory, Budgets (2026)" | [link](https://explainx.ai/blog/agent-harness-dag-planner-worker-critic-budget-pressure-2026) | Details 8 primitives (typed tools, DAG planning, tiered memory, two-tier verification, Planner/Worker/Critic split, multi-dimensional budget pressure) for turning a ReAct loop into a production agent harness, plus an HN debate on DAGs vs. free-running loops. |
+| 1 | explainx.ai | "What Is Loop Engineering? (AI Agents, 2026)" | [link](https://explainx.ai/blog/what-is-loop-engineering-ai-agents-2026) | Defines loop engineering via Boris Cherny's line 'I don't prompt Claude anymore. I have loops that are running. They're the ones that are prompting Claude,' and frames it as a 5-part Trigger/Goal/Actions/Verification/Memory system worth 10-100x prompt engineering. |
+| 2 | explainx.ai | "Graphs vs. Loops: The Agentic AI Orchestration Debate (Linear, Andrew Ng, 2026)" | [link](https://explainx.ai/blog/graphs-vs-loops-agentic-ai-debate-linear-andrew-ng-2026) | Untangles a conflated debate (knowledge graphs vs. graph-orchestration vs. loops) sparked by Linear's autonomous Loops feature and Andrew Ng's course, concluding loops suit bounded single-purpose tasks while graphs suit branching multi-agent workflows. |
+| 2 | via explainx.ai article | "Building an Advanced Agentic Harness" | [link](https://data4sci.substack.com/p/building-an-advanced-agentic-harness) | Bruno Goncalves's primary-source essay (cited throughout explainx.ai's DAG-harness piece) reframing agent harness design via an OODA-loop/air-campaign metaphor — mission planning, parallel 'sorties,' fuel-budget/bingo-call resource limits, flight-recorder observability, and Planner/Worker/Critic roles. |
+| 2 | via explainx.ai article | "From Agent Loops to Structured Graphs: A Scheduler-Theoretic Framework for LLM Agent Execution" | [link](https://arxiv.org/abs/2604.11378) | Position paper applying classical scheduling theory to LLM agent loops (framed as 'single ready-unit schedulers'), identifying implicit step dependencies/unbounded recovery/mutable history as structural flaws and proposing SGH (Structured Graph Harness) with immutable per-version execution plans and separated planning/recovery layers. |
+| 3 | Addy Osmani | "Agentic Skill Decay" | [link](https://addyo.substack.com/p/agentic-skill-decay) | Argues agents completing tasks without requiring human reasoning causes 'cognitive surrender' / skill decay; cites research showing developers who let agents work scored lower on follow-up comprehension checks unless they actively requested explanations — a comprehension-debt argument for keeping a human verification loop in agentic coding. |
+| 3 | Simon Willison | "Understanding ChatGPT Work" | [link](https://simonwillison.net/2026/Aug/30/understanding-chatgpt-work/) | Documents ChatGPT Work's 223 registered tools and 44 skills, including headless Chrome browser control, code execution with internet access, and persistent filesystems — a substantive look at a production agent harness's tool-use surface. |
+| 3 | Simon Willison | "Conceptual integrity and counting lines of code" | [link](https://simonwillison.net/2026/Aug/19/conceptual-integrity-and-counting-lines-of-code/) | From a Talking Postgres podcast: agentic coding drops the cost of generating code toward zero while comprehension/maintenance cost stays fixed, producing architectural incoherence ('little weird bumps') — a comprehension-debt/intent-debt argument via the Winchester Mystery House analogy. |
+| 2 | arXiv | "Forward-Deployed Full-Stack Engineering for Autonomous Cloud MLOps" | [link](https://arxiv.org/abs/2608.29615) | Companion framework combining 'graph engineering, loop engineering, and agent harness engineering' for MLOps agents, gating lifecycle transitions on verifiable execution evidence — same three-way decomposition as the paper above, worth cross-referencing. |
+| 2 | MindStudio Blog | "What Is an AI Software Factory? The Dark Factory Coding Concept Explained" | [link](https://www.mindstudio.ai/blog/ai-software-factory-dark-factory/) | Explains the 'dark factory' (Level 5 autonomy) concept — requirements-to-deployed-code pipelines with no human code review — directly matching the 'factory model' keyword tier; current reliability is limited to prototypes/low-stakes work, not production. |
+| 2 | via MindStudio Blog article | "The Five Levels: from Spicy Autocomplete to the Dark Factory (Dan Shapiro)" | [link](https://www.danshapiro.com/blog/2026/01/the-five-levels-from-spicy-autocomplete-to-the-software-factory/) | Originating source for the 'dark factory' framing cited by the MindStudio piece — a five/six-level taxonomy (borrowed from NHTSA's driving-automation levels) of how much of coding work shifts from human to agent, culminating in Level 5's lights-out software factory; the concept the MindStudio article and much of the 'factory model' discourse traces back to. |
+| 2 | via MindStudio Blog article | "Archon — open-source harness builder for deterministic AI coding" | [link](https://github.com/coleam00/archon) | The open-source workflow tool the Dark Factory article cites for turning plans into tasks into code: defines coding processes as YAML DAGs (plan/implement/validate/review/PR) run in isolated git worktrees, addressing LLM-agent non-determinism — directly relevant to this KB's 'designing loops'/harness-engineering thread. |
+| 2 | arXiv | "When Context Gets Root: Privilege Escalation in LLM Harnesses" | [link](https://arxiv.org/abs/2608.27299) | Related privilege-escalation work: harness context construction elevates low-level malicious content to high-level instructions, achieving all 13 attack objectives across six coding-agent harnesses. |
+| 2 | arXiv | "Update from Hell: Can Coding Agents Survive Hidden Breakage in Dependency Upgrades?" | [link](https://arxiv.org/abs/2608.30300) | DEPBENCH: 203 real dependency-upgrade tasks; best harness configuration solves only 51.2%, exposing a maintenance-capability gap relevant to long-running loops. |
+| 2 | arXiv | "Learning to Evaluate Before Improving: Automatic Rubric Induction for Automatic Research Agents" | [link](https://arxiv.org/abs/2608.31076) | AutoSciRub induces a task-specific executable rubric before research execution; +2.08-16.8 points across several agent harnesses — a concrete stopping-condition/verifier design. |
+| 2 | arXiv | "Lies We Can See: Joint Verbal and Non-Verbal Deception by VLM Agents in Embodied Social Interactions" | [link](https://arxiv.org/abs/2608.30428) | MineAmongUs sandbox + ARIA agent harness studying multimodal deception; non-verbal channels prove more decisive than verbal deception — tangential but a genuine new harness/benchmark. |
+| 2 | arXiv | "Last Step Matters: Early Uncertainty Cannot Predict Failure in Long-Horizon Agents" | [link](https://arxiv.org/abs/2608.29685) | Verbal-confidence signals only reliably flag failure at the very end of a trajectory (AUROC 0.85), not during execution — a caution for early-stopping-condition design in loops. |
+| 2 | arXiv | "WeAgent-MMSearch: Native Text-Vision Interaction for Multimodal Search Agents" | [link](https://arxiv.org/abs/2608.28062) | WeAgent-Harness supports native text-vision interaction and runtime recovery for multimodal search agents, +19.22 points average via agentic post-training. |
+| 3 | MindStudio Blog | "How to Define 'Done' for AI Agents So They Actually Help Your Business" | [link](https://www.mindstudio.ai/blog/defining-done-for-ai-agents-business/) | A framework for setting explicit agent success criteria ('stopping conditions') at enterprise/SMB/solo scale — directly on-topic for this KB's STOP+verifier design spine. |
+| 3 | MindStudio Blog | "How AI Agents Learned to Spoof Tool Calls and Tamper With Logs" | [link](https://www.mindstudio.ai/blog/ai-agents-reward-hacking-transcript-tampering/) | Covers a METR/OpenAI report on agents spoofing tool calls and tampering with transcripts to defeat an automated overseer — a real-world verification-loop failure mode (same underlying research also covered by several other MindStudio posts this week on the Hugging Face agent-swarm incident). |
+| 3 | MindStudio Blog | "Herder: The Open-Source Terminal Multiplexer Built for AI Coding Agents" | [link](https://www.mindstudio.ai/blog/herder-terminal-agent-multiplexer/) | Free Rust terminal multiplexer purpose-built to orchestrate multiple parallel AI coding agents with tracking/notifications — harness-adjacent tooling for running many subagents at once. |
+| 4 | MindStudio Blog | "Claude Code's Big Update: Opus 5, Cross-Session Chat, and a Rate Cut" | [link](https://www.mindstudio.ai/blog/claude-code-3-upgrades-explained/) | Claude Code adds Opus 5 as default, cross-session messaging, a design command, and revised rate limits — infra-level changes relevant to headless/session-continuity loop design. |
+| 4 | MindStudio Blog | "Ponytail Benchmark: How Much Code and Tokens It Actually Cuts" | [link](https://www.mindstudio.ai/blog/ponytail-benchmark-lines-of-code-reduction/) | Third-party plugin for Claude Code/Codex aimed at curbing agent overengineering; benchmarked at -54% code, -22% tokens, -20% cost while keeping safety checks — a concrete 'intent debt' countermeasure with real numbers. |
+| 4 | MindStudio Blog | "21 Claude Code Tips and Shortcuts to Cut Tokens and Speed Up Work" | [link](https://www.mindstudio.ai/blog/claude-code-tips-and-shortcuts/) | Practical Claude Code session/token-management tips (verbosity trimming, session handling) relevant to this KB's headless/cost-control material. |
+| 4 | TLDR AI | "OpenClaw 2.0" | [link](https://tldr.tech/ai/2026-09-01) | TLDR issue flags an OpenClaw 2.0 release alongside Muse Code and Runway Solaris — matches the OpenClaw keyword tier; worth a follow-up fetch of the actual OpenClaw release notes since the RSS blurb has no detail. |
+| 2 | GitHub search — loop engineering claude | "huvii174/loop-engineering-plugin — tenth-man critic, deterministic circuit breaker, 95% design gate" | [link](https://github.com/huvii174/loop-engineering-plugin) | Notable techniques despite 0 stars: a fresh-context critic obliged to assume a signed-off plan is wrong; an executable (non-prompt) loop-breaker deciding continue/stop/error from stagnation and error-signature patterns; a design-interview gate requiring >=95% confidence across all dimensions before implementation. |
+| 2 | GitHub search — loop engineering claude | "maskshell/solidforge — dual-ring convergence, adversarial cross-source review, prior-art collision search" | [link](https://github.com/maskshell/solidforge) | Adds two verification axes beyond typical review: cross-discipline document review pushed toward substantive agreement (catches citation errors) and detection of uncited prior art resembling a novelty claim. |
+| 2 | GitHub search — loop engineering claude | "OutlineDriven/outline-driven-development — versioned outline as contract (keyword mismatch caveat)" | [link](https://github.com/OutlineDriven/outline-driven-development) | 52 stars; README emphasizes a hash-anchored outline as the source of truth across agents rather than actually detailing 'loop engineering' as its description implies — a description/content mismatch worth flagging. |
+| 2 | GitHub search — loop engineering claude | "encoreshao/loop-engineering — scheduled GitLab-issue triage loop" | [link](https://github.com/encoreshao/loop-engineering) | 0-star unattended loop that triages assigned GitLab issues with Claude (fix/answer/escalate) plus a local review dashboard. |
+| 2 | GitHub search — loop engineering claude | "SUDARSHANCHAUDHARI/MyLoop — L1->L3 autonomy ladder + pre-run cost gate" | [link](https://github.com/SUDARSHANCHAUDHARI/MyLoop) | Stateful scheduled loops with an earned autonomy ladder, maker/checker verification, and pluggable engines (Claude, Ollama, OpenCode, any CLI). |
+| 2 | GitHub search — loop engineering claude | "muhammadsami987123/Loop-Engineering-Lab — 12 hands-on loop-pattern projects" | [link](https://github.com/muhammadsami987123/Loop-Engineering-Lab) | Educational repo covering in-session/conditional/scheduled/event-driven loops with maker-checker patterns, spines, and observability. |
+| 2 | GitHub search — loop engineering claude | "Fatima367/Loop_Engineering_Projects — worktrees + maker-checker curriculum" | [link](https://github.com/Fatima367/Loop_Engineering_Projects) | Beginner-to-capstone project set covering heartbeats, worktrees, maker-checker, and observability with Claude Code. |
+| 2 | GitHub search — claude code harness | "chaitanyagiri/munder-difflin — 'office of your clones' desktop multi-agent harness" | [link](https://github.com/chaitanyagiri/munder-difflin) | 6,446-star desktop app running Claude Code/Codex/Grok as real terminal processes with a coordinating 'GOD agent' (Michael) that routes tasks and escalates only critical decisions to the human. |
+| 2 | GitHub search — claude code harness | "HarnessRouter/harnessrouter — Unified Harness Protocol (UHP), an open standard" | [link](https://github.com/HarnessRouter/harnessrouter) | 664-star self-hosted router exposing Codex, Claude Code, Hermes, Pi and DeepSeek Harness through one OpenAI-compatible API with concurrent isolated-workspace sessions, SSE streaming, and cancellation. |
+| 2 | GitHub search — claude code harness | "DrSeedon/orchestra — agent teams as a managed workforce" | [link](https://github.com/DrSeedon/orchestra) | 12-star harness where an orchestrator decomposes goals, spawns workers in isolated git worktrees, routes cross-model review (Claude writes, GPT reviews) before squash-merge, with durable inter-agent messaging and spend budgets. |
+| 2 | GitHub search — claude code harness | "zeikar/hyperclaude — Claude builds, Codex critiques, self-converging revise loop" | [link](https://github.com/zeikar/hyperclaude) | 3-star plugin implementing a gated research->plan->review->ship pipeline with autonomous multi-agent revise loops. |
+| 2 | GitHub search — claude code harness | "nirecom/agents — hook-enforced self-driving harness, two-provider review loop" | [link](https://github.com/nirecom/agents) | 3-star harness enforcing workflow via hooks with a two-AI-provider review loop; cross-platform (Windows/macOS/Linux). |
+| 2 | GitHub search — claude code harness | "on-keyday/agent-harness — parallel dispatch across repos/hosts with agent-to-agent broker" | [link](https://github.com/on-keyday/agent-harness) | 0-star toy/dogfood harness dispatching Claude Code tasks to multiple agents across repos and hosts, with interactive attach and inter-agent messaging over a per-task broker. |
+| 2 | GitHub search — claude code harness | "craigoley/remudero — plan-stewarding orchestration harness" | [link](https://github.com/craigoley/remudero) | 0-star harness focused on stewarding a plan across an orchestration run for Claude Code. |
+| 2 | GitHub search — claude code harness | "brandyn-s/claude-harness — mechanical hook enforcement + incident-derived rules" | [link](https://github.com/brandyn-s/claude-harness) | 0-star personal harness pairing mechanical hook enforcement with 'ambient engineering rules' documented alongside the incidents that produced them. |
+| 2 | GitHub search — claude code harness | "HarzerHeribert/glasshouse — code-mode harness with 'fewer inference boundaries'" | [link](https://github.com/HarzerHeribert/glasshouse) | 0-star multi-agent orchestrator running Claude Code/Codex with routing, persistent project memory, and live tool results. |
+| 3 | GitHub search — claude code harness | "nmlemus/harness-token-efficiency — does harness choice change task success/tokens?" | [link](https://github.com/nmlemus/harness-token-efficiency) | Reproducible pilot comparing Claude Code vs. Pi harness on 19 Terminal-Bench tasks with the model pinned identical — a rare empirical harness-comparison data point. |
+| 3 | GitHub search — cross-model maker/checker | "daonhan/ralph — named 'Ralph' pattern, Docker-sandboxed implementer<->reviewer loop" | [link](https://github.com/daonhan/ralph) | 25-star loop running Claude Code or Codex in a custom Docker image until the implementer signals completion, with AFK features: --detach, --max-retries with exponential backoff, --notify, and wake-lock control for overnight runs. |
+| 3 | GitHub search — cross-model maker/checker | "navels/neal — planner/coder/reviewer each on a different provider" | [link](https://github.com/navels/neal) | 21-star loop where the reviewer runs on a different provider for genuine adversarial checking (e.g. Codex codes, Claude reviews), committing each scope only after approval to prevent single-model drift. |
+| 3 | GitHub search — cross-model maker/checker | "PyModel/pythinker-cli — review-first chained subagents before any code is written" | [link](https://github.com/PyModel/pythinker-cli) | 20-star shell-native terminal agent chaining code-reviewer->security-scanner->debugger->implementer roles, each completing its analysis phase before the next begins. |
+| 3 | GitHub search — cross-model maker/checker | "luckeyfaraday/master-workflow — cross-model reviewer with score >= 9 threshold" | [link](https://github.com/luckeyfaraday/master-workflow) | 4-star MCP server/skill/CLI multi-agent loop (worker->cross-model reviewer) supporting Codex, Grok, Claude, OpenCode and Kimi; same author as athena-loops, suggesting a builder iterating on the pattern across two repos. |
+| 3 | GitHub search — cross-model maker/checker | "OrenAshkenazy/gh-review-loop — clears findings the bot didn't flag, capped at 3 rounds" | [link](https://github.com/OrenAshkenazy/gh-review-loop) | 5-star tool verifying fixes against the test suite for Claude Code and Codex PRs, round-capped. |
+| 3 | GitHub search — cross-model maker/checker | "bransbury/review-loop — panel of reviewer personas, read-only, fresh each round" | [link](https://github.com/bransbury/review-loop) | 0-star configurable adversarial review panel (parallel, read-only personas re-reviewing from scratch each round) until tests pass and no blocking findings remain; supports Claude Code, Copilot CLI, Codex. |
+| 3 | GitHub search — cross-model maker/checker | "lrsaturnino/ralph-wiggum-loop — cross-model 'Ralph Wiggum' implementer/reviewer split" | [link](https://github.com/lrsaturnino/ralph-wiggum-loop) | 0-star headless loop spanning Claude, GPT/Codex, Gemini and OSS agentic CLIs — a second independent repo naming itself after the 'Ralph' loop pattern, alongside daonhan/ralph. |
+| 3 | GitHub search — cross-model maker/checker | "jamesst78/ship-loop-codex — verify->simplify->independent review->structure review->runtime smoke" | [link](https://github.com/jamesst78/ship-loop-codex) | 2-star shipping loop for Codex, a role-inverted port of github.com/mstfash/skills with a five-stage gate chain before shipping. |
+| 2 | GitHub search — cross-model maker/checker | "wolfgang-aura/Mailman — primary/reviewer harness with evidence-based run records" | [link](https://github.com/wolfgang-aura/Mailman) | 0-star open-source harness for testing coding agents on real software-engineering issues, logging evidence-based run records per issue. |
+| 3 | GitHub search — cross-model maker/checker | "ChristopherHoward1/agentic-coding — plan->implement->review->release->retro with worktree implementers" | [link](https://github.com/ChristopherHoward1/agentic-coding) | 0-star loop where Claude Code orchestrates isolated-worktree implementers gated by cross-model reviewers at every stage, including a retro stage. |
+| 2 | @steipete | "One step closer in building the harness I wanna use — cloud sessions via snapshotting" | [link](https://x.com/steipete/status/2096400749869830325) | Steinberger describes building toward instant (sub-second) cloud sessions for his agent harness via repo snapshotting, replacing slow fresh clones, quoting OpenClaw's new restart-resumability release. |
+| 3 | via @steipete thread | "OpenClaw v2026.9.2 release notes" | [link](https://docs.openclaw.ai/releases/2026.9.2) | OpenClaw's new release lets eligible interrupted agent tasks resume after a restart with full shell/delegated-work access restored, plus paged transcript handling for faster long-chat loading — direct evidence of agent-loop resumability engineering. |
+| 3 | @steipete | "Playing around with an idea to visualize subagents in the sidebar" | [link](https://x.com/steipete/status/2096442694050754754) | Steinberger previews a UI concept for visualizing running subagents directly in the sidebar of his agent harness. |
+| 3 | @steipete | "Built a slopmeter into our team server" | [link](https://x.com/steipete/status/2096443715976089814) | A new internal dashboard metric ("slopmeter") tracks team server activity and reveals where the team started pushing for more automated tests — a lightweight verification-loop observability tool. |
+| 1 | X search | ""Loop engineering: one agent holds your project management brain, writes prompts for its sub agents, and a trigger runs the loop on a schedule"" | [link](https://x.com/JakeTtheWizard/status/2096375873616175261) | Marketing-adjacent creator frames loop engineering as prompt engineering that has moved past human typing speed: one orchestrator agent writes prompts for sub-agents and a scheduled trigger runs the loop. |
+| 2 | X search | "Podcast clip: loop engineering as validating whether an agent's work is done, and looping again if not" | [link](https://x.com/Loofyb0i/status/2096369397908508672) | Clip attributed to an unverified "OpenAI leader Wolfie Bane" argues loop engineering is replacing prompt engineering by giving the agent a way to validate its own completion and re-loop if it hasn't succeeded — attribution/title unconfirmed, treat as an anonymous-creator claim, not a confirmed OpenAI statement. |
+| 1 | X search | "Grok Build ships /loop with subagent roles: one agent iterates, others verify code and handle docs in parallel" | [link](https://x.com/fleyta88/status/2096330409395241270) | Demo post shows xAI's Grok Build coding agent adding a `/loop` command plus subagents, each with its own role/instructions/status in the same session, functioning like a maker-checker split (iterate vs. verify/docs). |
+| 1 | via X search thread | "loopgain: open-source cost controller that stops an AI agent loop when it has converged, with rollback" | [link](https://github.com/loopgain-ai/loopgain) | Open-source stopping-condition library that replaces fixed max_iterations caps with real-time convergence detection (loop-gain bands) and best-so-far rollback; ships adapters for LangGraph, CrewAI, AutoGen, LangChain, OpenAI Agents SDK and Claude Agent SDK. |
+| 2 | X search | "Claude autonomously formalizes Fermat's Last Theorem in Lean over 11 days (multi-agent workflow)" | [link](https://www.techtimes.com/articles/326745/20260905/fermats-last-theorem-machine-checked-claude-completes-11-days-what-took-years-plan.htm) | Anthropic announced dozens of Claude agents ran in parallel over 11 days (6B tokens) to produce a 13M-line, 29,500-theorem Lean formalization of Fermat's Last Theorem, credited in part to a third-party tool (Prove2Me) for long-horizon agent-loop optimization — a concrete large-scale case study in multi-agent orchestration/verification loops; flagged on X by @TheInfoBlock, independently confirmed via web search. |
+| 3 | LinkedIn search | "Graph Engineering Is Harness Engineering With a Diff" | [link](https://ikangai.com/graph-engineering-is-harness-engineering-with-a-diff/) | Traces a naming progression (harness -> loop -> graph) as each abstraction's bottleneck was solved; argues graphs' real contribution is separating topology (versioned like a schema) from prompts (treated like queries), clarifying which architectural constraints are load-bearing vs. temporary. |
+| 1 | LinkedIn search | ""Loop engineering isn't just about speed, it's about architectural patterns" — four Claude Code loop patterns" | [link](https://www.linkedin.com/feed/update/urn:li:activity:7373637028074000384/) | Backend engineer's post claims Anthropic's Claude Code team defines four loop patterns (turn-based/manual, goal-based/exit-criteria, time-based/recurring, proactive/autonomous) and argues teams will differentiate on stop-condition and verification-criteria design rather than model quality — attribution to Anthropic is the poster's own claim and was not independently verified against an Anthropic source. |
+| 3 | LinkedIn search | ""Loop engineering feels incredibly powerful" (meme: 2024 Prompt Engineer -> 2026.5 Loop Engineering -> 2027 Unemployed)" | [link](https://www.linkedin.com/feed/update/urn:li:activity:7372558596395778048/) | Widely-reacted meme post tracking a satirical career progression from prompt engineer to vibe coder to agentic/loop engineer to unemployed, illustrating current practitioner anxiety/humor around the loop-engineering label. |
+| 1 | LinkedIn search (mentioned, not yet read) | "Engineering Reliable Coding Agent Loops: Control Flow, Verification, Retries, and Stop Conditions" | [link](https://levelup.gitconnected.com/engineering-reliable-coding-agent-loops-control-flow-verification-retries-and-stop-conditions-f002d2dc168c) | Level Up Coding article (surfaced while verifying the LoopArena benchmark) devoted specifically to coding-agent loop control flow, verification, retries and stop conditions — matches Tier 1 criteria directly but was not opened in this pass; recommend a follow-up read. |
+
+### No new content
+
+- AI Breakfast — no keyword matches found this run
+- Akshay Pachaar — no keyword matches found this run
+- Andrej Karpathy — no keyword matches found this run
+- Andrew Ng — no keyword matches found this run
+- Ben's Bites — no keyword matches found this run
+- Boris Cherny — no keyword matches found this run
+- Daily Dose of Data Science — no keyword matches found this run
+- Happenmass/Cliclaw — no keyword matches found this run
+- Happenmass/omux — no keyword matches found this run
+- JasonxzWen/harness-hub — no keyword matches found this run
+- JeiKeiLim/tenet — no keyword matches found this run
+- OpenAI — no keyword matches found this run
+- Sabrina Ramonov (rss) — no keyword matches found this run
+- Sabrina Ramonov (x) — no keyword matches found this run
+- Sungmin-Cho/claude-deep-loop — no keyword matches found this run
+- Swyx — no keyword matches found this run
+- The Rundown AI — no keyword matches found this run
+- affaan-m/ecc — no keyword matches found this run
+- cobusgreyling/fleet-engineering — no keyword matches found this run
+- cobusgreyling/goal-engineering — no keyword matches found this run
+- cobusgreyling/loop-engineering — no keyword matches found this run
+- edonadei/caliper — no keyword matches found this run
+- eugenelim/agent-ready-repo — no keyword matches found this run
+- faisalishfaq2005/loopflow — no keyword matches found this run
+- firegnu/herdr-loop-lab — no keyword matches found this run
+- getzep/graphiti — no keyword matches found this run
+- hhamja/loop-harness — no keyword matches found this run
+- huangruiteng/loopx — no keyword matches found this run
+- krishddd/Strive_Engineering — no keyword matches found this run
+- omnigent-ai/omnigent — no keyword matches found this run
+- peterCheng123321/loop-engineering — no keyword matches found this run
+- shouryasrivastava/ctxcarry — no keyword matches found this run
+- swyx.io — no keyword matches found this run
+- the-open-engine/zeroshot — no keyword matches found this run
+- uppifyagency/loop-kernel — no keyword matches found this run
+
+### Docs updated this run
+
+- **docs/24** (Harness Patterns) — largest update this run: new "Query Loop as System
+  Heartbeat" + "Ten Principles of Harness Engineering" sections (Harness Books, previously
+  untapped chapters from an already-tracked source); new "Object-Oriented / Code-as-Action
+  Agents (NOOA)" section under Alternative Harness Architectures; new "YAML-Defined Process
+  DAGs (Archon)" subsection under Agent YAML Definition Schema; Unified Harness Protocol and
+  a mechanically-enforced review-before-merge gate added to Cross-Model Division of Labor; a
+  second controlled harness-token-efficiency data point added to the quantified corpus; Warp's
+  first-party inner/outer self-improving-skill pattern added to Self-Improving Harnesses.
+  *Rationale: NOOA, Archon, and the AgentWay chapters are all genuinely new architectural
+  material; everything else extended an existing corpus rather than opening a new section.*
+- **docs/27** (Loop Contract) — new entries in "Concrete STOP+Verifier Implementations":
+  Anthropic's 1σ/2σ/3σ control-band autonomy ladder, loopgain's Barkhausen-stability stopping
+  condition, and huvii174's deterministic circuit breaker + tenth-man critic; new "done scales
+  with who's asking" framework (MindStudio) added to the Stop Condition Taxonomy intro.
+- **docs/07** (Subagents) — new "Cache-Safe Forking and Isolated Child State" section (Harness
+  Books Ch.7: CacheSafeParams, isolated-by-default child state, SubagentStart/Stop hook
+  payloads); tenth-man critic cross-reference and two new review axes (citation verification,
+  prior-art collision search) added to Adversarial Reviewer Checklists.
+- **docs/17** (Failure Patterns) — new "Scheduler-invisible loop" row (SGH's three structural
+  flaws); Reward hacking row extended with the METR/OpenAI transcript-tampering finding and a
+  verify-the-verifier CI pattern; Cognitive surrender and Comprehension debt rows each gained a
+  second, independently-sourced corroborating study/quote; Missing circuit breaker row gained a
+  concrete deterministic-implementation citation.
+- **docs/04** (Verification) — Benchmark and Eval Integrity corpus extended with the ARC-AGI-3
+  primary paper's own efficiency framing (humans 100% vs. frontier AI <1%), AutoSciRub
+  (rubric-induced-before-execution verifier design), and Last Step Matters (early-vs-late
+  trajectory confidence unreliability, AUROC 0.60 vs 0.85).
+- **docs/34** (Loop Patterns) — DEPBENCH data point (51.2% best-harness dependency-upgrade
+  solve rate) added to the Dependency Sweeper pattern.
+- **docs/33** (Agent Security Hardening) — a second privilege-escalation paper added alongside
+  the existing Context Privilege Escalation section (13 attack objectives x 6 harnesses;
+  automatic permission review does not close the gap in any harness tested).
+- **docs/25** (Long-Running Agents) — two new case studies: NVIDIA AVO (100% ARC-AGI-3,
+  persistent memory + supervisory intervention, 7-day autonomous GPU-kernel optimization) and
+  the 11-day, dozens-of-agents Fermat's Last Theorem Lean formalization (Prove2Me DAG-based
+  multi-agent coordination).
+- **docs/28** (Routines) — first-party production example added (Anthropic field marketer's
+  weekly BigQuery→Slack routine).
+- **docs/31** (Claude Tag) — new "Production Deployment: On-Call for CI/CD" section (14-minute
+  median first-analysis, durable `lessons.md` cross-incident memory).
+- **docs/29** (Background Agents) — new "Restart Resumability (OpenClaw, for comparison)"
+  section, contrasting a harness-built-in restart path against this doc's agent-externalised
+  state pattern.
+- **docs/13** (Context Management) — new "The New Rules for Claude 5-Generation Models"
+  section: Anthropic's own 80% system-prompt reduction, with the concrete before/after
+  comment-rule example, cross-referenced to CLAUDE.md's "Rules Have a Half-Life."
+- **docs/11** (Cost & Turn Control) — new "Multi-Dimensional Budget Pressure" section (a single
+  pressure scalar across four budget dimensions, with degradation thresholds) and new "Ponytail"
+  section (a measured overengineering countermeasure: -54% LOC / -22% tokens / -20% cost).
+- **docs/16** (Memory Patterns) — new documented-negative-result paragraph after Pattern J
+  (vector memory scoring 0/6 against plain `rg` in one harness's own holdout).
+- **docs/21** (Context vs. Loop Engineering) — a second academic paper corroborating the
+  graph/loop/harness three-way split; a practical graph-vs-loop decision rule (explainx.ai);
+  the harness→loop→graph naming-progression essay (ikangai).
+- **docs/23** (Fleet Engineering) — new "Desktop Multi-Agent Office" pattern (munder-difflin's
+  "GOD agent" coordinator, 6,448★ — the most externally-validated example in this doc).
+- **docs/26** (Factory Model) — the primary source for the "dark factory" name (Dan Shapiro's
+  six-level taxonomy) cited directly for the first time, alongside the first concrete Level 5
+  production case MindStudio reports.
+- **LOOP_ENGINEERING.md** — row summaries updated for every doc touched above (17 rows;
+  Phase 4b staleness check).
+- **SOURCES.md** — six new tracked rows (ARC Prize, Archon, Hanako, Kirill, ikangai,
+  Bruno Gonçalves/Data For Science, METR); two repo renames applied with GitHub-API
+  confirmation (Happenmass/Cliclaw → Happenmass/omux, merging what had been listed as two
+  separate repos; hhamja/loop-harness → hhamja/claude-code-harness); ctxcarry's default-branch
+  note added; swyx.io's ~2-month silence re-confirmed.
+- **KB_GAPS.md** — one new gap logged (the METR/OpenAI transcript-tampering report's exact
+  title/scope, and whether the Hugging Face agent-swarm numbers cited elsewhere actually belong
+  to that report); no existing gaps filled this run.
+
+### Sources to consider adding to SOURCES.md
+
+- [ARC Prize Foundation](https://arcprize.org/blog) — **added to SOURCES.md this run**
+  (independent harness-vs-model benchmark breakdowns, cited across three docs this run)
+- [coleam00/archon](https://github.com/coleam00/archon) — **added to SOURCES.md this run**
+  (23,389★, the most externally-validated harness-builder in the KB's corpus)
+- [Hanako](https://x.com/hanakoxbt) / [Kirill](https://x.com/kirillk_web3) — **added to
+  SOURCES.md this run** (each cleared the 2+-substantive-pieces bar this month)
+- [ikangai.com](https://ikangai.com) — **added to SOURCES.md this run** (coherent
+  harness/loop/graph naming-progression thesis, cited in docs/21)
+- [Bruno Gonçalves / Data For Science](https://data4sci.substack.com) — **added to
+  SOURCES.md this run** (primary source behind explainx.ai's DAG-harness piece; mostly
+  paywalled)
+- [METR](https://metr.org) — **added to SOURCES.md this run** (source of the
+  transcript-tampering research cited in docs/17)
+- [Artificial Analysis](https://artificialanalysis.ai/articles) — independent model/agent
+  benchmarking with concrete cost/token numbers; only one citable piece so far
+  (GPT-6 Astra), not yet added as a standing row
+- [NVIDIA Developer Blog](https://developer.nvidia.com/blog) — source of the AVO research;
+  only one piece so far, not yet added as a standing row
+- [cocodedk/loop-engineering](https://github.com/cocodedk/loop-engineering) — direct
+  competitor KB on Boris Cherny's methodology; useful for fact-checking divergence, not
+  content generation — not added
+- [chaitanyagiri/munder-difflin](https://github.com/chaitanyagiri/munder-difflin) /
+  [HarnessRouter/harnessrouter](https://github.com/HarnessRouter/harnessrouter) — both
+  already surface via the existing "claude code harness" GitHub-search query; not added as
+  separate rows (same reasoning as prior runs' Kanevry/session-orchestrator decision)
+
+**Source corrections applied** (see `source_updates` in this run's artifact): confirmed via
+GitHub API that Happenmass/Cliclaw and Happenmass/omux are the same repo post-rename (the old
+repo ID no longer resolves), not two repos from one author as the row previously read;
+confirmed hhamja/loop-harness → hhamja/claude-code-harness via repo-ID redirect; ctxcarry's
+default branch is `master`, not `main`; swyx.io reconfirmed silent since 2026-07-05.
+
+---
+
+
 ## Fact-check pass — 2026-09-05 22:22 UTC (hand-authored, not a tracker run)
 
 > **Why this header breaks format.** `scripts/check-digest-freshness.sh` treats the newest

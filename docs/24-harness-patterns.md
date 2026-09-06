@@ -59,7 +59,15 @@ not the base model, dominates sustained-task performance.
 (evaluating OpenClaw-style harnesses on coding tasks) found the *same backbone model*
 scores only 19.1% with a minimal adapter versus **73.4%** with a full adapter — a 4x
 swing from harness completeness alone, with the model held fixed.
-([arXiv 2606.12344](http://arxiv.org/abs/2606.12344), Jun 2026.)
+([arXiv 2606.12344](http://arxiv.org/abs/2606.12344), Jun 2026.) A smaller independent
+pilot corroborates the pattern at the opposite end of the scale: comparing Claude Code
+against the Pi harness on 19 Terminal-Bench tasks with the model pinned identical, both
+harnesses reached the **same 87.7% task success rate**, but Claude Code used **5.2x more
+tokens (geometric mean)** to get there — after the author corrected an initial pass that
+had shown a contaminated 7-14x gap. Read together with the StaminaBench/Claw-SWE-Bench
+results above: harness choice can move *either* the success rate or the cost at matched
+success, and a harness comparison that only measures one of the two will miss which lever
+actually moved. ([nmlemus/harness-token-efficiency](https://github.com/nmlemus/harness-token-efficiency), Sep 2026.)
 
 ### Two Settings Tripled a Benchmark Score — and the Vendor Didn't Sell the Harness
 
@@ -182,6 +190,19 @@ for the harness change that fixes the failure class. It is distinct from
 [Learned Orchestration](22-learned-orchestration.md), which *trains a model* to orchestrate —
 here the model stays fixed and the **harness config (tools, middleware, memory, control flow)**
 is what evolves.
+
+**A first-party production instance: Warp's inner/outer skill split.** An inner (base) skill
+does the actual per-task work (e.g. PR review); an outer "improver" skill runs as a
+**scheduled observer, not per-task** — it pulls accumulated human feedback, compares what
+the base skill suggested against how humans actually responded, and proposes a small,
+focused edit to the base skill. Critically, the update path is not autonomous: "these
+updates, which are reviewable, approvable, and mergeable, can flow through a normal
+PR/code-review workflow; once merged, the next run of the inner skill inherits the
+improvement." Warp runs this same pattern across separate spec-writing, review, and triage
+agents, each carrying its own self-improvement loop — a concrete, shipped answer to "who
+improves the harness" that keeps a human gate on every change, unlike the fully autonomous
+research systems below. ([Anthropic, "How Warp builds self-improving agents on
+Claude"](https://claude.com/blog/how-warp-builds-self-improving-agents-on-claude), Aug 2026.)
 
 **Self-Harness — weakness mining → propose → validate.** A three-stage self-improvement loop
 that needs no external engineer:
@@ -571,6 +592,13 @@ running one model for everything.
   leased worker subprocesses and typed, deterministically-stitched artifacts, so the
   division of labor is enforced by the control plane rather than by convention.
   ([professorpalmer/Puppetmaster](https://github.com/professorpalmer/Puppetmaster), Jul 2026.)
+- **Unified Harness Protocol (UHP)**: an open standardization attempt in the same
+  direction — a self-hosted router exposing five harnesses (Codex, Claude Code, Hermes,
+  Pi, DeepSeek Harness) behind one OpenAI-compatible API, with concurrent isolated-workspace
+  sessions, SSE streaming, and cancellation. Notable for shipping a runnable, versioned
+  conformance suite (`uhp-conformance --class full`) against a public spec, not just a
+  wrapper library — 664 stars.
+  ([HarnessRouter/harnessrouter](https://github.com/HarnessRouter/harnessrouter), Sep 2026.)
 - **Official first-party version**: OpenAI's own Claude Code plugin implements the
   same reviewer-executor separation as a supported product, not a community skill —
   a `/codex:adversarial-review` command and an optional gate that **blocks Claude's
@@ -586,6 +614,13 @@ running one model for everything.
   competitor betting on orchestration-shape choice, not model choice, as the lever, which
   corroborates this section's thesis regardless of whose numbers are right.
   ([GitHub, "Project HydraFusion"](https://github.blog/ai-and-ml/github-copilot/project-hydrafusion-frontier-quality-via-multi-model-orchestration/); [explainx.ai coverage](https://explainx.ai/blog/github-copilot-hydrafusion-multi-model-orchestration-2026), Sep 2026.)
+
+- **Mechanically-enforced review-before-merge**: rather than trusting the orchestrating
+  agent to run cross-model review before merging a worker's isolated-worktree branch, the
+  merge operation itself blocks unless a review receipt matches the exact snapshot's
+  session ID — the enforcement lives in the merge code path, not in a convention the
+  agent could skip under time pressure.
+  ([DrSeedon/orchestra](https://github.com/DrSeedon/orchestra), Sep 2026.)
 
 This is the same underlying idea as [Subagents' "strong eyes, cheap hands"](07-subagents.md)
 cost-asymmetric role allocation, generalized from same-vendor subagents to
@@ -664,6 +699,88 @@ step, it proposes its own next move based on evidence from its own audited past 
 without loosening the kernel's read-only-for-skills invariant (insights are emitted
 via the same atomic-write + append-anchored-event path as any other kernel write).
 ([Sungmin-Cho/claude-deep-loop](https://github.com/Sungmin-Cho/claude-deep-loop) v1.4.0, Jul 2026.)
+
+## The Query Loop as System Heartbeat
+
+A book-length treatment of Claude Code's own runtime argues the query loop — not the
+model, not any single tool call — is the unit that determines system maturity. Analysis
+of the published npm package identifies **nine tracked state variables** assembled into
+one `State` object per conversation (`messages`, `toolUseContext`, `autoCompactTracking`,
+`maxOutputTokensRecoveryCount`, `hasAttemptedReactiveCompact`, `pendingToolUseSummary`,
+`stopHookActive`, `turnCount`, `transition`), and a strict **pre-model input governance
+pipeline** that runs before the model ever sees a token: memory prefetch → skill-discovery
+prefetch → truncate to compact-boundary → apply tool-result budget → history snip →
+microcompact → context collapse → autocompact attempt. The thesis: governing input is the
+runtime's job, done *before* inference, not left for the model to sort out mid-turn.
+
+**Layered recovery** follows the same ascending-cost-and-destructiveness principle this KB
+already applies elsewhere: a `prompt-too-long` error tries context collapse first and only
+escalates to a full reactive compact if that's insufficient; a `max_output_tokens` cutoff
+first raises the token cap, and only once the cap is already maxed does it append a
+continuation message telling the model to resume from where it was cut off — never an
+apology or a re-summary.
+
+The analysis catalogues **eight distinct termination/recovery modes** in the stop-condition
+matrix: stream ends with a pending tool call (follow-up), stream ends clean (stop hooks
+fire), user interrupt (abort + synthetic tool-result for orphaned calls), recoverable
+prompt-too-long (collapse, escalating to compact), output-cap-not-yet-maxed (raise and
+retry), output-cap-already-maxed (continuation message), a stop-hook block recurring after
+compact was already attempted (an explicit "double failure" guard that skips the hook and
+surfaces the error directly rather than looping forever), and an API error (return
+immediately, no retry). Compare this granularity to the [Stop Condition
+Taxonomy](27-loop-contract.md#stop-condition-taxonomy) — the same idea, at the level of
+one runtime's actual state machine rather than a design abstraction.
+
+**Caveat:** this is a third-party technical analysis of Claude Code's published package
+(chapter cites specific file/line references, e.g. `query.ts:203-217`), not an Anthropic
+disclosure — treat the state-variable names and line numbers as this analysis's own
+findings about a specific build, not a stable public API.
+([Harness Books — AgentWay](https://harness-books.agentway.dev/book1-claude-code/chapter-03-query-loop-heartbeat.html), undated, fetched Sep 2026.)
+
+### Ten Principles of Harness Engineering
+
+The same book distills its analysis into ten principles, several of which this KB already
+documents under different names — listed here as a compact index, cross-referenced rather
+than restated:
+
+1. Treat the model as an unstable component, not a colleague — see [The "Unstable Components" Design Axiom](#the-unstable-components-design-axiom)
+2. The prompt is part of the control plane, alongside runtime, tool schema, memory, and hooks
+3. **The query loop is the heartbeat of the agent system** — see above
+4. Tools are managed/governed execution interfaces, not raw function calls
+5. Context is working memory — governability matters more than quantity — see [Context Management](13-context-management.md)
+6. **Error paths are the mainstream paths** — prompt-too-long, max-output-tokens, interrupts, hook loops, and compact failures are daily weather, not edge cases, and must be designed for up front
+7. The goal of recovery is to keep working, not to apologize
+8. Multi-agent's purpose is partitioning uncertainty — research/implementation/verification/synthesis run in separate containers, recombined by a coordinator — see [Subagents](07-subagents.md)
+9. **Verification must be independent** — the system cannot grade its own homework — see [Verification](04-verification.md)
+10. Team/organizational process matters more than individual skill — layered `CLAUDE.md`, explicit approvals, executable skills, lifecycle hooks, traceable transcripts, and a unified definition of "verified" across the team
+
+([Harness Books — AgentWay, "Ten Principles of Harness Engineering"](https://harness-books.agentway.dev/book1-claude-code/chapter-09-ten-principles.html), undated, fetched Sep 2026.)
+
+## Object-Oriented / Code-as-Action Agents (NOOA)
+
+A third alternative to the persistent-orchestration-graph and event-driven/serverless
+patterns above: model agents as **Python objects** rather than prompts or graph nodes.
+NVIDIA-labs' NOOA (NVIDIA-labs Object-Oriented Agent framework) gives a class's
+docstrings-as-prompts and lets methods with a literal `...` body be completed at runtime
+by an LLM-driven agent loop, while methods with a normal body stay ordinary deterministic
+Python — so control flow, state, and non-agentic logic are just code, and only the
+genuinely agentic pieces are model-driven. The framework names six model-facing
+capabilities it unifies onto one object: typed input/output, pass-by-reference over live
+objects, code-as-action (the model acts by writing Python in a Jupyter-style REPL with
+access to `self`, imports, and helpers), **"programmable loop engineering,"** explicit
+object state, and model-callable harness APIs — replacing prompt templates, tool schemas,
+callbacks, and workflow graphs with one substrate.
+
+Reported results: **82.2% on SWE-bench Verified with GPT-5.5, at roughly half the token
+cost of competing harnesses**; the paper additionally reports on Terminal-Bench 2.0 and
+ARC-AGI-3. Fully open source, no GPU/NVIDIA hardware required — any local or API-based LLM
+works. The open-source implementation ships as separate packages: `nooa-cli` (CLI + trace
+viewer), `nooa-acp` (an Agent Client Protocol implementation for hosts like Zed),
+`nooa-memory`, and `nooa-bench` (a Harbor benchmark runner) — Apache 2.0, 1,991 stars,
+daily commit cadence as of Sep 2026.
+([Cobus Greyling](https://cobusgreyling.substack.com/p/nvidia-labs-object-oriented-agent), Aug 2026;
+[arXiv 2607.20709](https://arxiv.org/abs/2607.20709), Jul 2026;
+[NVIDIA-NeMo/labs-OO-Agents](https://github.com/NVIDIA-NeMo/labs-OO-Agents), fetched Sep 2026.)
 
 ## Harness-Agnostic Projection
 
@@ -852,6 +969,23 @@ compiles to a Claude Code session, an OpenAI Agents SDK agent, a Codex CLI agent
 of 15+ harnesses without changing the agent's instructions or tool definitions.
 
 ([omnigent-ai/omnigent](https://github.com/omnigent-ai/omnigent), Jun 2026.)
+
+### YAML-Defined Process DAGs (Archon)
+
+A different use of the same idea: rather than a YAML file defining *one agent's*
+portable config (above), define an entire **coding process** as a YAML DAG whose nodes
+mix deterministic steps (bash, scripts, test runs, git operations) with AI steps
+(plan/implement/validate/review/PR), each node running in its own isolated git worktree.
+The pitch is explicit: "Dockerfiles for infra, GitHub Actions for CI/CD, Archon for AI
+coding workflows" — a process definition invoked identically from a CLI, a web UI, or
+Slack/Telegram/GitHub triggers, addressing LLM-agent non-determinism by keeping the
+control flow itself outside the model's discretion.
+
+At 23,389 stars, 3,465 forks, and near-daily merged PRs, this is by a wide margin the
+most externally validated harness-builder in this KB's corpus — a generalized workflow
+engine rather than one more implementation of a fixed pattern, which is the gap most of
+the small single-purpose harness repos surfaced alongside it do not fill.
+([coleam00/archon](https://github.com/coleam00/archon), fetched Sep 2026.)
 
 ## Organizational Learning Stage
 

@@ -289,6 +289,21 @@ favourable-case; treat the cost of reproducing this at similar concurrency as un
 either primary source and plausibly large, per what practitioners report when they run
 the same feature at a fraction of the scale.
 
+## Pattern: Desktop Multi-Agent Office (a "GOD agent" coordinator)
+
+A distinct topology from the org-chart and swarm-consensus patterns above: a desktop
+application runs several real vendor CLI agents (Claude Code, Codex, Grok — 12 distinct
+CLIs in the reference implementation) as actual terminal processes inside an "office"
+metaphor, coordinated by one privileged "GOD agent" that routes incoming tasks to the
+right worker process and escalates only spend, destructive-operation, or scope decisions
+back to the human — every routine decision stays inside the office. This is the
+Hierarchical Delegation pattern from [fleet-engineering](https://github.com/cobusgreyling/fleet-engineering)
+made concrete at the *desktop* scale rather than the org scale: one coordinator, several
+heterogeneous worker processes, a narrow human-escalation channel. Notable primarily for
+external validation at a scale none of this doc's other fleet reference implementations
+have reached: 6,448 stars, the #1 GitHub Trending Repo of the Day on its release.
+([chaitanyagiri/munder-difflin](https://github.com/chaitanyagiri/munder-difflin), Sep 2026.)
+
 ## Current state (June 2026)
 
 - [cobusgreyling/fleet-engineering](https://github.com/cobusgreyling/fleet-engineering) is the primary reference implementation with six production patterns (Team Registry, Shared Inbox HITL, Hierarchical Delegation, Fleet Budget Guard, Cross-Agent Audit)

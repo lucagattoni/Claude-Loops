@@ -264,6 +264,30 @@ checkable, not guessed. Full precedence table, the `_FORCE` mechanics, and the p
 using `/tasks` to audit it: [Cost & Turn Control → Which model a subagent actually runs
 on](11-cost-control.md#which-model-a-subagent-actually-runs-on).
 
+## Cache-Safe Forking and Isolated Child State
+
+A third-party technical analysis of Claude Code's published package (file/line-cited, not
+an Anthropic disclosure — treat as this analysis's own findings about a specific build,
+not a stable public API) describes the concrete mechanics behind "a subagent has its own
+context window": forking preserves a specific set of **cache-critical parameters**
+(system prompt, user context, system context, tool-use context, forked-context messages)
+so the fork still hits the parent's prompt cache, while everything else about the child's
+state starts isolated by default — a fresh `abortController` not shared with the parent, a
+wrapped app-state getter that suppresses permission prompts, and a no-op state setter. A
+subagent shares nothing beyond the cache-critical set unless the caller explicitly opts
+in (shared abort controller, shared state setter, shared response length). One practical
+warning from the same source: changing `maxOutputTokens` on a fork is not free — the
+thinking-config is part of the cache key, so casually varying it defeats the cache hit the
+whole scheme exists to preserve.
+
+The same analysis identifies the concrete hook payloads around a subagent's lifecycle:
+`SubagentStart` carries `agent_id`/`agent_type`; `SubagentStop` carries
+`agent_transcript_path`; and a `SubagentStop` hook that exits with code 2 feeds its stderr
+back to the subagent and keeps it running rather than ending the task — the same
+non-zero-exit-continues-the-loop contract [Hooks](12-hooks.md) documents for the main
+session's own stop hook.
+([Harness Books — AgentWay, "Multi-Agent & Verification"](https://harness-books.agentway.dev/book1-claude-code/chapter-07-multi-agent-and-verification.html), undated, fetched Sep 2026.)
+
 ## Nesting
 
 Subagents can spawn their own subagents **up to three layers below the main conversation by
@@ -375,6 +399,19 @@ before implementation begins, one at the implementation stage before merge.
 | **Project anti-patterns** | Violations of `AGENTS.md` conventions | Cite the violation and block |
 
 ([eugenelim/agent-ready-repo](https://github.com/eugenelim/agent-ready-repo), Jun 2026.)
+
+**The "tenth-man" variant**: rather than a checklist, a fresh-context critic is given an
+explicit standing prior — assume the signed-off plan is wrong and find out why — before it
+reads anything. Paired with a design-interview gate that withholds implementation until
+confidence reaches ≥95% across every dimension of the spec. See [Concrete STOP+Verifier
+Implementations](27-loop-contract.md#concrete-stopverifier-implementations-sept-2026-cohort)
+for the full citation. Two further review-axis additions worth naming alongside the two
+checklists above: **citation verification** (does a cited source actually say what the
+document claims — catches misattribution a plain "reviewers agree" pass misses) and
+**prior-art collision search** (does this "novel" claim already exist uncited elsewhere) —
+two axes orthogonal to reviewer agreement, motivated by the author's own documented
+citation-misattribution slip that a cross-source review pass had missed.
+([maskshell/solidforge](https://github.com/maskshell/solidforge), Sep 2026.)
 
 ## Rationalizations Reviewers Must Refuse
 

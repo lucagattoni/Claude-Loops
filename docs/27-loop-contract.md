@@ -115,6 +115,21 @@ that cannot say what "done" looks like stops too early (undercooked), runs forev
 Every STOP property is built from one or more of four stop-condition categories. This
 is the **canonical taxonomy** — other docs reference it rather than re-defining it.
 
+**"Done" scales with who's asking, not just what the task is.** A practical framework for
+setting the completion check itself, by organizational scale: at enterprise scale, build
+internal eval systems ("schools for agents" — cites Block's Goose and Shopify's River),
+integrate into the tools the team already uses, and tie evals to company standards rather
+than generic benchmarks — a code-review test being "can your second- or third-best
+engineer understand a random agent-written file within 20 minutes?" At SMB scale, reuse
+existing tools/channels with evals reflecting real business standards under tighter
+resource constraints. At solo/small-business scale, tie the metric to an observable
+business outcome (replies earned, not emails sent; problems resolved, not tickets closed)
+and have the owner personally verify domain-expert areas. The sharpest line, applicable at
+every scale: *"agents optimize for the grader, not the goal"* — the completion check *is*
+the spec, as far as the agent is concerned, so a grader that doesn't match the real goal
+gets gamed by construction, not by malice.
+([MindStudio, "How to Define 'Done' for AI Agents"](https://www.mindstudio.ai/blog/defining-done-for-ai-agents-business/), Aug 2026.)
+
 | Category | Fires when | Role |
 |---|---|---|
 | **Completion check** | A verifier confirms the objective is met (tests pass, `VERDICT: PASS`, checklist complete) | The only *success* stop |
@@ -447,6 +462,46 @@ production.
   complete delegation — a Loop-Contract-style SCOPE/verifier pattern applied to scientific
   computing, evidence the contract shape generalizes past coding agents.
   ([arXiv 2609.00795, "Agentic programs: an emerging form of scientific software"](https://arxiv.org/abs/2609.00795), Sep 2026.)
+- **Anthropic's own control-band framing (AI-Native SDLC).** Rather than one STOP
+  condition, the playbook grades a monitoring loop's own confidence into three
+  escalating tiers, each with a different authorized action:
+  ```yaml
+  tiers:
+    1sigma: { action: log }
+    2sigma: { action: diagnose, tools: "Read,Grep,Bash(gh run view *)" }
+    3sigma: { action: propose, routes: [pull_request, runbook:rollback-deploy] }
+  ```
+  At 1σ the deviation is only logged; at 2σ Claude is invoked **read-only** to diagnose;
+  at 3σ Claude may **propose** a fix — routed to a PR or a pre-approved rollback runbook,
+  never applied directly. This is a BUDGET-shaped answer to a different question than the
+  patterns above: not "when does the loop stop" but "how much autonomy does this run's own
+  confidence level earn it" — a graduated authorization ladder rather than a binary
+  STOP/CONTINUE. The same playbook states the maker/checker separation this KB documents
+  elsewhere as a flat rule: "the agent that wrote the code has no way to approve it";
+  approval comes from a human through branch protection, informed by the findings.
+  ([Anthropic, "The AI-Native SDLC Playbook"](https://claude.com/blog/the-ai-native-sdlc-playbook), Aug 2026.)
+- **loopgain** — replaces a fixed `max_iterations` cap with a **stability-theoretic**
+  stopping condition: it applies the 1921 Barkhausen stability criterion to the agent
+  loop's own error signal, classifying convergence via a multi-feature statistical
+  detector rather than counting rounds, and rolls back to the best-scoring prior attempt
+  if the run doesn't hold. On a public 2,000-trial benchmark this cut API spend by
+  **92.8%** versus a `max_iterations=20` baseline — with an honestly documented failure
+  mode: **4.5% of runs the detector called "converged" still failed a held-out test
+  suite**, i.e. the stopping condition is a strong cost lever, not a substitute for an
+  independent verifier. Ships adapters for LangGraph, CrewAI, AutoGen, LangChain, the
+  OpenAI Agents SDK, and the Claude Agent SDK.
+  ([loopgain-ai/loopgain](https://github.com/loopgain-ai/loopgain), Sep 2026.)
+- **A deterministic (non-prompt) circuit breaker.** Rather than asking the model whether
+  to stop, a code-level breaker normalizes failure signatures and uses trigram-Jaccard
+  similarity (with containment) to detect "same failure, reworded" — distinguishing real
+  stagnation from an agent that is actually making progress but describing each attempt
+  differently. It also treats a "bookkeeping" iteration (one that touches files but
+  closes no acceptance criterion) as transparent to the failure chain: it neither counts
+  as progress nor resets the stuck counter, closing a gaming path a naively-implemented
+  breaker would miss. Paired with a design-interview gate requiring **≥95% confidence
+  across all dimensions** before implementation starts, and a fresh-context "tenth-man"
+  critic obliged to assume a signed-off plan is wrong.
+  ([huvii174/loop-engineering-plugin](https://github.com/huvii174/loop-engineering-plugin), Sep 2026.)
 
 **Benchmarking the controller, not just the harness.** LoopArena evaluates models
 specifically as *runtime controllers* guiding coding agents through long tasks — the

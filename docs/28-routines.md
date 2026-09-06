@@ -87,6 +87,21 @@ Prompt: Investigate the error described in the context. Check recent commits,
 STOP: issue opened
 ```
 
+## A first-party production example
+
+An Anthropic field marketer runs a weekly Routine that pulls account and event data via
+BigQuery (MCP connector) every Monday morning and sends each account executive a
+personalized Slack DM with three priority actions — field events, webinar registrants,
+and follow-ups relevant to their own accounts. The Routine is unattended by design: *"I
+still read what goes out, though the system no longer waits for my approval. When I went
+on holiday a few weeks ago, the Monday send went off on its own, without a hitch."*
+Reported business impact: doubled registrations for an executive dinner in a week,
+attributed to the right reps seeing the right event at the right time. A concrete instance
+of this doc's constraint that Routines have no local filesystem/credentials — everything
+here goes through the BigQuery connector, and the output channel (Slack) requires no local
+Chrome session either.
+([Anthropic, "How an Anthropic field marketer uses Claude Code..."](https://claude.com/blog/how-an-anthropic-field-marketer-uses-claude-code-to-send-weekly-personalized-updates-to-every-sales-rep), Aug 2026.)
+
 ## Constraints to design around
 
 - **No permission prompts during run** — prompts route to your main session asynchronously;

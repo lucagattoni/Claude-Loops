@@ -322,6 +322,15 @@ its own recorded use rather than staying a static store.
   documents via repo-owned files.
   ([learn.chatgpt.com, "Computer History"](https://learn.chatgpt.com/docs/customization/computer-history), Jun 2026.)
 
+**A documented negative result, worth weighing against the above.** Not every learned
+substrate earns its complexity. One harness builder added a vector-memory layer for
+cross-session recall, ran it against a holdout of real retrieval tasks, and found it
+scored **0 of 6** against plain `rg` (ripgrep) — and demoted it rather than keeping it as
+a default. The lesson isn't "vector memory doesn't work," it's that a memory substrate is
+itself a claim that should clear the same bar as any other harness component: measured
+against the boring alternative, on your own tasks, before it becomes infrastructure other
+agents depend on. ([DrSeedon/orchestra](https://github.com/DrSeedon/orchestra), Sep 2026.)
+
 ---
 
 See [Long-Running Agents](25-long-running-agents.md) for the architectural pattern

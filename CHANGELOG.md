@@ -18,6 +18,62 @@ Versioning follows [Semantic Versioning](https://semver.org/):
 
 ---
 
+## [3.1.4] — 20260906 04:39
+
+Loop news run 2026-09-06 04:00 UTC — 83 new findings after deduplication (126 scored, 43
+already published by the 2026-09-05 run). Seventeen existing docs extended; no new doc files
+(Phase 4c: consolidation over fragmentation — every finding that cleared the bar folded into
+an established canonical home).
+
+### Added
+
+- **docs/24** — Query Loop as System Heartbeat + Ten Principles of Harness Engineering
+  (Harness Books); Object-Oriented/Code-as-Action Agents (NOOA, 82.2% SWE-bench Verified at
+  half token cost); YAML-Defined Process DAGs (Archon, 23k★); Unified Harness Protocol;
+  Warp's first-party inner/outer self-improving-skill pattern; mechanically-enforced
+  review-before-merge; a second controlled harness-token-efficiency data point.
+- **docs/27** — Anthropic's 1σ/2σ/3σ control-band autonomy ladder; loopgain's
+  Barkhausen-stability stopping condition (92.8% spend cut, documented 4.5% false-converge
+  rate); huvii174's deterministic circuit breaker + 95%-confidence design gate + tenth-man
+  critic; "done" scaled by organizational size (MindStudio).
+- **docs/07** — cache-safe forking + isolated child state + SubagentStart/Stop hook payloads
+  (Harness Books); tenth-man critic cross-reference; citation-verification and
+  prior-art-collision review axes (solidforge).
+- **docs/17** — Scheduler-invisible loop row (SGH's three structural flaws); reward hacking
+  extended with METR/OpenAI transcript-tampering findings and a verify-the-verifier CI
+  pattern; a second cognitive-surrender study (Anthropic/Trio, 50% vs. 67%); Willison's
+  Winchester Mystery House quote on comprehension debt; a concrete circuit-breaker
+  implementation citation.
+- **docs/04** — ARC-AGI-3's own efficiency framing (humans 100% vs. frontier AI <1%);
+  AutoSciRub (rubric induced before execution); Last Step Matters (early-vs-late trajectory
+  confidence unreliability).
+- **docs/34** — DEPBENCH data point (51.2% best-harness dependency-upgrade solve rate).
+- **docs/33** — a second privilege-escalation paper (13 attack objectives x 6 harnesses).
+- **docs/25** — NVIDIA AVO case study (100% ARC-AGI-3, 7-day autonomous GPU-kernel
+  optimization); the 11-day, dozens-of-agents Fermat's Last Theorem Lean formalization.
+- **docs/28** — first-party production example (Anthropic field marketer's weekly routine).
+- **docs/31** — Production Deployment: On-Call for CI/CD (14-min median first-analysis,
+  durable `lessons.md`).
+- **docs/29** — Restart Resumability (OpenClaw, for comparison).
+- **docs/13** — The New Rules for Claude 5-Generation Models (80% system-prompt reduction).
+- **docs/11** — Multi-Dimensional Budget Pressure; Ponytail overengineering countermeasure.
+- **docs/16** — a documented negative result on vector memory (0/6 vs. plain `rg`).
+- **docs/21** — a second academic graph/loop/harness three-way-split paper; a practical
+  graph-vs-loop decision rule; the harness→loop→graph naming-progression essay (ikangai).
+- **docs/23** — Desktop Multi-Agent Office pattern ("GOD agent" coordinator, 6,448★).
+- **docs/26** — the primary source for the "dark factory" name (Dan Shapiro), cited directly.
+- **SOURCES.md** — six new tracked rows (ARC Prize, Archon, Hanako, Kirill, ikangai, Bruno
+  Gonçalves/Data For Science, METR).
+
+### Fixed
+
+- **Two stale SOURCES.md rows corrected by GitHub-API confirmation**: Happenmass/Cliclaw had
+  been listed as a separate repo from Happenmass/omux ("second repo from the same author") —
+  it is the same repo, renamed; the old repo ID no longer resolves. hhamja/loop-harness →
+  hhamja/claude-code-harness (confirmed via repo-ID redirect).
+
+---
+
 ## [3.1.3] — 20260906 00:27
 
 Source-list revalidation, run **before** the next unattended tracker fire rather than after it —

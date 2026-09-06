@@ -297,6 +297,23 @@ a second cloud-hosted execution path, oriented at ad hoc cowork tasks rather tha
 scheduled/triggered loops.
 ([The New Stack, "Anthropic's Claude Cowork now keeps working when you close your laptop"](https://thenewstack.io/claude-cowork-cloud-mobile/), Jul 2026.)
 
+## Restart Resumability (OpenClaw, for comparison)
+
+A different vendor's background-agent harness shows what resumability looks like when
+built in rather than left to the loop's own state file: OpenClaw v2026.9.2 lets an
+eligible **Full Access** task interrupted by a gateway restart inspect its own saved
+conversation and continue with fresh, currently-authorized shell commands or delegated
+work — without the user re-sending the original request. This is the harness restoring
+the session itself, as distinct from this doc's `PROGRESS.md`-style pattern where the
+*agent* externalises state for its own next invocation to read; OpenClaw's version
+additionally handles long-conversation performance (bounded transcript pages, shortened
+tool-output previews) as part of the same restart path.
+([OpenClaw v2026.9.2 release notes](https://docs.openclaw.ai/releases/2026.9.2), Sep 2026.)
+Separately, [Peter Steinberger](https://x.com/steipete) — OpenClaw's developer — describes
+working toward sub-second cloud-session starts via repo snapshotting, to replace the
+latency of a fresh clone on every detached session start.
+([@steipete](https://x.com/steipete/status/2096400749869830325), Sep 2026.)
+
 ## Related
 
 - [Fan-Out](10-fan-out.md) — parallelism patterns using background agents

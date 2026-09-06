@@ -429,6 +429,46 @@ calibrated confidence signal (not the maker's self-report of correctness — see
 as a way to cut wasted GPU compute in long-running agent loops.
 (MindStudio, ["Confidence-Scheduled Verification: How DeepSpark Cuts Wasted GPU Compute"](https://www.mindstudio.ai/blog/deepspark-confidence-scheduled-verification-ai-agents/), Jul 2026.)
 
+## Multi-Dimensional Budget Pressure
+
+Rather than one ceiling (e.g. `--max-budget-usd`), track several budget dimensions at once
+— tokens, tool calls, wall-time, dollars — and collapse them into a single **pressure**
+scalar (the maximum utilization ratio across all four), so the loop degrades gracefully
+as *any* dimension approaches its limit rather than only reacting to whichever one happens
+to run out first:
+
+| Pressure | Behaviour |
+|---|---|
+| < 0.7 | Full pipeline runs (Planner → Worker → Critic, all verification passes) |
+| > 0.9 | Skip the Critic stage — degrade quality checks before halting entirely |
+| = 1.0 | Halt, return partial results |
+
+The design intent stated by the source: budget pressure makes *degradation* deterministic,
+not the LLM's own behaviour — the loop's response to running low on any resource is a
+designed step function, not an emergent property of the model deciding to wrap up.
+Pairs directly with this doc's [Operational Kill/Pause/Slow-Down
+Thresholds](#operational-kill-pause-slow-down-thresholds) below, one level down: those
+thresholds are inter-run policy (should this loop keep running at all); this is intra-run
+degradation (how one run's remaining budget should shape what it still attempts).
+([explainx.ai, "Basic Agent Loop to Production Harness"](https://explainx.ai/blog/agent-harness-dag-planner-worker-critic-budget-pressure-2026), Aug 2026.)
+
+## A Concrete Countermeasure to Intent Debt: Ponytail
+
+[Intent debt](17-failure-patterns.md) — an agent silently filling gaps with plausible-
+sounding but undocumented decisions — has a measured countermeasure at the
+implementation-pattern level. Ponytail is a Claude Code/Codex skill/plugin enforcing a
+six-step decision ladder before an agent is allowed to write new code: does it need to
+exist at all → is it already in the codebase → does the standard library cover it → is
+there a native platform feature → is there an installed dependency → only then write new
+code. (Example: a date picker becomes a native HTML `<input type="date">` instead of a
+new library dependency.) Benchmarked on 12 feature tasks against a FastAPI template:
+**-54% lines of code, -22% tokens, -20% cost, +27% faster execution**, with safety ratings
+held at 100% in both runs — the rules explicitly protect validation, error handling,
+security, and accessibility work, and only target unnecessary abstractions, wrappers,
+config, and dependencies. A rare case of a named overengineering countermeasure with a
+same-task, before/after benchmark rather than an anecdote.
+([MindStudio, "Ponytail Benchmark"](https://www.mindstudio.ai/blog/ponytail-benchmark-lines-of-code-reduction/), Sep 2026 — plugin by Dietrich Ayala, MIT-licensed.)
+
 ## Handle result subtypes
 
 ```python

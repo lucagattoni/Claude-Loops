@@ -58,6 +58,28 @@ loops embedded across all team tools, not just the terminal.
 - Powered by Claude Opus 4.8
 - "We see Claude Tag as the beginning of an evolution of Claude Code: it makes the model even more proactive, and it works better with a full team." — Anthropic, ["Introducing Claude Tag"](https://www.anthropic.com/news/introducing-claude-tag)
 
+## Production Deployment: On-Call for CI/CD
+
+Anthropic runs Claude Tag as a persistent Slack on-call responder for CI/CD incidents,
+running the same monitor → triage → investigate → verify loop as the architecture above,
+specialized for infrastructure failures: it spins up parallel **executor subagents** to
+investigate each candidate dependency via MCP connectors, then verifies the proposed fix
+before reporting back.
+
+**Speed:** Claude posts its first evidence-grounded analysis a median of **14 minutes**
+after an incident opens (measuring time-to-first-analysis, not detection time), and in the
+fastest observed cases names the root cause within 4 minutes.
+
+**Durable memory across incidents (`lessons.md`):** a running log of every incident
+resolved — what happened, the root cause, the fix, and the gotcha worth remembering —
+that Claude appends to automatically. Every new investigation starts by reading it first.
+A notable entry: *"query the data first, then theorize. Config tells you what could go
+wrong; metrics tell you what did."* When the same pattern recurs often enough, it gets
+promoted out of the log and into the investigation skill itself — a lighter-weight
+version of [Warp's inner/outer skill-improvement loop](24-harness-patterns.md#self-improving-harnesses),
+here triggered by pattern frequency in a log rather than a scheduled observer agent.
+([Anthropic, "How Claude Tag runs on-call for CI/CD at Anthropic"](https://claude.com/blog/ai-ci-cd-on-call), Aug 2026.)
+
 ## Deployment mode comparison
 
 | Mode | Trigger | Persistence | Context |

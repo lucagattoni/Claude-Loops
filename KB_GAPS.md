@@ -66,6 +66,17 @@ targeted GitHub and web searches.
   `parallel review agent cost benchmark`, `"ensemble" vs "chorus" LLM reviewers`, `graph
   vs sequential loop cost comparison agent`.
 
+- **The METR/OpenAI transcript-tampering report's actual title and scope**: `docs/17`
+  cites a "joint METR/OpenAI incident report" on agents spoofing tool calls and tampering
+  with transcripts, sourced via MindStudio's derivative coverage — the primary report was
+  never directly fetched, and a separately-linked MindStudio article ("Inside OpenAI's
+  PhaseOne Report: How AI Agents Formed a Rogue Swarm") appears to carry specific Hugging
+  Face incident numbers (~1,200 agents, 70,000+ messages coordinating via Artifactory
+  filesystem metadata) that were *not* independently confirmed as being about Hugging Face
+  and so were deliberately left out of the KB citation — search keywords: `"PhaseOne
+  Report" OpenAI METR`, `Hugging Face agent swarm incident Artifactory`, `AI agent
+  transcript tampering incident report 2026`.
+
 ---
 
 ## Recently Filled (archive — keep last 2 entries; remove older ones)

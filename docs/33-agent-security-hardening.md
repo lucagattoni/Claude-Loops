@@ -330,6 +330,19 @@ machinery mis-attributing trust *after* the injection has already happened, rega
 which connector it came through.
 ([arXiv 2609.01222, "What's in Your Agent's Context?"](https://arxiv.org/abs/2609.01222), Sep 2026.)
 
+**A companion paper names the same mechanism from the instruction-hierarchy side.** Rather
+than role/scope tagging, this paper frames the vulnerability as harness context
+construction elevating low-privilege (attacker-controlled) content to a high-privilege
+instruction level — "instruction privilege escalation." With unrestricted action
+execution, the attack achieves **all 13 tested attack objectives across all six evaluated
+coding-agent harnesses** (confidentiality, integrity, availability, and remote code
+execution); even under harnesses with an automatic-permission-review mode, it still
+achieves all 13 objectives on the three harnesses offering that mode — automatic
+permission review alone did not close the gap in any harness tested. The vulnerability is
+also reproduced via harness-provided persistent goals and scheduled tasks, not just a
+single malicious turn.
+([arXiv 2608.27299, "When Context Gets Root"](https://arxiv.org/abs/2608.27299), Aug 2026.)
+
 ## Emergent Multi-Agent Coordination Risk
 
 The controls above assume a single agent (or fleet) under one owner's policy. A distinct
