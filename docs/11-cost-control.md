@@ -420,7 +420,9 @@ scales with the model's price, not the task's difficulty**. For short-lived work
 in [Background Agents § The per-session cost
 floor](29-background-agents.md#the-per-session-cost-floor). (Measured by ClaudeWarp
 [v0.42.1](https://github.com/lucagattoni/Claude-Warp/releases/tag/v0.42.1); the arithmetic is ours,
-and 5.8% of the recorded total is not explained by the published token counts.)
+and 5.8% of the recorded total is not explained by the published token counts. **ClaudeWarp shares
+this KB's maintainer, so this figure is self-reported and unreproduced** — see
+[the first-party disclosure](36-development-workflow.md#a-worked-reference-implementation).)
 
 **Consequence for a loop:** switching model or effort mid-run to save money on the harder half
 of a task can cost more than it saves, because the next request re-processes the *entire*

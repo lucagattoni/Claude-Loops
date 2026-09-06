@@ -109,9 +109,20 @@ eval sets, *"perhaps with LLM-as-a-judge"*.
 
 Practical placement in Claude Code:
 
-- `/code-review` and `/security-review` on a diff. Note **v2.1.215**: Claude no longer runs `/verify`
-  or `/code-review` on its own — you invoke them. And **v2.1.218** moved `/code-review` to a
-  background subagent.
+- `/code-review` and `/security-review` on a diff. **v2.1.215**: *"Claude no longer runs the
+  `/verify` and `/code-review` skills on its own; invoke them with `/verify` or `/code-review` when
+  you want them."* **v2.1.218** then *"Changed `/code-review` to run as a background subagent, so
+  review work no longer fills your conversation."*
+
+    **That v2.1.215 sentence no longer holds unqualified.** **v2.1.246**: *"Changed `/code-review`
+    so Claude **can also start it on its own** on Bedrock, Vertex AI, and Foundry, through the Claude
+    apps gateway, and when telemetry or non-essential traffic is disabled."* The word *also* implies
+    autostart had already returned on other platforms — but **no changelog bullet records where it
+    was reinstated** (the full 6,362-line file carries only these two entries on the subject, checked
+    20260906). So: do not design a loop on the assumption that `/code-review` runs only when invoked.
+    If you need it to stay manual, pin it with
+    `skillOverrides: {"code-review": "user-invocable-only"}` (`skillOverrides` shipped **v2.1.129**)
+    rather than relying on a default that has already flipped once.
 - An adversarial review **subagent** in a fresh context, rather than a second session — the official
   best-practices page notes the subagent form works *"without you copying findings between windows."*
 - Hooks for the checks that must never be skipped. Advisory text gets ignored; a `Stop` hook does not.
@@ -188,6 +199,25 @@ Note the shape of that: it is a **loop**, and its stopping condition is an eval.
 
 ## A worked reference implementation
 
+!!! warning "First-party disclosure"
+    [ClaudeWarp](https://github.com/lucagattoni/Claude-Warp) is written by **the same maintainer as
+    this knowledge base**. Every figure attributed to it here is **self-reported** and has not been
+    independently reproduced. It is cited in five docs (`docs/11`, `docs/22`, `docs/24`, `docs/29`,
+    `docs/35`) and that relationship applies to all of them.
+
+    Two consequences worth stating plainly, because this KB applies the same scepticism to
+    [BrainGrid](https://www.braingrid.ai/) and [Hindsight/Vectorize](https://hindsight.vectorize.io/)
+    as vendor sources and owes itself no less:
+
+    - **Treat it as a worked example, not as evidence.** Where it reports a measurement — the
+      per-session cost floor in [Cost Control](11-cost-control.md) — the caveat there is the
+      operative one.
+    - **The dependency runs both ways.** ClaudeWarp ships `/claude-warp-sync-research`, a skill whose
+      documented job is to fetch *this repository* via the GitHub compare API and implement what it
+      finds. So a pattern this KB reads back out of ClaudeWarp may be a pattern ClaudeWarp read from
+      this KB — citing it as an external corroboration would be circular. Where the two agree on a
+      construct, assume shared origin unless the provenance is traced.
+
 [ClaudeWarp](https://github.com/lucagattoni/Claude-Warp) is a public loop harness built on top of
 Claude Code — *"scaffold, guard, and schedule autonomous loops in any project"* — and it is a useful
 thing to read even if you never install it, because it makes the phase-3 handoff concrete.
@@ -217,6 +247,14 @@ The property most worth copying is architectural:
 still moving is a liability with a maturity date. Building the retirement mechanism at the same time
 as the component is what keeps the boundary honest — and it is the discipline this knowledge base
 needs too, which is why eight stale facts had to be corrected in `v3.0.0`.
+
+**Read that quotation as a design statement, not a result.** It is the project's own description of
+what the mechanism is for, quoted as written. Measured against its own changelog, `/claude-warp-sync`
+has run twice — reading 65 Claude Code releases in total — and retired **zero** components; both runs
+record *"no Harness row is superseded."* The mechanism works, the platform simply has not yet
+absorbed anything it covers. The full measurement, and the three lessons that follow from it, are in
+[Harness Patterns § What the shrink mechanism actually
+measured](24-harness-patterns.md#what-the-shrink-mechanism-actually-measured).
 
 ---
 

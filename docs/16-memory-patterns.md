@@ -82,7 +82,23 @@ because they are reproducible descriptions of the risk shape, and because two of
 |---|---|---|
 | [#37314](https://github.com/anthropics/claude-code/issues/37314) — *"Claude repeatedly fails to apply its own memory/feedback — same mistakes recur across sessions"* | Stored ≠ applied. The note is written, acknowledged, even strengthened — and the same mistake follows. Memory is a **pull**, and the pull can simply not happen | closed, labelled `memory` + `stale` |
 | [#75405](https://github.com/anthropics/claude-code/issues/75405) — *"Reliability: model asserted untrustworthy 'tested/ready' status from stale memory without verifying artifacts"* | **The dangerous one for a loop.** A recalled summary was trusted over the on-disk artifacts, and a pipeline was reported ready when the evidence had been lost. *"Memory says it was tested"* is not *"artifacts prove it was tested"* | open, labelled `stale` |
-| [#47959](https://github.com/anthropics/claude-code/issues/47959) — *"Auto Dream deletes memory files without user consent — 23 files lost in one day"* | A memory-consolidation behaviour removed 23 accumulated files with no confirmation and no deletion log. It is **not described on the official memory page**, so treat it as an unannounced behaviour reported by a user, not a documented contract | closed, labelled `memory`, `data-loss`, `has repro`, `stale` |
+| [#47959](https://github.com/anthropics/claude-code/issues/47959) — *"Auto Dream deletes memory files without user consent — 23 files lost in one day"* | A memory-consolidation behaviour removed 23 accumulated files with no confirmation and no deletion log. See the note below — this one is **undocumented**, not merely unmentioned | closed, labelled `memory`, `data-loss`, `has repro`, `stale` |
+
+**On "Auto Dream", stated carefully, because the negative here is established rather than assumed.**
+Searching for `dream` returns **zero** hits across all four official surfaces that would carry it —
+[the memory page](https://code.claude.com/docs/en/memory), the
+[settings reference](https://code.claude.com/docs/en/settings-reference), the
+[errors page](https://code.claude.com/docs/en/errors) — **and zero across both changelogs**, the
+docs-site one and the full 6,362-line
+[raw file](https://raw.githubusercontent.com/anthropics/claude-code/main/CHANGELOG.md) (checked
+20260906). This KB's standing rule is that *"not on the page we fetched"* is a fact about our fetch;
+here every page that could document it was fetched, so the absence is a fact about the docs.
+
+What that means for a loop: a memory-consolidation behaviour that **deletes** files exists in
+reports, is gated by a flag, and has **no published contract** — no documented trigger, no retention
+guarantee, no deletion log. You cannot design against a behaviour with no contract. This is the
+strongest single argument in this section for keeping loop state **in the repo**, where deletion is
+a commit someone can see and revert.
 
 #75405 is the one to design against, and it generalises past this feature: **a loop that verifies
 against remembered state is not verifying.** The verifier must read the artifact — the test output,

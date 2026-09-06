@@ -111,7 +111,9 @@ fleet and pin the model.
 
 !!! note "What is and is not verified here"
     The recorded figures are ClaudeWarp's first-hand `cost-state`; we have not reproduced the
-    measurement. The arithmetic above is ours. **$0.0139 of the recorded $0.240609 — 5.8% — is not
+    measurement. **ClaudeWarp shares this KB's maintainer** — see
+    [the first-party disclosure](36-development-workflow.md#a-worked-reference-implementation) —
+    so this is a self-report, not independent corroboration. The arithmetic above is ours. **$0.0139 of the recorded $0.240609 — 5.8% — is not
     explained by the three published token counts**, so the floor is a lower bound on that session,
     not an exact reconciliation. The 94% conclusion and the cross-model comparison do not depend on
     the residual.

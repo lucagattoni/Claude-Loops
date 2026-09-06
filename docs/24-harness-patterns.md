@@ -1079,10 +1079,49 @@ by the same re-run-and-compare method.
 
 **The engineering expression of the same idea** already lives in
 [The Development Workflow](36-development-workflow.md#a-worked-reference-implementation):
-ClaudeWarp's `/claude-warp-sync` skill retires each of its own components the moment Claude
+ClaudeWarp's `/claude-warp-sync` skill is built to retire each of its own components once Claude
 Code ships the equivalent natively — "the harness is built to disappear." Read that section
 for the mechanism; the rule it encodes is the one this section argues for: **a harness
 should be designed to shrink, not just to grow.**
+
+### What the shrink mechanism actually measured
+
+The mechanism is real, and it is worth separating from its results — because the results are the
+more useful finding, and this KB previously stated the intention as an outcome.
+
+`/claude-warp-sync` reads every Claude Code release in a tracked window, checks each harness
+component against a supersession checklist, and on a hit sets the component's manifest `status` to
+`superseded`, records the `native_since` version, and writes a dated migration note. That is a
+complete retirement pipeline, built before there was anything to retire.
+
+Across the **two sync runs that project's changelog actually records**, it retired **nothing**:
+
+| Run | Window scanned | Recorded outcome |
+|---|---|---|
+| 2026-06-30, against Claude Code v2.1.196 | v2.1.184 → v2.1.196 | *"no Harness row is yet natively superseded"* |
+| 2026-09-04, against Claude Code v2.1.261 | v2.1.200 → v2.1.261, 53 releases read in full | *"No harness row is superseded"* / *"No Harness row became native."* |
+
+Its one `Removed` component — `claude-warp-spec-refine` — was superseded by **another ClaudeWarp
+skill**, not by a native feature, so it is not an instance of the pattern.
+([Claude-Warp `CHANGELOG.md`](https://github.com/lucagattoni/Claude-Warp/blob/main/CHANGELOG.md)
+and [`docs/reference/architecture.md`](https://github.com/lucagattoni/Claude-Warp/blob/main/docs/reference/architecture.md),
+both read 20260906. ClaudeWarp shares this KB's maintainer — see
+[the first-party disclosure](36-development-workflow.md#a-worked-reference-implementation).)
+
+**Three things follow, and they are worth more than a success story would have been.**
+
+1. **A retirement mechanism is cheap; retirement is rare.** 65 releases were read across two runs
+   and the native platform absorbed none of these components. Build the mechanism anyway — it costs
+   one skill — but do not budget for a shrinking harness on the strength of having one.
+2. **"Designed to shrink" is a claim about design, not about size.** The two are easy to conflate,
+   and this KB conflated them in three places until it checked. If a harness advertises the
+   property, the honest artifact is a **retirement count**, not a mechanism description.
+3. **The sync earned its keep in the other direction.** The 2026-09-04 run found no supersessions
+   but did find that the project's own fan-out runner had been broken since **v2.1.198**, when
+   `claude --bg` began rejecting `-p` — a change worded as a `Fixed` bullet, which the keyword
+   checklist did not catch. It surfaced only because that run also checked the **installed binary**
+   rather than only the changelog. A release-reading loop that never reads the artifact is the
+   Verifier Theater this KB keeps naming; see [Verification](04-verification.md).
 
 ## Harness Update File Safety Contract
 

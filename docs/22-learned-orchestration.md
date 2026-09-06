@@ -48,7 +48,9 @@ handcrafted.
 
 1. **The harness as data, not code.** If orchestration can be learned, the harness becomes
    a training target rather than a codebase. This is a fundamentally different philosophy
-   from the ClaudeWarp / hand-designed approach.
+   from the [ClaudeWarp](https://github.com/lucagattoni/Claude-Warp) / hand-designed approach
+   ([first-party](36-development-workflow.md#a-worked-reference-implementation): same maintainer as
+   this KB).
 
 2. **Verification is still external.** Even learned orchestrators need humans (or a
    separate verification loop) to validate final outputs — the system doesn't know what
