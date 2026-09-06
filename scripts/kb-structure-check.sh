@@ -7,15 +7,34 @@
 #
 # Run from the repo root: bash scripts/kb-structure-check.sh
 #
-# Exit status is always 0 — this is a report to read and act on (or explicitly waive),
-# not a hard gate: several legitimate doc shapes (an appendix page, a name-dropped-and-
-# ruled-out source) trip a heuristic here without being a defect. Phase 4c's job is to
-# read every non-empty section and either fix it or write down why it's fine.
+# Exit status is 0 for every *finding* — findings are a report to read and act on (or
+# explicitly waive), not a hard gate: several legitimate doc shapes (an appendix page, a
+# name-dropped-and-ruled-out source) trip a heuristic here without being a defect. Phase 4c's
+# job is to read every non-empty section and either fix it or write down why it's fine.
+#
+# But a non-zero exit means the check could NOT RUN — bad repo root, no docs matched. That is
+# never "clean": an empty section is only meaningful once the corpus was actually read. Treat
+# any non-zero exit as an abort, not a pass.
 
 set -u
-cd "$(dirname "$0")/.." || exit 1
 
+# Resolve the repo root via git rather than $0, so the script is correct under a worktree, a
+# symlink, or any working directory. This repo mandates concurrent worktrees, so "$(dirname $0)/.."
+# is not reliably the tree being checked.
+ROOT=$(git -C "$(cd "$(dirname "$0")" && pwd)" rev-parse --show-toplevel 2>/dev/null) || ROOT=""
+[ -n "$ROOT" ] || { echo "kb-structure-check.sh: cannot resolve repo root — aborting" >&2; exit 1; }
+cd "$ROOT" || { echo "kb-structure-check.sh: cannot cd to $ROOT — aborting" >&2; exit 1; }
+
+# nullglob: without it, a glob that matches nothing yields the literal pattern, and every
+# section below would print "(none)" over a corpus it never read — a check that cannot tell,
+# reporting success. That is this repo's defining defect class; fail loudly instead.
+shopt -s nullglob
 DOCS=(docs/[0-9]*.md)
+shopt -u nullglob
+[ "${#DOCS[@]}" -gt 0 ] || {
+  echo "kb-structure-check.sh: no docs/[0-9]*.md matched under $ROOT — aborting, NOT reporting clean" >&2
+  exit 1
+}
 
 echo "## 1. Orphan check — docs with < 2 real inbound content links"
 echo "   (excludes docs/index.md, docs/news.md, docs/changelog.md, docs/sources.md — those are nav/log files, not KB prose)"

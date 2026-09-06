@@ -53,7 +53,7 @@ changes when implementation is no longer the bottleneck.
 
 ---
 
-### [Loop Engineering: Designing the Execution Harness Around an LLM](https://medium.com/p/loop-engineering-designing-the-execution-harness-around-an-llm-936afeb6a72d) — @roanbrasil
+### [Loop Engineering: Designing the Execution Harness Around an LLM](https://medium.com/p/loop-engineering-designing-the-execution-harness-around-an-llm-936afeb6a72d) — [@roanbrasil](https://x.com/roanbrasil)
 **Added:** 2026-06-24 · **Published:** Jun 2026
 
 **Why here:** The best quantified argument for loops over single-turn prompting.

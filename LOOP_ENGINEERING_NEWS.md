@@ -35,6 +35,12 @@ quotes the line in full; the other three link the same video. *Caveat:* these ar
 auto-generated captions, not an official transcript. The wording above matches the caption
 track exactly; nobody has spot-checked it against the audio.
 
+**H6 — a bare citation left standing on purpose.** The 2026-07-06 run's "OpenAI Symphony
+(github.com/openai/symphony)" bullet is a bare reference. It is **not** fixed in place: it sits
+inside that day's dated run record, and this file is append-only. The link, for anyone reading
+that entry, is [github.com/openai/symphony](https://github.com/openai/symphony). The step-10
+sweep briefly edited it and reverted — the rule applies to this pass's own convenience too.
+
 > **Not rewritten below, per this file's append-only convention.** The 2026-07-07 run (line
 > ~808) summarises this quote as a "Boris Cherny ... post" while its link points at
 > `x.com/rohanpaul_ai/...` — a different account, not Cherny's. Whether that tweet is a repost
@@ -1053,7 +1059,7 @@ sources rather than the "Anthropic senior engineer" the viral tweet claimed.
 - **Nick Puru** (@NicholasPuru, X) — detailed, well-researched loop-engineering field-guide articles; only one data point so far, watch for a second before promoting to a tracked row
 - **André Lindenberg** (LinkedIn, "Artificial Engineering" newsletter) — planning/governance framing (Loop Engineering Canvas) distinct from most sources; one data point so far
 - **Prithvi Rajasekaran** (Anthropic) and **Steve Kaliski** (Stripe) — cited as primary sources behind this week's viral PDF; their original posts/talks not yet located directly
-- **OpenAI Symphony** ([github.com/openai/symphony](https://github.com/openai/symphony)) — open-source multi-agent orchestration framework, cross-vendor relevance
+- **OpenAI Symphony** (github.com/openai/symphony) — open-source multi-agent orchestration framework, cross-vendor relevance
 - Several single-repo GitHub candidates from this run (gomilesf/convergo, houshuang/compound-review, mcpharbour/mcpharbour, codeafix/agent-assistant, saagpatel/cross-provider-egress-guard) were valuable enough to cite directly in docs this run but don't yet clear the "2+ pieces" bar for a tracked SOURCES.md row
 
 ---

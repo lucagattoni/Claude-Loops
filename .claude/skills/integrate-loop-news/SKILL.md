@@ -244,7 +244,7 @@ output. This is not optional and not a substitute for the questions below — it
 under them. The questions below are a judgement call ("consider whether..."), and a judgement
 call made under budget pressure defaults to "no restructuring needed". Two structural defects
 (see `plans/20260904_2053-open-work-backlog.md`) survived roughly 20 runs of this phase before
-a human found them by hand: **H5**, a 0-heading doc with 16 inbound references, and **H8**, a
+a human found them by hand: **H5**, a 0-heading doc with 13 inbound references, and **H8**, a
 thin doc nobody could decide whether to merge. A third, **H7**'s one-way orphan, was fixed only
 incidentally by unrelated content edits — this phase never caught it either. Nothing in the
 phase ever produced a list it could not talk itself out of reading. The script runs: an orphan

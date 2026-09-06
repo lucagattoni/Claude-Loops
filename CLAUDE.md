@@ -6,7 +6,7 @@ Claude-Loops is a living knowledge base and automated daily tracker for **loop e
 > backlog and records what each step shipped; **§8's status paragraph is the authority on progress
 > — do not duplicate it here.** Steps 1–10 and 12 are done.
 > **Start at §8 step 11 — C7 (20 partially-verified docs) and C10 (the unswept changelog range)**,
-> the largest unclaimed content risk. H1's remainder folds into it (`05 06 15 19 31 35` — `35` was
+> the largest unclaimed content risk. H1's remainder folds into it (`05 06 19 31 35` — `35` was
 > never actually stamped, despite an earlier strikethrough). **H14** is step 13, expiring 2026-10-25.
 >
 > **A manual sweep's claim to be complete is worth nothing.** A five-angle sweep of 39 docs reported
