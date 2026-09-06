@@ -355,14 +355,22 @@ independently-*confirmed* bug at high severity regardless of how mild the origin
 reviewer rated it. Cross-reviewer overlap is tracked mechanically (a findings database
 with an `agreement_n` count per finding) rather than argued about at review time, and the
 whole reconciliation is bounded to 3 rounds, gating only on blocker/high severity so minor
-disagreements don't stall the loop. ([houshuang/compound-review](https://github.com/houshuang/compound-review), Jun 2026.)
+disagreements don't stall the loop. The cap is not arbitrary, and the reason is the useful part:
+the source's own second design rule is that "iterating a fix→re-review loop past ~3 rounds
+*introduces* bugs." Rounds four and up are not diminishing returns — they are negative ones. Nits
+go to a backlog and never extend the loop, and re-reviews are scoped to "are these prior blockers
+fixed, any new blocker?" rather than re-run whole.
+([houshuang/compound-review](https://github.com/houshuang/compound-review), Jun 2026 — README
+read from `master`, which is this repo's default branch; `main` does not exist and a raw fetch
+against it 404s.)
 
 **The same non-overlap holds outside LLM-judge harnesses, in shipped code-review
 products.** Four commercial AI code reviewers (CodeRabbit, Sentry Seer, Greptile,
 Cursor BugBot) run in parallel across 146 real PRs over three weeks produced 679
-findings, and **93.4% were caught by exactly one tool**, and no line was ever flagged by all four tools at
-once (37 lines drew exactly two, 4 drew exactly three). This corroborates the ~85–90% figure above with an
-independent, non-LLM-judge data source: the non-overlap is not an artifact of how
+findings, of which **93.4% were caught by exactly one tool**. No line was ever flagged by all four
+at once, and overlap where it did occur was thin: 37 lines drew exactly two tools, 4 drew exactly
+three. That is *largely* non-overlapping, not perfectly so — and it corroborates the ~85–90% figure
+above with an independent, non-LLM-judge data source: the non-overlap is not an artifact of how
 LLM-as-judge harnesses are built, it recurs in production tools built by different
 vendors on different review philosophies. ([dev.to, "Best AI Code Reviewer in 2026?"](https://dev.to/_vjk/best-ai-code-reviewer-in-2026-we-ran-4-in-parallel-for-3-weeks-146-prs-679-findings-1c0f), May 2026.)
 

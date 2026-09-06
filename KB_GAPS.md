@@ -134,12 +134,20 @@ Only the second licenses an edit. None of these is contradicted — they are sim
 | **V13** | `docs/04`'s zeroshot quote *"can't lie about code it didn't write"* is **not** in the-open-engine/zeroshot's README today — but it **was** at the KB's 2026-07-02 capture date. The KB was right when written; the source was rewritten afterwards | Nothing to fix. Recorded so the next pass dismisses it in seconds rather than re-deriving: `8e8d4d83` was live at capture, `bfe4bc22` is the rewrite. This is the shape of a *false* fabrication finding |
 | **V14** | `docs/04`'s Mozilla case study, list item 3 (a dedicated verifier subagent tuned to reject fixes with unresolved edge cases) has no locatable source. The rest of the case study checks out | Listen to the Lenny's / Claire Vo episode (YouTube `Idjt53tTv2U`; captions are auth-gated to `curl`) or find a transcript. One artifact settles it |
 | **V15** | `docs/27`'s Self-Discovery Loop — the five moves (Schedule → Discover → Build → Verify → Repeat) have no verified primary source, and the Anthropic attribution is removed as fabricated | Read Addy Osmani's 7 Jul 2026 post in full and check whether that sequence is actually in it. If yes, cite it. If no, the pattern stands as **this KB's own synthesis**, labelled as such with no external citation |
-| **V16** | `docs/04`'s *"~85–90%"* reviewer non-overlap figure was not checked this round — it sat two sentences from a citation whose date was wrong, in a paragraph no agent was scoped to | `git log -S` it to the commit that introduced it, then check that commit's cited source. Cheap; simply outside this round's section boundaries |
 
 | **V17** | The primary source for the Uber spend cap. `docs/27` now quotes explainx.ai exactly — "$1,500 per person per tool per month for Claude Code and Cursor after burning its annual AI budget in four months" — but that article sources it only to "June 2026 reporting in the discourse". No filing, press report, or Uber statement has been located | Find the primary report, or establish there is none. If none exists, the KB's hedge stands and the number stays labelled an anecdote. **Do not delete it on absence** — the source is real and correctly quoted; only its own provenance is thin |
 | **V18** | Who originated the Loop Contract. `docs/27` — the KB's stated design spine — credits explainx.ai's *"How to Build Your First Agent Loop"*. A *different* explainx article attributes the same TRIGGER/SCOPE/ACTION/BUDGET construct to **Developers Digest**: "The loop contract Developers Digest names the pieces that turn an agent from a clever assistant into a useful background process". The KB may be crediting a repeater rather than the originator | Fetch `explainx.ai/blog/how-to-build-your-first-agent-loop-step-by-step-2026` and check whether it credits Developers Digest too, then locate the Developers Digest original. Re-attribute `docs/27`'s opening if the origin is elsewhere. Found 20260906 while citing the Uber figure; not acted on because re-attributing the spine doc's central concept needs the originating artifact in hand, not an inference from one sentence |
 
 *Logged 20260905 by the C6/C13/C14 pass (V1–V6) and the C1 fact-check (V7–V12); 20260906 by the C1b deep pass (V13–V16) and the C1b P1/P2 pass (V17–V18).*
+
+**V16 is settled — do not re-derive it.** `docs/04`'s *"~85–90% of findings are caught by exactly
+one reviewer"* is **correct and verbatim** in its cited source. Traced with `git log -S` to
+`198c302` (loop news run 2026-07-06), then read at
+[houshuang/compound-review](https://github.com/houshuang/compound-review)'s README: *"Reviewers
+don't converge on findings — they're additive. ~85–90% of findings are caught by exactly one
+reviewer."* The same read confirmed `agreement_n`, promote-on-confirm, verdict-driven severity and
+the 3-round cap. Note for anyone re-checking: that repo's default branch is **`master`** — a raw
+fetch against `main` 404s, which would read as a dead citation. Settled 20260906.
 
 **Settled by the C1 pass rather than logged**, because they were cheap to run: `--max-turns` is
 silently inert on `--bg` (paired test — fixed in `docs/29`/`docs/18`), and `claude mcp add` has no
