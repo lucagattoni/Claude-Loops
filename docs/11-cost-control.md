@@ -314,6 +314,52 @@ onto a weak-reasoning maker is a poor trade against simply raising effort.
 
 ([*Reasoning effort, not tool access, buys first-try reliability in agentic code generation*](https://arxiv.org/abs/2607.02436), arXiv, Jul 2026.)
 
+### When a checker pays for itself — the reach rule
+
+The paper above leaves the obvious follow-up open: *effort beats tools* was measured on a
+greenfield spec'd build, so when **does** a checker earn its cost? The same author answered it in a
+controlled follow-up, and the answer is not the one this KB expected.
+
+It is not codebase size and not task length. It is **reach**:
+
+> A verification tool improves the output artifact only where its **reach** covers the way the
+> application actually fails.
+
+Method: a minimal coding agent whose **tool list is the single controlled variable**, used to build
+**1,116 web applications across six models and eight tool configurations**, every one graded by a
+condition-blind human against a frozen rubric, plus automatic probes.
+
+What that buys you, in cost terms — and the shape is steeply diminishing:
+
+| Verification surface | Measured effect |
+|---|---|
+| **None** | *"about one build in seven fails to launch at all"* |
+| **A single boot probe** | *"removes nearly all of these failures at roughly 35 percent of a full shell's token cost"* |
+| **A full shell** | *"multiplies the no-tools cost by 2.35"* |
+| **Screenshots** | Help *"where mistakes are visible (e.g. element placement, interaction)"* — but *"the gain over a shell is modest and does not survive correction for multiple statistical comparisons"* |
+| **Screenshots, on a failure you can only measure** | *"In cases where failures can only be measured rather than seen, such as keeping scrolling smooth over a 100,000-row list, screenshots add nothing"* |
+
+**How to spend a loop's verification budget, from this.**
+
+1. **Buy the cheap floor first.** The single highest-return check is the one that answers *did it
+   even come up* — one build in seven did not, and a boot probe fixes almost all of that for about a
+   third of a shell's tokens. In a loop, that is the `STOP` condition's first clause.
+2. **Match the instrument to the failure mode, then stop.** A screenshot checker on a performance
+   regression is pure cost. Ask what this loop's outputs actually fail *at*, and buy the one tool
+   whose reach covers it.
+3. **A bigger verification surface is not a better one.** A full shell costs 2.35× the no-tool
+   baseline; past the boot probe, the marginal tool mostly buys tokens.
+
+Read alongside the effort finding above, the two compose into one budget rule: **raise effort for
+the reasoning, and buy exactly one checker whose reach matches the failure mode.** Neither
+substitutes for the other, and both beat spending on the other's job.
+
+([*The reach of a verification tool decides its value: A controlled study of verification surface,
+artifact quality, and cost in AI coding agents*](https://arxiv.org/abs/2608.28795), Achint Mehta,
+arXiv, submitted 28 Aug 2026 — a direct follow-up by the same author as `2607.02436`. Figures above
+are quoted from the abstract, verified 20260906; the paper's brownfield and long-horizon results are
+in the body and are **not** re-quoted here because only the abstract was read at source.)
+
 ### Effort levels, officially
 
 The table above is this KB's own framing. Official per-level guidance, verbatim (Anthropic,

@@ -90,14 +90,60 @@ Distinct from developer maturity (docs/20) and per-loop readiness (L1/L2/L3 in d
 
 Start every fleet at F0, regardless of engineer experience. F3 requires F2 evidence.
 
-**Still missing: observable per-gate indicators.** A governance-first harness enforcing
-shared policy across Copilot, Claude Code, and Codex (a "baton workflow" handing
-responsibility between role labels — Manager → Collaborator → Admin → Consultant)
-documents fleet-aware routing, telemetry, and policy enforcement consistent with F0-F3
-progression, but — like every other source checked so far — stops short of defining the
-*concrete, checkable signal* that proves a fleet has passed a given gate (as opposed to
-merely running the infrastructure a passing fleet would have). The gap remains open.
+### Observable per-gate indicators — filled 2026-09-06
+
+This section carried an open gap for two months: the levels above describe *postures*, and a
+posture is not a checkable signal. Three sources were checked and ruled out
+(`thirai-classlab/hirai-method`, `chf3198/megingjord-harness`, `ruvnet/ruflo` — each documenting
+infrastructure a passing fleet would have, not a test that it passed). The example worth keeping:
+a governance-first harness enforcing shared policy across Copilot, Claude Code and Codex via a
+"baton workflow" (Manager → Collaborator → Admin → Consultant) documents fleet-aware routing,
+telemetry and policy enforcement consistent with F0–F3 progression — and still names no gate signal.
 ([chf3198/megingjord-harness](https://github.com/chf3198/megingjord-harness), Jul 2026.)
+
+**The answer was inside a repo this doc already cites.**
+[cobusgreyling/fleet-engineering](https://github.com/cobusgreyling/fleet-engineering) — referenced
+three times here — carries `docs/maturity-model.md` and `docs/fleet-ready-score.md`, which nobody
+had opened. They give exactly the missing thing: **file-existence checklists per transition**, plus
+a numeric threshold from a runnable auditor.
+
+!!! warning "Two different F0–F3 scales — do not merge them"
+    The table above is **this KB's own** fleet scale, gated on loop-behaviour evidence (3 loops at
+    L2+, zero collisions in 2 weeks, no undetected runaway spend in 30 days). The scale below is
+    **cobusgreyling's**, gated on artifacts existing in the repo. They share four labels and
+    otherwise share nothing — different criteria, different authors, different units. Treat the one
+    below as an **instrument you can run today**, and the one above as the outcome it is proxying
+    for. An artifact checklist is cheap and mechanical; behavioural evidence is what actually proves
+    a gate. Use both, and never quote a level without saying which scale it came from.
+
+Its exit criteria, verbatim:
+
+| Transition | Criteria |
+|---|---|
+| **F0 → F1** | `FLEET-STATE.md` or registry file exists · each production-touching agent has an owner · accountability test attempted for one recent action |
+| **F1 → F2** | 100% of active agents in registry · identity model documented · audit path exists (traces or structured logs) · `fleet-audit` score ≥ 40 |
+| **F2 → F3** | budget alerts fire before hard stop · inbox SLA for risky actions · incident runbook references accountability test · `fleet-audit` score ≥ 65 |
+
+The score comes from `npx @cobusgreyling/fleet-audit`, banded **F0 0–39 · F1 40–64 · F2 65–84 ·
+F3 85–100**, with `--min-score=40` offered as the CI gate for "we know our agents" and `65` for a
+shared team fleet.
+
+**Quote its own caveat with it, because it governs how the numbers may be used:** *"Exact numbers
+may drift; **levels and the accountability sentence must not.**"* So cite the bands and the
+checklists; do not build anything on the individual point weights.
+
+Two things make this a genuine gap-closer rather than another posture description. The criteria are
+**file-existence checks** — mechanically decidable, no judgement — and the threshold is produced by
+code you can run, so "we are F2" becomes falsifiable. Its own mapping also lands on this KB's loop
+levels directly: *"L3 unattended loops | Require F2 budgets + kill switch minimum."*
+
+**The process lesson is the sharper one.** This gap sat open through three targeted retries while
+the answer was in a repo already cited three times in this very doc. Every retry searched for a
+*new* source; none re-read the ones already trusted. **Before searching outward for a gap, exhaust
+the repos already in `SOURCES.md`** — a citation is not a read.
+([`docs/maturity-model.md`](https://github.com/cobusgreyling/fleet-engineering/blob/main/docs/maturity-model.md)
+and [`docs/fleet-ready-score.md`](https://github.com/cobusgreyling/fleet-engineering/blob/main/docs/fleet-ready-score.md),
+fetched 20260906.)
 
 ## Fleet Economics — Cost Attribution
 
