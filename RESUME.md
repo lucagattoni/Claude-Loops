@@ -19,12 +19,27 @@ remainder (`05 06 19 31 35` version stamps) and the README "Seven source types" 
 - [x] Worktree created; structure-check baseline captured (matches the recorded standing waivers
       exactly: `docs/18`/`docs/32` appendix orphans, `docs/31:90` `@mention`, `docs/04:319`,
       `docs/16:77` — all documented non-defects in H6/H11).
-- [ ] C10 sweep workflow — running (`wf_fdc6bf90-b66`)
-- [ ] C7 find workflow
+- [x] **README "Seven source types" synced** + `kb-structure-check.sh` § 5 added to catch the drift
+      mechanically. Guard proven to fire on the exact historical drift and on a missing Total row.
+- [x] **H1 baseline verified**: `05 06 19 31 35` each have **zero** version markers of any kind
+      (not just zero `v2.1.x`). The backlog's correction about `35` is right.
+- [x] **C10 denominator diagnosed** — see `finding-c10-denominator.md` in the scratchpad. Three of
+      the prior digest's four counts (`Fixed` 2,740, `Changed` 168, `Removed` 35) reproduce exactly;
+      only the "All = 2,076" total is wrong. Real total then: **5,132**.
+- [ ] C10 sweep workflow — resumed as `wf_fdc6bf90-b66` (10 sweeps cached from the killed run)
+- [ ] C7 find workflow — script patched and ready (`c7-doc-sweep-wf_146b1e97-fb1.js`), NOT started;
+      run it only after C10 finishes. Running both at once is what hit the session limit.
 - [ ] Apply edits, one commit per doc, `mkdocs build --strict` bare before each
 - [ ] Update backlog §8 + §5 H1 row + `CLAUDE.md` note in the SAME PR
-- [ ] README "Seven source types" table sync (counts drifted: `x`=9, `html`=9, total 60)
+- [ ] Correct the 2,076 figure: `plans/` in place; `LOOP_ENGINEERING_NEWS.md` + `CHANGELOG.md` by a
+      NEW append-only entry whose header starts with a WORD, never a digit
 - [ ] Release + tag + GitHub release
+
+## Lesson worth keeping
+Both workflows died on a session limit and BOTH threw away every completed agent because
+`adjudication.apply` was read without a null guard — the adjudicator returning `null` on error
+destroyed 10 good sweeps' worth of output. Both scripts now default the adjudicator and the critic,
+and report `adjudicatorLost` rather than crashing. A partial run must still return its partial work.
 
 ## Next command
 Check the workflow, then apply. Scratchpad (chunks, brief, blame maps):
