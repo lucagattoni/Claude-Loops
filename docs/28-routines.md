@@ -87,7 +87,9 @@ Prompt: Investigate the error described in the context. Check recent commits,
 STOP: issue opened
 ```
 
-## A first-party production example
+## First-party production examples
+
+### Marketing — a weekly unattended send
 
 An Anthropic field marketer runs a weekly Routine that pulls account and event data via
 BigQuery (MCP connector) every Monday morning and sends each account executive a
@@ -101,6 +103,52 @@ of this doc's constraint that Routines have no local filesystem/credentials — 
 here goes through the BigQuery connector, and the output channel (Slack) requires no local
 Chrome session either.
 ([Anthropic, "How an Anthropic field marketer uses Claude Code..."](https://claude.com/blog/how-an-anthropic-field-marketer-uses-claude-code-to-send-weekly-personalized-updates-to-every-sales-rep), Aug 2026.)
+
+### Engineering — a maintenance fleet on Anthropic's own apps
+
+Boris Cherny, who created Claude Code, ran a **fleet of daily Routines maintaining Anthropic's own
+applications** — the clearest published example of Routines used as continuous maintenance rather
+than as reporting, and one of the few sources anywhere that publishes a **merge rate**.
+
+> A weird experiment I've been trying the last few weeks is having Claude take over day-to-day
+> maintenance of our apps. […] we have a Slack channel called proj-claude-maintains-apps. In it,
+> Claude Tag runs a bunch of daily routines across iOS, Android, Desktop, web, CLI, and Agent SDK:
+>
+> - Crash fuzzer: open the app in a simulator and tap around to find ways to crash it, then root
+>   cause and fix the crashes
+> - Dup unifier: scans the codebase for similar-yet-slightly-divergent abstractions, and puts up
+>   PRs to unify them
+> - Dead-code remover: removes statically unreachable code, and adds logging to suspected dead code
+>   to check if it's really dead and if so, remove it the next day
+> - Abstraction police: fixes leaky abstractions
+> - a bunch more..
+>
+> Results have been surprisingly positive. Over the last few weeks, these routines have opened 388
+> PRs across our repos, 180 of which we merged after Claude Code Review + human review. […] Claude
+> generally gets these PRs right on the first shot, and if it doesn't, we ask Claude to tune its
+> routines so it's better the next day. Sometimes it takes a few days of tuning.
+
+— [Boris Cherny (@bcherny), 13 Aug 2026](https://x.com/bcherny/status/2088014489438621990).
+
+Four design properties worth lifting out, because each is a pattern this KB documents abstractly
+and rarely gets to show running in production:
+
+| Property | What it looks like here |
+|---|---|
+| **Narrow, named routines — not one general "maintain the app" loop** | Each routine has a single SCOPE (crashes, duplicate abstractions, dead code, leaky abstractions). The fleet is composed of specialists, which is what makes a per-routine merge rate legible at all |
+| **A merge rate, published** | **388 PRs opened, 180 merged** — a **46%** acceptance rate, gated on *"Claude Code Review + human review"*. The STOP condition is a human merge, not the agent's own verdict |
+| **A two-day verifier** | The dead-code remover cannot decide on day 1. It **instruments** (adds logging), waits, and **decides on day 2** with evidence it did not have before. A loop whose verifier needs a night to produce its evidence is a legitimate shape — see [Loop Patterns](34-loop-patterns.md) |
+| **The routine itself is the thing being tuned** | *"if it doesn't, we ask Claude to tune its routines so it's better the next day. Sometimes it takes a few days of tuning."* The outer loop edits the inner loop's prompt — [Learned Orchestration](22-learned-orchestration.md) |
+
+The honest reading of 46%: a maintenance fleet at this maturity produces **roughly one mergeable PR
+for every two it opens**, and the remainder is reviewer load. That is the number to plan review
+capacity against — not a defect, but not free either. It is also why the merge gate is human: at a
+46% base rate, an agent self-merging would land a rejected change every other PR.
+
+**Provenance note.** This is a public post from a primary source, quoted verbatim and dated. The
+thread promises *"A few of the actual prompts I used below"*; those replies did not render for a
+logged-in reader on 20260906 and are **unretrieved, not absent**. No per-routine breakdown of the
+388/180 split is published, so the 46% is a fleet-wide figure only.
 
 ## Constraints to design around
 

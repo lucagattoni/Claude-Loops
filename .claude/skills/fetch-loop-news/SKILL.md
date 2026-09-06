@@ -84,6 +84,17 @@ already-seen items during deduplication (which `integrate-loop-news` does).
 
 ### For `type: x` sources
 
+> **Both passes below are mandatory, and neither substitutes for the other.**
+> Measured on @bcherny, 20260906, minutes apart: the search pass returned **7** posts, the profile
+> pass **4**, the union **9** — and the overlap was **2**. Each is blind where the other sees.
+> Search cannot match vocabulary no tier tracks (*"Background computer use is underrated"* — eight
+> words, zero keyword hits, from the creator of Claude Code). A profile read cannot reach past where
+> X stops rendering — it stalled three days back on a 2,267-post account. Evidence:
+> `plans/20260906_1259-c11-x-linkedin-baseline.md`.
+> **If a run does only one pass, say so in the digest's coverage section.**
+
+**Pass 1 — keyword search.** Reaches back in time; blind to untracked vocabulary.
+
 1. Use Chrome to navigate to:
    `https://x.com/search?q=from%3A<handle>+<url-encoded-keyword-query>&f=live`
 
@@ -92,9 +103,22 @@ already-seen items during deduplication (which `integrate-loop-news` does).
 
 2. Read the search results (latest posts matching those keywords from that account).
 3. For each result collect: post text (first line), URL, date, one-sentence summary.
-4. Also navigate to the profile page `https://x.com/<handle>` and scan the first
-   visible page of posts for anything posted after `last_run_date` that matches
-   ≥ 1 keyword (catches posts that don't use exact keyword phrasing).
+
+**Pass 2 — profile timeline.** Catches untracked vocabulary; blind past where X stops rendering.
+
+4. Navigate to the profile page `https://x.com/<handle>` and read **every** post newer than
+   `last_run_date` — not the first visible page. Scroll until either the post dates pass
+   `last_run_date` or the timeline stops growing (`document.documentElement.scrollHeight` stable
+   across two scrolls; X stalls well short of a full history).
+
+   **Do not filter this pass by keyword.** Judge each post on whether it is substantively about
+   loop / harness / agent practice, as you would any Tier 3–4 candidate. The keyword tiers are a
+   *recall* device for search; applying them here re-creates the exact blind spot this pass exists
+   to cover — which is what the previous wording did, while its own parenthetical claimed the
+   opposite.
+
+   Record **how far back the timeline actually reached**. A stall is a coverage limit, and an
+   unreported one reads as "nothing was posted".
 5. **Thread and link expansion** — for every post that scores Tier 1 or Tier 2:
    - Navigate to the post's thread URL (`x.com/<handle>/status/<id>`)
    - Read all visible replies and quote-tweets; note any that add new concepts,

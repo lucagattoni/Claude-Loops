@@ -101,7 +101,7 @@ substantively relevant to loop engineering practice (not just a passing mention)
 | Ben's Bites | rss | https://bensbites.com/feed | Daily AI news digest RSS; scan for loop engineering / agent loop coverage. Feed URL rediscovered Jul 2026 (moved off beehiiv to its own domain) |
 | AI Breakfast | html | https://aibreakfast.beehiiv.com/ | Daily AI newsletter; scan for agentic workflow and Claude Code coverage. Switched `rss` → `html` on 2026-09-06 after the same failure as The Batch: `/feed` has 404'd since at least 2026-07-08, `/feed.xml` and `/rss` also 404, `rss.beehiiv.com/feeds/aibreakfast.xml` 404s, and the homepage carries **no `<link rel=alternate>` and no beehiiv feed id** — so no discoverable feed exists. The index page resolves 200 and lists ~9 posts as `/p/<slug>` links; scrape it directly. The row's previous note said "try `/rss` next run" and sat unactioned for two months |
 | X search — loop engineering | x-search | https://x.com/search?q=loop%20engineering&src=typed_query&f=live | Live keyword search; dynamically loaded — scroll ≥3 times to surface 20+ posts |
-| LinkedIn search — loop engineering | linkedin | https://www.linkedin.com/search/results/content/?keywords=loop+engineering | Professional community posts; dynamically loaded — scroll ≥3 times to surface 20+ posts |
+| LinkedIn search — loop engineering | linkedin | https://www.linkedin.com/search/results/content/?keywords=%22loop%20engineering%22%20OR%20%22harness%20engineering%22 | Professional community posts; dynamically loaded — scroll ≥3 times to surface 20+ posts. **Keywords broadened 2026-09-06** from `loop engineering` alone: adding `harness engineering` is what surfaced 2 of the 3 substantive posts in that day's baseline |
 | Harness Books (AgentWay) | html | https://harness-books.agentway.dev | Essay collection on harness design theory — unstable components, ledger closure, input governance, reactive compact |
 | MindStudio Blog | rss | https://www.mindstudio.ai/rss.xml | Published 3+ loop engineering articles covering loop design, agent harness architecture, and verification patterns (Jun 2026); feed URL discovered Jul 2026 (root-level path — /blog/rss.xml 404s) |
 | GitHub search — loop engineering claude | github-search | https://api.github.com/search/repositories?q=%22loop+engineering%22+claude&sort=updated | Search GitHub repos combining "loop engineering" + claude; returns JSON — no auth needed (10 req/hr limit); find new implementations |
@@ -146,13 +146,53 @@ substantively relevant to loop engineering practice (not just a passing mention)
 
 | Type | Fetch strategy |
 |---|---|
-| `x` | Chrome → search `from:<handle> (<tier1-tier2-query>)` in X.com search; also scan profile's recent posts |
+| `x` | **Two passes, both required.** (1) Chrome → search `from:<handle> (<tier1-tier2-query>)` in X.com search. (2) Chrome → read the profile timeline at `x.com/<handle>` **unfiltered**, back to `last_run_date` or until the timeline stalls. Measured 20260906 on @bcherny: 7 posts / 4 posts / union 9 / **overlap 2** — each pass is blind where the other sees. Report how far the timeline reached |
 | `rss` | WebFetch feed URL → parse `<item>` / `<entry>` → score against keyword tiers |
 | `html` | WebFetch page URL → extract article links + snippets → score against keyword tiers |
 | `github` | WebFetch repo URL + `/commits/main` → score new commits since `last_run_date`; also check `/releases` for tagged releases |
 | `x-search` | Chrome → navigate to the search URL → scroll down ≥3 times to load 20+ posts → read all posts → score against keyword tiers |
-| `linkedin` | Chrome → navigate to the search URL → scroll down ≥3 times to load 20+ posts → use JavaScript to extract post text → score against keyword tiers; WebFetch any linked Pulse articles for Tier 1/2 matches |
+| `linkedin` | Chrome → navigate to the search URL → scroll down ≥3 times to load 20+ posts → use JavaScript to extract post text → score against keyword tiers; WebFetch any linked Pulse articles for Tier 1/2 matches. **Content search only — see the ruled-out note below before adding a person-search row** |
 | `github-search` | WebFetch the GitHub API URL (returns JSON) → parse `items[].full_name`, `description`, `updated_at`, `stargazers_count` → score against keyword tiers → for high-scoring repos WebFetch the raw README URL and summarise; check `updated_at > last_run_date` to flag new/recently-active repos |
+
+---
+
+## Ruled-out source strategies
+
+Recorded so they are not re-proposed. A strategy that was measured and rejected is worth as much as
+one adopted — this KB has twice paid for un-annotated dead ends.
+
+### LinkedIn person-search — evaluated 2026-09-06, **not adopted**
+
+The backlog asked for a `linkedin` person-search row (`search/results/people/`). A baseline was run
+before adding it, and the baseline argues against the row.
+
+| Query | Kind | Result |
+|---|---|---|
+| `loop engineering Claude Code agent harness` | people | **0 results** |
+| `"loop engineering"` | people | 10 shown, all matching on headline/skills text |
+| `"harness engineering"` | people | 10 shown, same pattern |
+| `"loop engineering" OR "harness engineering" Claude Code` (past month) | **content** | **3 substantive posts, 2 with Pulse articles** |
+
+Two independent reasons it fails as a source row:
+
+1. **It is network-biased, not topic-ranked.** The same mutual connections recurred across two
+   unrelated queries and results skewed to the operator's own city. The row would return *whoever
+   runs it* — unreproducible across operators, and not a property of the field.
+2. **Headline keywords do not predict published work.** Deep-reading the strongest candidate
+   (highest follower count, headline naming harness engineering) loaded **120 posts**; **2** were
+   on-topic. The rest was company marketing for an unrelated product.
+
+Decisive comparison: **none of the three authors the content search found appeared anywhere in the
+person-search results.** They sit outside the operator's network, which is exactly where content
+search reaches and person search cannot.
+
+**Instead:** the existing content row's keywords were broadened (above). Full evidence in
+[`plans/20260906_1259-c11-x-linkedin-baseline.md`](https://github.com/lucagattoni/Claude-Loops/blob/main/plans/20260906_1259-c11-x-linkedin-baseline.md).
+
+One finding was kept from the exercise: **"loop engineering" has crossed into résumé vocabulary** —
+it appears in LinkedIn headlines and skills sections across at least four countries, held by people
+who publish nothing on it. That is evidence about the term's diffusion, not a source lead. No
+individual is named: this repo is public and they are private individuals.
 
 ---
 
