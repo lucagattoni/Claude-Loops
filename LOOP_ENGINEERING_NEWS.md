@@ -6,6 +6,44 @@ Sources are defined in [`SOURCES.md`](https://lucagattoni.github.io/Claude-Loops
 
 ---
 
+## Fact-check pass — 2026-09-06 09:31 UTC (hand-authored, not a tracker run)
+
+> Header deliberately does not start with a digit. Two mechanisms parse this file's headers —
+> `check-digest-freshness.sh` and `fetch-loop-news`'s `last_run_date` — and a hand-authored entry
+> in the standard shape would reset the staleness clock and mis-date the next sweep.
+
+**C1b, round two.** The first pass reported 14 docs as covered while achieving 0.052–0.082 checkable
+claims per line on the two it called highest-priority, and read pre-commit copies of two others.
+This round was section-scoped over `docs/03`, `04`, `27`, `29`: **476 claims checked, 424 correct,
+49 findings, 46 fixes applied, 90 of 90 cited URLs opened.** Four docs out-checked all fourteen.
+
+**Representative fixes.** A second fabricated blockquote in `docs/04` — presented as verbatim from
+`wquguru/harness-books`, whose key word returns **zero** hits under authenticated code search;
+fabricated implementation detail (`SCOPE.md`, a "test/check index") absent from the cited repo; an
+unattributed verbatim quote that the KB cites correctly in two other files; Fugu role-assignment and
+pricing claims contradicted by the vendor's own report.
+
+**Two defects in this project's own week-old work.** `claude --bg --worktree "<task>"` **cannot
+run** — `--worktree [name]` consumes the task string as the worktree name (reproduced:
+`state: failed`, *"Invalid worktree name"*, no worktree created). And the silent-idle demo used
+`--mcp-config`, a session that **dies in ~10s** rather than idling; the `--allowedTools` variant
+genuinely idles (`state: blocked`, live pid, 20s on). The phenomenon was real; the demonstration
+was not.
+
+**A date-check that changed a verdict.** Three high-severity `docs/04` rewrites rested on one repo
+read on one day. Pulling `eugenelim/agent-ready-repo` as of the KB's 2026-06-26 capture showed the
+claims were never supported — *and* surfaced the opposite case in `docs/04`'s zeroshot quote, which
+the KB got right in July and the source deleted afterwards. **"Contradicted by the source" has to
+mean contradicted as of the capture date**, or a fact-check manufactures its own false positives.
+
+### Coverage — what was NOT swept
+
+Only four docs. The other ten from round 1 were not re-examined, and **`docs/11`'s model IDs and
+pricing — the KB's most volatile class — have still never been swept anywhere.** The critic's P1/P2
+items are open and listed in the backlog; four residual uncertainties are `KB_GAPS.md` **V13–V16**.
+
+---
+
 ## 2026-09-06 04:00 UTC (run)
 
 **Scope note.** 126 candidates scored, 83 new after deduplication against this file — 43 of

@@ -270,7 +270,42 @@ re-verified by hand before landing, both with authenticated calls:
 and `claude mcp add` has no interactive form. Six residual uncertainties are in `KB_GAPS.md`
 § *Claims Awaiting Verification* as **V7–V12**.
 
-### C1b — Close the coverage the C1 pass did not reach · large · **the next round**
+### C1b — Close the coverage the C1 pass did not reach · **P0s SHIPPED 20260906, PR #40** · large
+
+**The three P0s are closed.** A section-scoped second round over `docs/03`, `04`, `27`, `29`:
+**476 claims checked, 424 correct, 49 findings, 46 fixes applied, and 90 of 90 cited URLs opened.**
+Four docs yielded more checked claims than all fourteen did in round 1 — the inverted claim density
+is fixed (round 1 managed 0.052–0.082 claims/line on `04`/`27`).
+
+- **P0-1 (268 unexamined lines)** — closed. `docs/03`/`docs/29` re-checked at HEAD, scoped to the
+  `c6e5a66` + `b1f7ed7` diffs the earlier finders never saw.
+- **P0-2 (78 unopened URLs)** — closed. The critic had already swept all 98 itself (2 known 404s);
+  this round opened 90 more inside the four docs, with **authenticated** `gh api` and a
+  `default_branch` lookup before any raw fetch, which is what makes "not found" mean something.
+- **P0-3 (inverted claim density)** — closed for `04` and `27` by splitting them into section groups.
+
+**What the round caught, and what it says about round 1.** A second fabricated blockquote in
+`docs/04` (authenticated code search: **zero** hits for its key word); fabricated implementation
+detail (`SCOPE.md`, a "test/check index") absent from the cited repo; an unattributed verbatim
+quote the KB cites correctly in two *other* files; and — in this project's own week-old work —
+`claude --bg --worktree "<task>"`, which **cannot run**: `--worktree [name]` eats the task string
+as the worktree name. Reproduced: `state: failed`, *"Invalid worktree name"*.
+
+**The risk note's date-check was run and came back clean.** Three high-severity `docs/04` rewrites
+rested on one agent reading `eugenelim/agent-ready-repo` on one day. Pulled that repo as of the
+KB's own 2026-06-26 capture: RFC-0051 existed then and has since grown 389→612 lines, **but
+`SCOPE.md`, `Stop hook`, `test` and `verification artifact` have zero hits in *both* versions**,
+and `pre-commit` has zero hits in both copies of the traceability-lint spec. The claims were never
+supported. Contrast `V13`: a zeroshot quote the KB got *right* in July, which the source later
+deleted — a finder called it fabricated and a refuter cleared it by pulling the capture-date commit.
+**"Contradicted by the source" must mean contradicted as of the capture date.**
+
+**Still open — the critic's P1 and P2 items**, unchanged and listed below: `docs/23`'s falsified
+claim-of-absence, the `docs/04`/`docs/23` implementer-reviewer ratio, `docs/27`'s uncited Uber
+figures, the repo-wide blockquote audit (344 lines + 66 inline spans), and `docs/11`'s model IDs
+and pricing — **the KB's most volatile class, still never swept anywhere**.
+
+### C1b — the remaining P1/P2 gaps
 
 Produced by the C1 completeness critic (Opus), which had the whole fan-out's output in front of it.
 Ordered by its own priority.
