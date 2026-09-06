@@ -112,17 +112,32 @@ bash scripts/run-loop-news.sh --help                       # full flag list
 Edit the `SOURCES.md` source file (rendered as [Sources](https://lucagattoni.github.io/Claude-Loops/sources/)
 on the site) — the loop reads it fresh on every run.
 
+```markdown
+| New Actor | rss | https://theirblog.com/feed | Why they're relevant |
+```
+
+**Seven** source types are in use (row counts as of 2026-09-06):
+
+| Type | What it is | Rows |
+|---|---|---|
+| `github` | One repo — commits and releases since the last run | 23 |
+| `rss` | RSS/Atom feed | 14 |
+| `x` | An X.com profile timeline | 7 |
+| `html` | A blog or index page, scraped directly | 5 |
+| `github-search` | A GitHub search API query | 3 |
+| `x-search` | An X.com search query | 1 |
+| `linkedin` | A LinkedIn content search | 1 |
+
+**Prefer `html` over `rss` when a publication has no discoverable feed.** A 404 feed and a quiet
+week produce the same empty result, and this repo has lost two months of a high-value source to
+exactly that twice — see the warning at the top of
+[`SOURCES.md`](https://lucagattoni.github.io/Claude-Loops/sources/).
+
 ### Change the schedule, or pause it
 
 The daily run is a macOS launchd LaunchAgent (`com.luca.loop-news`), not cron. To change
 how often it fires, or to enable/disable it, see **[scripts/SCHEDULING.md](scripts/SCHEDULING.md)**
 for the exact `launchctl` commands and `StartCalendarInterval`/`StartInterval` syntax.
-
-```markdown
-| New Actor | rss | https://theirblog.com/feed | Why they're relevant |
-```
-
-Supported types: `x` (X.com profile), `rss` (RSS/Atom feed), `html` (blog index page).
 
 ---
 

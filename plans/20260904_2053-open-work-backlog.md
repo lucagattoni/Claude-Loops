@@ -378,11 +378,30 @@ where this repo's own worktree rule is advisory prose. No new research needed.
 treat every pre-`20260904` sentence as unverified. Do after **C1**. `docs/09` (**C2**) is the proof
 this is not hypothetical.
 
-### C8 — `SOURCES.md` post-outage revalidation · medium
+### C8 — ~~`SOURCES.md` post-outage revalidation~~ · **SHIPPED 20260906, PR #38** · was *medium*, was actually *small*
 
-53 data rows; **52 carry no confirmation newer than Jul 2026** — predating the entire outage.
-`SOURCES.md:96` still reads "**Still 404 as of 2026-07-08**" with a suggested fix never acted on.
-Start with the known-broken row, then the 21 dated Jul 2026 or earlier.
+**Done 20260906 00:26 UTC.** Every one of the **47 checkable URLs** was fetched. **45 returned
+200.** One was dead, one stored an `http://` URL that 301-redirects, and the remaining 7 rows carry
+handles or search queries rather than URLs.
+
+- **AI Breakfast was the one dead row** — `rss` against a feed that has 404'd since at least
+  2026-07-08. `/feed`, `/feed.xml`, `/rss` and `rss.beehiiv.com/feeds/aibreakfast.xml` all 404, and
+  the homepage carries no `<link rel=alternate>` and no beehiiv feed id, so **no discoverable feed
+  exists**. Switched `rss` → `html` against the index page (9 `/p/<slug>` posts, 200) — the same
+  defect and the same fix as The Batch. Its own note said *"try `/rss` next run"* and sat
+  unactioned for two months, which is the actual lesson: a row that records its own breakage is
+  not a fixed row.
+- arXiv row normalised `http://` → `https://`.
+
+**Correction to this item as written.** "52 carry no confirmation newer than Jul 2026" was true and
+misleading: *undated* is not *dead*. Measured, **only 1 of 47 was broken**, so this was a ~20-minute
+task rather than the medium-sized sweep implied. The row counts were also slightly stale — 54 rows
+today, not 53; `github` is 23, not 22.
+
+**What is still not validated, and was never in scope here:** whether a live URL actually *yields*
+anything. A 200 proves reachable, not useful. The `SOURCES.md` rule — *a source yielding nothing
+for more than ~3 consecutive runs must be re-fetched by hand* — remains the only check for that,
+and nothing automates it.
 
 ### C9 — KB_GAPS gaps 2–5 have had no targeted search in 8+ weeks · small to schedule
 
@@ -529,7 +548,7 @@ rule this KB already states and its own pipeline did not follow (see **A1**).
 |---|---|---|---|
 | **H1** | Part II's "version-stamped" promise unkept in **6** of 21 docs | medium | Zero `v2.1.x` markers in ~~`03`~~ `05 06 15 16 19` ~~`29`~~ `31` ~~`35`~~; `docs/11` has 34. **`03`, `29` and `18` stamped 20260905 (PR #36)**; `35` re-check pending. Promised at `docs/index.md:76-77` and `LOOP_ENGINEERING.md:78`. Fold the rest into **C1** |
 | **H2** | Three repo self-descriptions are falsified, one on a published page | small | `LOOP_ENGINEERING_NEWS.md:3` credits `fetch-loop-news`, which `SKILL.md:13-16` now forbids from writing tracked files; `docs/34:319` claims "Daily cron (launchd), 05:00 local" and "L3 — commits and publishes autonomously" against `runs = 0`; `CLAUDE.md:3` predates the two-part scope |
-| **H3** | README's tracker section is stale and structurally misplaced | small | `README.md:125` lists 3 source types; **7** are in use (github 22, rss 14, x 7, html 5, github-search 3, x-search 1, linkedin 1) — the 4 undocumented types are 27 of 53 rows. Move `:121-126` back under "Add or remove a source" (`:110-113`) |
+| ~~**H3**~~ | ~~README's tracker section is stale and structurally misplaced~~ · **SHIPPED 20260906, PR #38** | small | Both halves fixed: the example + type list moved back under "Add or remove a source", and all **7** types are now documented as a table with row counts. Counts corrected — **28 of 54** rows were of undocumented types (github **23**, not 22; 54 rows, not 53) |
 | **H4** | The Boris Cherny "write loops" quote is unpinned in four places | small | `docs/26:29` (no link at all), `docs/32:35-42` (secondary source), `docs/20:14`, `LOOP_ENGINEERING_NEWS.md:268` — four differing reproductions. Pin one talk/interview. (`docs/39:334-347` is correctly pinned and is not part of this) |
 | **H5** | `docs/17` declares a taxonomy it never applies and has no headings | medium | `grep -c '^## ' docs/17` → 0, with 33 ungrouped rows, an empty on-page TOC and no deep-linkable anchors despite 10 inbound links. Add a row for **silent scheduler death** — the failure this repo just lived through. `docs/15` (26 lines) and `docs/18` (34 lines) share the zero-heading shape |
 | **H6** | Two bare citations, and the sweep that found them is unreliable | small | `docs/20:5` (`@0xCodez` — a working link for the same source already exists at `LOOP_ENGINEERING_NEWS.md:1322`) and `LOOP_ENGINEERING_NEWS.md:477` (`github.com/openai/symphony`). The auditor claimed a complete pass over all 39 docs and still missed `docs/20:5`, so **"only these two" is unproven** — re-run a full sweep |
