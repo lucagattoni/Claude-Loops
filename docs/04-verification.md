@@ -278,7 +278,7 @@ stop — closing the gap where the *evidence of a passing run* was itself forgea
 This is complementary to [Simplification Before Testing](#simplification-before-testing),
 not in conflict with it: simplification decides *what shape* the code and test should
 take (and may run first); freezing decides *who may change the test afterwards* (the
-implementer may not). ([orobsonn/claude-harness](https://github.com/orobsonn/claude-harness) — repo no longer publicly reachable; 404 as of 2026-09-05, Jun 2026.)
+implementer may not). ([orobsonn/claude-harness](https://github.com/orobsonn/claude-harness) — repo no longer publicly reachable; 404 as of 2026-09-05, Jun 2026. **The quotes above cannot be re-verified:** this source was live when they were captured (Jun–Jul 2026) and has since been withdrawn, with no Wayback snapshot (checked 2026-09-06). They are kept, dated, and flagged rather than deleted — see `CLAUDE.md` § *Quoting a source that has since died*.)
 
 **4. Provenance-bound claims — every assertion must cite a verifiable artifact.** The
 three patterns above keep the *check* honest; this one keeps the *report* honest. The

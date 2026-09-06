@@ -123,6 +123,19 @@ Claude-Loops is a living knowledge base and automated daily tracker for **loop e
   page is not "does not exist". Prefer `curl` + strip-tags over WebFetch for anything quoted
   verbatim; WebFetch's summariser has silently truncated quotes here. And **never edit quoted
   third-party material to make it look current** — correct the KB's own text around it instead.
+- **Quoting a source that has since died.** A verbatim quote may stand on a dead source, but only
+  when the citation carries all three: that it is dead, the date checked, and an explicit note that
+  the wording can no longer be re-verified. Link a Wayback snapshot where one exists. **Never delete
+  a quote merely because its source went away** — it was captured when the source was live, and
+  deleting it repeats the `V13` over-correction. Prefer re-sourcing from the author's own site
+  (what Sparra got) over dropping the claim. Decided 20260906, closing `KB_GAPS` V10; applied to
+  the three `orobsonn/claude-harness` quotes in `docs/04` and `docs/07` (no snapshot exists).
+- **Check the whole repo before calling a quote absent.** A README-only fetch is not a search. Use
+  authenticated `gh api search/code` scoped to the repo, and look up `default_branch` before any
+  raw fetch — `main` is an assumption, not a fact (`houshuang/compound-review` serves only
+  `master`). Two live examples: `harness-books`' quoted sentence is in a chapter file, absent from
+  the README; `v2.1.243` has a git tag and a `CHANGELOG.md` entry but **no GitHub Release**, so the
+  releases API 404s on a citation that is perfectly good. Report **UNVERIFIABLE**, never absence.
 - **Keep docs current in the same session.** Any infra/process/pattern change updates the relevant `docs/*.md` (e.g. headless → `docs/09`, routines → `docs/28`, loop patterns → `docs/34`) and `SOURCES.md` before committing — don't wait to be asked.
 - **Every timestamp is UTC, `YYYYMMDD HH:MM`.** Skills and humans alike: read the clock with `date -u '+%Y%m%d %H:%M'`, never compose or convert one. Applies to digest headers, changelog and release entries, plan filenames and branch names. **Never rewrite an existing timestamp** — entries recorded in local time (everything before `[3.0.0]`) stay exactly as written, because restamping them invents precision nobody measured. Decided 20260905; supersedes the previous skills-UTC/humans-local split, which had produced three formats inside one `CHANGELOG.md`.
 
