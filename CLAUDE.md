@@ -3,15 +3,19 @@
 Claude-Loops is a living knowledge base and automated daily tracker for **loop engineering** — designing systems that prompt Claude for you. Read `LOOP_ENGINEERING.md` (the index) and `README.md` before working. The KB grows automatically via a two-skill pipeline: `fetch-loop-news` (search) hands off to `integrate-loop-news` (integrate + restructure + publish).
 
 > **Open work — read this first.** Read `plans/20260904_2053-open-work-backlog.md` — the full ranked
-> backlog. **The automation tier (§3) is closed** (`v3.1.0`, A1–A12); so is **§8 step 7** (C2, C6,
-> C13, C14 — `v3.1.1`), and **C1 is partially done** (`v3.1.2`): 49 fixes across the 14
-> never-checked docs.
-> **Start with C1b.** C1's own Opus completeness critic returned **INCOMPLETE** and its findings are
-> the next round, ranked P0–P2 in the backlog. The P0s: 268 lines of `docs/03`/`docs/29` were never
-> examined *while being reported as covered* (a commit landed mid-run), and **78 of 98 cited URLs
-> were never opened**. Do not re-spend budget on what the critic verified clean — it says which.
-> Twelve claims that no search can settle are parked in `KB_GAPS.md` § *Claims Awaiting
-> Verification*; read those before re-deriving any of them.
+> backlog. Closed: the automation tier §3 (`v3.1.0`, A1–A12), §8 step 7 (C2, C6, C13, C14 —
+> `v3.1.1`), C1's first pass (`v3.1.2`), C8 + H2 + H3 (`v3.1.3`), and **C1b's three P0 gaps**
+> (`v3.1.6` — 476 claims checked, 46 fixes, 90 of 90 cited URLs opened across `docs/03/04/27/29`).
+> **Start with C1b's P1/P2 items**, listed in the backlog. The single largest untouched risk is
+> **`docs/11`'s model IDs and pricing — the KB's most volatile class, still never swept anywhere.**
+> Also open: `docs/23`'s falsified claim-of-absence, the `docs/04`/`docs/23` implementer-reviewer
+> ratio, `docs/27`'s uncited Uber figures, and a repo-wide blockquote audit (344 lines + 66 inline
+> spans) — quoted material was this project's highest-yield defect class two rounds running.
+> **Do not re-spend budget on what C1's critic verified clean** — it names the four classes.
+> **Sixteen** claims no search can settle are parked in `KB_GAPS.md` § *Claims Awaiting
+> Verification* (V1–V16); read them before re-deriving any. **V13 is the one to read first**: it
+> records a quote the KB got *right* that the source later deleted, which a finder wrongly called
+> fabricated. "Contradicted by the source" means **contradicted as of the capture date**.
 > **Delete this note once the backlog's §4 and §5 are empty.**
 
 ## Repository map
