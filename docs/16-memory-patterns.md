@@ -2,6 +2,112 @@
 
 A loop that runs for hours or days needs external memory. Build it into the loop.
 
+## First: the harness has its own memory now — and it is not this
+
+Since **v2.1.32** Claude Code writes memory for itself, without being asked. Named
+**auto memory** at **v2.1.59** (*"Claude automatically saves useful context to auto-memory.
+Manage with /memory"*), it is **on by default**. So the first question this doc has to answer is
+no longer "how do I give the loop memory" but **"the harness already remembers — do I still need
+Patterns A–J?"**
+
+For a loop: **yes, and auto memory is not a substitute.** Not because it works badly — it works as
+designed — but because every property that makes it good at its job makes it wrong as a loop's
+system of record.
+
+### What it actually is
+
+Claude saves four kinds of note for itself, tagged by a `type` frontmatter field:
+
+> Auto memory lets Claude accumulate knowledge across sessions without you writing anything. As it
+> works, Claude saves four kinds of notes for itself. Claude records the kind as a `type` field in
+> the memory file's frontmatter:
+>
+> - `user`: your role, expertise, and working preferences
+> - `feedback`: corrections you give Claude and approaches you confirm
+> - `project`: ongoing work, deadlines, and decisions that Claude can't derive from the code or git history
+> - `reference`: where to find information outside the project
+
+It also decides *whether* to save at all: *"Claude doesn't save something every session. It decides
+what's worth remembering based on whether the information would be useful in a future
+conversation."* And it deliberately skips *"anything your CLAUDE.md files already say."*
+
+| | |
+|---|---|
+| **Storage** | `~/.claude/projects/<project>/memory/` — a `MEMORY.md` index plus one file per memory. Override with `autoMemoryDirectory` (added **v2.1.74**; per-config-directory behaviour requires **v2.1.234+**) |
+| **Scope** | Per **git repository** — *"All worktrees and subdirectories within the same git repository share one auto memory directory"* (worktree sharing added **v2.1.63**) |
+| **Portability** | *"Auto memory is machine-local. […] Files are not shared across machines or cloud environments."* |
+| **Loaded** | *"the first 200 lines of MEMORY.md, or the first 25KB, whichever comes first"*, every session. Beyond that is not loaded |
+| **Over-limit** | Since **v2.1.210** an over-limit index write *"produce[s] an explicit error instead of silent truncation."* Before that it was truncated silently |
+| **Subagents** | *"The main conversation's auto memory isn't loaded into subagents; the exception is a fork […]. A subagent's own auto memory, enabled with the subagent `memory` field, is a separate directory"* — `~/.claude/agent-memory/<name-of-agent>/` (user scope) or `.claude/agent-memory/<name-of-agent>/` (project scope), added **v2.1.33** |
+| **Off switch** | `/memory` toggle → `autoMemoryEnabled` in settings; or `CLAUDE_CODE_DISABLE_AUTO_MEMORY=1`. Setting it to **`0` forces it on** even where `--bare` or `autoMemoryEnabled: false` would disable it |
+| **Timestamps** | An ISO-8601 `modified` frontmatter field, **v2.1.214+** |
+
+(All quotations from [How Claude remembers your project](https://code.claude.com/docs/en/memory)
+and [Subagents](https://code.claude.com/docs/en/sub-agents); every version number verified against
+the [official changelog](https://raw.githubusercontent.com/anthropics/claude-code/main/CHANGELOG.md),
+fetched 20260906.)
+
+### The sentence that decides it for loop design
+
+> Claude treats them as context, **not enforced configuration**. To block an action regardless of
+> what Claude decides, use a `PreToolUse` hook instead.
+
+That is the official framing of both CLAUDE.md and auto memory. A loop's STOP condition, budget
+and scope must **hold**; a memory note is advice the model may or may not take. This is the same
+distinction [Failure Patterns](17-failure-patterns.md) draws between a rule written as prose and a
+rule written as a gate — and the same one this KB keeps re-learning about its own `SKILL.md` files.
+
+### Five properties, and why each one disqualifies it as loop state
+
+| Auto memory is… | A loop's durable state must be… |
+|---|---|
+| **Agent-curated** — Claude decides what is worth saving, and may save nothing | **Complete for the contract.** A resume file that omits a step because the agent judged it uninteresting cannot resume |
+| **Machine-local**, never synced to other machines or cloud | **Portable.** A loop that resumes in a Routine, a cloud session, or on a colleague's machine finds no memory there at all |
+| **Invisible to subagents** (fork excepted) | **Shared with the workers.** Fan-out patterns ([Fan-Out](10-fan-out.md)) need every worker to see the same state |
+| **Unenforced** — context, not configuration | **Binding**, or verified by something that is |
+| **Not under version control** — outside the repo, no diff, no review, no history | **Auditable.** *Who wrote this and when* is the first question when a loop goes wrong |
+
+Every Pattern A–J below is the opposite on the property that matters: a `PROGRESS.md`, a
+[repo-owned ledger](#pattern-g-repo-owned-durable-ledger) or a
+[STATE.md](#pattern-e-statemd-wave-recovery) lives **in the repo** — so it is portable, diffable,
+reviewable, visible to every subagent and machine, and it survives the harness being swapped out.
+
+### Three failure modes, from the issue tracker
+
+These are **user reports on `anthropics/claude-code`**, not vendor-confirmed defects — cited
+because they are reproducible descriptions of the risk shape, and because two of the three were
+**closed as `stale` rather than fixed**. Verified open/closed state and labels on 20260906.
+
+| Issue | Shape | State |
+|---|---|---|
+| [#37314](https://github.com/anthropics/claude-code/issues/37314) — *"Claude repeatedly fails to apply its own memory/feedback — same mistakes recur across sessions"* | Stored ≠ applied. The note is written, acknowledged, even strengthened — and the same mistake follows. Memory is a **pull**, and the pull can simply not happen | closed, labelled `memory` + `stale` |
+| [#75405](https://github.com/anthropics/claude-code/issues/75405) — *"Reliability: model asserted untrustworthy 'tested/ready' status from stale memory without verifying artifacts"* | **The dangerous one for a loop.** A recalled summary was trusted over the on-disk artifacts, and a pipeline was reported ready when the evidence had been lost. *"Memory says it was tested"* is not *"artifacts prove it was tested"* | open, labelled `stale` |
+| [#47959](https://github.com/anthropics/claude-code/issues/47959) — *"Auto Dream deletes memory files without user consent — 23 files lost in one day"* | A memory-consolidation behaviour removed 23 accumulated files with no confirmation and no deletion log. It is **not described on the official memory page**, so treat it as an unannounced behaviour reported by a user, not a documented contract | closed, labelled `memory`, `data-loss`, `has repro`, `stale` |
+
+#75405 is the one to design against, and it generalises past this feature: **a loop that verifies
+against remembered state is not verifying.** The verifier must read the artifact — the test output,
+the file, the exit code — exactly as [Verification](04-verification.md) argues. Auto memory makes
+that mistake easier to make, because the recalled summary arrives already in context and reads as
+fact.
+
+### So use it for what it is
+
+Auto memory is genuinely useful, at a different job: **an interactive session's memory of you**.
+Preferences, corrections, the standing "don't do it that way" — the things a colleague would
+remember and you would resent re-explaining. Nothing in Patterns A–J covers that, and hand-writing
+it into CLAUDE.md is exactly the manual effort it removes.
+
+**The rule:** if losing it would break the loop, it goes **in the repo**. If losing it would only
+mean repeating yourself, auto memory is the right home.
+
+**One consequence worth planning for.** Because auto memory is per-repository and machine-local, a
+loop's own repo accumulates memory on the machine that runs it — and a scheduled or unattended loop
+is exactly the case where nobody reads it. When it is not wanted, turn it off for that project with
+`autoMemoryEnabled: false` in the project's settings rather than globally; `--bare` also skips it,
+along with hooks, LSP and CLAUDE.md auto-discovery (see [Headless Mode](09-headless-mode.md)).
+
+---
+
 ## Pattern A: Progress file
 
 ```text
