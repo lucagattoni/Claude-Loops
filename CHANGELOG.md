@@ -16,6 +16,17 @@ Versioning follows [Semantic Versioning](https://semver.org/):
 ### Added
 ### Changed
 
+- **H4 — pinned the Boris Cherny "write loops" quote to one primary source.** `docs/03` and
+  `docs/26` reproduced the quote with differing wording and no citation; `docs/32` cited it but
+  mis-called a secondary report (thenewstack.io, itself embedding a third-party tweet) "Primary
+  source ... in his own words"; `docs/20` paraphrases the same remarks in a table row with no
+  citation — the backlog's original H4 row over-called that one a quote reproduction. All four
+  now cite Cherny's own on-stage remarks at *Acquired Unplugged*, presented by WorkOS
+  ([YouTube](https://www.youtube.com/watch?v=RkQQ7WEor7w), 2026-06-02), verified against the
+  video's caption track at ~11:45. `docs/03` is an instance the backlog's four-location list
+  missed; `LOOP_ENGINEERING_NEWS.md`'s two captures are append-only history and are corrected
+  by a new hand-authored entry rather than rewritten.
+
 ---
 
 ## [3.2.0] — 20260906 13:26

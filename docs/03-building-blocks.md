@@ -1,6 +1,6 @@
 # The Six Building Blocks of a Loop
 
-Addy Osmani frames every well-designed loop around six components in his June 2026 post ["Loop Engineering"](https://addyosmani.com/blog/loop-engineering/) — building on the shift from prompting to loop design voiced by Peter Steinberger ("you shouldn't be prompting coding agents anymore. You should be designing loops that prompt your agents") and echoed by Boris Cherny, head of Claude Code at Anthropic ("I don't prompt Claude anymore ... my job is to write loops").
+Addy Osmani frames every well-designed loop around six components in his June 2026 post ["Loop Engineering"](https://addyosmani.com/blog/loop-engineering/) — building on the shift from prompting to loop design voiced by Peter Steinberger ("you shouldn't be prompting coding agents anymore. You should be designing loops that prompt your agents") and echoed by Boris Cherny, head of Claude Code at Anthropic (["I don't prompt Claude anymore ... my job is to write loops"](https://www.youtube.com/watch?v=RkQQ7WEor7w&t=11m45s), *Acquired Unplugged*, presented by WorkOS, Jun 2026).
 
 ## 1. Automations (local) and Routines (cloud)
 
