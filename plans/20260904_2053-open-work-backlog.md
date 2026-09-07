@@ -242,7 +242,17 @@ account session limit and the re-run paid for the 23-minute search a second time
 **Standing requirement set by the user 20260905:** *each stage must be resumable at any point,
 because it can die at any point.* Applies to anything expensive added to this pipeline later.
 
-### A13 — the wrapper still asserts on exit status, and C4 has now made the artifact checkable · small · **OPEN, opened 20260907**
+### A13 — ~~the wrapper still asserts on exit status, and C4 has now made the artifact checkable~~ · **SHIPPED v3.6.0**
+
+**Done 20260907 10:15 UTC.** `scripts/assert-published.sh` (new) is called from `run-loop-news.sh` between
+the retry loop's failure exit and the artifact-retirement block, above the run-complete line;
+`scripts/verify-publish-guard.sh` (new, 15 checks) proves it, and nine mutants were killed —
+including the ordering one this row warned about, caught by the static case rather than by any
+git-state case. **Two things this work established that the row did not say:** an empty regex
+would have made `grep -qE ""` match everything and fabricate a pass, so the check now refuses
+one; and the first harness left the `rev-parse` guard's branch untested — the mutation pass is
+what found it, and case 5c (a single-branch clone: fetch succeeds, `origin/main` never resolves)
+is what closed it. Original analysis retained below.
 
 Not a defect introduced by C4 — a follow-up C4 *unlocked*, recorded rather than silently done
 (the C4 pass was scoped to the skill and its docs).
@@ -285,6 +295,34 @@ Not a defect introduced by C4 — a follow-up C4 *unlocked*, recorded rather tha
   nothing, invisible for up to 48 hours until `check-digest-freshness.sh` pages STALE. **C4 did
   not create this** — the same was true of every other in-skill failure before it — but C4 added a
   new way to reach it, so `A13` is now the guard's own missing half, not just a tidy-up.
+
+
+### A14 — the two sibling guards share the non-ancestor hazard `A13` just fixed · small · **OPEN, opened 20260907 11:30**
+
+Found by `A13`'s adversarial review and recorded rather than folded in, because it changes
+unattended retry-path behaviour — the same reason `A13` itself was recorded rather than done
+inside `C4`.
+
+- **The mechanism, proven while shipping `A13`:** `git log A..B` requires only that both objects
+  *exist*, not that A is an ancestor of B. After a force-push or history rewrite `BASE_SHA` is
+  normally still a loose object locally (`gc.pruneExpire` keeps unreachable objects two weeks), so
+  the range silently becomes "the new history minus the old one" and a stray `^feat: loop news run `
+  subject in it matches. Reproduced against `assert-published.sh` before its guard existed:
+  `PUBLISHED … (1 commit(s) in the delta)`, exit 0, on a run that published nothing.
+- **Where it still applies.** Two call sites in `run-loop-news.sh`, both greping the same unguarded
+  delta. Grep the anchor text, never a line number: the pre-flight guard logs
+  `origin/main already has a loop-news commit — Stage B would be redundant, skipping`; the
+  failure-path guard notifies `failed AFTER publishing (origin/main has our loop-news commit)`.
+- **This is NOT a fabricated-success path, which is why it is small.** Both guards take the
+  *conservative* action on a match — skip Stage B, or stop retrying — and `assert-published.sh`
+  then runs on the same delta and exits 2 (not an ancestor), so the wrapper exits 6 instead of
+  reporting success. The residual is a **misdiagnosis in the log**, not a green run that shipped
+  nothing.
+- **Do:** hoist the precondition so all three call sites share one implementation — most likely by
+  having the two guards call `assert-published.sh` as well, or by extracting the delta query. Do
+  **not** paste `merge-base --is-ancestor` in three places; a rule with three homes drifts.
+- **Verify:** extend `scripts/verify-publish-guard.sh`, which already has the force-push fixture
+  (case 6d) and the two-clone harness. Do not start a second harness.
 
 ---
 
@@ -955,6 +993,37 @@ the remote, and is marked latest.
 | ~~12~~ | ~~**D2**/**H10**, **D3**/**H13** — release policy and plan archival~~ · **DONE, confirmed 20260906** — D2 and D3 were resolved 20260905 (§2) and are written into `CLAUDE.md`'s Releases and Plans sections; H10 backfilled to 63 tags / 63 releases (`v3.1.9`); H13's retire-in-place policy is already applied to both delivered plans. Never struck until the step-10 staleness audit | — |
 | ~~13~~ | ~~**H14** — retitle the IST-dependent scheduling comments **before 2026-10-25**~~ · **DONE 20260907**, together with **C4** — both comments made DST-regime-independent so the hard date does not recur | `plutil -lint` + YAML parse; `mkdocs build --strict` |
 
+> **Status 20260907 11:30 (updated after A13, round 2):** **A13 is shipped. §4 and §5 are
+> empty. One item is open, and it is new: `A14`** — the wrapper's two sibling guards share the
+> non-ancestor hazard A13 fixed. The wrapper now asserts on the published commit instead of Stage
+> B's exit status: `scripts/assert-published.sh`, called between the retry loop and artifact
+> retirement, with `scripts/verify-publish-guard.sh` (18 checks) proving the logic, the diagnostic
+> and the placement.
+>
+> **This paragraph claimed "§3, §4 and §5 are all empty — no backlog items remain open" until the
+> adversarial review ran.** It was written before the review found `A14`, and correcting it in
+> place rather than quietly is the point of §1's rule. `CLAUDE.md`'s open-work note was corrected
+> with it, and now names `A14`.
+>
+> **Two things A13's review paid for that the next agent must not re-derive.**
+> 1. **`git log A..B` does not require A to be an ancestor of B** — it requires only that both
+>    objects resolve. That is the whole of `A14`, and it was reproduced, not reasoned.
+> 2. **Exit code alone stops discriminating once several guards share one code.** Adding the
+>    ancestry guard masked two mutants the first round had killed, with no test touched. The
+>    cannot-tell cases now assert *which* guard fired.
+>
+> **Open work has not run out, and never had.** `KB_GAPS.md` § *Active Gaps* still holds
+> `docs/24`'s under-sampling and 47 UNVERIFIABLE claims awaiting triage.
+>
+> **What A13 did NOT solve, deliberately:** `notify()` is still an osascript popup plus a
+> gitignored day log, so a caught non-publish stays invisible off-machine for up to 48h until
+> `check-digest-freshness.sh` pages STALE. Widening it is a separate, larger question.
+> *(The "nothing runs either harness automatically" gap this paragraph also listed was closed in
+> the same PR: `.github/workflows/guards.yml` runs both on any change to `scripts/**` or
+> `.claude/skills/**`.)*
+>
+> Previous status (step 13) retained below.
+>
 > **Status 20260907 (updated after step 13):** **steps 1–13 are shipped. §4 and §5 are empty.**
 > The 2026-10-25 hard date is gone — not passed, *removed*: the two comments now state the DST
 > rule instead of one regime's stamp, so they will not expire at the next changeover either.

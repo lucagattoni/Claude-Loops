@@ -302,8 +302,32 @@ copying for any self-writing daily loop:
    rebases its base SHA forward and keeps retrying instead of abandoning a retriable failure.
    Every run commits, including a zero-finding day — it publishes an empty digest section
    rather than discarding it — so "did the run publish?" is answerable from `main` on every
-   run, not only on productive ones. (The wrapper still judges success by exit code; the point
-   is that the durable artifact now exists to check it against.)
+   run, not only on productive ones.
+
+5. **Assert on the artifact, not on the run's exit status.** `claude -p` exits 0 whenever the
+   *session* ended cleanly, which is not the same as the loop having done its job. A guard
+   *inside* the session — a build gate, a "did you actually write the file" check — aborts the
+   agent's own bash block, not the process, so the wrapper still reads 0 and logs success. This
+   repo shipped exactly that shape for eight weeks. So after the retry loop, re-fetch and require
+   the durable side effect to be present: `scripts/assert-published.sh` fails the run when
+   `origin/main` carries no matching commit since the run's base SHA, and fails it just as hard
+   when it *cannot tell* — an unreachable remote, an unresolvable ref, a rewritten history — on
+   the principle that a check which cannot tell has confirmed nothing.
+
+   Two details are load-bearing. **Order:** the assertion goes before the step that retires the
+   run's resume artifact, because retiring it also disarms the wrapper's resume-preservation
+   path — a check placed after would destroy the expensive search on precisely the failure it
+   exists to catch. **Reach:** "fail loudly" is only as loud as the channel, and here that is a
+   desktop notification plus a gitignored log *on the machine that failed*, so the off-machine
+   freshness watchdog remains the real backstop. `scripts/verify-publish-guard.sh` proves the
+   check fires — including static cases pinning *where* in the wrapper it is called from and that
+   its failure branch actually terminates, neither of which any amount of behavioural testing of
+   the check itself can see. Two further lessons came out of proving it, and both generalise.
+   **A guard added later can silently un-cover an earlier one:** once several guards share a
+   single "cannot tell" exit code, removing one is masked by the next and the mutation test stops
+   failing, so the cases assert *which* guard fired, not merely that one did. And **a proof
+   nothing runs decays** — the harness is wired into CI on any change to the scripts or the
+   skills, because a check on disk that nobody executes is the same defect one level up.
 
 On success the wrapper fast-forwards the primary checkout (`git pull --ff-only`) only if it
 is on `main`, so the local checkout tracks the published run without disturbing other work.

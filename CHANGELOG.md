@@ -18,6 +18,129 @@ Versioning follows [Semantic Versioning](https://semver.org/):
 
 ---
 
+## [3.6.0] — 20260907 10:18
+
+Backlog **`A13`**, the last open item: the wrapper judged a run by whether `claude -p` exited 0.
+That is true of a genuine publish and equally true of a session whose skill-internal guard aborted
+— Phase 5c's build gate and Phase 5d's digest guard `exit 1` the agent's own bash block, not the
+process — so a run that published nothing still logged success. **This is the eight-week-outage
+shape**, and closing it empties §3, §4 and §5 of the backlog. **MINOR** on the precedent `[3.5.0]`
+set: the project's own tier table is doc-scoped, so the global new-capability rule governs.
+
+### Added
+
+- **`scripts/assert-published.sh`** — re-fetches `origin/main` and requires a commit matching
+  `OUR_COMMIT_REGEX` in `BASE_SHA..origin/main`. Exit **0** published / **1** checked, no match /
+  **2** could not check; callers treat 1 and 2 alike, because a check that cannot tell has
+  confirmed nothing. **Every** cannot-tell path exits 2: bad arguments (wrong count, or any empty
+  one), a non-positive-integer retry count, a non-git target, fetch failure after a bounded retry,
+  an unresolvable `origin/main`, a `BASE_SHA` that is not an ancestor of the new `origin/main`, a
+  `git log` failure, and a grep that itself fails on a malformed regex. An **empty regex** is
+  refused up front — `grep -qE ""` matches any input, so it would have turned the whole script
+  into `exit 0` on a run that published nothing. No `|| true`, no empty default, no stale-ref
+  fallback anywhere in it.
+- **`scripts/verify-publish-guard.sh`** — 18 checks proving that script, invoked **as it ships**
+  rather than as a copy pasted into the harness. Two clones of one bare origin, so "committed but
+  never pushed" is constructable instead of vacuous. A sanity case that must read no-publish
+  before any passing case is believed; both healthy shapes; the *main-moved-but-not-by-us* twin
+  (this wrapper's older bug class); eight cannot-tell cases, three of which assert **which guard
+  fired** and not merely that one did; and two static cases pinning the harness's regex against
+  the wrapper's and the call site's arguments, ordering **and its terminating `exit 6`**.
+  **Mutation-tested across two rounds: 12 mutants, 11 killed, 1 equivalent** (disabling the
+  `git log` failure branch changes no observable behaviour, because reaching it now requires a
+  repository where `merge-base` succeeds and `log` does not — kept as defence in depth and
+  recorded as uncovered, not claimed as tested).
+
+### Fixed
+
+- **`scripts/run-loop-news.sh` no longer treats Stage B's exit status as proof of publication.**
+  The call sits between the retry loop's failure exit and the artifact-retirement block, and above
+  the run-complete line so that line is never printed and then contradicted. **The placement is
+  load-bearing:** `ARTIFACT_CONSUMED=1` also disarms `cleanup()`'s resume-preservation copy of
+  `findings.json`, so asserting after retirement would destroy Stage A's ~23-minute search on the
+  exact failure it detects. New exit code **6** (0/1/3/4/5 were taken), and the verdict line reaches
+  the day log on both paths, so a healthy run leaves positive evidence the check ran.
+- **The first harness passed over an untested fail-closed branch, and the mutation pass is what
+  found it.** Reverting `assert-published.sh`'s `rev-parse` guard to the unchecked form left all 14
+  checks green: no case made `fetch` succeed while `origin/main` stayed unresolvable, so an empty
+  `NEW_MAIN_SHA` — which collapses the `BASE_SHA..NEW_MAIN_SHA` range into `BASE_SHA..HEAD`,
+  silently asking about the *local* branch — was never exercised. Case 5c reproduces it with a
+  single-branch clone (`fetch origin main` succeeds and writes FETCH_HEAD; the configured refspec
+  never creates `refs/remotes/origin/main`) and asserts its own fetch succeeded, so a broken
+  fixture fails loudly rather than degrading into a duplicate of case 5.
+- **`docs/09-headless-mode.md` said "The wrapper still judges success by exit code."** True when
+  written, falsified by this commit. Replaced with a point 5 covering the whole pattern — why a
+  session's exit code proves nothing, why the check must precede resume-state teardown, and why
+  "fail loudly" is only as loud as its channel.
+
+- **The first version of this check reported PUBLISHED on a rewritten history** — found by
+  adversarial review, reproduced against the shipped file. `git log A..B` requires only that both
+  objects *exist*, not that A is an ancestor of B; after a force-push `BASE_SHA` is normally still
+  a loose object locally (git keeps unreachable objects for `gc.pruneExpire`, two weeks by
+  default), so the range stopped meaning "what this run added" and started meaning "the whole new
+  history minus the old one". One stray `feat: loop news run ` subject in it yielded exit 0 on a
+  run that published nothing. **The code comment, this changelog and `RESUME.md` all claimed that
+  case exited 2**, which is worse than the bug: the docs steered the next reader away from the
+  hole. Fixed with a `merge-base --is-ancestor` guard, which cannot false-alarm — `BASE_SHA` is
+  only ever `rev-parse origin/main` or a forward-rebase to a later `origin/main`.
+- **Adding that guard silently un-covered two checks the first mutation round had killed.** With
+  several guards able to return 2, a mutant that removes one is masked by the next, exits 2 anyway
+  and survives; the unchecked-`rev-parse` mutant went from KILLED to SURVIVED with no test
+  touched. The three cannot-tell cases now assert the **diagnostic** as well as the code. Case
+  6b's label was wrong too — it said "git log fails" when the ancestry guard reaches an
+  unresolvable base first; observing it, rather than trusting the label, is what showed that.
+- **Deleting the wrapper's `exit 6` left the harness fully green.** The call-site check greped four
+  anchors around the call but never that its else branch *terminates*, and the wrapper runs
+  `set -uo pipefail` with `-e` deliberately absent, so the fall-through to "Run complete" and
+  artifact retirement was silent — the outage shape reintroduced under a passing test. A fifth
+  anchor now pins `exit 6` between the call and the run-complete line.
+- **`scripts/run-loop-news.sh`'s `cleanup()` comment claimed no test covers the wrapper.** Now
+  partly false, so it states precisely what the harness does and does not reach: it never executes
+  `cleanup()`, so the exit-6 preservation path is still read from the code, not run.
+
+### Changed
+
+- **`.github/workflows/guards.yml`** — both guard harnesses now run in CI on any PR or push
+  touching `scripts/**` or `.claude/skills/**`. Neither was invoked by anything before this;
+  `verify-digest-guard.sh` had that gap from the day it shipped. A proof on disk that nobody
+  executes decays silently the moment someone edits what it proves — the same defect the guards
+  themselves exist to catch, one level up. The skills path is in the filter because
+  `verify-digest-guard.sh`'s subject is Phase 5d of `integrate-loop-news/SKILL.md`, which can be
+  falsified without touching `scripts/` at all.
+- **`CLAUDE.md`'s open-work note is now a one-line pointer, not a deletion.** The note met its own
+  stated delete condition (every tier empty), but deleting it outright would have left the backlog
+  and `KB_GAPS.md` unreachable from the entry point — the defect `[3.5.0]` had just fixed for
+  `RESUME.md`. Two map rows added for the new scripts. 162 → 159 lines. The note names `A14`
+  rather than claiming an empty backlog — see below — and its own delete condition now says to
+  *replace* it with a pointer rather than remove it.
+- **`docs/17-failure-patterns.md`**'s silent-scheduler-death row now names the implementation of
+  the fix it prescribes; **`LOOP_ENGINEERING.md`** row 9 gained the wrapper shape;
+  **`RESUME.md`** replaced; **`A13`** struck in the backlog with a status paragraph recording that
+  no items remain.
+
+- **`A14` opened in the backlog's §3.** `A13`'s review found the wrapper's two *sibling* guards —
+  the pre-flight "already published, skipping" check and the failure-path "failed AFTER
+  publishing" check — sharing the same non-ancestor hazard, since both grep the same unguarded
+  delta. It is **not** a fabricated-success path: both take the conservative action on a match,
+  and `assert-published.sh` then exits 2 on the same delta, so the run exits 6 rather than
+  reporting success. The residual is a misdiagnosis in the log. Recorded rather than folded in,
+  because it changes unattended retry-path behaviour — the same reason `A13` was recorded rather
+  than done inside `C4`.
+
+### Known limits, recorded rather than solved
+
+- **`notify()` is still desktop-only** — an osascript popup plus a gitignored day log, both on the
+  machine that failed. A caught non-publish stays invisible off-machine for up to 48h until
+  `check-digest-freshness.sh` pages STALE.
+- **The `git log` failure branch in `assert-published.sh` is unreachable in practice** and is
+  therefore uncovered: reaching it needs a repository where `merge-base` succeeds and `log` does
+  not. Kept as defence in depth, recorded as an equivalent mutant, not claimed as tested.
+- **A transient network failure immediately after a genuine push now raises a false alarm.** The
+  three-try fetch retry reduces it; nothing eliminates it, and nothing should — the alternative is
+  a stale-ref fallback, which is the class this change closes.
+
+---
+
 ## [3.5.0] — 20260907 09:25
 
 A handover audit before clearing the session: a fresh agent, started cold from `CLAUDE.md` with no

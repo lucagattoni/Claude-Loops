@@ -2,16 +2,16 @@
 
 Claude-Loops is a living knowledge base and automated daily tracker for **loop engineering** — designing systems that prompt Claude for you. Read `LOOP_ENGINEERING.md` (the index) and `README.md` before working. The KB grows automatically via a two-skill pipeline: `fetch-loop-news` (search) hands off to `integrate-loop-news` (integrate + restructure + publish).
 
-> **Open work — read this first.** `plans/20260904_2053-open-work-backlog.md` is the ranked backlog.
-> **§8's status paragraph is the authority on progress — do not duplicate it here**, and §1's
-> *"Do not re-spend budget on"* list names work already paid for; read both before planning.
-> **Steps 1–13 are done; §4 and §5 are empty.** One **backlog** item is open: **`A13`** in §3 —
-> make the wrapper assert on the published commit instead of Stage B's exit status. Separate open
-> content work lives in `KB_GAPS.md` § *Active Gaps* (`docs/24` under-sampled; 47 UNVERIFIABLE
-> claims to triage), and `RESUME.md` lists what the last branch deliberately left — an empty §4
-> and §5 is not an empty repo.
+> **Open work.** `plans/20260904_2053-open-work-backlog.md` is the ranked backlog — its §8 status
+> paragraph is the authority on progress, and §1's *"Do not re-spend budget on"* list names work
+> already paid for; read both before planning anything that looks like a sweep. **§4 and §5 are
+> empty. One item is open: `A14` in §3** — the wrapper's two sibling guards share the
+> non-ancestor hazard `A13` fixed in `assert-published.sh`. Open **content** work lives in
+> `KB_GAPS.md` § *Active Gaps*: `docs/24` is under-sampled and 47 UNVERIFIABLE claims need triage.
 >
-> **Delete this note once every backlog tier (§3, §4, §5) is empty.**
+> **Delete this note once every backlog tier (§3, §4, §5) is empty** — replacing it with a
+> one-line pointer, not removing it outright, or the backlog and `KB_GAPS.md` become unreachable
+> from this file.
 
 ## Repository map
 
@@ -24,9 +24,11 @@ Claude-Loops is a living knowledge base and automated daily tracker for **loop e
 | `.claude/skills/fetch-loop-news/SKILL.md` | Search half — finds news, writes `.loop-news/findings.json` |
 | `.claude/skills/integrate-loop-news/SKILL.md` | KB half — consumes the artifact, integrates + restructures + commits + pushes |
 | `scripts/run-loop-news.sh` | Headless wrapper — runs both skills as two sessions in one worktree |
+| `scripts/assert-published.sh` | The wrapper's post-condition — did `origin/main` actually gain this run's commit |
+| `scripts/verify-*.sh` | Behavioural proofs of the two pipeline guards. **Re-run after touching `run-loop-news.sh` or `integrate-loop-news` Phase 5d** — nothing runs them automatically |
 | `scripts/SCHEDULING.md` | Change cadence / enable-disable the launchd job — see this before editing the plist |
 | `CHANGELOG.md` · `plans/` · `KB_GAPS.md` | History, plans, gap log |
-| `RESUME.md` | Current handover state — what shipped, what is **not** done, and the lessons the last branch paid for. Read it before starting the open item |
+| `RESUME.md` | Current handover state — what the last branch shipped, what it deliberately left, and the lessons it paid for |
 | `docs/index.md` | The published site's home page — a **second** index, separate from `LOOP_ENGINEERING.md`; update both when adding a doc |
 
 ## Git workflow

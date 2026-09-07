@@ -1,0 +1,55 @@
+name: guards
+
+# Run the behavioural proofs of the two pipeline guards.
+#
+# WHY THIS EXISTS. Both harnesses sat in scripts/ with nothing invoking them. A proof on disk that
+# nobody executes decays silently the moment someone edits what it proves — which is the same
+# defect the guards themselves exist to catch, one level up: a green signal that nobody verified.
+# `verify-digest-guard.sh` had that gap from the day it shipped; `verify-publish-guard.sh` would
+# have inherited it.
+#
+# WHY THE PATH FILTER INCLUDES .claude/skills/. verify-digest-guard.sh's subject is Phase 5d of
+# integrate-loop-news/SKILL.md — a guard written in prose that the harness copies verbatim. Editing
+# the skill can falsify the harness without touching scripts/ at all, so a scripts-only filter
+# would miss exactly the change most likely to break it.
+#
+# These harnesses build throwaway git repos under $TMPDIR and touch no network, so a failure here
+# is a real regression, not flakiness. Do not add `continue-on-error`.
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - scripts/**
+      - .claude/skills/**
+      - .github/workflows/guards.yml
+  pull_request:
+    paths:
+      - scripts/**
+      - .claude/skills/**
+      - .github/workflows/guards.yml
+
+permissions:
+  contents: read
+
+jobs:
+  guards:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+
+      # The harnesses create commits in scratch repos, which needs an identity. They set one
+      # per scratch repo, but a global fallback keeps a future harness from failing for a reason
+      # that has nothing to do with the guard under test.
+      - name: Configure a git identity for the scratch repos
+        run: |
+          git config --global user.email "guards@github-actions.invalid"
+          git config --global user.name  "Claude-Loops guard harness"
+
+      # Run each bare, so the step's exit status is the harness's own. A gate is only a gate when
+      # its exit status is what the next command reads.
+      - name: assert-published.sh behaves correctly
+        run: bash scripts/verify-publish-guard.sh
+
+      - name: Phase 5d digest guard behaves correctly
+        run: bash scripts/verify-digest-guard.sh
