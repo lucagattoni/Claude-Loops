@@ -560,9 +560,11 @@ managed settings:
 List-valued keys such as `permissions.allow` **merge** across files instead of the higher
 level replacing the lower one. A small set of security-sensitive keys go the other way —
 Claude Code honors a *stricter* value from a lower level over a managed one ("Exceptions to
-managed settings precedence" on the same page). A concrete case this got wrong before
-**v2.1.49**: a non-managed setting could disable hooks a managed policy had turned on —
-"Fixed `disableAllHooks` setting to respect managed settings hierarchy." Hook *entries* follow
+managed settings precedence" on the same page). `disableAllHooks` is **not** one of those keys — it does not appear in the live "Exceptions to
+managed settings precedence" table (fetched 2026-09-07). The related **v2.1.49** fix shows the
+*ordinary* rule being repaired, not an exception to it: before it, a non-managed setting could
+disable hooks a managed policy had turned on, and the fix — "Fixed `disableAllHooks` setting to
+respect managed settings hierarchy" — restored managed-wins. Hook *entries* follow
 a different rule again — see [Hooks → Scope hierarchy](12-hooks.md#scope-hierarchy).
 ([Settings — Settings precedence](https://code.claude.com/docs/en/settings#settings-precedence),
 fetched 2026-09-07; [CHANGELOG.md](https://raw.githubusercontent.com/anthropics/claude-code/main/CHANGELOG.md), v2.1.49.)

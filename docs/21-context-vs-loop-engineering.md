@@ -204,7 +204,7 @@ split part of its own architecture rather than just naming it: a Graph Orchestra
 coordinates repo generation/review/execution/verification/release/monitoring agents, gates
 lifecycle transitions on verifiable execution evidence, and separately constrains
 repo-generation/review/repair via "agent harness engineering" — the same three disciplines
-as orthogonal concerns, now appearing in three independent papers rather than one.
+as orthogonal concerns, now appearing in two independent papers three weeks apart rather than one, with the 35-author graph-engineering paper above as an earlier precursor that names only the graph layer.
 ([arXiv 2608.29615, "Forward-Deployed Full-Stack Engineering for Autonomous Cloud MLOps"](https://arxiv.org/abs/2608.29615), Aug 2026.)
 
 **A practical decision rule for when to reach past a loop.** Untangling the debate from a

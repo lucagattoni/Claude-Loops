@@ -327,7 +327,7 @@ orchestrator → specialist → verifier.
 | Limit | Default | Override |
 |---|---|---|
 | Nesting depth below the main conversation | **3** | `CLAUDE_CODE_MAX_SUBAGENT_SPAWN_DEPTH` (set to `1` to disable nesting) |
-| Concurrent subagents per session | **20** — the Agent tool refuses to spawn another until one finishes. The variable takes a positive whole number in plain digits; anything else is ignored, so it can raise or lower the cap but **cannot disable it** — except in a session with Ultracode active, where the limit isn't enforced at all | `CLAUDE_CODE_MAX_CONCURRENT_SUBAGENTS` (requires v2.1.217+) |
+| Concurrent subagents per session | **20** — the Agent tool refuses to spawn another until one finishes. The variable takes a positive whole number in plain digits; anything else is ignored, so it can raise or lower the cap but **cannot disable it** — except in a session with `ultracode` active, where the limit isn't enforced at all | `CLAUDE_CODE_MAX_CONCURRENT_SUBAGENTS` (requires v2.1.217+) |
 
 There is **no cap on total spawns over a session** — only the two limits above. A 200-spawn
 per-session cap did exist (added v2.1.212) and was **removed in v2.1.224**: *"Removed the
@@ -356,13 +356,19 @@ prompt cache — ideal when the subtask needs all the context the parent has bui
 **Quantified payoff of recursive spawning, with a caveat.** A Recursive Agent Harness (RAH) pattern — parent agents spawn subagents in parallel, recursively, rather than a fixed one-level fan-out — raised a Codex coding-agent baseline from 71.75% to 81.36% on Oolong-Synthetic (199 samples, 13 context-length buckets up to 4M tokens) with the same GPT-5 backbone, a gain the paper attributes to the harness rather than the model. Swapping to a stronger backbone (Claude Sonnet 4.5) with the same RAH design reached 89.77% — a separate, backbone-driven jump, not a further harness-only effect. The paper's own limitations section states it does **not** ablate recursion depth, entries-per-subagent, or the spawning path, so it is not itself evidence that delegation *depth* specifically (as opposed to breadth) is the lever — that attribution does not appear in the source.
 ([arXiv 2606.13643](https://arxiv.org/abs/2606.13643), Jun 2026.)
 
-**A cross-vendor comparison point.** Google's Antigravity (2.0) ships a materially deeper default
-nesting depth — **10 levels**, versus Claude Code's 3 — and defines custom agents as Markdown+YAML
-files with scoped tools/MCP/model tier and a `commandExecutionPolicy`, callable either as the main
-agent or as a delegated subagent ("execution symmetry"). One operational detail worth adopting
-regardless of vendor: subagents run async with independent context windows, and **when a subagent
-is killed, its git worktree is cleaned up automatically** — closing the class of stale-worktree
-cleanup this KB otherwise documents as a manual or hook-driven concern.
+**A cross-vendor comparison point.** Google's Antigravity (2.0) enforces a **maximum** nesting
+depth of **10 levels** — a hard cap "strictly enforced to prevent runaway recursion", not a
+default, so it is not directly comparable to Claude Code's overridable default of 3 — and defines
+custom agents as Markdown+YAML files with scoped tools/MCP/model tier and a
+`commandExecutionPolicy`, callable either as the main agent or as a delegated subagent
+("execution symmetry"). One operational detail worth noting: subagents run async with independent
+context windows, and on kill "any temporary Git worktrees generated for the subagent are
+automatically cleaned up". Claude Code cleans subagent worktrees up automatically too, but on a
+*periodic* sweep keyed to `cleanupPeriodDays` rather than at kill time ([Worktrees → Resume and
+cleanup](03-building-blocks.md#resume-and-cleanup)) — the real contrast is on-kill versus delayed,
+not automatic versus manual. The manual/hook-driven gap docs/03 actually documents is narrower:
+headless `-p` runs, which get no exit cleanup at all, and worktrees you create yourself with
+`git worktree add`.
 ([Google Antigravity, "Introducing Custom Agents"](https://antigravity.google/blog/introducing-custom-agents); [Subagents docs](https://antigravity.google/docs/subagents), Sep 2026.)
 
 ## Controlling subagent permissions

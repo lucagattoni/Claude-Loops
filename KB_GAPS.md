@@ -141,7 +141,10 @@ Evidence pack: [`plans/20260907_0100-c7-doc-sweep-evidence.md`](plans/20260907_0
   the most findings (21) and the most highs (9), and got the **lowest** rate in the pass (11.8/100).
   One spot-check inside a range it declared clean found a real defect. **Re-cut `docs/24` as eight
   units of ~100 lines, not four of ~250, with a floor of 20 claims per 100 in-scope lines; a unit
-  under the floor counts as not checked, not as clean.**
+  under the floor counts as not checked, not as clean.** **Re-measure before cutting:** the
+  2026-09-07 tracker run (`3b02afe`) added ~82 lines of new, unverified prose to `docs/24` after
+  this 788-line figure was taken (1,189 → 1,271 lines), so recompute the unit boundaries rather
+  than reusing the numbers above.
 - **The 47 UNVERIFIABLE claims need triage against what is already on disk.** At least one was
   settleable: the OpenAI citation date (`docs/26`) was logged unverifiable because `openai.com`
   returns 403 to `curl` — a Wayback snapshot loaded fine and gave the byline. Fixed. Others are
