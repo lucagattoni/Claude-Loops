@@ -78,6 +78,24 @@ check() { # check <label> <expected: publish|no-publish> <actual-rc>
   fi
 }
 
+# check_msg <label> <expected-rc> <expected-substring> -- <command...>
+# Exit code alone stopped being enough once several guards could produce exit 2: a mutant that
+# removes one guard is then masked by the next one, exits 2 anyway, and survives. Pinning the
+# DIAGNOSTIC says which guard actually fired — and the message is load-bearing in its own right,
+# since a human reading a 5am log needs to know whether origin/main was unresolvable or the
+# history was rewritten.
+check_msg() {
+  local label="$1" expect_rc="$2" expect_sub="$3"; shift 4
+  local out rc
+  out="$("$@" 2>&1)"; rc=$?
+  if [[ "$rc" -eq "$expect_rc" && "$out" == *"$expect_sub"* ]]; then
+    printf '  ok    %-56s rc=%s, right guard\n' "$label" "$rc"
+  else
+    printf '  FAIL  %-56s expected rc=%s + %q, got rc=%s: %s\n' "$label" "$expect_rc" "$expect_sub" "$rc" "${out:0:90}"
+    FAILURES=$((FAILURES + 1))
+  fi
+}
+
 check_rc() { # check_rc <label> <expected-rc> <actual-rc>
   local label="$1" expect="$2" rc="$3"
   if [[ "$rc" -eq "$expect" ]]; then
@@ -185,8 +203,8 @@ git clone -q --single-branch --branch other origin.git narrow 2>/dev/null
 # The fixture is only meaningful if the fetch really does succeed here; assert that, or this case
 # would silently degrade into a duplicate of case 5.
 if git -C narrow fetch origin main -q 2>/dev/null; then
-  bash "$SCRIPT_UNDER_TEST" narrow "$BASE_SHA" "$REGEX" 2>/dev/null
-  check_rc "5c fetch ok but origin/main unresolvable" 2 $?
+  check_msg "5c fetch ok but origin/main unresolvable" 2 "could not resolve origin/main" -- \
+    bash "$SCRIPT_UNDER_TEST" narrow "$BASE_SHA" "$REGEX"
 else
   printf '  FAIL  %-56s %s\n' "5c fixture broken: fetch failed, case is vacuous" "fix the fixture"
   FAILURES=$((FAILURES + 1))
@@ -198,14 +216,18 @@ mkdir -p not-a-repo
 bash "$SCRIPT_UNDER_TEST" not-a-repo "$BASE_SHA" "$REGEX" 2>/dev/null
 check_rc "6  target is not a git checkout" 2 $?
 
-# --- 6b. Cannot tell: BASE_SHA unreachable (history rewritten) -> must NOT report publish -----
-# The only case that exercises the `git log` failure branch. Without it that branch never runs,
-# and a fail-open edit to it would go unnoticed.
+# --- 6b. Cannot tell: BASE_SHA does not resolve at all -> must NOT report publish -------------
+# This case was originally labelled "git log fails", and that label was wrong — observed, not
+# assumed: the ancestry guard reaches an unresolvable base first and reports it. The `git log`
+# failure branch below it is therefore unreachable in practice (it would need a repo where
+# `merge-base` succeeds and `log` does not) and is kept as defence in depth, NOT as covered code.
+# A mutant that disables it survives this harness; that is an equivalent mutant, recorded rather
+# than papered over.
 fresh
 git -C wt commit -q --allow-empty -m "$SUBJ"
 git -C wt push -q origin HEAD:main
-bash "$SCRIPT_UNDER_TEST" repo "0000000000000000000000000000000000000000" "$REGEX" 2>/dev/null
-check_rc "6b base SHA unreachable — git log fails" 2 $?
+check_msg "6b base SHA does not resolve" 2 "is not an ancestor of origin/main" -- \
+  bash "$SCRIPT_UNDER_TEST" repo "0000000000000000000000000000000000000000" "$REGEX"
 
 # --- 6c. Cannot tell: an EMPTY regex must be refused, never treated as a match ----------------
 # `grep -qE ""` matches any input, so an empty regex would turn the whole script into exit 0 —
@@ -229,8 +251,8 @@ git -C repo fetch -q origin main
 # unresolvable this would silently degrade into case 6b and prove nothing.
 if git -C repo cat-file -e "$BASE_SHA" 2>/dev/null \
    && ! git -C repo merge-base --is-ancestor "$BASE_SHA" "$(git -C repo rev-parse origin/main)" 2>/dev/null; then
-  bash "$SCRIPT_UNDER_TEST" repo "$BASE_SHA" "$REGEX" 2>/dev/null
-  check_rc "6d history rewritten — base resolves but is no ancestor" 2 $?
+  check_msg "6d history rewritten — base resolves, no ancestor" 2 "is not an ancestor of origin/main" -- \
+    bash "$SCRIPT_UNDER_TEST" repo "$BASE_SHA" "$REGEX"
 else
   printf '  FAIL  %-56s %s\n' "6d fixture broken: base is unresolvable or still an ancestor" "fix the fixture"
   FAILURES=$((FAILURES + 1))
