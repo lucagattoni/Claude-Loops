@@ -213,6 +213,20 @@ where the agent's actions cannot affect systems you care about.
 claude --permission-mode bypassPermissions -p "run migration"
 ```
 
+As of **v2.1.126**, bypass mode's own scope over protected paths has widened twice:
+`--dangerously-skip-permissions` first stopped prompting for writes to `.claude/skills/`,
+`.claude/agents/`, and `.claude/commands/` (**v2.1.121**), then to `.claude/`, `.git/`,
+`.vscode/`, shell config files, and "other previously-protected paths" more broadly
+(**v2.1.126**) — no later changelog entry re-narrows this. Don't assume `.claude/` or `.git/`
+still get any special write protection under bypass mode on a current CLI; "isolated environment
+only" is the operative constraint, not a belief that repo-control files are fenced off. Bypass
+mode is still not an unconditional skip, though: explicit `ask` rules, `rm`/`rmdir` targeting a
+critical path, the cross-session messaging safeguards, and tools that require user interaction
+(`AskUserQuestion`, MCP tools marked `requiresUserInteraction`) all still prompt even in bypass
+mode. ([CHANGELOG.md](https://raw.githubusercontent.com/anthropics/claude-code/main/CHANGELOG.md),
+v2.1.121, v2.1.126; Anthropic, [Choose a permission
+mode](https://code.claude.com/docs/en/permission-modes#skip-all-checks-with-bypasspermissions-mode).)
+
 ## Deny and ask lists
 
 Block specific tools or prompt for confirmation before others run:
@@ -238,11 +252,16 @@ Patterns can match on the command argument, not just the tool name:
 
 ```json
 "allow": ["Bash(git *)"],          // any git command
-"deny":  ["Agent(model:opus)"],    // block Opus subagents
+"deny":  ["Agent(model:opus)"],    // block Opus subagents (see caveat below)
 "deny":  ["Bash(rm -rf *)"]        // block recursive deletes
 ```
 
-Pattern tokens: `*` (any substring), `**` (any path), `?` (single char).
+`Agent(...)` rules were **not enforced for named subagent spawns before v2.1.186** — the syntax
+parsed and silently did nothing. [Subagents → Controlling subagent
+permissions](07-subagents.md#controlling-subagent-permissions) has the four enforcement gaps and
+the version each closed in.
+
+`*` matches any text and can appear at any position in a rule (v2.1.0+); a trailing wildcard like `Bash(ls *)` needs the preceding space to exclude prefix matches like `lsof`, and `Bash(ls:*)` is an equivalent trailing-wildcard shorthand. `**` matches across path segments in `Read`/`Edit`/`Cd` rules. There is no single-character (`?`) wildcard — the current [Configure permissions](https://code.claude.com/docs/en/permissions) reference documents only `*` and `**`; drop or re-verify any use of `?` in your own rules.
 
 ## PermissionRequest hook
 
@@ -262,8 +281,31 @@ instead of using static lists:
 }
 ```
 
-The hook receives the tool name and input; return `allow`, `deny`, `ask`, or
-`defer` (fall through to default auto mode classifier) in `permissionDecision`.
+The hook receives the tool name and input and returns a `decision` object inside
+`hookSpecificOutput` — not the `permissionDecision` field (whose `allow`/`deny`/`ask`/`defer`
+values belong to `PreToolUse` hooks, not this event):
+
+```json
+{ "hookSpecificOutput": { "hookEventName": "PermissionRequest",
+    "decision": { "behavior": "allow", "updatedInput": { "command": "npm run lint" } } } }
+```
+
+`decision.behavior` is `"allow"` or `"deny"` only — there is no `ask` or `defer` for this
+event. `allow` can carry `updatedInput` (replaces the tool's input, re-checked against
+`deny`/`ask` rules — v2.1.110) and `updatedPermissions` (persists a rule via the same
+`addRules`/`replaceRules` entries the interactive dialog uses). `deny` can carry `message`
+(shown to Claude) and `interrupt` (stops Claude entirely). The input also carries
+`permission_suggestions`, the rule updates behind the dialog's "always allow" options (not
+an exact list of what a human sees — the dialog can withhold or add options of its own) — so
+a hook can echo one back as its own `updatedPermissions` instead of composing a new rule
+(added **v2.0.54**).
+
+**Unattended-loop gotcha:** a hook that exits without setting `decision` leaves the permission
+flow unchanged. That's harmless when a human can see the interactive prompt that follows, but
+a background subagent or other non-interactive session has no prompt to fall back to — the
+tool call is **denied**, not deferred to the auto-mode classifier.
+([Hooks reference — PermissionRequest](https://code.claude.com/docs/en/hooks), fetched
+2026-09-07; [CHANGELOG.md](https://raw.githubusercontent.com/anthropics/claude-code/main/CHANGELOG.md), v2.0.54, v2.1.89, v2.1.110.)
 
 ## Risk-Tiered Authorization by Consequence
 
@@ -479,9 +521,22 @@ budget before being blocked. Scope must gate before spend.
 
 ## Settings precedence
 
-Later sources override earlier ones:
-1. Managed policy (IT/org-wide)
-2. `~/.claude/settings.json` (user)
-3. `.claude/settings.json` (project, committed)
-4. `.claude/settings.local.json` (local, gitignored)
-5. CLI flags (`--permission-mode`, `--allowedTools`)
+**Highest wins — not "later overrides earlier."** When the same key is set in more than one
+place, Claude Code uses the value from the **highest** level below; nothing you set overrides
+managed settings:
+1. Managed settings (IT/org-wide — `managed-settings.json`, an MDM policy, or server-managed
+   settings from the claude.ai console)
+2. CLI flags (`--permission-mode`, `--allowedTools`, `--settings <file-or-json>`)
+3. `.claude/settings.local.json` (project-local, gitignored)
+4. `.claude/settings.json` (project, committed)
+5. `~/.claude/settings.json` (user)
+
+List-valued keys such as `permissions.allow` **merge** across files instead of the higher
+level replacing the lower one. A small set of security-sensitive keys go the other way —
+Claude Code honors a *stricter* value from a lower level over a managed one ("Exceptions to
+managed settings precedence" on the same page). A concrete case this got wrong before
+**v2.1.49**: a non-managed setting could disable hooks a managed policy had turned on —
+"Fixed `disableAllHooks` setting to respect managed settings hierarchy." Hook *entries* follow
+a different rule again — see [Hooks → Scope hierarchy](12-hooks.md#scope-hierarchy).
+([Settings — Settings precedence](https://code.claude.com/docs/en/settings#settings-precedence),
+fetched 2026-09-07; [CHANGELOG.md](https://raw.githubusercontent.com/anthropics/claude-code/main/CHANGELOG.md), v2.1.49.)
