@@ -26,27 +26,38 @@ remainder (`05 06 19 31 35` version stamps) and the README "Seven source types" 
 - [x] **C10 denominator diagnosed** — see `finding-c10-denominator.md` in the scratchpad. Three of
       the prior digest's four counts (`Fixed` 2,740, `Changed` 168, `Removed` 35) reproduce exactly;
       only the "All = 2,076" total is wrong. Real total then: **5,132**.
-- [ ] C10 sweep workflow — resumed as `wf_fdc6bf90-b66` (10 sweeps cached from the killed run)
-- [ ] C7 find workflow — script patched and ready (`c7-doc-sweep-wf_146b1e97-fb1.js`), NOT started;
-      run it only after C10 finishes. Running both at once is what hit the session limit.
-- [ ] Apply edits, one commit per doc, `mkdocs build --strict` bare before each
-- [ ] Update backlog §8 + §5 H1 row + `CLAUDE.md` note in the SAME PR
-- [ ] Correct the 2,076 figure: `plans/` in place; `LOOP_ENGINEERING_NEWS.md` + `CHANGELOG.md` by a
-      NEW append-only entry whose header starts with a WORD, never a digit
-- [ ] Release + tag + GitHub release
+- [x] **C10 SHIPPED.** 3,774/3,774 bullets, 24/24 chunks, 0 mismatches. 520 verified rows →
+      29 edits across 18 docs (one commit each), 10 gaps to `KB_GAPS.md`. Evidence pack:
+      `plans/20260906_2306-c10-changelog-sweep-evidence.md`.
+- [x] **The 2,076 figure corrected** — `plans/` in place, digest by a NEW word-initial entry
+      (`check-digest-freshness.sh` confirmed it still reads the 2026-09-06 04:00 run as newest).
+- [x] Duplicated `## Session Watchdog` section consolidated into `docs/25`.
+- [ ] **C7 find-only pass** — running as `wf_5bb263dc-d3c`; 8 of 34 units already cached
+      (40 findings, 176 claims, 132 URLs). Re-run must report `lostUnits` empty.
+- [ ] C7 finalise workflow (shortlist → refute → Opus adjudicate → Opus critic)
+- [ ] Apply C7 edits, one commit per doc, `mkdocs build --strict` bare
+- [ ] H1 stamps for `05 06 19 31 35` (all verified to have ZERO version markers of any kind)
+- [ ] Update backlog §8 step 11 + §5 H1 row + the `CLAUDE.md` note in the SAME PR
+- [ ] Release + tag + GitHub release + PR
 
-## Lesson worth keeping
-Both workflows died on a session limit and BOTH threw away every completed agent because
-`adjudication.apply` was read without a null guard — the adjudicator returning `null` on error
-destroyed 10 good sweeps' worth of output. Both scripts now default the adjudicator and the critic,
-and report `adjudicatorLost` rather than crashing. A partial run must still return its partial work.
+## Lessons worth keeping
 
-## Next command
-Check the workflow, then apply. Scratchpad (chunks, brief, blame maps):
-`/private/tmp/claude-501/-Users-luca-Code-repos-github-lucagattoni-Claude-Loops/fc9ce808-8f72-42bc-b030-33f5fe85cc79/scratchpad`
+1. **A null adjudicator must not destroy the run.** Both workflows first died reading
+   `adjudication.apply` with no guard, throwing away every completed agent. Both now default the
+   adjudicator and critic and report `adjudicatorLost`. A partial run must return its partial work.
+2. **Bank discovery before spending on refutation.** Four session limits were hit. C10 survived
+   because sweep+verify were cached before refutation started; C7's first full run lost 26 of 34
+   finders and everything downstream. C7 is now a **find-only** pass — findings get banked, then a
+   separate finalise workflow shortlists/refutes/adjudicates (the shape that worked for C10).
+3. **Agents miscount large JSON arrays.** Three C10 sweepers reported reading fewer candidates than
+   were delivered (97 vs "80"). The completeness critic read that as a pipeline leak reproducing this
+   repo's signature defect. It was not: the verify agent produced findings from array indices 63-96,
+   so it saw the whole set. **Check a peer's claim before acting on it.** The critic's
+   recommendation still stands — assert `delivered == swept` in code rather than after the fact.
 
-## Gates (from the backlog §9)
-- `uv run --with-requirements requirements-docs.txt mkdocs build --strict` — run **bare**
-- `grep -rn 'repo: github\.com' docs/ | grep -v '\[github'`
-- `bash scripts/kb-structure-check.sh` — triage every hit or record a waiver
-- Public repo — PRIMARY CHECK on every file
+## C7 note for whoever applies its findings
+The C7 finders read the **primary checkout on `main`**, which does NOT yet have this branch's C10
+fixes. Two C7 findings (`docs/08:480-487` precedence, `docs/08:252-266` PermissionRequest output
+contract) are already fixed here — independent corroboration from a different method, not new work.
+Apply C7 findings by **anchor match against this worktree**; an anchor that no longer matches is the
+safe signal that C10 already fixed it.
