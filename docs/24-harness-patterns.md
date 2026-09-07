@@ -51,10 +51,11 @@ that harness design, not model swap, is the accessible leverage: a mid-pack agen
 became top-5 with the model held fixed. (LangChain, ["The Anatomy of an Agent Harness"](https://www.langchain.com/blog/the-anatomy-of-an-agent-harness), Mar 2026.)
 
 Two benchmarks add further quantified weight to the same thesis. **StaminaBench**
-(stress-testing coding agents over 100+ interaction turns) finds harness quality alone
-creates up to a **6x performance gap** between otherwise-similar models, and that
-feedback loops improve results by up to **12x** over single-shot attempts — the harness,
-not the base model, dominates sustained-task performance.
+(stress-testing coding agents over 100+ interaction turns) finds that for a strong
+model, harness quality alone creates up to a **6x performance gap between that
+model's best and worst harness**, and that feedback loops improve results by up to
+**12x** over single-shot attempts — the harness, not the base model, dominates
+sustained-task performance.
 ([arXiv 2606.19613](http://arxiv.org/abs/2606.19613), Jun 2026.) **Claw-SWE-Bench**
 (evaluating OpenClaw-style harnesses on coding tasks) found the *same backbone model*
 scores only 19.1% with a minimal adapter versus **73.4%** with a full adapter — a 4x
@@ -127,11 +128,13 @@ so a capability gap specific to one transport doesn't hide behind a pass on anot
 
 **Cross-vendor observable policy denials.** A conformance suite is only useful if a
 denial is actually *visible* to whatever is testing it. `harness-bench` added a
-`PolicyDeniedEvent` so that when a native harness (Claude Code, Codex, etc.) blocks
-a tool call under policy, that denial surfaces as an observable stream event rather
-than a silent no-op — letting the same conformance probe verify deny-behavior
-consistently across vendors instead of trusting each harness's own logs.
-([omnigent-ai/omnigent](https://github.com/omnigent-ai/omnigent) `harness-bench` #2096, Jul 2026.)
+`PolicyDeniedEvent` so a native harness's (Claude Code, Codex, etc.) policy denial
+can surface as an observable stream event rather than a silent no-op — letting the
+same conformance probe verify deny-behavior consistently across vendors instead of
+trusting each harness's own logs. The mechanism landed in #2096 (Jul 8) but wasn't
+enforced live until the native policy hook was wired up the next day in #2171 (Jul 9),
+after which the deny path was confirmed working end to end.
+([omnigent-ai/omnigent](https://github.com/omnigent-ai/omnigent) `harness-bench` #2096, [#2171](https://github.com/omnigent-ai/omnigent/pull/2171), Jul 2026.)
 
 ### Schema-Level Conformance (Temper)
 
@@ -139,10 +142,11 @@ consistently across vendors instead of trusting each harness's own logs.
 tools, recover state at runtime?). A complementary, cheaper check is **schema-level
 conformance**: does the `.claude/` directory itself — skills, rules, agents, hooks —
 match a declared contract, before anything even runs? Temper implements this as a
-compiler-like pipeline rather than a linter: `init` scans the whole `.claude/`
-directory into one typed model, `emit` deterministically compiles author-declared
-requirements into a lock file (regenerated twice to self-verify determinism), and
-`check` gates the actual files against that lock in CI. The distinction from
+compiler-like pipeline rather than a linter: `install` scans the whole `.claude/`
+directory into one typed model (converting each discovered artifact into a typed
+member module), `emit` deterministically compiles author-declared requirements into
+a lock file (regenerated twice to self-verify determinism), and `check` gates the
+actual files against that lock in CI. The distinction from
 harness-bench: this catches drift in the harness's *declared shape* (a skill file
 that no longer matches its own schema) before a conformance run ever needs to
 exercise it at runtime. ([duct-tape-and-markdown/temper](https://github.com/duct-tape-and-markdown/temper), Jul 2026.)
@@ -165,9 +169,11 @@ into parallel research and implementation legs. Distinguishing mechanisms:
   with [Scope-Verified Parallelism](10-fan-out.md#scope-verified-parallelism), which
   catches collisions at the point of write instead of before dispatch — the two are
   complementary layers, not substitutes).
-- **Mandatory synthesizer merge**: write-fan-outs proven disjoint still run in
-  isolated per-node worktrees by default, and a dedicated synthesizer node
-  octopus-merges divergent branches — parallel execution never merges itself.
+- **Scripted octopus merge, agent-gated conflict resolution**: write-fan-outs proven disjoint still run in
+  isolated per-node worktrees by default and are merged *mechanically* by a script (a git octopus
+  merge, no agent involved); only when that merge hits a real textual conflict is a dedicated
+  synthesizer agent dispatched to resolve it by intent — parallel execution never merges itself,
+  but the agent is reserved for the conflict path, not the disjoint one.
 - **Bounded review-fix loop**: capped at a maximum of 5 iterations with mechanical
   (not self-assessed) verdicts, preventing the [infinite fix loop](17-failure-patterns.md) pattern.
 
@@ -217,7 +223,10 @@ that needs no external engineer:
 Reported Terminal-Bench-2.0 gains, model held fixed: MiniMax M2.5 40.5%→61.9%,
 Qwen3.5-35B-A3B 23.8%→38.1%, GLM-5 42.9%→57.1% (up to +21.4pp absolute). The point:
 model-specific weaknesses become concrete, executable harness changes rather than more prose.
-([arXiv 2606.09498](https://arxiv.org/abs/2606.09498), Jun 2026.)
+(Figures are from **v1**, the version live at capture; v2/v3 — Aug 2026 — broadened the study to
+three benchmarks and nine model–benchmark pairs and restate the headline as relative gains of up
+to 132%.)
+([arXiv 2606.09498v1](https://arxiv.org/abs/2606.09498v1), v1, Jun 2026.)
 
 **AHE — observability-driven evolution with verified prediction contracts.** Agentic Harness
 Engineering makes the harness auto-evolvable by building on three observability pillars:
@@ -273,8 +282,9 @@ harness-evolution one. ([ruvnet/metaharness](https://github.com/ruvnet/metaharne
 
 **Mechanized rules beat prose guidance, quantified.** A self-improving harness that
 converts confirmed tool-call failures into durable, vote-weighted lessons (promoted into
-an enforced hook once repeat evidence crosses a weight threshold) reports **~100%
-compliance for mechanized rules versus ~70-90% for the equivalent prose guidance** in
+an enforced hook once repeat evidence crosses a weight threshold) cites — as an unsourced
+"practitioner consensus," not a measurement of its own deployment — **~100% compliance for
+mechanized rules versus ~70-90% for the equivalent prose guidance** in
 CLAUDE.md. This is a directly quantified version of the "encode learnings as rules, not
 prose" principle already implicit in [Experience Encoding](27-loop-contract.md) —
 a rule the harness enforces is followed far more reliably than a rule the model is merely
@@ -294,7 +304,7 @@ Claude instances began repeatedly running dangerous git commands (`git stash`, `
 reset`) mid-task. The response was not to intervene per-instance or hand-fix the
 resulting damage — it was to edit the workflow instructions once, globally, so the fix
 applied to every future instance rather than the one caught in the act. The author's own
-framing: "fixed the process that generates the code instead of hand-fixing the code."
+framing: "fixing the process that generates the code instead of hand-fixing the code."
 This is the manual, single-engineer version of what
 [Self-Harness](#self-improving-harnesses) and [AHE](#self-improving-harnesses) do with an
 automated weakness-mining step — the failure class, not the individual failure, is what
@@ -371,13 +381,11 @@ The distinction matters for defense-in-depth:
 | **Curated Allow-list** | Explicit allow list; everything else denied | Standard OS user | Loop scope is well-understood |
 | **Sandboxed Full-Auto** | Auto mode, full tool access | Isolated container + network filter | Fully autonomous production loop |
 
-Rule: start every new loop at Approval-First; advance to a higher pattern only after two weeks of zero policy violations at the current level.
+Rule: start every new loop at Approval-First; promote to Curated Allow-list once approvals have become predictable/tedious for at least a week AND you can name the safe operations explicitly enough to write allow rules; promote to Sandboxed Full-Auto only once the OS-level isolation boundary is already in place and tested (not merely planned) and you've pre-agreed on how you'll detect and roll back a bad run.
 
 See [Permissions & Auto Mode](08-permissions.md) for the full harness-layer control reference (allow/deny/ask lists, risk-tiered authorization, agent trust ramp).
 
 (hidekazu-konishi, ["Claude Code Harness and Environment Engineering"](https://hidekazu-konishi.com/entry/claude_code_harness_and_environment_engineering_guide.html), Apr 2026.)
-
-> "Verification closure creates reliability; reliability creates scalability."
 
 Verification built into the harness (a separate verifier agent, objective evidence
 gates) is what makes a loop safe to scale up: you can run more iterations, more
@@ -469,7 +477,7 @@ defines a two-role harness split:
 The key invariant: the initializer runs once; the coding agent runs many times, each
 time within its own context window, always starting by reading the session init file.
 
-## The Four-Type Loop Taxonomy (Claire Vo / Lenny's Newsletter)
+## The Four-Type Loop Taxonomy ([Claire Vo](https://x.com/clairevo) / [Lenny's Newsletter](https://www.lennysnewsletter.com/p/how-to-design-ai-agent-loops-schedules))
 
 Every agent loop has a trigger type. Choosing the wrong trigger type is one of the
 most common harness design mistakes:
@@ -500,7 +508,7 @@ Anthropic's own Claude Code team publishes a complementary four-way split, frame
 
 This taxonomy overlaps but doesn't map 1:1 onto Heartbeat/Cron/Hook/Goal above — it
 splits out *turn-based* (conversational, human-prompted) as its own category, and folds
-Heartbeat+Cron together into *time-based*. Use Claire Vo's table to pick a trigger
+Heartbeat+Cron together into *time-based*. Use [Claire Vo's table](https://www.lennysnewsletter.com/p/how-to-design-ai-agent-loops-schedules) to pick a trigger
 mechanism; use this one to decide how much of the loop should run without a human in
 the room. (["Getting started with loops", claude.com/blog](https://claude.com/blog/getting-started-with-loops), Jun 2026.)
 
@@ -513,7 +521,7 @@ into a three-agent system ([Prithvi Rajasekaran, "Harness design for long-runnin
 |---|---|---|
 | **Planner** | Converts 1–4 sentence prompts into detailed product specs | Ambitious on scope; avoids technical over-specification; identifies AI feature opportunities |
 | **Generator** | Implements features from spec | Self-evaluates before QA handoff; uses git for recovery; works in sprint contracts |
-| **QA / Evaluator** | Active testing with Playwright MCP | Tests UI, API endpoints, and database states like a real user; grades against 20+ predefined criteria |
+| **QA / Evaluator** | Active testing with Playwright MCP | Tests UI, API endpoints, and database states like a real user; grades against a negotiated set of testable criteria, each with a hard threshold |
 
 The Planner prevents cascade errors from spec mistakes by staying high-level.
 The Generator negotiates sprint contracts with the Evaluator before each build phase.
@@ -521,12 +529,13 @@ The Generator negotiates sprint contracts with the Evaluator before each build p
 ### Sprint Contract
 
 Before each implementation sprint, the Generator and Evaluator **negotiate** a specific
-set of deliverables and testable criteria — often 20+ per sprint:
+set of deliverables and testable criteria, granular enough that Sprint 3 of Anthropic's own
+run carried 27 of them for the level editor alone:
 
 ```
 Sprint N contract:
 - What will be built: [specific features]
-- Success criteria: [20+ testable, objective conditions]
+- Success criteria: [testable, objective conditions; each with a hard threshold]
 - "Done" definition: all criteria pass in QA
 ```
 
@@ -653,8 +662,9 @@ that structure becomes load-bearing. Simplify first; then write tests against th
 simplified code.
 
 Between waves: a confidence-scored reviewer audits deliverables across multiple
-dimensions; only findings at ≥80% confidence surface. Low-confidence findings are
-logged but suppressed. (See [Subagents](07-subagents.md) for confidence-scored gates.)
+dimensions. Findings at ≥80% confidence surface in the main report; findings at
+50-79% move to a separate "Possible Issues" section for human review rather than
+being dropped; only findings below 50% go unreported. (See [Subagents](07-subagents.md) for confidence-scored gates.)
 
 (session-orchestrator — [Kanevry/session-orchestrator](https://github.com/Kanevry/session-orchestrator), Jun 2026.)
 
@@ -809,23 +819,23 @@ and polling a cursor-based tail rather than blocking a request past its timeout.
 **Security review at specification stage:** In a harness-agnostic design, a dedicated security agent
 reviews the compiled harness specification *before* any implementation begins — not after.
 Fixing a security gap at specification costs 1×; fixing it post-implementation costs 10×+.
-
-**The `.apm/` primitive manifest** — the canonical source format for a harness-agnostic agent stores six primitive types in separate subdirectories:
-
-| Subdirectory | Contents |
-|---|---|
-| `skills/` | Reusable workflow files (SKILL.md schemas) |
-| `instructions/` | Role-specific system prompts and CLAUDE.md fragments |
-| `hooks/` | PreToolUse/PostToolUse/Stop hook scripts |
-| `prompts/` | Reusable prompt templates |
-| `commands/` | Slash-command definitions |
-| `tools/` | MCP tool configurations and API definitions |
-
-The compiler reads `.apm/` and generates the harness-specific layout (`.claude/` for Claude Code, `.codex/` for Codex, etc.). Primitive files contain no CLI-specific directives — portability is enforced by convention, not tooling.
-
-(sergiocarvalhosa/[Monad-Harness](https://github.com/sergiocarvalhosa/Monad-Harness), Jun 2026.)
-
 ([eugenelim/agent-ready-repo](https://github.com/eugenelim/agent-ready-repo), Jun 2026.)
+
+**The `.apm/` primitive manifest** — Monad-Harness does not define its own primitive schema; it adopts [APM (Agent Package Manager)](https://microsoft.github.io/apm/), Microsoft's runtime-agnostic authoring format, as its "compilation substrate." APM's `.apm/` format defines seven primitive types, not six:
+
+| Primitive | Contents |
+|---|---|
+| Skills | Self-contained capability bundles (`SKILL.md` + scripts + assets) |
+| Prompts | Reusable prompt templates with frontmatter |
+| Instructions | Long-lived behavior rules (style guides, conventions) |
+| Agents | Personas with explicit scope, tools, and triggers |
+| Hooks | Event handlers fired by the runtime (pre-commit, on-tool-use, …) |
+| Commands | Slash-command shortcuts the developer types into the agent UI |
+| MCP servers | Tool-server declarations consumers can wire into their harness |
+
+`apm compile` reads `.apm/` and writes deterministic per-target output for each supported runtime (`.claude/` for Claude Code, `.codex/` for Codex, etc.). Primitive files contain no CLI-specific directives — portability is enforced by convention, not tooling.
+
+([sergiocarvalhosa/Monad-Harness](https://github.com/sergiocarvalhosa/Monad-Harness), Jun 2026 — a proposal/spec-stage repo (`PROPOSAL_L0_v2.0.md`, `SPEC_V1.md`, `ROADMAP_v1.md`; no shipped code as of this writing) that builds a lifecycle-management layer on top of APM rather than authoring its own schema.)
 
 ## 8-Phase DAG Execution Model (Tenet)
 
@@ -833,14 +843,14 @@ An extension of the five-wave model for harnesses covering 12+ hour development 
 
 | Phase | Role |
 |---|---|
-| 1. Bootstrap | Load goal, context, and existing state |
-| 2. Interview | Clarify ambiguities; gather constraints before any code is written |
-| 3. Spec | Produce a typed, reviewable specification (not code) |
-| 4. Visuals | Design/mockup pass if UI is in scope |
-| 5. Decomposition | Break spec into DAG of parallelisable tasks |
-| 6. Execution | Implement tasks; each task assigned to one agent context |
-| 7. Evaluation | Independent critic pass per deliverable |
-| 8. Agile | Retrospective; carry incomplete items forward as first-class work units |
+| 0. Bootstrap | Load goal, context, and existing state |
+| 1. Interview | Clarify ambiguities; gather constraints before any code is written |
+| 2. Spec & Harness | Produce a typed, reviewable specification (not code) |
+| 3. Visuals | Design/mockup pass if UI is in scope |
+| 4. Decomposition | Break spec into DAG of parallelisable tasks |
+| 5. Execution | Implement tasks; each task assigned to one agent context |
+| 6. Evaluation | Independent critic pass per deliverable |
+| 7. Agile | Retrospective; carry incomplete items forward as first-class work units |
 
 **3-Critic Pipeline:** The evaluation phase deploys three independent critics, each running
 in a fresh context window with no access to the original implementer's reasoning — only the
@@ -853,18 +863,19 @@ freeform messages, to prevent loop breakage:
 | Type | When to use | Effect |
 |---|---|---|
 | `context` | New information the agent needs (API changed, requirement clarified) | Adds context; does not redirect |
-| `directive` | Explicit redirect to a different approach | Cancels current subtask; redirects |
+| `directive` | Explicit redirect to a different approach | Reprioritizes the job queue; the in-flight job continues rather than being cancelled |
 | `emergency` | Safety or security concern requiring immediate halt | Stops current execution; escalates |
 
-Never inject a `directive` steer mid-subtask without first completing or cancelling the in-progress work.
-Injecting a directive into a write operation without a task boundary risks ledger corruption.
+In tenet's own implementation, injecting a `directive` steer reclassifies and reprioritizes pending work but does not itself cancel or roll back an in-progress job — treat any specific data-corruption claim about mid-subtask steering as unverified against the source.
 
 ([JeiKeiLim/tenet](https://github.com/JeiKeiLim/tenet), Jun 2026.)
 
 ## Meta-Harness: 3-Tier Policy Hierarchy
 
 A meta-harness governs multiple sub-harnesses (Claude Code, Codex, Cursor) under a unified
-policy layer. Policies are layered in three tiers, with later tiers overriding earlier ones:
+policy layer. Policies are layered in three tiers; per Omnigent's own model the **end-user
+session tier evaluates first**, and any DENY there short-circuits before the agent-spec or
+server-wide tiers run — the reverse of a simple "last tier wins" cascade:
 
 | Tier | Scope | Typical controls |
 |---|---|---|
@@ -882,7 +893,7 @@ re-establishing context from scratch.
 
 **Compaction persistence** — context compaction events are persisted alongside the session state. When a session resumes (`claude --resume`), the harness replays the compaction log to reconstruct the effective context without requiring the agent to re-read all prior files — reducing resume latency significantly on long sessions.
 
-**Spec reconstruction on resolve-miss** — if the agent spec file is missing when the harness tries to resume, the harness reconstructs it from the stored session event log rather than aborting. This prevents crash-loop failures caused by missing config files.
+**Spec reconstruction on resolve-miss** — Omnigent's sub-agent spec resolver reconstructs a spec it cannot find in the persisted bundle rather than returning nothing. The shipped mechanism is narrower than a general resume/crash-loop guard: the built-in `__web_researcher` sub-agent behind the `web_fetch` tool is synthesized in memory and never serialized into the parent spec, so a child session that re-parses the bundle fresh finds it absent; the resolver detects this specific miss and reconstructs the researcher's spec from its owner, inheriting the owner's model and sandbox/egress boundary.
 
 ([omnigent-ai/omnigent](https://github.com/omnigent-ai/omnigent), Jun 2026.)
 
@@ -944,10 +955,10 @@ prompt: |
 executor:
   harness: claude-sdk    # or: openai-agents, codex, cursor, kiro-native, copilot, kimi,
                          #     antigravity (Gemini), qwen, pi, hermes, ...
-  model: claude-sonnet-4-6
+  model: databricks-claude-sonnet-4-6
   auth:
-    type: api_key
-    env: ANTHROPIC_API_KEY
+    type: databricks
+    profile: oss
 
 tools:
   github:
@@ -956,7 +967,8 @@ tools:
 
 policies:
   session_budget:
-    handler: cost.budget
+    type: function
+    handler: omnigent.policies.builtins.cost.cost_budget
     factory_params:
       ask_thresholds_usd: [5.00]   # ASK mid-run before hard cap
       max_cost_usd: 10.00          # Hard DENY
@@ -1110,9 +1122,11 @@ both read 20260906. ClaudeWarp shares this KB's maintainer — see
 
 **Three things follow, and they are worth more than a success story would have been.**
 
-1. **A retirement mechanism is cheap; retirement is rare.** 65 releases were read across two runs
-   and the native platform absorbed none of these components. Build the mechanism anyway — it costs
-   one skill — but do not budget for a shrinking harness on the strength of having one.
+1. **A retirement mechanism is cheap; retirement is rare.** 61 releases were read across two runs
+   (8 in the 2026-06-30 window, v2.1.184 → v2.1.196; 53 in the 2026-09-04 window, v2.1.200 →
+   v2.1.261) and the native platform absorbed none of these components. Build the mechanism
+   anyway — it costs one skill — but do not budget for a shrinking harness on the strength of
+   having one.
 2. **"Designed to shrink" is a claim about design, not about size.** The two are easy to conflate,
    and this KB conflated them in three places until it checked. If a harness advertises the
    property, the honest artifact is a **retirement count**, not a mechanism description.
@@ -1147,8 +1161,11 @@ So the platform boundary moves in **both** directions, and that changes the reti
   mode — stated in the docs row. A removal that names no successor is the expensive kind.
 
 (Verified 20260906 against the
-[official changelog](https://raw.githubusercontent.com/anthropics/claude-code/main/CHANGELOG.md) and
-[`/docs/en/commands`](https://code.claude.com/docs/en/commands). This KB never documented
+[official changelog](https://raw.githubusercontent.com/anthropics/claude-code/main/CHANGELOG.md),
+[`/docs/en/commands`](https://code.claude.com/docs/en/commands), and
+[`/docs/en/whats-new/2026-w15`](https://code.claude.com/docs/en/whats-new/2026-w15) (the actual
+source of the launch-description quote above — `/docs/en/commands` now carries only the shorter
+post-removal summary). This KB never documented
 `/ultraplan` while it existed — it is recorded here for the lesson, not as a feature to use.)
 
 ## Harness Update File Safety Contract
@@ -1157,11 +1174,11 @@ When the harness ships updates that modify shared files (CLAUDE.md, loop templat
 skill definitions), a naive update would overwrite local customizations.
 
 The safe pattern: when an upstream harness change collides with a locally-modified file,
-place the upstream version as a `.upstream` companion file rather than overwriting:
+place the upstream version as a `<stem>.upstream.<ext>` companion file rather than overwriting:
 
 ```
-CLAUDE.md           ← your local version (protected, never overwritten)
-CLAUDE.md.upstream  ← what the harness update wants to write
+CLAUDE.md            ← your local version (protected, never overwritten)
+CLAUDE.upstream.md   ← what the harness update wants to write
 ```
 
 The human reviews the diff between the two and manually merges what they want to adopt.
