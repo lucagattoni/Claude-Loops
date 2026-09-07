@@ -316,7 +316,7 @@ the maker made because it reasons from the same priors; a *different* model is l
 catch what the first is systematically blind to, and the two models' disagreement becomes the
 productive tension that drives another iteration. These harnesses pair the cross-model
 reviewer with a **structured verdict schema** that separates blocking from non-blocking
-findings — mateaix/loope's reviewers emit `VERDICT: PASS` / `VERDICT: BLOCK` plus advisory
+findings — [mateaix/loope](https://github.com/mateaix/loope)'s reviewers emit `VERDICT: PASS` / `VERDICT: BLOCK` plus advisory
 `SUGGEST:` lines, while the other harnesses use their own verdict vocabularies (herdr-loop-lab's
 judge emits `met`/`unmet` per acceptance criterion in JSON; forja's emits `VEREDICTO: PASS |
 REJECT | BLOCKER`) —

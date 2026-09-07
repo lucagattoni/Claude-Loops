@@ -509,6 +509,24 @@ deliverables, where "done" and "known" are different, both-needed completion sta
 
 ---
 
+### [vibe-dev-plugin](https://github.com/andrewcigan/vibe-dev-plugin) — andrewcigan
+**Added:** 2026-09-07 · **Published:** Sep 2026
+
+**Why here:** The only reference implementation in this group that makes verifier
+independence a *tool-permission* fact rather than a prompt instruction — the verifier role
+is denied Write/Edit at the harness level, so it structurally cannot fix what it finds. Adds
+a concrete, portable model-tiering-per-stage pattern ([docs/24](24-harness-patterns.md#cross-model-division-of-labor))
+this group didn't otherwise cover with a runnable example.
+
+**Summary:** Per-stage model tiering assigns a higher-cost tier to planning, critique, and
+verification while a cheaper tier handles bulk implementation. The verifier stage is
+write-denied by tool permission, not by convention, closing the same self-grading gap
+[docs/04](04-verification.md) documents from the harness-config side. Completion is defined
+as "proven by a real run" — screenshots, execution traces, or mutation-testing evidence, not
+a passing typecheck.
+
+---
+
 ### [LoopX](https://github.com/huangruiteng/loopx) — huangruiteng
 **Added:** 2026-07-08 · **Published:** Jul 2026
 

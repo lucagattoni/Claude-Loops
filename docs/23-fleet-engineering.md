@@ -114,6 +114,16 @@ a governance-first harness enforcing shared policy across Copilot, Claude Code a
 telemetry and policy enforcement consistent with F0–F3 progression — and still names no gate signal.
 ([chf3198/megingjord-harness](https://github.com/chf3198/megingjord-harness), Jul 2026.)
 
+A second cross-vendor example widens the roster further — Claude Code, Codex, Grok, Kimi,
+DeepSeek Harness, OpenCode, and Pi, coordinated through a uniform MCP tool layer rather than
+a shared control plane — and comes closer to an F2 gate signal without quite naming one:
+**pre-agent policy hooks gate delegation with per-harness quotas**, and a **live cost ledger**
+tracks spend across all seven vendors in one place. That is closer to the F2 "spend visible
+per agent" criterion than either source above gets, but it is still infrastructure a passing
+fleet would have, not a test that it passed — the gap this section closed stays closed by
+[cobusgreyling/fleet-engineering](https://github.com/cobusgreyling/fleet-engineering) below,
+not by this repo. ([firstintent/ccteam](https://github.com/firstintent/ccteam), 425★, Sep 2026.)
+
 **The answer was inside a repo this doc already cites.**
 [cobusgreyling/fleet-engineering](https://github.com/cobusgreyling/fleet-engineering) — referenced
 three times here — carries `docs/maturity-model.md` and `docs/fleet-ready-score.md`, which nobody

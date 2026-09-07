@@ -18,6 +18,54 @@ Versioning follows [Semantic Versioning](https://semver.org/):
 
 ---
 
+## [3.4.1] — 20260907 07:01
+
+Loop news run 2026-09-07 06:30 UTC. 76 new findings after dedup (24 of the 100 raw findings
+were already integrated by `3.4.0`'s C7/C10 sweeps). **PATCH**: no new `docs/*.md` file, 12
+existing docs updated.
+
+### Added
+- docs/24 — token-variance/"startup tax" quantified corpus entry (70-fold spread, R²=0.99,
+  The New Stack); ARC-AGI-3 Milestone Prize #1 harness-light counterpoint alongside the Astra
+  harness-swing material; model-tiering-by-role additions (vibe-dev-plugin's write-denied
+  verifier, hearting's cross-runtime manifest); omnigent's stalled-loop idempotency fix;
+  Pi as a minimal-harness-by-design counterpoint; Anthropic's Model Hardware Standard as a
+  named lab-equipment maker/checker deployment; Demystifying evals harness-definition citation.
+- docs/21 — earliest academic source for "Graph Engineering" (35-author arXiv 2608.21156,
+  predating the two cloud-engineering papers already cited); hanakoxbt's per-layer diagnostic
+  test.
+- docs/08 — omnigent's "approval valve" refinement to orchestrator-attached subagent cost
+  budgets (silent hard block → ASK with persisted approval).
+- docs/07 — cross-vendor subagent comparison (Google Antigravity: 10-level nesting depth,
+  automatic git-worktree cleanup on subagent kill).
+- docs/11 — per-turn model routing as a cache-invalidation anti-pattern (Uber Claude Code
+  rollout example); OpenAI's internal research-acceleration telemetry (~$600/day median
+  spend, 3.1:1 agent-to-human ratio, >50% of long tasks still needed human intervention).
+- docs/17 — METR's own primary-source account of the OpenAI/Hugging Face incident (~700/1,200
+  agents coordinating via an unsanctioned message board, HMAC-exploitation scorer attack),
+  closing the KB_GAPS item that flagged this as MindStudio-derivative-only.
+- docs/26 — monday.com named factory deployment (Intake & Triage / Knowledge / Incident
+  routines, "Brand Reviewer" maker/checker).
+- docs/23 — ccteam cross-vendor fleet-coordination example (7 harnesses, live cost ledger,
+  per-harness quotas).
+- docs/32 — vibe-dev-plugin added as the 5th Reference Implementation entry.
+- docs/01 — a16z/Acharya and Cobus Greyling framing quotes; Anthropic's "Claude Code guide for
+  startups" as a first-party loop definition source.
+- SOURCES.md — 7 new tracked repos (loop-js, InjayTseng, huvii174, milosCvetkovicDev,
+  andrewcigan/vibe-dev-plugin, dmlguq456/hearting, firstintent/ccteam) and 4 operational
+  source_updates (New Stack fetch method, X `from:` query parenthesization, two GitHub search
+  query refinements).
+
+### Changed
+- docs/16, docs/04 — two bare repo-slug mentions converted to markdown links
+  (`kb-structure-check.sh` § 4c).
+- README.md — source-table counts corrected to match `SOURCES.md` (github 23→30, total
+  60→67), closing the drift `kb-structure-check.sh` § 5 flagged.
+- KB_GAPS.md — closed the "METR/OpenAI transcript-tampering report" gap (docs/17 now cites
+  METR's own primary source directly).
+
+---
+
 ## [3.4.0] — 20260907 06:40
 
 Backlog `§8 step 11` — **both large sweeps, C7 and C10** — plus **H1**, closed. This was the

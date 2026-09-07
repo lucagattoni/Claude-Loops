@@ -74,7 +74,7 @@ reviewable, visible to every subagent and machine, and it survives the harness b
 
 ### Three failure modes, from the issue tracker
 
-These are **user reports on `anthropics/claude-code`**, not vendor-confirmed defects — cited
+These are **user reports on [`anthropics/claude-code`](https://github.com/anthropics/claude-code)**, not vendor-confirmed defects — cited
 because they are reproducible descriptions of the risk shape, and because two of the three were
 **closed as `stale` rather than fixed**. Verified open/closed state and labels on 20260906.
 

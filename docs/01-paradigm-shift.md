@@ -33,6 +33,18 @@ into the discipline's founding line:
 See [The Factory Model](26-factory-model.md) for the deeper treatment: what the
 engineer's role becomes once implementation speed is no longer the bottleneck.
 
+**The same claim, made at company-building scale rather than individual-tool scale.** a16z's
+Anish Acharya argues the shift this page documents for one engineer's workflow is also
+happening one level up — "how every job function becomes a loop" — framing loop design as a
+*company-building* skill, not just a coding-agent one.
+([Anish Acharya, Lenny's Newsletter, "Why companies are becoming a series of loops"](https://www.lennysnewsletter.com/p/why-companies-are-becoming-a-series), Sep 2026.) Cobus
+Greyling frames the same replacement from the practitioner's side, with the operational
+consequence spelled out: *"stop being the person who prompts the agent. Design the system
+that finds the work, hands it out, checks it, remembers state, and decides the next
+step"* — loops as *"highly intelligent cron jobs,"* an "Agent Lite" alternative to building a
+full agent framework.
+([Cobus Greyling, "Loop Engineering is Agent Lite"](https://cobusgreyling.substack.com/p/loop-engineering-is-agent-lite), Sep 2026.)
+
 ## AI Leverage Formula
 
 > AI Leverage = Your Skill × Your Clarity
@@ -105,6 +117,15 @@ Anthropic published five canonical agent workflow patterns that underpin their i
 The **evaluator-optimizer** is the canonical implementation of the maker/checker verification loop: the generator produces an artifact, the evaluator judges it against defined criteria, and the result drives the next generation. The loop exits when the evaluator's criteria are met — this is loop engineering's stopping condition in practice. See [Subagents](07-subagents.md) for the DOER/CHECKER pattern and evaluator tuning.
 
 (Anthropic, ["Building Effective Agents"](https://www.anthropic.com/engineering/building-effective-agents), Dec 2024.)
+
+A later first-party guide states the loop definition this page opens with as Anthropic's own
+official language, distilled from 13+ startups building on Claude Code: *"Loops are agents
+that repeat cycles of work until a stop condition is met."* The guide's worked example names
+a **"Translucent code reviewer"** agent and covers parallel subagents for adversarial review
+and git worktrees for isolated rebuilds — the same primitives this KB documents in
+[Subagents](07-subagents.md) and [The Six Building Blocks](03-building-blocks.md), here as
+Anthropic's own recommended startup playbook rather than a community pattern.
+([Anthropic, "The Claude Code guide for startups"](https://claude.com/blog/claude-code-guide-for-startups), Sep 2026.)
 
 ## Who Benefits Most From the Shift
 

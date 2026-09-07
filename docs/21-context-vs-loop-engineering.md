@@ -179,6 +179,15 @@ churn (loop → graph → whatever comes next) is itself evidence for the skepti
 if the underlying design questions (SCOPE/ACTION/TRIGGER/BUDGET/STOP) are real regardless of
 what the discipline is called this quarter. ([@thiagoTF](https://x.com/thiagoTF/status/2096165836348158464), Sep 2026.)
 
+**The earliest academic source, predating both papers below.** A 35-author arXiv paper
+proposes "Graph Engineering" for multi-agent LLM systems explicitly aimed at
+system-level intelligence rather than single-agent capability — chronologically the first
+academic treatment of the term this KB has found, ahead of the two cloud-engineering papers
+that independently reach the same three-way split below. Its scale (35 authors) is itself
+evidence the term had moved from social-media joke to a framing multiple research groups
+were independently willing to co-author.
+([arXiv 2608.21156, "Graph Engineering in the Era of LLM Agents"](https://arxiv.org/abs/2608.21156), Aug 2026.)
+
 **Academic corroboration of the three-way split.** A cloud-engineering paper independently
 converges on the same three-way distinction this doc's four/five-discipline table draws —
 separating **graph engineering** (workflow progression), **loop engineering**
@@ -195,8 +204,7 @@ split part of its own architecture rather than just naming it: a Graph Orchestra
 coordinates repo generation/review/execution/verification/release/monitoring agents, gates
 lifecycle transitions on verifiable execution evidence, and separately constrains
 repo-generation/review/repair via "agent harness engineering" — the same three disciplines
-as orthogonal concerns, now appearing in two independent papers three weeks apart rather
-than one.
+as orthogonal concerns, now appearing in three independent papers rather than one.
 ([arXiv 2608.29615, "Forward-Deployed Full-Stack Engineering for Autonomous Cloud MLOps"](https://arxiv.org/abs/2608.29615), Aug 2026.)
 
 **A practical decision rule for when to reach past a loop.** Untangling the debate from a
@@ -209,6 +217,16 @@ loop."* Harrison Chase (LangChain's creator) is quoted making the same point thi
 already documents from a different angle: *"So i didn't really know what graph
 engineering is, and i still don't really… but it's basically just langgraph?"*
 ([explainx.ai, "Graphs vs. Loops"](https://explainx.ai/blog/graphs-vs-loops-agentic-ai-debate-linear-andrew-ng-2026), Jul 2026.)
+
+**A diagnostic test for which layer a failure belongs to.** A separate five-layer framing —
+Prompts → Context → Harness → Loops → Graphs — pairs the stack with a practical debugging
+question: when something goes wrong, ask which layer the failure actually belongs to before
+reaching for a fix at a different one (a bad prompt fixed by adding more orchestration, or a
+harness gap papered over with a better prompt, both treat the wrong layer). Notable as an
+independent primary-source use of this KB's own "Loop Engineering" / "Harness Engineering"
+vocabulary — the author's own paid course names layer 4 "Loop Engineering" and layer 3
+"Harness Engineering" without reference to this KB.
+([@hanakoxbt](https://x.com/hanakoxbt/status/2096710886782386540), Sep 2026.)
 
 ### Is "Graph Engineering" a named discipline?
 

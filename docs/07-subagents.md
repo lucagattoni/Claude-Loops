@@ -356,6 +356,15 @@ prompt cache — ideal when the subtask needs all the context the parent has bui
 **Quantified payoff of recursive spawning, with a caveat.** A Recursive Agent Harness (RAH) pattern — parent agents spawn subagents in parallel, recursively, rather than a fixed one-level fan-out — raised a Codex coding-agent baseline from 71.75% to 81.36% on Oolong-Synthetic (199 samples, 13 context-length buckets up to 4M tokens) with the same GPT-5 backbone, a gain the paper attributes to the harness rather than the model. Swapping to a stronger backbone (Claude Sonnet 4.5) with the same RAH design reached 89.77% — a separate, backbone-driven jump, not a further harness-only effect. The paper's own limitations section states it does **not** ablate recursion depth, entries-per-subagent, or the spawning path, so it is not itself evidence that delegation *depth* specifically (as opposed to breadth) is the lever — that attribution does not appear in the source.
 ([arXiv 2606.13643](https://arxiv.org/abs/2606.13643), Jun 2026.)
 
+**A cross-vendor comparison point.** Google's Antigravity (2.0) ships a materially deeper default
+nesting depth — **10 levels**, versus Claude Code's 3 — and defines custom agents as Markdown+YAML
+files with scoped tools/MCP/model tier and a `commandExecutionPolicy`, callable either as the main
+agent or as a delegated subagent ("execution symmetry"). One operational detail worth adopting
+regardless of vendor: subagents run async with independent context windows, and **when a subagent
+is killed, its git worktree is cleaned up automatically** — closing the class of stale-worktree
+cleanup this KB otherwise documents as a manual or hook-driven concern.
+([Google Antigravity, "Introducing Custom Agents"](https://antigravity.google/blog/introducing-custom-agents); [Subagents docs](https://antigravity.google/docs/subagents), Sep 2026.)
+
 ## Controlling subagent permissions
 
 Restrict which subagents can be spawned or what models they can use:

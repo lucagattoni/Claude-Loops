@@ -6,6 +6,10 @@ continuous refinement, not a disposable wrapper. An operational test for what ac
 counts as a harness (as distinct from a framework, SDK, or orchestrator) — validated
 against Claude Code, Codex CLI, Aider, Cline, OpenHands, and SWE-agent — is given in
 ["What makes a harness a harness"](https://arxiv.org/abs/2606.10106) (arXiv, Jun 2026).
+Anthropic's own engineering blog states a shorter, compatible definition in passing while
+covering agent evals rather than harness design directly: *"the system that enables a model
+to act as an agent: it processes inputs, orchestrates tool calls, and returns results."*
+([Anthropic, "Demystifying evals for AI agents"](https://www.anthropic.com/engineering/demystifying-evals-for-ai-agents), Sep 2026.)
 
 ## Harness vs. Loop — Two Architectural Layers
 
@@ -70,6 +74,17 @@ results above: harness choice can move *either* the success rate or the cost at 
 success, and a harness comparison that only measures one of the two will miss which lever
 actually moved. ([nmlemus/harness-token-efficiency](https://github.com/nmlemus/harness-token-efficiency), Sep 2026.)
 
+**A fourth, independently run comparison finds the widest gap yet.** Running Aider, Claude
+Code, and OpenClaw on the *same* underlying model, three benchmarks measured **3,500 to
+292,000 tokens-per-task** across identical tasks — a 70-fold spread from harness choice
+alone. The dominant driver is a **"startup tax"**: harnesses that resend the full system
+prompt and tool-description catalogue on every turn rather than caching it, a variable that
+alone predicts tokens-per-task at **R²=0.99** across the tested harnesses. Read together
+with the StaminaBench/Claw-SWE-Bench/harness-token-efficiency results above, harness-driven
+cost variance is now corroborated by four independent measurements, none sharing an author.
+([The New Stack, "Aider, Claude Code, and OpenClaw ran an identical model. Token use varied
+70-fold."](https://thenewstack.io/agent-harness-token-costs/), Sep 2026.)
+
 ### Two Settings Tripled a Benchmark Score — and the Vendor Didn't Sell the Harness
 
 The sharpest evidence yet for "the harness matters more than the model" came from a vendor
@@ -92,7 +107,25 @@ developers — rather than the raw model under conditions anyone could reproduce
 "the harness matters": a vendor that understands this thesis has an incentive to under-disclose
 which parts of a benchmark score are harness rather than model — see
 [Benchmark and Eval Integrity](04-verification.md#benchmark-and-eval-integrity-sept-2026-corpus)
-for the verification-side treatment of the same disclosure gap.
+for the verification-side treatment of the same disclosure gap. ARC Prize's own reference
+harness isolates exactly this variable as an experiment rather than an incident: swapping a
+"Standard" harness for a "Provider Adapter" harness around the *same* model moved one score
+from 62.7% to 99.9%, a ~37-point swing from harness alone.
+([ARC Prize Foundation, "OpenAI's GPT-6 Astra on ARC-AGI-3"](https://arcprize.org/blog/astra),
+Sep 2026; open-source harness:
+[arcprize/arc-agi-3-benchmarking](https://github.com/arcprize/arc-agi-3-benchmarking).)
+
+**A counterpoint from the same benchmark family: harness-light also wins.** ARC-AGI-3's first
+Milestone Prize went to a team whose stated philosophy was the opposite of building a bigger
+harness — "keep the harness lightweight and generic and let the model drive," reporting that
+hand-crafted tools *hurt* performance relative to letting the model improvise. Read against
+the Astra/Provider-Adapter result above, the two are not actually in tension: both show the
+harness moving the score, just in opposite directions for different failure modes — Astra's
+harness was compensating for missing capability the model didn't have, this team's
+lightweight harness was removing scaffolding that was constraining a model that didn't need
+it. The design implication is the same either way — measure which failure mode you have
+before choosing which way to move the harness.
+([ARC Prize Foundation, "ARC-AGI-3 Milestone Prize #1"](https://arcprize.org/blog/arc-prize-2026-milestone-1), Sep 2026.)
 
 **Persistent "megathreads" as the harness-level fix for long-running work.** A companion
 practice guide from the same period generalizes the reasoning-retention lesson into a
@@ -459,6 +492,16 @@ Interrupt handling pattern:
 
 ([wquguru/harness-books](https://github.com/wquguru/harness-books), AgentWay, Jun 2026.)
 
+**A related resumption failure: at-least-once delivery duplicating committed work.** A
+stalled forward-loop iteration that gets retried can re-deliver the same external item
+(e.g. a billing transcript) a second time — omnigent traced roughly 20% of a billing
+duplication bug to exactly this, and fixed it not by making retries impossible but by
+making the write idempotent: external items are persisted under a UUID5 key derived from
+the source ID, so a duplicate delivery becomes a no-op rather than a second commit. The
+same principle as ledger closure above — a resumed session must not fabricate progress
+that didn't happen — applied to the loop's *output* rather than its transcript.
+([omnigent-ai/omnigent](https://github.com/omnigent-ai/omnigent) #6654, Sep 2026.)
+
 ## The Two-Part Harness (Anthropic Engineering)
 
 Anthropic's ["Effective Harnesses for Long-Running Agents"](https://www.anthropic.com/engineering/effective-harnesses-for-long-running-agents)
@@ -557,6 +600,18 @@ needed.* An evaluator only adds value when the task sits beyond what the baselin
 model handles reliably solo. As that boundary moves outward with each model
 generation, periodically simplify your harness and measure whether quality holds.
 
+### A Maker/Checker Harness Beyond Software: Lab Equipment
+
+The multi-role split above generalizes past coding. Anthropic's own Model Hardware Standard
+research preview runs the agent loop as **four distinct roles, each a fresh Claude
+instance**, driving physical lab/manufacturing equipment rather than a codebase — a
+maker/checker structure with closed-loop error recovery and no human intervention required
+mid-run. It is evidence that this doc's harness patterns (role separation, verification
+before commit, fresh-instance-per-role) are not coding-specific design choices; they recur
+wherever an agent loop drives a system with real-world side effects and a real cost of
+being wrong.
+([Anthropic, "Model Hardware Standard (research preview)"](https://www.anthropic.com/news/model-hardware-standard-research-preview), Sep 2026.)
+
 ## Dynamic Workflow Patterns (Anthropic Engineering)
 
 Rather than fixing one harness shape per project, Claude Code can **write its own
@@ -632,6 +687,23 @@ running one model for everything.
   session ID — the enforcement lives in the merge code path, not in a convention the
   agent could skip under time pressure.
   ([DrSeedon/orchestra](https://github.com/DrSeedon/orchestra), Sep 2026.)
+
+- **Vibe Dev v9 — a physically write-denied verifier.** Per-stage model tiering (a higher
+  tier owns planning, critique, and verification; a cheaper tier does bulk implementation),
+  taken one step further than the advisor/codex-first pattern above: the verifier role is
+  denied Write/Edit tool access at the harness level, so it cannot fix what it finds even if
+  instructed to — only report it. Its stated completion bar, "done = proven by a real run,"
+  requires screenshots, execution traces, or mutation-testing evidence, not a passing
+  typecheck. ([andrewcigan/vibe-dev-plugin](https://github.com/andrewcigan/vibe-dev-plugin), Sep 2026.)
+
+- **Hearting — one contract projected across three native runtimes.** Rather than a
+  provider-neutral router (UHP) or a control-plane supervisor (Puppetmaster), Hearting turns
+  a natural-language request into a structured "route card," assigns it a sealed per-node
+  model tier (deep / balanced-deep / light / mini), and projects a single
+  `harness-manifest.json` onto whichever of Claude Code, Codex, or OpenCode's *native*
+  surfaces is running it — the division of labor is declared once and reinterpreted per
+  runtime, instead of routed through a shared API layer.
+  ([dmlguq456/hearting](https://github.com/dmlguq456/hearting), Sep 2026.)
 
 This is the same underlying idea as [Subagents' "strong eyes, cheap hands"](07-subagents.md)
 cost-asymmetric role allocation, generalized from same-vendor subagents to
@@ -1053,6 +1125,16 @@ the leading edge, not the exception:
 Read together: coding agents (Claude Code among them) were already leaning on the LLM to
 decide more, before the rest of the field caught up. That does not exempt this doc from the
 trend it documents — it means the trend arrives here *first*.
+
+**A harness built minimal by design, not by later removal.** Pi takes the removal test
+above and applies it at design time instead of as a later cut: it bills itself as "a
+minimal agent harness" that deliberately omits MCP, sub-agents, permission popups, and plan
+mode from its core, exposing each only as an optional TypeScript primitive a user wires in
+if their task needs it — plus mid-session model switching across 15+ providers, so the
+harness-minimalism choice isn't coupled to a single vendor's capability ceiling. Contrast
+with the additive corpus this doc otherwise documents: Pi's default state is closer to
+"nothing" than to any of the multi-role harnesses above, and the maintainers treat that as
+the point rather than a gap to fill. ([pi.dev](https://pi.dev/), Sep 2026.)
 
 ### The removal test
 

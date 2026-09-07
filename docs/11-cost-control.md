@@ -267,6 +267,17 @@ API cost** — evidence that BUDGET ([Loop Contract](27-loop-contract.md)) is no
 runaway-cost guard but a design lever that, tightened around a narrow enough SCOPE, can
 buy frontier-level output cheaply. ([EurekAgent, arXiv 2606.13662](http://arxiv.org/abs/2606.13662), Jun 2026.)
 
+**Fleet-scale internal telemetry, for calibrating the numbers above against an
+organization rather than a single project.** OpenAI's internal usage data on researchers
+running coding agents daily: a median spend of **~$600/day per researcher**, with the 90th
+percentile above **$7,000/day**, and a reported **3.1:1 agent-to-human workday ratio** (the
+agents collectively do the work of roughly three extra researchers per human). Even at that
+spend and ratio, **more than half of successful 4–8 hour autonomous tasks still needed at
+least one human intervention** — a data point for [Human-in-the-Loop
+Escalation](14-human-in-the-loop.md) as much as for cost: high spend and high leverage did
+not eliminate the need for a human checkpoint, they just moved where it falls.
+([OpenAI, "Research acceleration: The view inside OpenAI"](https://openai.com/index/research-acceleration-view-inside-openai), Sep 2026.)
+
 ## Token cost by loop pattern
 
 Concrete benchmarks from operating named loop patterns (Cobus Greyling, [cobusgreyling/loop-engineering](https://github.com/cobusgreyling/loop-engineering), Jun 2026):
@@ -462,6 +473,17 @@ That Fable 5.1 exception is new, and it shipped broken: "Before v2.1.260, changi
 Fable 5.1 with an API key or a Claude subscription also invalidated the cache" — the same
 release ([v2.1.257](https://github.com/anthropics/claude-code/releases/tag/v2.1.257)) that
 shipped Fable 5.1 itself shipped it with that bug, fixed three versions later.
+
+**The same mechanic, generalized past Claude Code: per-turn routing is a cache-invalidation
+anti-pattern.** Routing to a different model or tier on each turn — a common technique when
+cost-optimizing individual calls in isolation — breaks the prefix/KV cache the same way a
+mid-session model switch does above, because the router is choosing per-request rather than
+per-session. A 15-turn session that should hit roughly 90% cache reuse instead recomputes at
+full price on every routed turn; cited alongside this pattern, Uber's ~5,000-engineer Claude
+Code rollout reportedly burned its annual AI budget by April. The fix is the same principle
+[Choosing a Model for the Job](#choosing-a-model-for-the-job) already states: pick the model
+per *session*, not per *call*, so caching stays intact across the turns that would otherwise
+share it. ([@akshay_pachaar](https://x.com/akshay_pachaar/status/2096601734072402054), Sep 2026.)
 
 ### Setting the cache TTL directly
 

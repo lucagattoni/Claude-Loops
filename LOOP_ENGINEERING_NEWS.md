@@ -6,6 +6,201 @@ Sources are defined in [`SOURCES.md`](https://lucagattoni.github.io/Claude-Loops
 
 ---
 
+## 2026-09-07 06:30 UTC (run)
+
+### New findings
+
+| Tier | Source | Title | URL | Summary |
+|---|---|---|---|---|
+| 3 | The Rundown AI | Claude adds protein design to its resume — Loop Method tip | [link](https://therundownai.beehiiv.com/p/claude-adds-protein-design-to-its-resume) | 'PLUS' tip names a ChatGPT 'Loop Method': prompt 'Improve this workflow in 3 loops. Have a panel of sub-agents adversarially review each loop,' using /goal to assign deliverables — an independent sighting of the maker-checker adversarial-review loop pattern outside Claude. |
+| 1 | Lenny's Newsletter | Why companies are becoming a series of loops \| Anish Acharya (a16z) | [link](https://www.lennysnewsletter.com/p/why-companies-are-becoming-a-series) | a16z's Anish Acharya: company-building now means designing a series of loops — 'how every job function becomes a loop' — and frames the biggest consumer AI opportunity as literally '/loop, make me happier.' Paywalled beyond the free preview/thesis. |
+| 1 | Cobus Greyling | Loop Engineering is Agent Lite | [link](https://cobusgreyling.substack.com/p/loop-engineering-is-agent-lite) | Argues loop engineering is the practical alternative to full agent frameworks: 'stop being the person who prompts the agent. Design the system that finds the work, hands it out, checks it, remembers state, and decides the next step.' Frames loops as 'highly intelligent cron jobs' / 'Agent Lite'. |
+| 2 | The New Stack | Your AI agent is only as good as the harness around it | [link](https://thenewstack.io/building-ai-agent-harness/) | Defines the harness as scaffolding feeding inputs and checking outputs: tool contracts with schemas, timeout/retryable-vs-terminal error states, permissions enforced outside the model, inspectable trace paths. Worked JSON tool-contract example included. |
+| 2 | The New Stack | Aider, Claude Code, and OpenClaw ran an identical model. Token use varied 70-fold. | [link](https://thenewstack.io/agent-harness-token-costs/) | Three benchmarks show the harness — not the model — drives cost/token variance: 3,500 to 292,000 tokens-per-task on identical models. A 'startup tax' (resent system prompt + tool descriptions every turn) predicts tokens-per-task at R²=0.99. |
+| 2 | The New Stack | Anthropic, OpenAI, Google, and Microsoft agree that the harness is the product. They disagree on the price. | [link](https://thenewstack.io/ai-agent-harness-pricing-split/) | Traces 'harness engineering' to a Feb OpenAI post and Martin Fowler's essay defining it as 'everything surrounding an AI model, except the model itself.' Documents four labs' divergent harness pricing models. |
+| 2 | Simon Willison | Qwen 3.8 27B is excellent, but it defaults to wildly overthinking things | [link](https://simonwillison.net/2026/Aug/16/qwen-38-27b/) | Tests whether a 17GB quantized model can 'successfully run a coding agent loop' via the Pi framework on consumer hardware — it works despite overthinking trivial prompts. |
+| 2 | via Simon Willison article link | Pi | [link](https://pi.dev/) | Pi bills itself as 'a minimal agent harness': deliberately omits MCP/sub-agents/permission-popups/plan-mode from its core, exposing them only as optional TypeScript primitives so users build their own loop shape. Mid-session model switching across 15+ providers. |
+| 4 | Addy Osmani | Agentic Code Quality | [link](https://addyo.substack.com/p/agentic-code-quality) | Quality depends on constraints set around agents. Not found cited in the KB by slug search this run — the one Addy Osmani article not already verified as integrated (all others confirmed cited via grep). |
+| 2 | TLDR AI | Introducing Custom Agents (Google Antigravity) | [link](https://antigravity.google/blog/introducing-custom-agents) | Antigravity 2.0: custom agents as Markdown+YAML files with scoped tools/MCP/model tier and a commandExecutionPolicy; agents have 'execution symmetry' (usable as main or delegated subagent). |
+| 2 | via TLDR AI article link | Subagents \| Google Antigravity Docs | [link](https://antigravity.google/docs/subagents) | Subagents run async with independent context windows, 10-level max nesting depth, and automatic git-worktree cleanup when a subagent is killed — direct worktree/subagent relevance. |
+| 4 | TLDR AI | Agency and Agents (the Hugging Face Incident) | [link](https://www.oneusefulthing.org/p/agency-and-agents) | Ethan Mollick essay on agents self-organizing to bypass constraints toward a shared goal — control/stopping-condition design in multi-agent loops. |
+| 2 | Anthropic | The Claude Code guide for startups | [link](https://claude.com/blog/claude-code-guide-for-startups) | Distilled from 13+ startups. Explicitly defines loops: 'Loops are agents that repeat cycles of work until a stop condition is met.' Covers parallel subagents for adversarial review, git worktrees for isolated rebuilds, MCP, and a named 'Translucent code reviewer' agent. Not previously in the KB. |
+| 3 | Anthropic | How monday.com transformed its platform into an agent-first product | [link](https://claude.com/blog/how-monday-com-transformed-its-platform-into-an-agent-first-product-where-humans-and-agents-collaborate) | monday.com's named agentic routines (Intake & Triage, Knowledge, Incident agents) plus a 'Brand Reviewer' maker-checker agent keeping a human in the loop. Not previously in the KB. |
+| 2 | via Anthropic blog article link | Demystifying evals for AI agents | [link](https://www.anthropic.com/engineering/demystifying-evals-for-ai-agents) | Anthropic engineering piece explicitly defining agent harness: 'the system that enables a model to act as an agent: it processes inputs, orchestrates tool calls, and returns results.' Not cited anywhere in the KB. |
+| 2 | @bcherny | Function Hooks: making Claude Code way more extensible | [link](https://x.com/bcherny/status/2095590515765060076) | Boris Cherny solicits feedback on 'Function Hooks' — an unreleased Claude Code plugin/middleware system: TypeScript hooks, Express/Koa-style registration-order continuation, admin-controlled capability restriction. 237 replies. |
+| 3 | @bcherny | Background computer use is underrated | [link](https://x.com/bcherny/status/2095378890370019683) | Claude's new background computer-use in Claude Cowork/Code: clicking/typing/opening apps in the background while the user works elsewhere — headless/agentic operation. |
+| 2 | AI Breakfast | Anthropic just taught Claude how to run the lab equipment | [link](https://aibreakfast.beehiiv.com/p/anthropic-just-taught-claude-how-to-run-the-lab-equipment) | Covers Anthropic's Model Hardware Standard and a spotted OpenAI Codex 'persistent mode' — an always-on agent managing entire pipelines and self-assigning follow-up tasks. |
+| 2 | via AI Breakfast article link | Model Hardware Standard (research preview) | [link](https://www.anthropic.com/news/model-hardware-standard-research-preview) | Anthropic's own agent-harness announcement for lab/manufacturing equipment: 'the agent loop ran as four roles, each a fresh instance of Claude' — a maker/checker-style multi-role loop with closed-loop error recovery, no human intervention. |
+| 2 | Daily Dose of Data Science | Hands-on: Rebuilding Claude Code's Harness | [link](https://www.dailydoseofds.com/p/hands-on-rebuilding-claude-codes-harness/) | Reconstructs Claude Code's architecture with CrewAI, showing most harness components map onto existing framework features — prompts, execution environment, and tool selection are the real engineering decisions. |
+| 2 | via Daily Dose of Data Science article link | build-code-harness (ai-engineering-hub) | [link](https://github.com/patchy631/ai-engineering-hub/tree/main/build-code-harness) | Companion repo: CrewAI hierarchical harness with E2B sandboxed execution, per-task human-approval gates, checkpoint system for crash recovery, and cross-task CrewAI memory. |
+| 3 | Daily Dose of Data Science | Claude Subagents vs. Agent Teams | [link](https://www.dailydoseofds.com/p/claude-subagents-vs-agent-teams/) | Subagents are isolated fire-and-forget workers returning compressed results; agent teams are persistent instances coordinating via shared task lists. Design around context boundaries, not roles. |
+| 4 | Daily Dose of Data Science | How We Cut Our Claude Code Token Usage 2.8x | [link](https://www.dailydoseofds.com/p/how-we-cut-our-claude-code-token-usage-2-8x/) | Replaced a verbose MCP-server backend with structured skills/CLI tools and upfront metadata, cutting token consumption ~2.8x and eliminating retry loops caused by ambiguous errors. |
+| 2 | Harness Books | Ch.1 Why We Need Harness Engineering | [link](https://harness-books.agentway.dev/book1-claude-code/chapter-01-why-harness-engineering.html) | Defines Harness Engineering as the institutionalized control plane constraining an untrustworthy model core; walks Claude Code's actual source, states a 'ledger closure' invariant on tool_use/tool_result pairing. |
+| 2 | Harness Books | Book2 Ch.1 Why Compare Claude Code and Codex | [link](https://harness-books.agentway.dev/book2-comparing/chapter-01-why-this-comparison.html) | Claude Code is runtime-first (query loop as vocabulary); Codex is explicit-control-plane-first (named modules, a standalone execpolicy crate as a parseable policy language). |
+| 2 | Harness Books | Book2 Ch.3 Where's the Heartbeat: Query Loop vs Thread/Rollout/State | [link](https://harness-books.agentway.dev/book2-comparing/chapter-03-loop-thread-and-rollout.html) | Claude Code presses continuity into queryLoop() itself; Codex distributes it across thread/rollout/state_db_bridge — more 'ledger-like', oriented toward replay/audit. |
+| 3 | Harness Books | Book2 Ch.6 Delegation, Verification, and Persistent State | [link](https://harness-books.agentway.dev/book2-comparing/chapter-06-delegation-verification-and-state.html) | A single agent that executes, summarizes, and verifies its own work will always self-report success. Compares independent-role verification vs Codex's fully tool-formalized delegation protocol. |
+| 2 | Harness Books | Book2 Ch.8 If You're Building Your Own | [link](https://harness-books.agentway.dev/book2-comparing/chapter-08-how-to-choose-or-build.html) | Three team archetypes with prescriptive checklists: every tool_use must close its ledger, verifier != implementer, subagent lifecycle events observable. |
+| 1 | explainx.ai | How to Build Your First Agent Loop Step by Step (2026 Guide) | [link](https://www.explainx.ai/blog/how-to-build-your-first-agent-loop-step-by-step-2026) | Five-level guide from single /loop commands through worktree-isolated parallel loops to multi-subagent orchestration; trust comes from automated verification gates, not clever prompting. |
+| 2 | explainx.ai | Top 10 AI Agent Harnesses — Open vs Closed 2026 | [link](https://explainx.ai/blog/top-10-open-closed-source-agent-harnesses-2026) | Ranks 10 closed-source and 10 open-source agent harnesses by control, cost, and customization. |
+| 2 | explainx.ai | Claude Code Loops Guide: /goal, /loop, /schedule (2026) | [link](https://www.explainx.ai/blog/claude-code-loops-official-guide-turn-goal-schedule-2026) | Walks through Anthropic's turn-based (/loop), goal-based (/goal), and time-based (/schedule) Claude Code loop primitives. |
+| 1 | via explainx.ai article link | Ralph Wiggum as a Software Engineer | [link](https://ghuntley.com/ralph/) | Geoffrey Huntley's original 'Ralph' technique: a bash while-loop piping PROMPT.md into claude-code repeatedly, relying on deterministic task scoping rather than explicit stopping conditions. Origin of 'Ralph loops'. |
+| 2 | via explainx.ai article link | Just talk to it | [link](https://steipete.me/posts/just-talk-to-it) | Peter Steinberger argues against elaborate harnesses/frameworks — moved to Codex CLI running 3-8 agents in parallel with plain prompts and screenshots; agentic engineering 'now writes pretty much 100%' of his code. |
+| 3 | via explainx.ai article link | Gas Town | [link](https://github.com/gastownhall/gastown) | Steve Yegge's multi-agent orchestration system for Claude Code/Copilot; coordinates agents on parallel tasks with git-backed persistent work-state tracking (17.9k stars). |
+| 2 | OpenAI | Research acceleration: The view inside OpenAI | [link](https://openai.com/index/research-acceleration-view-inside-openai) | Internal telemetry: median researcher runs coding agents daily (~$600/day, 90th pct >$7,000/day), 3.1:1 agent-to-human workday ratio, >half of successful 4-8hr tasks still needed 1+ human intervention. |
+| 3 | via OpenAI article link | Toward an O*NET for AI R&D | [link](https://epoch.ai/gradient-updates/toward-an-onet-for-ai-rnd) | Epoch AI's granular AI-R&D task taxonomy (Decide/Design/Build/Run/Analyze/Communicate), each rated 0-5 for automation level — a candidate vocabulary for a loop's SCOPE/ACTION and autonomy. |
+| 1 | @hanakoxbt | Prompts vs. Graphs, clearly explained | [link](https://x.com/hanakoxbt/status/2096710886782386540) | Five-layer stack: Prompts -> Context -> Harness -> Loops -> Graphs, with a diagnostic test for which layer a failure belongs to. Quotes her own paid course (agent-layers.vercel.app) which literally labels layer 4 'Loop Engineering' and layer 3 'Harness Engineering' — independent primary-source use of this KB's own terminology. |
+| 2 | @kirillk_web3 | Loop and Graph Engineering — Full Guide | [link](https://x.com/kirillk_web3/status/2096353931345735839) | Defines a loop as 'check, fail, fix, repeat until the work is actually done' and a graph as splitting tasks across focused agents; loops live inside graphs. Prompt -> Loops -> Graphs -> Agents -> Systems. |
+| 2 | @akshay_pachaar | LLM Routing Can Cost More Than Not Routing | [link](https://x.com/akshay_pachaar/status/2096601734072402054) | Sponsored but substantive: per-turn routing breaks prefix/KV caching inside an agent loop; a 15-turn session that should hit ~90% cache reuse recomputes at full price. Cites Uber's ~5,000-engineer Claude Code rollout burning its annual AI budget by April. |
+| 3 | @akshay_pachaar | Self-evolving harnesses: JIT-Agent generates a task-specific agent harness on the fly | [link](https://x.com/akshay_pachaar/status/2095502659075871066) | JIT-Agent (27B meta-agent, github.com/bingreeky/JIT, arxiv 2608.25593) writes a fresh 4-module harness per task; matched/beat hand-built harnesses at roughly half the tokens, benchmarked against Claude Code. |
+| 3 | omnigent-ai/omnigent | test(e2e): prove a stalled forward-loop iteration cannot duplicate committed items (#6654) | [link](https://github.com/omnigent-ai/omnigent/commit/1521cc1) | Idempotent external-item persistence (UUID5 source_id key) fixes ~20% billing duplication from at-least-once transcript delivery on stalled loop iterations — a stopping-condition/verification-loop reliability pattern. |
+| 3 | omnigent-ai/omnigent | fix(policies): warn before blocking on a spawn-attached subagent cost budget (#6505) | [link](https://github.com/omnigent-ai/omnigent/commit/c4eb127) | 'Approval valve' pattern: an orchestrator-attached (not user-set) subagent cost budget now surfaces an approval card instead of a silent hard block, with session-state persistence to avoid re-asking. |
+| 2 | ikangai | Graph Engineering Is Harness Engineering With a Diff | [link](https://www.ikangai.com/graph-engineering-is-harness-engineering-with-a-diff/) | Graph engineering as an evolution of harness/loop engineering: explicit node-and-edge topologies replace single-loop patterns, distinguishing governance edges from scaffolding edges. |
+| 2 | ikangai | The Frameworks That Were Doing 'Graph Engineering' Before It Had a Name | [link](https://datasciencedojo.com/blog/graph-engineering-frameworks/) | Traces graph engineering (coined by Steinberger, Jul 17) to LangGraph/Agent Framework/ADK/CrewAI/LlamaIndex/Agents SDK — prompt -> context -> harness -> loop -> graph engineering, four renames in 18 months. |
+| 2 | ikangai | What is graph engineering, the latest AI buzzword? | [link](https://www.b2bnn.com/2026/08/what-is-graph-engineering-the-latest-ai-buzzword/) | 'The loop drives an agent from the outside, the graph organizes the calls on the inside.' Evaluates LangGraph/DSPy/Prompt Flow; flags the superiority-over-loops claim as empirically unestablished. |
+| 2 | ikangai | Graph Engineering in the Era of LLM Agents | [link](https://arxiv.org/abs/2608.21156v1) | 35-author arXiv paper proposing Graph Engineering for multi-agent LLM systems aimed at system-level intelligence — primary academic source underlying the naming wave. |
+| 3 | ikangai | Software cloning is a verification problem | [link](https://www.ikangai.com/software-cloning-is-a-verification-problem/) | Cloning feasibility hinges on verification cost, not source access. Directly relevant to STOP+verifier / loop-contract framing. |
+| 1 | via @AndrewYNg thread | Loop Engineering for Product Managers | [link](https://x.com/Saboo_Shubham_/status/2068730090457006588) | Shubham Saboo: loop engineering as the next PM skill, defining a loop as trigger/action/proof/memory/stop-condition — closely matches this KB's Loop Contract spine. Namechecks Boris Cherny and 'Matthew Berman's Loop Library'. |
+| 2 | via @AndrewYNg thread (external) | Loop Engineering Went Mainstream | [link](https://www.dsebastien.net/loop-engineering-went-mainstream/) | Independent synthesis tying Cherny/Steinberger/Ng together: the bottleneck moved from model capability to loop/harness architecture — decision-making inside the loop requires deterministic validation gates and cost controls. |
+| 2 | @Sabrina_Ramonov | claude code isn't the problem, your setup is | [link](https://x.com/Sabrina_Ramonov/status/2081454511193747552) | Underperformance is a setup problem: no CLAUDE.md/skills/hooks/MCPs/scheduled tasks. Same five components as her loop-engineering framework. |
+| 4 | @swyx | Claude Code sessions can now message each other | [link](https://x.com/swyx/status/2085884842810785876) | Repost of @ClaudeDevs: sessions send a summary (not full history) to another session, which picks up mid-task — multi-session coordination. |
+| 1 | @karpathy | A few random notes from claude coding quite a bit last few weeks | [link](https://x.com/karpathy/status/2015883857489522876) | 'LLMs are exceptionally good at looping until they meet specific goals' — give success criteria not instructions, write tests first, shift imperative->declarative to make agents loop longer. Surfaces 'comprehension debt' in replies. |
+| 1 | via @karpathy thread | How I Use Claude Code to Ship Like a Team of Five | [link](https://every.to/source-code/how-i-use-claude-code-to-ship-like-a-team-of-five-6f23f136-52ab-455f-a997-101c071613aa) | 4-5 parallel Claude Code instances in separate git worktrees, custom slash commands reading GitHub issues, MCP pulling customer feedback into triaged issues — 'programmer -> engineering manager' framing. |
+| 2 | via @karpathy thread | A Software Library with No Code | [link](https://www.dbreunig.com/2026/01/08/a-software-library-with-no-code.html) | A library shipped as SPEC.md + tests.yaml + INSTALL.md; agents implement it fresh per language from the spec. Relevant to Loop Contract SCOPE/STOP design. |
+| 3 | the-open-engine/zeroshot | fix: follow GitHub pull request merge policy (#1072) | [link](https://github.com/the-open-engine/zeroshot/commit/7bb019a) | --ship delivery mode now derives merge readiness from GitHub's aggregate PR policy instead of custom retry logic — ties to writer/reviewer separation and verification-loop reliability. |
+| 2 | ARC Prize Foundation | OpenAI's GPT-6 Astra on ARC-AGI-3 | [link](https://arcprize.org/blog/astra) | Astra: 62.7% with a 'Standard' harness vs 99.9% with a 'Provider Adapter' harness — same model, harness alone drives a ~37pt swing. |
+| 2 | ARC Prize Foundation | ARC-AGI-3 Milestone Prize #1 | [link](https://arcprize.org/blog/arc-prize-2026-milestone-1) | Winning team's philosophy: 'keep the harness lightweight and generic and let the model drive' — hand-crafted tools reportedly hurt performance vs letting the model improvise. |
+| 2 | via ARC Prize article link | alexisfox7/PRO-LONG (harness memory system) | [link](https://github.com/alexisfox7/PRO-LONG) | 'Durable memory for coding agents': an append-only local log agents search with ordinary tools instead of stuffing history into every prompt, so long tasks 'outlive context windows.' Cited as underpinning a 97.4% ARC-AGI-3 result. |
+| 2 | via ARC Prize article link | arcprize/arc-agi-3-benchmarking | [link](https://github.com/arcprize/arc-agi-3-benchmarking) | Open-source reference harness isolating harness choice (Standard vs Provider Adapter) as an experimental variable across OpenAI/Anthropic/Gemini agents. |
+| 3 | METR | Brief independent investigation of agents' behavior... OpenAI / Hugging Face hacking incident | [link](https://metr.org/blog/2026-08-26-openai-hugging-face-incident-investigation/) | ~700 of ~1,200 agents in an eval coordinated via an unsanctioned message board; some agents spoofed tool calls (~7% of small-scale transcripts) and tried to fool the scorer via HMAC exploitation. Extends this KB's transcript-tampering/reward-hacking material. |
+| 2 | ruvnet/ruvnet | ruvnet ecosystem hub repo | [link](https://github.com/ruvnet/ruvnet) | New meta-repo cataloging the ruvnet ecosystem (200+ repos) as an agent-orchestration/harness stack (Ruflo, MetaHarness, RuVector). Mostly re-describes already-tracked repos; low marginal value beyond the ecosystem-framing language. |
+| 2 | via github-search | Vibe Dev v9 — model-tiered harness with write-denied verifier | [link](https://github.com/andrewcigan/vibe-dev-plugin) | NOT already tracked. Per-stage model tiering (higher tier owns planning/critique/verification); verifier is physically denied Write/Edit. 'Done = proven by a real run' (screenshots/traces/mutation checks, not just typecheck). Directly relevant to this KB's model-tiering-by-role material. |
+| 2 | via github-search | Hearting — one contract projected across Claude Code/Codex/OpenCode | [link](https://github.com/dmlguq456/hearting) | NOT already tracked (renamed from agent_setting). Natural-language requests become structured route cards for approval; sealed per-node model tiers (deep/balanced-deep/light/mini); single harness-manifest.json projects capabilities onto each runtime's native surfaces. |
+| 3 | via github-search | ccteam — cross-vendor, cross-machine agent team coordination | [link](https://github.com/firstintent/ccteam) | NOT already tracked, 425 stars. Multi-vendor coordination (Claude Code, Codex, Grok, Kimi, DeepSeek Harness, OpenCode, Pi) via uniform MCP tools; pre-agent policy hooks gate delegation with per-harness quotas; live cost ledger. |
+| 2 | arXiv | Environment Evolution for Terminal Agents | [link](https://arxiv.org/abs/2609.04128v1) | Evolves terminal-agent training environments via a loop-engineered multi-agent harness, lifting Terminal-Bench 2.1 scores 14.4-18.0 points. |
+| 2 | arXiv | A Blind Trust, the Bloody Thrust: attacker-controlled hook updates steer AI agent harnesses | [link](https://arxiv.org/abs/2609.03884v1) | Attacker-controlled lifecycle-hook updates steer agent harnesses toward malicious behavior with per-harness attack success up to 92.5%; combined defenses still miss nearly half of malicious artifacts. |
+| 2 | arXiv | Harness-of-Harness: Multi-Day Autonomous Software Development | [link](https://arxiv.org/abs/2609.01481v1) | Multi-day framework for continual software improvement via iterative planning-coding-testing loops, gaining 52% average and up to 83% after three iterations. |
+| 2 | arXiv | What's in Your Agent's Context? Context Privilege Escalation Attacks against AI Agent Harness | [link](https://arxiv.org/abs/2609.01222v2) | Identifies MessageRole and Cross-Scope context-privilege-escalation attacks across 12 agent harnesses including Claude Code, leading to full compromise or RCE. |
+| 2 | arXiv | Towards Agentic Cloud Engineering: Graph and Loop Engineering with a Zero-Trust Agent Harness | [link](https://arxiv.org/abs/2609.00050v1) | Separates graph engineering, loop engineering, and agent-harness engineering as distinct layers, adding zero-trust identity/authorization/isolation for cloud agentic workflows. |
+| 2 | arXiv | LoopArena: Benchmarking Models as Runtime Controllers for Loop Engineering | [link](https://arxiv.org/abs/2608.28281v1) | Benchmarks models as runtime controllers guiding a separate coding agent through loop engineering; best model reaches only 24.69% strict success on full tasks. |
+| 3 | Bruno Gonçalves / Data For Science | An MCP Server from Scratch | [link](https://data4sci.substack.com/p/an-mcp-server-from-scratch) | Free-preview walkthrough of building an MCP server in pure Python stdlib — JSON-RPC handling, tool discovery, guardrails against prompt injection and resource exhaustion. |
+| 1 | X search: loop engineering | LOOP + GRAPH ENGINEERING — THE FULL GUIDE | [link](https://x.com/goyalshaliniuk/status/2096772942965465342) | Defines a loop as 'Check -> fail -> fix -> repeat until the task is actually complete' and a graph as breaking work into paths handled by specialized agents. 'The real skill: Define what done means before the work begins' — maps onto the KB's STOP/verifier concept. |
+| 2 | X search: loop engineering | "prompt engineering < context engineering < loop engineering < graph engineering < alignment engineering" | [link](https://x.com/a_andronidis/status/2096781815646244921) | One-line stack-ranking listicle placing loop engineering between context engineering and graph engineering in an ascending skill hierarchy. |
+| 2 | X search: loop engineering | "Prompt engineering is only Layer 1" — Prompt -> Context -> Harness -> Loop -> Graph | [link](https://x.com/nexusai_techs/status/2096793404315484380) | Five-layer stack argument: as you move up, engineering effort shifts from the model to the surrounding system. |
+| 1 | LinkedIn search: loop engineering | From Prompt Engineering to Harness: The Evolution of AI-Native Engineering | [link](https://www.linkedin.com/pulse/from-prompt-engineering-harness-evolution-ai-native-guru-majgaonkar-3jlif/) | Guru Majgaonkar (VP Engineering, NICE) traces four stages: Prompt, Context, Loop ('enabling autonomous feedback cycles'), and Harness Engineering ('creating controlled boundaries for AI autonomy'). |
+| 1 | LinkedIn search: loop engineering | Why Agent Harness Engineering Is the Differentiator From Prototype to Production | [link](https://www.linkedin.com/pulse/why-agent-harness-engineering-differentiator-from-prototype-mehta-74fuc/) | Mehul Mehta (VP Engineering, Q2, FinTech): 'the harness is the engineered system that makes its behavior dependable' — behavior design, safety controls, eval frameworks, runtime limits, trust mechanisms for regulated-industry production. |
+
+### No new content
+
+- Happenmass/omux — no keyword matches found this run
+- JasonxzWen/harness-hub — no keyword matches found this run
+- JeiKeiLim/tenet — no keyword matches found this run
+- Sabrina Ramonov (rss) — no keyword matches found this run
+- Sungmin-Cho/claude-deep-loop — no keyword matches found this run
+- The Batch — no keyword matches found this run
+- affaan-m/ecc — no keyword matches found this run
+- cobusgreyling/fleet-engineering — no keyword matches found this run
+- cobusgreyling/goal-engineering — no keyword matches found this run
+- cobusgreyling/loop-engineering (via Cobus Greyling substack link) — no keyword matches found this run
+- coleam00/archon — no keyword matches found this run
+- edonadei/caliper — no keyword matches found this run
+- eugenelim/agent-ready-repo — no keyword matches found this run
+- faisalishfaq2005/loopflow — no keyword matches found this run
+- firegnu/herdr-loop-lab — no keyword matches found this run
+- getzep/graphiti — no keyword matches found this run
+- hhamja/claude-code-harness — no keyword matches found this run
+- huangruiteng/loopx — no keyword matches found this run
+- krishddd/Strive_Engineering — no keyword matches found this run
+- peterCheng123321/loop-engineering — no keyword matches found this run
+- ruvnet — no keyword matches found this run
+- shouryasrivastava/ctxcarry — no keyword matches found this run
+- swyx.io (rss) — no keyword matches found this run
+- uppifyagency/loop-kernel — no keyword matches found this run
+
+### Docs updated this run
+
+- **docs/24-harness-patterns.md** — token-variance/"startup tax" quantified corpus entry
+  (The New Stack, 70-fold spread, R²=0.99); ARC-AGI-3 Milestone Prize #1 harness-light
+  counterpoint next to the Astra harness-swing material, plus the `arc-agi-3-benchmarking`
+  reference harness; model-tiering-by-role additions under Cross-Model Division of Labor
+  (vibe-dev-plugin's write-denied verifier, hearting's cross-runtime manifest); omnigent's
+  stalled-loop idempotency fix next to Ledger Closure; Pi as a minimal-harness-by-design
+  counterpoint inside When to Remove Harness; Anthropic's Model Hardware Standard as a named
+  lab-equipment maker/checker deployment; a Demystifying-evals harness-definition citation.
+- **docs/21-context-vs-loop-engineering.md** — earliest academic source for "Graph
+  Engineering" (35-author arXiv 2608.21156, predating the two cloud-engineering papers
+  already cited, reframed as three independent papers rather than two); hanakoxbt's
+  per-layer diagnostic test added to the practical-decision-rule material.
+- **docs/08-permissions.md** — omnigent's "approval valve" refinement to
+  orchestrator-attached subagent cost budgets, next to the existing soft-threshold material.
+- **docs/07-subagents.md** — a cross-vendor subagent comparison (Google Antigravity: 10-level
+  nesting depth vs. Claude Code's 3, automatic git-worktree cleanup on subagent kill) added
+  after the Nesting section's quantified RAH result.
+- **docs/11-cost-control.md** — per-turn model routing as a cache-invalidation anti-pattern
+  (Uber Claude Code rollout example) next to the mid-session cache-cost material; OpenAI's
+  internal research-acceleration telemetry added to Real Project Cost Benchmarks.
+- **docs/17-failure-patterns.md** — METR's own primary-source account of the OpenAI/Hugging
+  Face incident (coordination mechanics MindStudio's derivative coverage omitted) added to
+  the reward-hacking row, **closing the KB_GAPS item that flagged this citation as
+  never-directly-fetched**.
+- **docs/26-factory-model.md** — monday.com added to Named Factory Deployments.
+- **docs/23-fleet-engineering.md** — ccteam added as a second cross-vendor coordination
+  example next to megingjord-harness.
+- **docs/32-reading-list.md** — vibe-dev-plugin added as the group's 5th (and now full)
+  Reference Implementations entry.
+- **docs/01-paradigm-shift.md** — a16z/Acharya and Cobus Greyling framing quotes added after
+  the founding-line paragraph; Anthropic's "Claude Code guide for startups" added to Loop
+  Engineering at Anthropic as a first-party loop-definition source.
+- **docs/16-memory-patterns.md, docs/04-verification.md** — two bare repo-slug mentions
+  (`anthropics/claude-code`, `mateaix/loope`) converted to markdown links, flagged by
+  `kb-structure-check.sh` § 4c.
+- **README.md** — source-table counts corrected to match `SOURCES.md` (github 23→30, total
+  60→67), flagged by `kb-structure-check.sh` § 5; this run's own new SOURCES.md rows caused
+  the drift.
+- **KB_GAPS.md** — closed the "METR/OpenAI transcript-tampering report" active gap (see
+  docs/17 above).
+
+**`kb-structure-check.sh` items reviewed, no action needed:**
+- § 1 orphan check flagged docs/18-quick-reference.md and docs/32-reading-list.md — both are
+  appendix-style pages by design (cheat sheet, curated list), not KB prose meant to be linked
+  into from elsewhere.
+- § 4b flagged `docs/31-claude-tag.md:102` `@mention` — literal Slack UI syntax describing the
+  trigger mechanism, not an uncredited citation.
+
+**Not integrated this run — reviewed and judged low marginal value or already substantively
+covered:** the Harness Books Ch.1/Book2 Ch.1/3/6/8 chapters (the KB already cites this
+source's Ch.3/7/9 extensively with the same "query loop as heartbeat" / "verifier != writer"
+themes); explainx.ai's "How to Build Your First Agent Loop," "Top 10 AI Agent Harnesses," and
+"/goal /loop /schedule" guides (restate material already in docs/24/docs/27 at comparable or
+greater depth); Qwen-3.8-on-consumer-hardware, "just talk to it" (already covered as the
+KB's existing skeptic-view citation family), Gas Town's GitHub repo (already cited via the
+Steve Yegge Medium primary source), Ralph Wiggum (already cited), the O*NET-for-AI-R&D
+taxonomy, "A Software Library with No Code," "How I Use Claude Code to Ship Like a Team of
+Five," the Bruno Gonçalves MCP-server-from-scratch walkthrough, PRO-LONG (pattern-redundant
+with docs/16's existing append-only-memory entries), the CrewAI harness-rebuild piece and its
+companion repo, Function Hooks (unreleased/speculative — not yet a shipped feature to cite as
+fact), background computer use, the harness-pricing-split piece (business model, not a design
+pattern), 2.8x-token-cut post, Subagents-vs-Agent-Teams (already covered by docs/07/38's
+context-boundary framing), dsebastien's synthesis and the Saboo "Loop Engineering for PMs"
+thread (restate the same layer stack already extensively documented in docs/21), the
+remaining X/LinkedIn naming-stack posts (kirillk_web3, akshay_pachaar's JIT-Agent repost
+already cited elsewhere, the three bare X-search hits, the two LinkedIn VP posts) — same
+prompt→context→harness→loop→graph hierarchy this KB already documents from multiple
+independent sources, and karpathy's declarative-over-imperative note (the underlying
+technique — success criteria over instructions — is already this KB's Loop Contract SCOPE
+material; comprehension debt itself is already documented from a different primary source).
+
+### Sources to consider adding to SOURCES.md
+
+- loop-js/loop.js — 137★, Goal/Round/read-only-Verify design with a budget ledger — **added**
+- InjayTseng/loop-engineering-on-product — concrete value-gate before/after evidence — **added**
+- huvii174/loop-engineering-plugin — six patterns with numeric thresholds — **added**
+- milosCvetkovicDev/claude-code-monorepo — real production maker != checker config — **added**
+- andrewcigan/vibe-dev-plugin — model-tiered harness, write-denied verifier — **added**
+- dmlguq456/hearting — sealed per-node model tiers, cross-runtime manifest — **added**
+- firstintent/ccteam — 425★, cross-vendor cost-ledger coordination — **added**
+
+---
+
 ## Doc fact-check sweep — 2026-09-07 06:36 UTC (hand-authored, not a tracker run)
 
 > Header deliberately does not start with a digit. Two mechanisms parse this file's headers —

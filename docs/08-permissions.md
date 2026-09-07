@@ -518,6 +518,15 @@ model. Claude Code itself has no native `budget_tokens`, `max_cost_usd`, or `ask
 settings keys — this is omnigent's own policy layer, illustrating the soft-threshold pattern
 rather than a `.claude/settings.json` feature.
 
+**The "approval valve" refinement — a hard block that used to be silent.** A later omnigent fix
+changes what happens at an *orchestrator-attached* subagent cost budget specifically (one the
+orchestrator sets when spawning a subagent, not one the user configured): instead of a silent
+hard block when the subagent's cost cap is hit, it now surfaces an approval card and waits —
+the same ASK behaviour the ladder above already applies to user-set budgets, extended to
+budgets the system itself imposes. The approval decision is persisted in session state so the
+same subagent does not re-ask on every subsequent call once approved once.
+([omnigent-ai/omnigent](https://github.com/omnigent-ai/omnigent) #6505, Sep 2026.)
+
 ### Evaluation order for a layered gate
 
 Policies compose, and the order they run in matters: a cost/budget gate that fires *before* a
