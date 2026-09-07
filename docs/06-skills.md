@@ -53,8 +53,7 @@ Skill files also hot-reload: an edit under `.claude/skills/` takes effect immedi
 
 Skills can enforce engineering process, not just task steps. By baking spec writing,
 testing, and review into the skill definition as **non-skippable phases**, you
-prevent the agent from taking shortcuts inside a loop. (Pattern from Addy Osmani,
-"Agent Skills", May 2026.)
+prevent the agent from taking shortcuts inside a loop. (Pattern from Addy Osmani, ["Agent Skills"](https://addyosmani.com/blog/agent-skills/), May 2026.)
 
 ```markdown
 <!-- .claude/skills/implement-feature/SKILL.md -->
@@ -92,7 +91,7 @@ Gains are clearest on obscure, quotation-heavy questions — exactly the materia
 model is weakest on and a hand-written skill would rarely think to cover. This is a
 production pipeline for the skill-authoring step itself, complementary to (not a
 replacement for) the manually-designed SDLC-scaffolding skills above.
-([arXiv 2609.00453, "mimeo: Compiling Public Expert Corpora into Agent Skills"](https://arxiv.org/abs/2609.00453), Aug 2026.)
+([arXiv 2609.00453, "mimeo: Compiling Public Expert Corpora into Agent Skills and Testing What Transfers"](https://arxiv.org/abs/2609.00453), Aug 2026.)
 
 ## Skill Compression for Progressive Loading
 
