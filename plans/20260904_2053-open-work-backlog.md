@@ -258,6 +258,13 @@ Not a defect introduced by C4 — a follow-up C4 *unlocked*, recorded rather tha
   status* — applied to the one place in the pipeline that still does not.
 - **Why it was not done here:** it changes unattended retry-path behaviour, which deserves its
   own adversarial review rather than riding along on a docs-and-skill change.
+- **Sharpened 20260907 by this change's round-2 review, and this is the reason to do it.** C4's
+  new Phase 5d guard fails *closed* — but only inside the skill. Its `exit 1` ends that bash
+  block; it does not make `claude -p` exit non-zero, so the wrapper still logs `Run complete` and
+  nothing publishes. That is the eight-week-outage shape exactly: a green run that shipped
+  nothing, invisible for up to 48 hours until `check-digest-freshness.sh` pages STALE. **C4 did
+  not create this** — the same was true of every other in-skill failure before it — but C4 added a
+  new way to reach it, so `A13` is now the guard's own missing half, not just a tidy-up.
 
 ---
 
@@ -464,9 +471,19 @@ into project `CLAUDE.md`'s UTC rule and the skill followed; only the commit half
 
 **Guarded, not assumed:** the new `None` commit keeps the `feat: loop news run ` subject prefix
 that `run-loop-news.sh`'s `OUR_COMMIT_REGEX` matches, so the wrapper's double-publish guard still
-recognises it. Phase 5b also now requires the run to assert its staged diff is non-empty before
-committing — a `None` run that finds nothing staged wrote no digest section and must fail rather
-than commit nothing and report success.
+recognises it. Phase 5b states the non-empty-diff requirement and **Phase 5d enforces it**: after
+`git reset --soft "$(git merge-base HEAD origin/main)"`, an
+`if git diff --cached --quiet -- LOOP_ENGINEERING_NEWS.md` halts the run, because a run that staged
+no change to the digest never wrote the section and must fail rather than commit nothing and report
+success. It applies to **every** run, not only a `None` one.
+
+**Both details are the fix, not decoration.** The first pass put the check in 5b, before any
+`git add`; there the index still matches HEAD whenever Phase 4d checkpointed the digest, so it read
+empty on a *healthy* quiet-day run and halted it. Unscoped, it passed on a run that staged
+something else and never wrote the digest — the exact failure it exists to catch. Both were caught
+by this change's adversarial review and then reproduced in a scratch repo, twice: once here, once
+independently by the round-2 adjudicator, which also confirmed the resumed-run case (an attempt
+whose Phase 4d checkpoint already committed today's digest passes only *after* the `--soft` reset).
 
 **Left open, as `A13` in §3:** the wrapper still judges success by exit status. C4 makes the
 artifact assertion possible; it does not make it.

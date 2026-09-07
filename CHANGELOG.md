@@ -81,7 +81,11 @@ backlog's §4 and §5 are now empty, and one new item (`A13`) was opened rather 
 - **`A13`** in the backlog's §3 — the wrapper still logs `Run complete` on Stage B's exit status.
   `C4` makes the artifact assertion possible (every run now commits, so a matching commit in the
   delta is a reliable post-condition) but does not make it. Recorded rather than done: it changes
-  unattended retry-path behaviour and deserves its own adversarial review.
+  unattended retry-path behaviour and deserves its own adversarial review. **Sharpened by this
+  change's round-2 review:** the new Phase 5d guard fails closed only *inside the skill* — its
+  `exit 1` ends that bash block but does not make `claude -p` exit non-zero, so the wrapper still
+  logs `Run complete` and nothing publishes. Pre-existing for every in-skill failure, but C4 adds
+  a new way to reach it, which makes `A13` the guard's missing half rather than a tidy-up.
 - A digest entry explaining that **empty sections are now expected on quiet days** — so a future
   reader does not "fix" them or read them as a broken pipeline.
 
