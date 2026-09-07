@@ -18,6 +18,59 @@ Versioning follows [Semantic Versioning](https://semver.org/):
 
 ---
 
+## [3.5.0] — 20260907 09:25
+
+A handover audit before clearing the session: a fresh agent, started cold from `CLAUDE.md` with no
+context, tried to pick up the one open item and reported what it could not reach. Eight gaps, all
+verified before acting. **MINOR** rather than PATCH because it adds a runnable check to the repo —
+the project's own tier table is doc-scoped, so the global "new capability" rule governs.
+
+### Added
+
+- **`scripts/verify-digest-guard.sh`** — proves Phase 5d's digest guard fires, and only when it
+  should. `v3.4.2` claimed that guard was "proven, not asserted"; the proof lived in a throwaway
+  scratch repo and reached the repo only as prose in a digest entry, which `RESUME.md` lesson 6
+  ("anything a repo file instructs must live in the repo") forbids. Six cases: a **sanity case that
+  must abort** before any passing case is believed, both healthy shapes (with and without a Phase
+  4d checkpoint), both broken shapes, and the unscoped guard failing case 4 to show the
+  `-- LOOP_ENGINEERING_NEWS.md` scoping is not cosmetic. **Mutation-tested:** reverting the guard to
+  its unscoped form fails case 4a, and moving it before the `--soft` reset fails case 1b — each
+  mutant reproducing one of the two real bugs found in `v3.4.2`.
+
+### Fixed
+
+- **`RESUME.md` was unreachable from the project entry point.** Nothing in `CLAUDE.md` or the
+  backlog named it, so a session following the documented chain would never open it — losing the
+  concurrency note and the three lessons most relevant to `A13` (guard placement, harness proof,
+  line-number drift). Now a row in the repository map.
+- **`CLAUDE.md` claimed "One item is open"** while `RESUME.md` named three more, two of them live
+  in `KB_GAPS.md` § *Active Gaps*. Now "one **backlog** item", pointing at the rest — an empty §4
+  and §5 is not an empty repo.
+- **`A13` omitted the ordering constraint that makes it unsafe to get wrong.** The assertion must
+  precede the artifact-retirement block: `ARTIFACT_CONSUMED=1` disarms `cleanup()`'s
+  resume-preservation branch, so asserting after it would destroy Stage A's resume state on the
+  exact failure being detected — against the repo's own *every expensive stage must be resumable*
+  rule. Added, with the caveat that `notify()` is still desktop-only so "fail loudly" remains
+  invisible off-machine for up to 48h, and with four cases to cover plus the harness to copy.
+- **`scripts/run-loop-news.sh` credited a test that does not exist** — "(Caught by a test asserting
+  the files on disk…)". `git ls-files` finds no test for the wrapper. Corrected to say it was a
+  hand check, and to point at `A13` and the new harness.
+- **A stale "found but not fixed" note** in the backlog's retained step-10 status block — the
+  README source-type drift it describes was closed by `85f69f0`, and `kb-structure-check.sh` §5
+  now reports "67 rows, 7 types, README agrees". It survived because it sits outside §3/§4/§5,
+  where no tier-emptiness check would ever have cleared it.
+- **`C4`'s closure described a fixed defect in the present tense** ("two consecutive quiet days
+  **page** a healthy tracker"). Untrue since `v3.4.2`.
+- **The live LaunchAgent still carried the comment `H14` deleted.** `~/Library/LaunchAgents/` held
+  `05:00 local (IST/UTC+1 summer) = 04:00 UTC` — the operator-facing copy of the sentence that
+  goes stale on 2026-10-25. Synced per `SCHEDULING.md`; comment-only, `Hour` still 5, job still
+  loaded, no reload needed.
+- **A leftover branch** (`20260907_0703-readme-source-count-fix`) existed local and remote. Not an
+  ancestor of `main` — squashed into `85f69f0` — so `git branch --merged` would never have listed
+  it. Every added line confirmed present on `main` before deleting both refs.
+
+---
+
 ## [3.4.2] — 20260907 08:03
 
 Backlog **step 13** — `C4` and `H14`, the last two items in §4 and §5. Both are shipped; the

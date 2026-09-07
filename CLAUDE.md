@@ -5,8 +5,11 @@ Claude-Loops is a living knowledge base and automated daily tracker for **loop e
 > **Open work — read this first.** `plans/20260904_2053-open-work-backlog.md` is the ranked backlog.
 > **§8's status paragraph is the authority on progress — do not duplicate it here**, and §1's
 > *"Do not re-spend budget on"* list names work already paid for; read both before planning.
-> **Steps 1–13 are done; §4 and §5 are empty.** One item is open: **`A13`** in §3 — make the
-> wrapper assert on the published commit instead of Stage B's exit status.
+> **Steps 1–13 are done; §4 and §5 are empty.** One **backlog** item is open: **`A13`** in §3 —
+> make the wrapper assert on the published commit instead of Stage B's exit status. Separate open
+> content work lives in `KB_GAPS.md` § *Active Gaps* (`docs/24` under-sampled; 47 UNVERIFIABLE
+> claims to triage), and `RESUME.md` lists what the last branch deliberately left — an empty §4
+> and §5 is not an empty repo.
 >
 > **Delete this note once every backlog tier (§3, §4, §5) is empty.**
 
@@ -23,6 +26,7 @@ Claude-Loops is a living knowledge base and automated daily tracker for **loop e
 | `scripts/run-loop-news.sh` | Headless wrapper — runs both skills as two sessions in one worktree |
 | `scripts/SCHEDULING.md` | Change cadence / enable-disable the launchd job — see this before editing the plist |
 | `CHANGELOG.md` · `plans/` · `KB_GAPS.md` | History, plans, gap log |
+| `RESUME.md` | Current handover state — what shipped, what is **not** done, and the lessons the last branch paid for. Read it before starting the open item |
 | `docs/index.md` | The published site's home page — a **second** index, separate from `LOOP_ENGINEERING.md`; update both when adding a doc |
 
 ## Git workflow

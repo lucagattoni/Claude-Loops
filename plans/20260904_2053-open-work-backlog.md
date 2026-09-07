@@ -256,6 +256,26 @@ Not a defect introduced by C4 — a follow-up C4 *unlocked*, recorded rather tha
 - **Do:** after a successful Stage B, assert the delta contains a matching commit; if it does
   not, fail loudly. This is `CLAUDE.md`'s own rule — *assert on the artifact, never a run's exit
   status* — applied to the one place in the pipeline that still does not.
+- **Ordering constraint — get this wrong and the fix causes the damage it detects.** The assertion
+  must sit **between** the `if (( ! success ))` block and the artifact-retirement block that begins
+  *"Retire the artifact so a later run today re-searches"* (`rm -f "$SEED_ARTIFACT"`;
+  `ARTIFACT_CONSUMED=1`). That flag also disarms the resume-preservation branch in `cleanup()`
+  (the `if (( ! ARTIFACT_CONSUMED ))` copy of `findings.json` into `logs/`). Assert *after* it and
+  the check that detects "Stage B published nothing" **also destroys Stage A's resume state**,
+  turning a cheap re-run into a full re-search — on the exact failure it exists to catch, and
+  against `CLAUDE.md`'s *every expensive stage must be resumable* rule. Grep the anchor text; do
+  not trust these as line numbers.
+- **"Fail loudly" is quieter than it sounds.** `notify()` is still `osascript` plus the day log,
+  and `logs/` is gitignored — both on the machine that failed. The only off-machine signal remains
+  `check-digest-freshness.sh` under `tracker-watchdog.yml` (`0 9 * * *`, `MAX_AGE_HOURS: 48`), so
+  a wrapper-detected non-publish stays invisible elsewhere for up to 48h no matter what this item
+  does. Widening `notify()` is a separate, larger question — name it, do not silently solve it.
+- **No harness exists for the wrapper; build one and watch it fail first.** `git ls-files` finds no
+  test for `run-loop-news.sh`, and §9's standing gates do not exercise it. Model the new one on
+  `scripts/verify-digest-guard.sh`, which proves the sibling Phase 5d guard and is the pattern to
+  copy — a sanity case that **must** abort, then the real cases. Four to cover: Stage B commits and
+  pushes → passes; Stage B exits 0 having pushed nothing → **fails**; `origin/main` advanced for an
+  unrelated human commit → passes; the pre-flight "already published, skipping" path → passes.
 - **Why it was not done here:** it changes unattended retry-path behaviour, which deserves its
   own adversarial review rather than riding along on a docs-and-skill change.
 - **Sharpened 20260907 by this change's round-2 review, and this is the reason to do it.** C4's
@@ -454,10 +474,11 @@ anyway") was corrected. The **None** tier still cuts no version — only the com
 changed.
 
 **The sharper consequence, found while working the item and worth recording:** the framing above
-says the *record* cannot distinguish states. It is worse than that — the watchdog **false-alarms**.
+says the *record* cannot distinguish states. It was worse than that — the watchdog **false-alarmed**.
 `check-digest-freshness.sh` reads the newest *committed* dated header against a 48h limit, so two
-consecutive quiet days page a perfectly healthy tracker as STALE. An alarm that cries wolf on quiet
-days is the failure mode that makes the real alarm unreadable.
+consecutive quiet days **would have paged** a perfectly healthy tracker as STALE. An alarm that
+cries wolf on quiet days is the failure mode that makes the real alarm unreadable. (Past tense
+since `v3.4.2`: every run now commits, so the clock advances daily.)
 
 **Downstream claims corrected in the same change** (all asserted the discarded-section behaviour):
 `CHANGELOG.md:10`'s tier legend, `docs/34`'s Stop-condition row, `docs/09`'s retry-guard rationale.
@@ -993,9 +1014,11 @@ the remote, and is marked latest.
 > clean; `scripts/kb-structure-check.sh` found five bare repo slugs on its first run. Run the script
 > before believing any completeness claim, including your own.
 >
-> **Found but not fixed, needs a home:** `README.md`'s "Seven source types" table (~lines 119-128) is
-> stale against `SOURCES.md` — actual counts are `x`=9 (not 7), `html`=9 (not 5), total 60 (not 54),
-> drifted since H3's PR #38 as C9/C11/C12 added sources. Fold into the next README sync.
+> ~~**Found but not fixed, needs a home:** `README.md`'s "Seven source types" table is stale
+> against `SOURCES.md`.~~ **CLOSED 20260907 by `85f69f0`**, and struck here in the 20260907
+> handover audit — it had survived because it sits outside §3/§4/§5, so no tier-emptiness check
+> would ever have cleared it. `kb-structure-check.sh` §5 now reports *"67 rows, 7 types, README
+> agrees"*. The note's own figures (60/54) were themselves superseded before it was closed.
 >
 > **Three things step 9 established that later steps should not re-derive:**
 > 1. **Exhaust the repos already in `SOURCES.md` before searching outward.** F0–F3 sat open through

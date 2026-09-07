@@ -443,6 +443,8 @@ if git diff --cached --quiet -- LOOP_ENGINEERING_NEWS.md; then
   echo "FATAL: no staged change to LOOP_ENGINEERING_NEWS.md — Phase 4's digest section was never written" >&2
   exit 1
 fi
+# Both properties above — running after the reset, and the `-- LOOP_ENGINEERING_NEWS.md` scoping —
+# are proven by `scripts/verify-digest-guard.sh`. Re-run it if you change this block.
 
 git commit -m "feat: loop news run <run_time> — <N> findings, <M> new docs [<tier>]"
 git push origin HEAD:main
