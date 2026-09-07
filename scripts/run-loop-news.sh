@@ -14,6 +14,11 @@
 # retry once origin/main has advanced (a prior attempt already pushed), preventing a
 # double-commit of the day's digest.
 #
+# Post-condition: a successful run must have put a matching commit on origin/main. `claude -p`
+# exiting 0 does not prove that — a skill-internal guard aborts the agent's bash block, not the
+# process — so scripts/assert-published.sh checks the delta after the retry loop and exits 6 if a
+# run that reported success published nothing. scripts/verify-publish-guard.sh proves that check.
+#
 # Drop -e: a failed attempt must NOT kill the script — we handle failures explicitly.
 set -uo pipefail
 
@@ -475,6 +480,43 @@ done
 if (( ! success )); then
   notify "All ${MAX_ATTEMPTS} attempts failed — no digest today. Re-run manually when the API is healthy."
   exit 1
+fi
+
+# --- A13: assert on the ARTIFACT, never on Stage B's exit status ----------------------
+# `success` above means only that run_claude() saw `claude -p` exit 0 with no transient-error
+# marker in its transcript. That is true of a genuine publish — and equally true when a
+# skill-internal guard aborts: Phase 5c's build gate and Phase 5d's digest guard in
+# integrate-loop-news/SKILL.md `exit 1` the agent's own bash BLOCK, not the `claude -p` process,
+# so a session that printed FATAL and then ended its turn cleanly arrives here with success=1 and
+# nothing on origin/main. A green run that shipped nothing is this repo's eight-week-outage shape
+# exactly, so the script does not get to say the run completed until it has checked the durable
+# artifact instead of assuming it. C4 is what makes the check possible: every run commits now,
+# including a zero-finding one, so a matching commit in the delta is a reliable post-condition.
+#
+# The check lives in scripts/assert-published.sh and is called here exactly as it ships, so
+# scripts/verify-publish-guard.sh proves the thing that actually runs rather than a copy that can
+# drift from it. Any non-zero is treated the same (1 = checked, no commit; 2 = could not check at
+# all): an assertion that could not confirm a publish has not confirmed one.
+#
+# THIS BLOCK MUST STAY HERE — after the retry loop's failure exit above, and before both the
+# run-complete line and the retirement block below (`rm -f "$SEED_ARTIFACT"`; `ARTIFACT_CONSUMED=1`).
+# That flag also disarms cleanup()'s resume-preservation copy of findings.json into logs/, so an
+# assertion placed after retirement would destroy Stage A's ~23-minute search on the exact failure
+# it exists to catch, turning a cheap resumed re-run into a full re-search — against this repo's
+# "every expensive stage must be resumable" rule. verify-publish-guard.sh's case 8 checks the
+# placement AND the arguments mechanically; re-run it if you touch this block or that script.
+#
+# ON "LOUDLY": notify() is an osascript popup plus this machine's gitignored day log. The only
+# off-machine signal remains scripts/check-digest-freshness.sh under tracker-watchdog.yml (daily,
+# MAX_AGE_HOURS 48), so a non-publish caught here can still be invisible elsewhere for up to 48h.
+# Widening notify() is a separate, larger question this change deliberately does not answer.
+if ASSERT_OUT="$(bash "$REPO_ROOT/scripts/assert-published.sh" "$REPO_ROOT" "$BASE_SHA" "$OUR_COMMIT_REGEX" 2>&1)"; then
+  echo "[$(stamp)] ${ASSERT_OUT}" | tee -a "$LOG_FILE"
+else
+  ASSERT_RC=$?
+  echo "[$(stamp)] ${ASSERT_OUT}" | tee -a "$LOG_FILE"
+  notify "FATAL: every attempt reported success but nothing was published — origin/main carries no commit matching '${OUR_COMMIT_REGEX}' since ${BASE_SHA} (assert-published.sh exit ${ASSERT_RC}). Not retrying: the retry loop above has already run. Stage A's findings artifact and any Stage-B checkpoints on ${TEMP_BRANCH} are PRESERVED for a resumed re-run. See ${LOG_FILE}."
+  exit 6
 fi
 
 echo "[$(stamp)] Run complete (succeeded on attempt ${attempt})" | tee -a "$LOG_FILE"
