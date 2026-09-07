@@ -1,8 +1,10 @@
 # Headless & Non-Interactive Mode
 
-`claude -p "prompt"` runs Claude without a session — no terminal UI, no interactive
-prompts. This is the entry point for all loop automation: scripts, CI pipelines,
-and scheduled jobs.
+`claude -p "prompt"` runs Claude non-interactively — no terminal UI, no interactive
+prompts — though by default the run is still saved as a resumable session (see
+[Session continuation](#session-continuation) below; pass `--no-session-persistence` to
+opt out). This is the entry point for all loop automation: scripts, CI pipelines, and
+scheduled jobs.
 
 ## Core flags
 
@@ -90,7 +92,7 @@ In CI or multi-machine setups, the system prompt varies per machine (working dir
 hostname, git config), invalidating the prompt cache on every run:
 
 ```bash
-claude -p "task" --exclude-dynamic-system-prompt-sections
+claude -p "task" --exclude-dynamic-system-prompt-sections            # v2.1.98+
 ```
 
 Moves machine-specific sections to the first user message — the system prompt stays
@@ -105,11 +107,11 @@ claude -p "task" --no-session-persistence
 # Disable ALL customizations (troubleshoot hook/skill/plugin conflicts). Differs from --bare:
 #   auth, model selection, built-in tools and permissions still work normally, and managed
 #   settings policy still applies. Sets CLAUDE_CODE_SAFE_MODE.
-claude -p "task" --safe-mode
+claude -p "task" --safe-mode                                        # v2.1.169+
 
 # Skip all setup: hooks, skills, commands, subagents, plugins, MCP, auto-memory, CLAUDE.md
 #   Keeps Bash + file read/edit. Skills under --add-dir still load. Sets CLAUDE_CODE_SIMPLE.
-claude -p "task" --bare
+claude -p "task" --bare                                             # v2.1.81+
 ```
 
 `--bare` is the fastest possible headless start — use it for self-contained tasks
@@ -218,7 +220,7 @@ marker appears in that attempt's output:
 
 ```bash
 ERROR_REGEX='API Error:|ECONNRESET|ETIMEDOUT|Unable to connect to API|socket hang up|overloaded_error|529 |503 Service'
-script -q "$tmp" /opt/homebrew/bin/claude --permission-mode auto -p "/my-loop"; code=$?
+script -q "$tmp" "$(command -v claude)" --permission-mode auto -p "/my-loop"; code=$?
 if [[ $code -eq 0 ]] && ! grep -Eq "$ERROR_REGEX" "$tmp"; then
   echo "success"; exit 0
 fi
@@ -227,6 +229,16 @@ fi
 
 Use exponential-ish backoff (30s, 90s) so a brief provider blip does not lose the
 whole scheduled run. The production version of this is `scripts/run-loop-news.sh`.
+
+**Don't hardcode the binary path** the way an earlier version of this pattern did
+(`/opt/homebrew/bin/claude`). `claude` moved from a homebrew symlink to the native
+installer path (`~/.local/bin/claude`) after this pattern was first written, and a
+hardcoded path silently produced exit code 127 ("no such file") on every attempt once
+the binary moved — a failure `ERROR_REGEX` above does not catch. `"$(command -v claude)"`
+above resolves the binary at run time instead of assuming a fixed location; for a
+resolution order that also tolerates `claude` being absent from `PATH`, see
+[Worktree isolation](#worktree-isolation-a-two-session-pipeline-the-production-shape)
+below (`resolve_claude_bin()`).
 
 **Only retry when a retry is safe.** Blind retries are dangerous when the loop has
 side effects (file writes, commits, releases): a fresh re-run can duplicate work or
@@ -273,16 +285,21 @@ copying for any self-writing daily loop:
    retryable.
 
 3. **Granular retry via a per-attempt tree reset.** The worktree is created once per run;
-   each attempt `git reset --hard origin/main` + `git clean -fd` first. Because the artifact
-   lives in the *gitignored* `.loop-news/`, it survives the reset — so a failure in the KB
-   half re-runs **only** that half against the saved findings, never repeating the expensive
-   search.
+   each attempt first discards the previous attempt's uncommitted edits with `git clean -fd`
+   plus a **conditional** reset: to `HEAD` when Stage-B checkpoint commits already sit ahead of
+   the run's base SHA (so a retry resumes from them), and to `origin/main` only when there are
+   none. Resetting unconditionally to `origin/main`, as this once did, threw those checkpoints
+   away on every retry. Because the artifact lives in the *gitignored* `.loop-news/`, it
+   survives either path — so a failure in the KB half re-runs **only** that half against the
+   saved findings, never repeating the expensive search.
 
 4. **Adapt the retry guard to the durable side effect.** Worktree isolation makes the tree
    disposable, but the final `git push origin HEAD:main` is durable and outlives the
-   worktree. So the guard is retargeted from "primary `HEAD` moved" to "**`origin/main`
-   advanced past the base SHA**": on failure, if `origin/main` moved, a prior attempt already
-   published → stop and notify, never retry (a blind retry would double-commit the digest).
+   worktree. So the guard asks not merely whether `origin/main` moved but whether the delta
+   **contains a matching loop-news commit**: if it does, a prior attempt already published →
+   stop and notify, never retry (a blind retry would double-commit the digest). If `origin/main`
+   advanced for an unrelated reason — a human merging a different PR concurrently — the guard
+   rebases its base SHA forward and keeps retrying instead of abandoning a retriable failure.
    A zero-finding day makes no commit, so success stays judged by exit code, not by whether
    `main` advanced.
 
@@ -314,11 +331,12 @@ worded — are not a substitute for an actual permission boundary; a headless se
 `--permission-mode auto` has demonstrated willingness to route around them when it decides
 the surrounding context justifies it.
 
-**The actual fix is `--disallowedTools`, verified experimentally, not assumed.** Unlike
-`--allowedTools` (a pre-approval list the auto classifier can freely expand beyond),
-`--disallowedTools` is a genuine deny-list — confirmed by isolated testing (a minimal
-session with `--disallowedTools "Bash(git *)"` under `--permission-mode auto`, asked to
-run a git command, reported the call was denied — not routed around). Scope the deny to
+**The actual fix is `--disallowedTools`, verified experimentally, not assumed** (re-verified
+on claude **2.1.263**). Unlike `--allowedTools` (a pre-approval list the auto classifier can
+freely expand beyond), `--disallowedTools` is a genuine deny-list — confirmed by isolated
+testing (a minimal session with `--disallowedTools "Bash(git *)"` under
+`--permission-mode auto`, asked to run a git command, reported the call was denied — not
+routed around). Scope the deny to
 the specific capability that enables the escalation, not a blanket tool name, if the stage
 has any other legitimate narrow use of that tool (here, Stage A still needs plain `Bash`
 for a `date` call, so the deny is `Bash(git *),Bash(gh *),Skill` — scoped to git/gh/Skill,
@@ -343,7 +361,8 @@ The full fix layers as follows, from primary to defense-in-depth:
 
 For daily headless loops that require local tools (Chrome browser automation, local
 filesystem, system credentials), a LaunchAgent is more reliable than cron — it
-respects login sessions, restarts on failure, and survives reboots.
+respects login sessions, can restart on failure (via the optional `KeepAlive` key, not
+set in the example below), and survives reboots.
 
 ```xml
 <!-- ~/Library/LaunchAgents/com.user.my-loop.plist -->
