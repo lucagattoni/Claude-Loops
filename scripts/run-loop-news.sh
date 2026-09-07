@@ -225,9 +225,12 @@ cleanup() {
   # is already in main and produce a duplicate digest. cleanup runs on EXIT, i.e. AFTER the success
   # path, so without this guard it silently undoes the consume. (Caught by asserting on the files
   # on disk; the success path's own log line said "consumed" and was telling the truth. NOTE: that
-  # was a hand check, not an automated one — no test covers this wrapper, which is why A13 in the
-  # backlog says to build one. This comment claimed "a test" until the 20260907 handover audit
-  # looked for it. `scripts/verify-digest-guard.sh` is the pattern to copy.)
+  # was a hand check, not an automated one. This comment claimed "a test" until the 20260907
+  # handover audit looked for it. A13 has since put scripts/verify-publish-guard.sh in the repo,
+  # but be precise about what that reaches: it proves assert-published.sh's logic, and statically
+  # proves WHERE the wrapper calls it from. It never executes this function. cleanup()'s behaviour
+  # on the new exit-6 path — ARTIFACT_CONSUMED still 0, so the artifact is preserved and the
+  # branch kept — is read from this code, not run, and stays a hand check.)
   # UTC to match SEED_ARTIFACT — a local-time name would split the pair either side of midnight.
   if (( ! ARTIFACT_CONSUMED )) && [[ -f "$WT_DIR/.loop-news/findings.json" ]]; then
     cp "$WT_DIR/.loop-news/findings.json" "$REPO_ROOT/logs/findings-$(date -u +%Y%m%d).json" 2>/dev/null || true

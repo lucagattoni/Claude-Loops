@@ -19,7 +19,7 @@
 # produce a failure proves nothing, so case 0 must report no-publish before any passing case here
 # is believed (CLAUDE.md: "prove a new check fires before trusting it").
 #
-# WHY CASES 7 AND 8 ARE GREPS, NOT GIT STATE. Cases 0-6c prove assert-published.sh's logic.
+# WHY CASES 7 AND 8 ARE GREPS, NOT GIT STATE. Cases 0-6f prove assert-published.sh's logic.
 # Nothing in them can prove WHERE run-loop-news.sh calls it from — and that placement is the
 # backlog's own named hazard: "get this wrong and the fix causes the damage it detects." An
 # assertion below the artifact-retirement block would pass every git-state case here while
@@ -214,12 +214,46 @@ fresh
 bash "$SCRIPT_UNDER_TEST" repo "$BASE_SHA" "" 2>/dev/null
 check_rc "6c empty regex refused, not treated as a match" 2 $?
 
+# --- 6d. Cannot tell: origin/main was REWRITTEN, so BASE_SHA is no longer an ancestor -----------
+# The case an adversarial review found the first version of this script getting WRONG, and getting
+# wrong in the worst direction: it reported PUBLISHED. `git log A..B` needs only that both objects
+# exist, not that A is an ancestor of B — and after a force-push BASE_SHA is still a local object —
+# so the range silently became "the whole new history minus the old one" and one stray old subject
+# matched. Case 6b does not cover this: it passes an UNRESOLVABLE sha, a different failure.
+fresh
+git -C wt checkout -q --orphan rewritten
+git -C wt commit -q --allow-empty -m "$SUBJ"
+git -C wt push -q -f origin HEAD:main
+git -C repo fetch -q origin main
+# The fixture is only meaningful if BASE_SHA still RESOLVES but is not an ancestor. If it were
+# unresolvable this would silently degrade into case 6b and prove nothing.
+if git -C repo cat-file -e "$BASE_SHA" 2>/dev/null \
+   && ! git -C repo merge-base --is-ancestor "$BASE_SHA" "$(git -C repo rev-parse origin/main)" 2>/dev/null; then
+  bash "$SCRIPT_UNDER_TEST" repo "$BASE_SHA" "$REGEX" 2>/dev/null
+  check_rc "6d history rewritten — base resolves but is no ancestor" 2 $?
+else
+  printf '  FAIL  %-56s %s\n' "6d fixture broken: base is unresolvable or still an ancestor" "fix the fixture"
+  FAILURES=$((FAILURES + 1))
+fi
+
+# --- 6e. Cannot tell: a hostile retry count must be refused, not silently treated as zero -------
+fresh
+ASSERT_PUBLISHED_FETCH_TRIES=nonsense bash "$SCRIPT_UNDER_TEST" repo "$BASE_SHA" "$REGEX" 2>/dev/null
+check_rc "6e non-integer ASSERT_PUBLISHED_FETCH_TRIES refused" 2 $?
+
+# --- 6f. Cannot tell: a malformed regex makes grep exit >1, which is not a clean no-match -------
+fresh
+git -C wt commit -q --allow-empty -m "$SUBJ"
+git -C wt push -q origin HEAD:main
+bash "$SCRIPT_UNDER_TEST" repo "$BASE_SHA" '[' 2>/dev/null
+check_rc "6f malformed regex — grep fails, not a no-match" 2 $?
+
 echo
 echo "Static checks against the real wrapper"
 echo
 
 # --- 7. Regex drift between this harness and run-loop-news.sh's OUR_COMMIT_REGEX --------------
-# Cases 0-6c prove the script's logic against WHATEVER regex it is handed. If the wrapper's regex
+# Cases 0-6f prove the script's logic against WHATEVER regex it is handed. If the wrapper's regex
 # changes and this file's copy does not, every case above keeps passing — against the wrong regex.
 WRAPPER_REGEX="$(grep -m1 '^OUR_COMMIT_REGEX=' "$WRAPPER" | sed -E 's/^OUR_COMMIT_REGEX="(.*)"$/\1/')"
 if [[ -n "$WRAPPER_REGEX" && "$WRAPPER_REGEX" == "$REGEX" ]]; then
@@ -243,20 +277,26 @@ A1='All ${MAX_ATTEMPTS} attempts failed'
 A2='ASSERT_OUT="$(bash "$REPO_ROOT/scripts/assert-published.sh" "$REPO_ROOT" "$BASE_SHA" "$OUR_COMMIT_REGEX" 2>&1)"'
 A3='Run complete (succeeded on attempt'
 A4='# Retire the artifact so a later run today re-searches'
+# A5 is the terminating statement. Without it the four anchors above are all satisfied by a call
+# site whose else branch logs and then FALLS THROUGH to the run-complete line and artifact
+# retirement — the wrapper runs `set -uo pipefail` with -e deliberately absent, so a deleted
+# `exit 6` is silent. That mutant left this harness fully green until this anchor was added.
+A5='  exit 6'
 n1=$(grep -Fc -- "$A1" "$WRAPPER"); n2=$(grep -Fc -- "$A2" "$WRAPPER")
-n3=$(grep -Fc -- "$A3" "$WRAPPER"); n4=$(grep -Fc -- "$A4" "$WRAPPER")
-if [[ "$n1" -ne 1 || "$n2" -ne 1 || "$n3" -ne 1 || "$n4" -ne 1 ]]; then
-  printf '  FAIL  %-56s failed=%s call=%s complete=%s retire=%s (need 1 each)\n' \
-    "8 all four call-site anchors present exactly once" "$n1" "$n2" "$n3" "$n4"
+n3=$(grep -Fc -- "$A3" "$WRAPPER"); n4=$(grep -Fc -- "$A4" "$WRAPPER"); n5=$(grep -Fxc -- "$A5" "$WRAPPER")
+if [[ "$n1" -ne 1 || "$n2" -ne 1 || "$n3" -ne 1 || "$n4" -ne 1 || "$n5" -ne 1 ]]; then
+  printf '  FAIL  %-56s failed=%s call=%s complete=%s retire=%s exit6=%s (need 1 each)\n' \
+    "8 all five call-site anchors present exactly once" "$n1" "$n2" "$n3" "$n4" "$n5"
   FAILURES=$((FAILURES + 1))
 else
   l1=$(grep -Fn -- "$A1" "$WRAPPER" | cut -d: -f1); l2=$(grep -Fn -- "$A2" "$WRAPPER" | cut -d: -f1)
   l3=$(grep -Fn -- "$A3" "$WRAPPER" | cut -d: -f1); l4=$(grep -Fn -- "$A4" "$WRAPPER" | cut -d: -f1)
-  if [[ "$l1" -lt "$l2" && "$l2" -lt "$l3" && "$l3" -lt "$l4" ]]; then
-    printf '  ok    %-56s %s < %s < %s < %s\n' "8 assert sits after the retry loop, before retirement" "$l1" "$l2" "$l3" "$l4"
+  l5=$(grep -Fxn -- "$A5" "$WRAPPER" | cut -d: -f1)
+  if [[ "$l1" -lt "$l2" && "$l2" -lt "$l5" && "$l5" -lt "$l3" && "$l3" -lt "$l4" ]]; then
+    printf '  ok    %-56s %s < %s < %s < %s < %s\n' "8 assert is called, terminates, then retirement" "$l1" "$l2" "$l5" "$l3" "$l4"
   else
-    printf '  FAIL  %-56s lines %s / %s / %s / %s are out of order\n' \
-      "8 assert sits after the retry loop, before retirement" "$l1" "$l2" "$l3" "$l4"
+    printf '  FAIL  %-56s lines %s / %s / %s / %s / %s are out of order\n' \
+      "8 assert is called, terminates, then retirement" "$l1" "$l2" "$l5" "$l3" "$l4"
     FAILURES=$((FAILURES + 1))
   fi
 fi

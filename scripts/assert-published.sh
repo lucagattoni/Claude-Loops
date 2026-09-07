@@ -30,8 +30,11 @@
 #
 # Exit 0 — the delta base-sha..origin/main contains a matching subject: PUBLISHED.
 # Exit 1 — checked cleanly, no match: NOT published, whatever the caller's exit code said.
-# Exit 2 — COULD NOT CHECK (bad args, not a git checkout, fetch failed, ref unresolvable, git log
-#          failed, bad regex). Callers must treat this exactly like exit 1: a check that cannot
+# Exit 2 — COULD NOT CHECK. Every such path exits 2: bad arguments (wrong count, or any empty
+#          one), a non-positive-integer retry count, a non-git target, fetch failure after the
+#          bounded retry, an unresolvable origin/main, a BASE_SHA that is not an ancestor of the
+#          new origin/main, a `git log` failure, and a grep that itself fails on a malformed
+#          regex. Callers must treat this exactly like exit 1: a check that cannot
 #          tell has not confirmed a publish, and this repo's rule is that such a check fails,
 #          never passes. There is deliberately no `|| true`, no empty default and no stale-ref
 #          fallback anywhere below.
@@ -93,8 +96,23 @@ if [[ -z "$NEW_MAIN_SHA" ]]; then
   exit 2
 fi
 
+# `git log A..B` requires only that both objects EXIST — not that A is an ancestor of B. After a
+# force-push or a history rewrite, BASE_SHA is normally still a loose object in this checkout (it
+# was fetched before the rewrite, and git keeps unreachable objects for gc.pruneExpire, two weeks
+# by default), so the range silently stops meaning "what this run added" and starts meaning
+# "everything on the new history minus the old one" — a large set of unrelated commits. One stray
+# old `feat: loop news run ` subject in there then reports PUBLISHED on a run that published
+# nothing. Reproduced against this script before the guard existed: exit 0, "1 commit(s) in the
+# delta". Ancestry is the precondition the delta question assumes, so check it rather than hoping
+# `git log` fails. It cannot false-alarm on a real run: BASE_SHA is only ever assigned from
+# `rev-parse origin/main` or forward-rebased to a later origin/main, and `--is-ancestor X X` is 0.
+if ! git -C "$REPO_DIR" merge-base --is-ancestor "$BASE_SHA" "$NEW_MAIN_SHA" >/dev/null 2>&1; then
+  echo "assert-published.sh: ${BASE_SHA} is not an ancestor of origin/main (${NEW_MAIN_SHA}) — the history was rewritten, or that base is not on this branch. The delta would answer a different question — cannot check" >&2
+  exit 2
+fi
+
 if ! SUBJECTS="$(git -C "$REPO_DIR" log --format=%s "${BASE_SHA}..${NEW_MAIN_SHA}" 2>/dev/null)"; then
-  echo "assert-published.sh: git log ${BASE_SHA}..${NEW_MAIN_SHA} failed — is ${BASE_SHA} still reachable? (a rewritten or force-pushed history makes it unreachable) — cannot check" >&2
+  echo "assert-published.sh: git log ${BASE_SHA}..${NEW_MAIN_SHA} failed — ${BASE_SHA} does not resolve in '${REPO_DIR}' — cannot check" >&2
   exit 2
 fi
 
