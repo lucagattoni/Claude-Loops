@@ -122,11 +122,7 @@ critical systems or complex state management.
 
 ## Named Factory Deployments
 
-- **Droid Shield 2.0** (Factory.ai): a coordinator agent decomposes work and
-  dispatches to specialized "droids" (code, review, docs, test, knowledge) with
-  explicit role boundaries — including a **dedicated review droid** as a first-class
-  role, not an afterthought bolted onto the code droid. The 2.0 release adds learned
-  secret detection to the review droid's scope.
+- **Droid Shield 2.0** (Factory.ai): a deterministic scanner that inspects every line of an autonomous commit/push for secret-shaped patterns and blocks the commit on a suspicious hit. The 2.0 release adds two new fine-tuned classifier models on top of the deterministic scanner — one ("Risk") optimized for recall, catching secrets the pattern-matcher misses; one ("Downgrade") optimized for precision, clearing false-positive flags on placeholders/fixtures/docs — reported as the strongest or tied-strongest classifiers on both tasks versus frontier models, at lower cost and latency; model weights released publicly.
   ([factory.ai/news/droid-shield-2-0](https://factory.ai/news/droid-shield-2-0), Jul 2026.)
 - **Auto-merge as the factory's terminal stage**: a discussion (Thorsten Ball / Nate
   Berkopec) argues model-based code review now exceeds human review for routine PRs,
