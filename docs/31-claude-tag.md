@@ -7,6 +7,17 @@ session, the loop lives inside the communication layer where the team already wo
 
 (Anthropic, ["Introducing Claude Tag"](https://www.anthropic.com/news/introducing-claude-tag), Jun 2026.)
 
+> **Why this Part II doc carries dates, not `v2.1.x` version stamps.** Part II promises that
+> platform facts carry the version they were true in. That promise binds facts about the **Claude
+> Code CLI**, which the changelog versions. Claude Tag is a **separate Anthropic product** on its
+> own release timeline: the [official Claude Code Slack page](https://code.claude.com/docs/en/slack)
+> states no version requirement, and the CLI changelog contains no Claude Tag entry (checked
+> 2026-09-07 against the full file, `0.2.21`–`2.1.263`). So the facts below are dated to their
+> announcement instead, which is the strongest provenance available. **A trap worth naming:** the
+> changelog's `/tag` entries — *"Removed `/tag` command"* (v2.1.92) and a `/rename`-and-`/tag`
+> session fix (v2.1.19) — are about **naming a session**, not about Claude Tag, and must not be
+> cited here.
+
 ## Architecture
 
 ### Channel-scoped identity
