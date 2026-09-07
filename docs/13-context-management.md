@@ -77,7 +77,7 @@ to that accumulated wreckage rather than the current goal.
 
 Findings from Anthropic engineering ([Prithvi Rajasekaran, "Harness design for long-running application development"](https://www.anthropic.com/engineering/harness-design-long-running-apps), Mar 2026):
 - Claude Sonnet 4.5 exhibited significant context anxiety — resets were essential for reliable output
-- Claude Opus 4.6 largely eliminated this behaviour — compaction is often sufficient
+- Claude Opus 4.5 largely removed this behaviour on its own — compaction is often sufficient
 
 **Practical rule:** If you observe a model re-litigating earlier decisions or
 drifting from the original goal across turns, switch from compaction to resets.
@@ -122,7 +122,7 @@ bloat from accumulating in the first place. Run these steps at session or turn s
 
 | Step | What it does |
 |---|---|
-| **Prefetch** | Load only the files and state actually needed for this turn |
+| **Prefetch** | Preload memory and skill-discovery state before the model call, not the whole file tree |
 | **Snip** | Truncate or summarise oversized inputs before they enter context |
 | **Microcompact** | Compress completed subtask summaries into one-line records |
 | **Collapse** | Merge redundant assistant-turn repetitions |
