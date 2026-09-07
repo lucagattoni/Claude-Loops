@@ -100,7 +100,8 @@ you are supervising** — the agent runs unattended for minutes to hours, but yo
 | [Dynamic workflows](39-dynamic-workflows.md) | Scripted fan-out over many agents, in background | supervising |
 | [Agent teams](38-agent-teams.md) | Several teammates coordinating on a shared task list | supervising |
 | `/loop` | Recurs on an interval — but needs a session open | nearby |
-| [Routines](28-routines.md) / cron | Fires with no session at all | absent |
+| [`CronCreate`/`CronList`/`CronDelete`](https://code.claude.com/docs/en/scheduled-tasks) | Cron-syntax recurring or one-time prompts, up to 50 per session — needs a session open; `CLAUDE_CODE_DISABLE_CRON=1` (v2.1.72) kills every job mid-session | nearby |
+| [Routines](28-routines.md) (`/schedule`) | Fires with no session at all | absent |
 
 **Most productive Claude Code work sits in the middle rows.** If you are reaching for a scheduled
 unattended loop for something you will do twice, you have skipped the middle.
