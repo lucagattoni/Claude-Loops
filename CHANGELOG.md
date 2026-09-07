@@ -18,6 +18,60 @@ Versioning follows [Semantic Versioning](https://semver.org/):
 
 ---
 
+## [3.4.1] — 20260907 07:48
+
+Follow-on to `3.4.0`. The daily tracker run landed **21 minutes after** step 11, appending 76
+findings to 12 docs written against the *pre-correction* text. This reconciles the two.
+
+### Fixed
+
+- **Six defects found by a 15-agent merge-coherence review.** Five were self-contained errors
+  inside one side's own new prose, not merge damage: the tracker compared Antigravity's *maximum*
+  nesting depth (10) to Claude Code's overridable *default* (3), and claimed its on-kill worktree
+  cleanup closes a gap `docs/03` already documents as an automatic periodic sweep. One was **ours**
+  — the `disableAllHooks` example was offered as a case of "a stricter lower-level value beats a
+  managed one" while illustrating the exact opposite; the live exceptions table does not list it.
+- **Three broken relative links** in `plans/`, found by a mechanical handoff audit.
+- **`docs/24`** said *"the removal test above"* while that section sits **below** it.
+
+### Changed
+
+- **Four body joins, where the tracker restated something the sweep had just corrected.** The
+  clearest: `docs/01` appended one paragraph carrying two unrelated claims spliced mid-line, one of
+  them Cobus Greyling restating the founding line the sweep had **re-attributed** (it is Addy
+  Osmani's, not Boris Cherny's). A reader met the same idea twice with a company-scale detour
+  between. `docs/11` held the only true duplicate-claim pair — the same cache rule stated fifty
+  lines apart, split by an unrelated subsection.
+- **Nine `LOOP_ENGINEERING.md` index rows resynced.** The tracker changed 12 docs and touched the
+  index **zero** times. Three rows were amended by the synthesiser, which cut an editorializing
+  clause, a figure carrying caveats an index row cannot hold, and an *", ever"* the doc itself
+  contradicts in the same list.
+- **Two transcript-only artifacts written to disk** before they were lost: the **47 numbered
+  UNVERIFIABLE claims** (`KB_GAPS.md` instructs a future pass to "drop entry #29, re-run
+  #13/#33/#34/#44" — meaningless without the list) and an index of **all 335** C10 findings, whose
+  evidence pack called them "marked, not hidden" when the marking lived only in a workflow
+  transcript. Both now linked from the files that reference them.
+- **README's source table** resynced again — the tracker added 7 sources (60 → 67) and
+  `kb-structure-check.sh` §5, added hours earlier in `3.4.0`, caught the drift on its first run
+  after the change. The previous drift of that table went unnoticed for two releases.
+
+### Verified, not assumed
+
+- **Zero regressions across all 14 files both passes touched.** History is **linear**
+  (`3b02afe`'s parent is `0fd20b4`), so the tracker wrote *on top of* the corrected text rather
+  than beside it — the highest-risk failure mode was absent by construction, not by luck. The three
+  highest-value removals were re-checked as still gone, including the settings-precedence block
+  re-verified word-for-word against the live page.
+- **Two findings were refuted**, one of them a proposed **deletion of a true claim** — the
+  `ultracode` concurrency exemption is stated verbatim in the official subagents docs. Deleting it
+  would have repeated the `V13` over-correction this KB has already paid for once.
+- **`docs/index.md` was left alone on purpose.** It is a 125-line navigation tree (39 bare doc
+  links, 9 descriptors), not a second summary index, so the "update both indexes" rule does not
+  fire when no doc was added or renamed. The synthesiser checked this rather than complying with a
+  wrong premise in its own instructions.
+
+---
+
 ## [3.4.1] — 20260907 07:01
 
 Loop news run 2026-09-07 06:30 UTC. 76 new findings after dedup (24 of the 100 raw findings

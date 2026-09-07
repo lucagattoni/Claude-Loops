@@ -1,6 +1,7 @@
 # RESUME — backlog step 11 (C7 + C10) · COMPLETE
 
-**Branch:** `20260906_1548-step11-c7-c10-sweeps` · **shipped as `v3.4.0`**
+**Shipped as `v3.4.0`** (step 11) and **`v3.4.1`** (reconciling the concurrent tracker run).
+**Branch merged and deleted; work is on `main`.**
 **Plan item:** `plans/20260904_2053-open-work-backlog.md` §8 step 11 — struck, with H1.
 
 ## Done
@@ -21,6 +22,13 @@
   Wayback call and is now fixed).
 - C10 left 245 of 335 findings unrefuted under a cap — marked, not hidden.
 
+## Concurrency note — the daily tracker ran mid-flight
+It pushed 76 findings into 12 docs **21 minutes after** step 11 landed. Reconciled in `v3.4.1`:
+**zero regressions** (history is linear, so it wrote *on top of* the corrections, not beside them),
+6 defects fixed, 4 body joins, 9 index rows resynced. Expect this again — the tracker fires daily at
+05:00 local. **Re-run `scripts/kb-structure-check.sh` after any concurrent landing**; its §5 caught
+a README/`SOURCES.md` drift within hours on its first real run.
+
 ## Next
 **Step 13 (H14)** — retitle the IST-dependent scheduling comments **before 2026-10-25**. Plus `C4`
 in §4. Nothing else in the backlog is open.
@@ -36,3 +44,9 @@ in §4. Nothing else in the backlog is open.
 4. **A bucket guarded on `votes.length` silently drops items whose refuter crashed.** Give them
    their own bucket and hand them to the judge marked UNREFUTED.
 5. **Prove a new check fires.** §6's first regex reported clean over a corpus it had undercounted.
+6. **Resume replays a PREFIX, so never insert an `agent()` call into a run you mean to resume** —
+   it invalidates everything after it even when prompts are byte-identical. Recover from
+   `journal.jsonl` and launch a fresh minimal workflow.
+7. **Anything a repo file instructs must live in the repo.** Two instructions here pointed at
+   numbered lists that existed only in a workflow transcript. Both are now committed appendices.
+   Before proposing a session clear, grep for references to off-disk artifacts and walk every link.
