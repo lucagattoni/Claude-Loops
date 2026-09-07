@@ -1,5 +1,8 @@
 # Quick Reference
 
+The flags in the block below were written against `claude` **2.1.185** (2026-06-21);
+re-check any of them against your installed version.
+
 ```bash
 # Non-interactive with safety limits
 claude -p "prompt" --permission-mode auto --max-turns 20
