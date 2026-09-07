@@ -18,6 +18,90 @@ Versioning follows [Semantic Versioning](https://semver.org/):
 
 ---
 
+## [3.4.0] — 20260907 06:40
+
+Backlog `§8 step 11` — **both large sweeps, C7 and C10** — plus **H1**, closed. This was the
+biggest unclaimed content risk in the backlog and it is now measured rather than estimated.
+**MINOR** on the same reasoning as `3.3.0`: no new `docs/*.md` file, but new executable capability —
+two more mechanical checks in `scripts/kb-structure-check.sh`.
+
+**The two sweeps found different diseases.** C10 found the KB **stale against a moving platform**;
+C7 found the KB **composing plausible content around a real citation instead of reading the cited
+source**. The second is worse, because tracking upstream would never catch it.
+
+### Coverage, measured
+
+| | C10 — changelog | C7 — docs |
+|---|---|---|
+| Scope | 3,774 of 3,774 previously-unswept bullets, 24/24 chunks, **zero count mismatches** | 4,025 previously-unverified lines across 23 docs, 34/34 units, **none lost** |
+| Examined | 520 verified rows | 656 claims, **471 distinct URLs fetched** |
+| Landed | 29 edits, 18 docs | 150 edits, 25 files |
+| Logged not written | 10 `KB_GAPS` entries | 11 `KB_GAPS` entries, 47 claims kept as UNVERIFIABLE |
+
+### Fixed
+
+- **Settings precedence was inverted in two docs.** `docs/08` and `docs/12` both ordered sources
+  *"later overrides earlier"* with **managed policy first**, making org-wide security policy the
+  *weakest* input and CLI flags the strongest. The
+  [settings reference](https://code.claude.com/docs/en/settings#settings-precedence) says the
+  reverse verbatim. **Found independently by both sweeps.** `docs/12` now also separates hook
+  *entries* (which merge) from settings *values* (highest wins) — a distinction the old text collapsed.
+- **`docs/12`'s hook tables were wrong in three places**: timeouts (command/http/mcp_tool are
+  **600s**, not 60/30/30), `PreCompact` **can** block (v2.1.105), and `PermissionRequest` **cannot**
+  block via exit 2 — so a guard written as `exit 2` there **fails open**. The last was missed by the
+  sweep and found by its completeness critic.
+- **Fabricated content, removed with the capture-date check every time.** A blockquote in `docs/24`
+  absent from the cited article *and* from two Wayback snapshots predating the KB's own commit; a
+  `.claude/settings.json` block in `docs/08` whose keys the CLI does not recognise; a `docs/34`
+  heartbeat schema with **zero** real fields; the unsourced *">80% of Anthropic engineers"* quote in
+  `docs/01`, whose only traceable origin is an X trending headline.
+- **`docs/08`'s `?` wildcard** — verified against Wayback snapshots from 2026-06-03, 07-03 and 08-03
+  before removal, so the claim is not a current-docs-only absence assertion.
+- **`docs/26`'s OpenAI citation** dated Jul 2026; the article's byline reads **June 25, 2026**
+  (openai.com 403s to `curl`; the Wayback snapshot loads).
+- **README's source-type table** had drifted from `SOURCES.md` for two releases (`x` 7→9,
+  `html` 5→9, total 54→60).
+
+### Added
+
+- **`scripts/kb-structure-check.sh` §5 and §6.** §5 compares README's source-type table against
+  `SOURCES.md`; §6 enforces Part II's version-stamp promise, deriving Part II membership from
+  `LOOP_ENGINEERING.md` rather than hardcoding it. Both promises were previously **enforced by
+  nothing**, which is why H1 sat open for weeks. **Both were proven by negative test** — and §6's
+  first regex required lowercase after `--`, silently missed every camelCase flag, and reported
+  clean over a corpus it had undercounted. That is this repo's defining defect reproduced inside
+  the check built to prevent it, caught only because the check was tested rather than trusted.
+- **`docs/06` gained a SKILL.md frontmatter reference** — the doc that owns skills stated not one
+  frontmatter field in 86 lines.
+- Two evidence packs in `plans/`, so ~17M tokens of sweeping is never repeated.
+
+### Changed
+
+- **H1 closed, four docs by stamping and one by refusing to.** `docs/05`, `06`, `19`, `35` stamped.
+  `docs/31` deliberately **not**: Claude Tag is a separate product with no CLI version gate — the
+  official Slack page states no version requirement and the full changelog carries no Claude Tag
+  entry, so a marker would assert a gate that does not exist.
+- **The duplicated `## Session Watchdog` section** existed verbatim in `docs/25` and `docs/33`, with
+  `docs/33` cross-linking `docs/25` while restating it. Consolidated into `docs/25`; `docs/33` keeps
+  a pointer plus the one detail only it had.
+- **The changelog sweep's own denominator was wrong and this repo recorded it four times.** "2,076
+  bullets across 385 versions" — the real total was **5,132**, and `Fixed` alone was 2,740, which
+  the same paragraph stated. Corrected in the `plans/` working documents in place and in the
+  append-only digest by a new entry.
+
+### Known limitations, stated because a clean claim would be false
+
+- **C7's completeness critic returned INCOMPLETE**, on a measured density inversion: r = **-0.64**
+  between unit size and scrutiny. Units over 160 unverified lines were checked at 10.8 claims per
+  100 lines; units under 100 lines at 26.5. **`docs/24` — largest doc, most findings, most
+  high-severity — got the thinnest sampling**, and a spot-check inside a range it declared clean
+  found a real defect. `34/34 units returned` is reporting, not coverage.
+- **C10 applied a refutation cap**: 245 of 335 actionable findings reached triage unrefuted, marked
+  rather than hidden.
+- Both are logged in `KB_GAPS.md` with concrete re-cut plans, not left implicit.
+
+---
+
 ## [3.3.0] — 20260906 15:39
 
 Backlog `§8 step 10` — **corpus hygiene, H4–H9, H11 and H12, all eight closed** — plus `H10`, `H13`
