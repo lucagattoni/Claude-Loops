@@ -116,7 +116,7 @@ move — this KB corrected eight stale facts in `v3.0.0` for exactly that reason
 
 | # | Topic | Summary |
 |---|---|---|
-| 9 | [Headless & Non-Interactive Mode](https://lucagattoni.github.io/Claude-Loops/09-headless-mode/) | `claude -p` — headless automation, session continuation, background sessions, CI flags |
+| 9 | [Headless & Non-Interactive Mode](https://lucagattoni.github.io/Claude-Loops/09-headless-mode/) | `claude -p` — headless automation, session continuation, background sessions, CI flags; the production two-session wrapper shape (worktree isolation, artifact handoff, granular retry, and **asserting on the published artifact rather than the run's exit status** — a guard inside a session aborts the agent's bash block, not the process, so `claude -p` still exits 0) |
 | 28 | [Routines](https://lucagattoni.github.io/Claude-Loops/28-routines/) | Cloud-hosted loop execution: Schedule / API / GitHub triggers — no local machine needed; first-party production example (Anthropic field marketer, weekly BigQuery→Slack routine) |
 | 29 | [Background Agents](https://lucagattoni.github.io/Claude-Loops/29-background-agents/) | `--bg` detached sessions, agent view, fan-out pattern, worktree isolation; zero-polling terminal-interrupt signaling (walidboulanouar); cloud/mobile background execution (Claude Cowork); OpenClaw restart resumability (for comparison) + sub-second cloud-session snapshotting (steipete) |
 | 31 | [Claude Tag](https://lucagattoni.github.io/Claude-Loops/31-claude-tag/) | Ambient loops in Slack: channel-scoped identity, self-scheduling, org-wide context; the third LLM paradigm; production on-call for CI/CD (14-min median first-analysis, durable lessons.md across incidents) |

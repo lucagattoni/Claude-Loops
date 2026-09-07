@@ -242,7 +242,17 @@ account session limit and the re-run paid for the 23-minute search a second time
 **Standing requirement set by the user 20260905:** *each stage must be resumable at any point,
 because it can die at any point.* Applies to anything expensive added to this pipeline later.
 
-### A13 — the wrapper still asserts on exit status, and C4 has now made the artifact checkable · small · **OPEN, opened 20260907**
+### A13 — ~~the wrapper still asserts on exit status, and C4 has now made the artifact checkable~~ · **SHIPPED v3.6.0**
+
+**Done 20260907 10:15 UTC.** `scripts/assert-published.sh` (new) is called from `run-loop-news.sh` between
+the retry loop's failure exit and the artifact-retirement block, above the run-complete line;
+`scripts/verify-publish-guard.sh` (new, 15 checks) proves it, and nine mutants were killed —
+including the ordering one this row warned about, caught by the static case rather than by any
+git-state case. **Two things this work established that the row did not say:** an empty regex
+would have made `grep -qE ""` match everything and fabricate a pass, so the check now refuses
+one; and the first harness left the `rev-parse` guard's branch untested — the mutation pass is
+what found it, and case 5c (a single-branch clone: fetch succeeds, `origin/main` never resolves)
+is what closed it. Original analysis retained below.
 
 Not a defect introduced by C4 — a follow-up C4 *unlocked*, recorded rather than silently done
 (the C4 pass was scoped to the skill and its docs).
@@ -955,6 +965,27 @@ the remote, and is marked latest.
 | ~~12~~ | ~~**D2**/**H10**, **D3**/**H13** — release policy and plan archival~~ · **DONE, confirmed 20260906** — D2 and D3 were resolved 20260905 (§2) and are written into `CLAUDE.md`'s Releases and Plans sections; H10 backfilled to 63 tags / 63 releases (`v3.1.9`); H13's retire-in-place policy is already applied to both delivered plans. Never struck until the step-10 staleness audit | — |
 | ~~13~~ | ~~**H14** — retitle the IST-dependent scheduling comments **before 2026-10-25**~~ · **DONE 20260907**, together with **C4** — both comments made DST-regime-independent so the hard date does not recur | `plutil -lint` + YAML parse; `mkdocs build --strict` |
 
+> **Status 20260907 10:15 (updated after A13):** **A13 is shipped. §3, §4 and §5 are all empty — no
+> backlog items remain open.** The wrapper now asserts on the published commit instead of Stage
+> B's exit status: `scripts/assert-published.sh`, called between the retry loop and artifact
+> retirement, with `scripts/verify-publish-guard.sh` proving both the logic and the placement.
+> This fires §1's delete condition for `CLAUDE.md`'s open-work note, which is now a one-line
+> pointer rather than a deletion — deleting it outright would have left the backlog and
+> `KB_GAPS.md` unreachable from the entry point, which is the defect `v3.5.0` had just fixed for
+> `RESUME.md`.
+>
+> **Open work has not run out — only *backlog* work has.** `KB_GAPS.md` § *Active Gaps* still
+> holds `docs/24`'s under-sampling and 47 UNVERIFIABLE claims awaiting triage.
+>
+> **What A13 did NOT solve, deliberately:** `notify()` is still an osascript popup plus a
+> gitignored day log, so a caught non-publish stays invisible off-machine for up to 48h until
+> `check-digest-freshness.sh` pages STALE. And **nothing runs either harness automatically** —
+> `.github/` holds only `docs.yml` and `tracker-watchdog.yml`, neither of which invokes a
+> `verify-*.sh`. `verify-digest-guard.sh` has the same gap. A path-filtered CI job is the
+> natural fix and is a decision, not a defect, so it is recorded here rather than taken.
+>
+> Previous status (step 13) retained below.
+>
 > **Status 20260907 (updated after step 13):** **steps 1–13 are shipped. §4 and §5 are empty.**
 > The 2026-10-25 hard date is gone — not passed, *removed*: the two comments now state the DST
 > rule instead of one regime's stamp, so they will not expire at the next changeover either.
