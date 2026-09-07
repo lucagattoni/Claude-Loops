@@ -52,7 +52,7 @@ and then *enforces* the isolation, which the manual path cannot.
 | Branch | `worktree-<name>` |
 | No name given | Claude generates one, e.g. `bright-running-fox` |
 | From a PR/MR | `--worktree "#1234"`, a GitHub pull request URL, or a GitLab merge request URL → worktree at `.claude/worktrees/pr-<number>`, branched from that change's head commit fetched from `origin` |
-| Base ref | `worktree.baseRef` takes `fresh` or `head` only — never a branch name. To start from a specific branch, create it with git directly |
+| Base ref | `worktree.baseRef` takes `fresh` or `head` only — never a branch name; **default is `fresh`**, so `--worktree`, `EnterWorktree`, and agent-isolation worktrees branch from `origin/<default-branch>`, not local `HEAD` (since **v2.1.133**) — unpushed local commits on your current branch are silently absent from a fresh worktree unless you set `worktree.baseRef: "head"`. To start from a specific branch, create it with git directly |
 
 Which ref gets fetched depends on the host `origin` points at:
 
@@ -134,6 +134,12 @@ While a session is in a worktree, Claude Code applies **four** checks:
 | 2 | **Command working directory** | A `Bash`, `PowerShell`, or `Monitor` command whose working directory resolves to the main checkout, or whose working directory it can't verify stays outside it |
 | 3 | **Git redirects** | A `Bash` or `Monitor` command that redirects git into the main checkout — via `git -C`, `--git-dir`, a `GIT_DIR` or `GIT_WORK_TREE` variable, or a `cd` into the main checkout before running git |
 | 4 | **Command shape** | A `Bash` or `Monitor` command whose text can't be verified to keep git inside the worktree — a command name computed at runtime, or syntax that can't be parsed. Claude Code tells Claude how to rewrite it, such as splitting it into plain, separate commands |
+
+(**`Monitor`** is the tool that *"runs a command in the background and feeds each output line back
+to Claude, so it can react to log entries, file changes, or polled status mid-conversation"* —
+[Tools reference](https://code.claude.com/docs/en/tools). It executes commands, so the worktree
+checks, the session command cap and the permission rules treat it alongside `Bash` and
+`PowerShell`.)
 
 Scope, exactly:
 
