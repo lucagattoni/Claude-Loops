@@ -131,6 +131,8 @@ Repo settings cannot escalate their own
 privilege](08-permissions.md#repo-settings-cannot-escalate-their-own-privilege) for the same
 pattern applied to `bypassPermissions` (v2.1.257) and `autoMode` (v2.1.207).
 
+**The sandbox boundary itself used to fail open.** Before **v2.1.78**, `sandbox.enabled: true` with a sandboxing dependency missing made Claude Code silently run the command *unsandboxed* — no warning, no error. **v2.1.78** made that visible with a startup warning; **v2.1.83** added `sandbox.failIfUnavailable: true`, which exits with an error instead of falling back unsandboxed. For an unattended run, set `failIfUnavailable` — a warning nobody is watching is the same as no warning. ([Sandboxing](https://code.claude.com/docs/en/sandboxing), fetched 2026-09-07, confirms fail-open is still the default today.)
+
 ## Credential Rotation Mid-Session
 
 Provisioning and resolving credentials (above) is not enough for long-running loops:
@@ -169,6 +171,15 @@ A runtime gate that monitors agent output for potential credential leaks:
 
 Default for unattended production runs: `strict`. Default for dev environments: `warn`.
 Never ship a production loop with `off`.
+
+## OTel Response Logging — A Silent Scope Expansion (v2.1.193)
+
+An OpenTelemetry pipeline's scope can widen on a plain version upgrade, with no config change on your side. **v2.1.193** added a `claude_code.assistant_response` log event carrying the model's *response* text. Its default is inherited: when `OTEL_LOG_ASSISTANT_RESPONSES` is unset, it follows whatever `OTEL_LOG_USER_PROMPTS` is already set to — so a deployment that already opted into prompt logging starts also logging response content the moment it upgrades, with no separate opt-in for the new surface.
+
+> "Added `claude_code.assistant_response` OpenTelemetry log event containing the model's response text. Redacted unless `OTEL_LOG_ASSISTANT_RESPONSES=1`; when that var is unset it follows `OTEL_LOG_USER_PROMPTS`, so deployments that already log prompt content will start receiving response content on upgrade — set `OTEL_LOG_ASSISTANT_RESPONSES=0` to keep prompts-only."
+> — [env-vars reference](https://code.claude.com/docs/en/env-vars); [CHANGELOG.md](https://raw.githubusercontent.com/anthropics/claude-code/main/CHANGELOG.md), v2.1.193
+
+Set `OTEL_LOG_ASSISTANT_RESPONSES=0` explicitly to keep responses redacted regardless of the prompts setting. This is the same shape as [Failure Patterns § Silent default drift](17-failure-patterns.md) — the difference is that this change *is* in the changelog, so the risk is a deployment that doesn't read every release's notes, not one the vendor never disclosed.
 
 ## Session Watchdog and Hard Time Limits
 
