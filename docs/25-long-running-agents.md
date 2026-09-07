@@ -168,6 +168,19 @@ neither failing nor succeeding, consuming tokens and budget indefinitely.
 
 (clem — [jahwag/clem](https://github.com/jahwag/clem), Jun 2026.)
 
+**A narrower, in-process cousin.** The watchdog above handles a stalled or crashed *process*.
+Claude Code also aborts a single hung MCP tool call from inside a live session: before
+**v2.1.187**, a remote MCP tool call that received no response could block a turn indefinitely —
+the same zombie failure, at the scale of one tool call. It now aborts after an idle timeout, set
+by `CLAUDE_CODE_MCP_TOOL_IDLE_TIMEOUT` (configurable, or `0` to disable): 300000ms (5 min) by
+default for network MCP servers (HTTP/SSE/WebSocket/claude.ai connector) and 1800000ms (30 min)
+for stdio servers. For the API-retry watchdog (`CLAUDE_CODE_RETRY_WATCHDOG`,
+`CLAUDE_CODE_MAX_RETRIES`), see [Headless Mode → Fault-tolerant headless
+loop](09-headless-mode.md#fault-tolerant-headless-loop).
+
+([env-vars reference](https://code.claude.com/docs/en/env-vars);
+[CHANGELOG.md](https://raw.githubusercontent.com/anthropics/claude-code/main/CHANGELOG.md), v2.1.187.)
+
 ## Relationship to Cost Control
 
 Long-running agents are the highest-risk scenario for cost runaway. Always pair with:
