@@ -12,7 +12,9 @@ name: tracker-watchdog
 
 on:
   schedule:
-    # 09:00 UTC daily — five hours after the tracker's 04:00 UTC slot, leaving room for retries
+    # 09:00 UTC daily. The tracker fires at 05:00 Europe/Dublin local, whose UTC slot moves with
+    # DST — 04:00 UTC under IST, 05:00 UTC under GMT — so this lands 4–5h after it either way,
+    # leaving room for retries
     # and a slow run. GitHub may delay scheduled runs under load; the 48h threshold absorbs that
     # without turning a late run into a false alarm.
     - cron: '0 9 * * *'

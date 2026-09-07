@@ -12,7 +12,9 @@
         <string>/Users/luca/Code/repos/github_lucagattoni/Claude-Loops/scripts/run-loop-news.sh</string>
     </array>
 
-    <!-- 05:00 local (IST/UTC+1 summer) = 04:00 UTC -->
+    <!-- 05:00 Europe/Dublin local. StartCalendarInterval is LOCAL time, so the UTC slot moves
+         with DST: 04:00 UTC under IST (summer), 05:00 UTC under GMT (winter). Stated as a rule
+         rather than a single stamp so it does not go stale at each changeover. -->
     <key>StartCalendarInterval</key>
     <dict>
         <key>Hour</key>

@@ -2,20 +2,13 @@
 
 Claude-Loops is a living knowledge base and automated daily tracker for **loop engineering** — designing systems that prompt Claude for you. Read `LOOP_ENGINEERING.md` (the index) and `README.md` before working. The KB grows automatically via a two-skill pipeline: `fetch-loop-news` (search) hands off to `integrate-loop-news` (integrate + restructure + publish).
 
-> **Open work — read this first.** `plans/20260904_2053-open-work-backlog.md` is the ranked backlog
-> and records what each step shipped; **§8's status paragraph is the authority on progress — do not
-> duplicate it here.** **Steps 1–12 are done.** Open: **step 13 (H14)** — retitle the IST-dependent
-> scheduling comments **before 2026-10-25**, when the DST shift moves the tracker's "04:00 UTC" slot
-> — and **C4** (zero-finding digest sections) in §4.
+> **Open work — read this first.** `plans/20260904_2053-open-work-backlog.md` is the ranked backlog.
+> **§8's status paragraph is the authority on progress — do not duplicate it here**, and §1's
+> *"Do not re-spend budget on"* list names work already paid for; read both before planning.
+> **Steps 1–13 are done; §4 and §5 are empty.** One item is open: **`A13`** in §3 — make the
+> wrapper assert on the published commit instead of Stage B's exit status.
 >
-> **Do not re-spend budget on:** what C1's critic verified clean; `docs/11`, `docs/23`, `docs/27`,
-> `docs/04`'s quoted material or the blockquote corpus (swept 20260906); the four KB_GAPS entries
-> step 9 closed; **the 3,774 changelog bullets and 4,025 doc lines swept 20260907** (evidence packs
-> in `plans/`, ~17M tokens — do not repeat); or **cross-model reviewer pairing, closed as still-open
-> after four retries** — do not schedule a fifth. **Seventeen** claims no search can settle sit in
-> `KB_GAPS.md` § *Claims Awaiting Verification*; read them before re-deriving any.
->
-> **Delete this note once the backlog's §4 and §5 are empty.**
+> **Delete this note once every backlog tier (§3, §4, §5) is empty.**
 
 ## Repository map
 

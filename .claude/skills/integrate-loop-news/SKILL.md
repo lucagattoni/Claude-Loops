@@ -68,7 +68,8 @@ to `main`. It does **no** searching — everything it needs is in `.loop-news/fi
 Use `run_time` from the artifact for the `YYYY-MM-DD HH:MM UTC` header.
 
 If zero new findings after deduplication, write the section with an empty findings
-table and list all sources under "No new content". Never skip the section.
+table and list all sources under "No new content". Never skip the section — and it is
+**committed**, not discarded: see Phase 5a's **None** tier and the instruction under it in 5b.
 
 4. For each item in "New findings", assess whether it introduces a **new concept,
    technique, or tool** not yet present in any `docs/*.md` file:
@@ -363,7 +364,7 @@ Apply this decision table:
 | M ≥ 1 (at least one new doc file created) | **MINOR** |
 | M = 0 and U ≥ 1 (existing docs updated, none new) | **PATCH** |
 | M = 0 and U = 0 and N ≥ 1 (findings only, no doc changes) | **PATCH** |
-| N = 0 and M = 0 and U = 0 (nothing changed) | **None** — skip commit |
+| N = 0 and M = 0 and U = 0 (nothing changed) | **None** — no release, but **still commit and push** (see 5b) |
 
 ### 5b — Cut a release if warranted
 
@@ -374,7 +375,24 @@ For **MINOR** or **PATCH** releases:
 
 For **MAJOR** releases: leave `[Unreleased]` in place and note the major change there — major releases require a manual decision.
 
-For **None**: skip all changelog changes and skip the commit entirely (do not push).
+For **None**: skip all changelog changes — there is no version to cut — but **still commit and
+push the digest section**. A quiet day and a dead tracker must not leave the same trace.
+
+- `scripts/check-digest-freshness.sh` reads the newest **committed** `## YYYY-MM-DD HH:MM UTC`
+  header with a 48-hour limit, so two consecutive uncommitted runs page a *healthy* tracker as
+  STALE — and an alarm that cries wolf on quiet days is an alarm nobody reads.
+- `fetch-loop-news` derives `last_run_date` from that same committed header, so skipping the
+  commit freezes it and widens every later run's search window.
+- The committed record is the only place "swept, found nothing" can be distinguished from "did
+  not run" — the precise signal whose absence hid the eight-week outage.
+
+Commit subject: `feat: loop news run <run_time> — 0 findings, 0 new docs [none]`. Keep the
+`feat: loop news run ` prefix: that is what `run-loop-news.sh`'s `OUR_COMMIT_REGEX` matches to
+recognise that the run published.
+
+**A None run must still assert its diff is non-empty before committing** — the check lives in
+**5d**, after the `--soft` reset, because that is the only point where the index means "everything
+this run changed". Placed any earlier it reads empty on a *healthy* run and halts it.
 
 ### 5c — Build gate (blocking, run before staging anything)
 
@@ -414,6 +432,18 @@ git add LOOP_ENGINEERING_NEWS.md LOOP_ENGINEERING.md SOURCES.md CHANGELOG.md KB_
 # --soft keeps the tree exactly as it is and only moves the branch pointer; nothing is lost.
 git reset --soft "$(git merge-base HEAD origin/main)"
 
+# Every run changes LOOP_ENGINEERING_NEWS.md, because Phase 4 writes a digest section even on a
+# zero-finding day. Scoped to that file on purpose: an unscoped `git diff --cached --quiet` passes
+# on a run that staged something else and never wrote the digest, which is the exact failure this
+# is here to catch.
+# This MUST run after the --soft reset. Before it, the index matches HEAD whenever Phase 4d
+# checkpointed the digest entry, so --cached reads empty on a perfectly healthy run and this
+# check would halt every quiet day it exists to protect.
+if git diff --cached --quiet -- LOOP_ENGINEERING_NEWS.md; then
+  echo "FATAL: no staged change to LOOP_ENGINEERING_NEWS.md — Phase 4's digest section was never written" >&2
+  exit 1
+fi
+
 git commit -m "feat: loop news run <run_time> — <N> findings, <M> new docs [<tier>]"
 git push origin HEAD:main
 ```
@@ -421,8 +451,8 @@ git push origin HEAD:main
 **Verify the squash before pushing** — `git log --oneline origin/main..HEAD` must show exactly one
 commit, and it must start `feat: loop news run`. If a `wip(loop-news):` commit is still listed, the
 squash did not take: fix it rather than pushing, or the checkpoints land on `main`.
-Where `<tier>` is the release tier (e.g. `minor`, `patch`, or `none`). Omit `[none]` from
-the message when tier is None (but in that case the commit is skipped anyway).
+Where `<tier>` is the release tier (e.g. `minor`, `patch`, or `none`). A **None** run keeps
+`[none]` in the subject and commits like any other — it is the record that the day was swept.
 
 The push publishes the run. It is the pipeline's final, atomic step — everything above
 must succeed first, **including the 5c build gate**. (When run under `scripts/run-loop-news.sh` the push is a fast-forward

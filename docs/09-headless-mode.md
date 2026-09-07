@@ -300,8 +300,10 @@ copying for any self-writing daily loop:
    stop and notify, never retry (a blind retry would double-commit the digest). If `origin/main`
    advanced for an unrelated reason — a human merging a different PR concurrently — the guard
    rebases its base SHA forward and keeps retrying instead of abandoning a retriable failure.
-   A zero-finding day makes no commit, so success stays judged by exit code, not by whether
-   `main` advanced.
+   Every run commits, including a zero-finding day — it publishes an empty digest section
+   rather than discarding it — so "did the run publish?" is answerable from `main` on every
+   run, not only on productive ones. (The wrapper still judges success by exit code; the point
+   is that the durable artifact now exists to check it against.)
 
 On success the wrapper fast-forwards the primary checkout (`git pull --ff-only`) only if it
 is on `main`, so the local checkout tracks the published run without disturbing other work.
