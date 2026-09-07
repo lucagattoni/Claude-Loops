@@ -183,20 +183,14 @@ Set `OTEL_LOG_ASSISTANT_RESPONSES=0` explicitly to keep responses redacted regar
 
 ## Session Watchdog and Hard Time Limits
 
-Unattended agents can stall, crash, or spin indefinitely without a watchdog:
+An agent that stalls, crashes, or spins indefinitely is a hardening problem as well as a
+reliability one: it holds credentials, network reach and a working copy open for as long as it
+runs. So an **absolute wall-clock limit enforced from outside the process** belongs in the
+security posture, alongside the isolation and credential controls above — `--max-turns` and
+`--max-budget-usd` are in-process and cannot bound a process that has stopped making progress.
 
-- Set a **hard session limit** (e.g. 2 hours) after which the agent sleeps and the
-  watchdog restarts it cleanly from state file rather than letting it accumulate
-  context indefinitely
-- The watchdog monitors the agent process and restarts crashed sessions without
-  human intervention
-- Implement via systemd or equivalent process supervisor — not a shell loop,
-  which can itself become a zombie
-
-This is distinct from `--max-turns` (turn cap) and `--max-budget-usd` (cost cap):
-both are inside the process. The watchdog operates outside it.
-
-See [Long-Running Agents](25-long-running-agents.md) for state recovery patterns.
+The mechanism, the three-limit comparison and the implementation pattern live in
+**[Long-Running Agents → Session Watchdog and Hard Time Limits](25-long-running-agents.md#session-watchdog-and-hard-time-limits)**.
 
 ## Hardening During the Incident It Exists For
 

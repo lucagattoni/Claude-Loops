@@ -157,7 +157,8 @@ The watchdog is the layer the other two cannot cover: it detects stalled process
 enforces an absolute wall-clock limit (e.g. 2 hours), and restarts crashed sessions
 cleanly from the state file without human intervention.
 
-Implementation pattern (systemd or equivalent):
+Implementation pattern (systemd or equivalent — **not a shell loop, which can itself become a
+zombie**; the supervisor has to be able to outlive the thing it supervises):
 1. Agent runs until it completes or hits the 2-hour limit
 2. On limit hit, the agent sleeps and externalises its current state
 3. Watchdog detects the sleep, waits the configured interval, and re-invokes
