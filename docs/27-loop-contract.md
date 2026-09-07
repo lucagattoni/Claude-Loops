@@ -268,9 +268,10 @@ feature slices rather than to the whole task:
 3. **Subscribe** agents to board changes so they automatically claim available slices
 4. **Prevent concurrency** — once a slice is `In Progress`, no second agent can claim it
 
-The critical rule: **never argue with an agent mid-task.** Corrections accumulate as
-"decision noise" — the agent does not learn from them, it just agrees and carries the
-confusion forward. Instead:
+The critical rule: **never argue with an agent mid-task.** The agent is not learning from
+your corrections — it agrees and carries the confusion forward until, in Dilger's words, "the
+signal is completely buried in the noise." Confusion is what produces hallucination: not a
+random event but the predictable result of a polluted context window. Instead:
 
 ```
 1. Define tasks clearly before launching the agent
