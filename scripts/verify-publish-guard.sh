@@ -161,6 +161,37 @@ rc=$?
 check    "5  origin unreachable — cannot tell, must not pass" no-publish "$rc"
 check_rc "5b cannot-tell is exit 2, not a clean no-match" 2 "$rc"
 
+# --- 5c. Cannot tell: the fetch SUCCEEDS but origin/main is unresolvable ----------------------
+# The branch no other case reaches, and the one whose failure mode is worst. If NEW_MAIN_SHA is
+# allowed to be empty, "${BASE_SHA}..${NEW_MAIN_SHA}" collapses to "BASE..HEAD" — silently a
+# different question, about the LOCAL branch instead of the remote — and any local, unpushed
+# loop-news commit then reads as PUBLISHED. A single-branch clone reproduces it honestly:
+# `git fetch origin main` succeeds and writes FETCH_HEAD, but the configured refspec covers only
+# the cloned branch, so refs/remotes/origin/main is never created. (Shallow single-branch clones
+# are what most CI checkouts are, so this is a shape a real caller can be handed.)
+rm -rf origin.git wt repo human narrow
+git init -q --bare origin.git
+git clone -q origin.git wt 2>/dev/null
+git -C wt config user.email harness@example.invalid
+git -C wt config user.name  "publish guard harness"
+git -C wt checkout -q -b main 2>/dev/null
+git -C wt commit -q --allow-empty -m "base"
+git -C wt push -q origin HEAD:main
+BASE_SHA="$(git -C wt rev-parse HEAD)"
+git -C wt checkout -q -b other
+git -C wt commit -q --allow-empty -m "unrelated branch"
+git -C wt push -q origin HEAD:other
+git clone -q --single-branch --branch other origin.git narrow 2>/dev/null
+# The fixture is only meaningful if the fetch really does succeed here; assert that, or this case
+# would silently degrade into a duplicate of case 5.
+if git -C narrow fetch origin main -q 2>/dev/null; then
+  bash "$SCRIPT_UNDER_TEST" narrow "$BASE_SHA" "$REGEX" 2>/dev/null
+  check_rc "5c fetch ok but origin/main unresolvable" 2 $?
+else
+  printf '  FAIL  %-56s %s\n' "5c fixture broken: fetch failed, case is vacuous" "fix the fixture"
+  FAILURES=$((FAILURES + 1))
+fi
+
 # --- 6. Cannot tell: the repo dir is not a git checkout -> must NOT report publish ------------
 fresh
 mkdir -p not-a-repo
