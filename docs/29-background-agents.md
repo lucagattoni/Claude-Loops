@@ -233,6 +233,31 @@ file edits from colliding with your active session:
 Use `"none"` when the background agent needs to read your in-progress uncommitted
 changes. Keep the default (isolated worktree) when running parallel agents.
 
+`worktree.bgIsolation` arrived in **v2.1.143**, *"to let background sessions edit the working copy
+directly without `EnterWorktree`, for repos where worktrees are impractical"*
+([CHANGELOG.md](https://raw.githubusercontent.com/anthropics/claude-code/main/CHANGELOG.md)).
+
+## Committing and opening PRs from a worktree
+
+A background agent finishing code work in its isolated worktree does not just leave it there. As
+of **v2.1.221**, a finished background session:
+
+- **commits and pushes without asking** — pushing the branch when the repo has a remote, and never
+  to `main`/`master`, and never by force-pushing or merging
+- **opens a draft pull request only when the task calls for it** — not automatically every time
+- **defers to your own git instructions** — when the task, `CLAUDE.md`, or memory says you handle
+  committing or pushing yourself, Claude leaves git to you
+
+This narrowed a blunter first version: **v2.1.198** made background agents commit, push, and
+*always* open a draft PR when finishing code work in a worktree, with no judgment call about
+whether one was warranted.
+
+**Consequence for loop design:** a background agent removes the "stops to ask before opening a PR"
+checkpoint by default. If your loop needs a human gate before a PR opens, say so explicitly in
+`CLAUDE.md` — without that, the default is to push, and sometimes open a PR, with no confirmation
+step.
+([Agent view](https://code.claude.com/docs/en/agent-view#how-file-edits-are-isolated), v2.1.198, v2.1.221.)
+
 ## Session resumption
 
 Background sessions persist and can be resumed after interruption:
