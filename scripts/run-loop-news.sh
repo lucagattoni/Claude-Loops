@@ -218,8 +218,11 @@ cleanup() {
   # Preserve the artifact so the next run can RESUME from it instead of re-searching — unless this
   # run already published it, in which case re-creating it here would hand the next run a set that
   # is already in main and produce a duplicate digest. cleanup runs on EXIT, i.e. AFTER the success
-  # path, so without this guard it silently undoes the consume. (Caught by a test asserting the
-  # files on disk; the success path's own log line said "consumed" and was telling the truth.)
+  # path, so without this guard it silently undoes the consume. (Caught by asserting on the files
+  # on disk; the success path's own log line said "consumed" and was telling the truth. NOTE: that
+  # was a hand check, not an automated one — no test covers this wrapper, which is why A13 in the
+  # backlog says to build one. This comment claimed "a test" until the 20260907 handover audit
+  # looked for it. `scripts/verify-digest-guard.sh` is the pattern to copy.)
   # UTC to match SEED_ARTIFACT — a local-time name would split the pair either side of midnight.
   if (( ! ARTIFACT_CONSUMED )) && [[ -f "$WT_DIR/.loop-news/findings.json" ]]; then
     cp "$WT_DIR/.loop-news/findings.json" "$REPO_ROOT/logs/findings-$(date -u +%Y%m%d).json" 2>/dev/null || true

@@ -6,6 +6,53 @@ Sources are defined in [`SOURCES.md`](https://lucagattoni.github.io/Claude-Loops
 
 ---
 
+## Handover audit — 2026-09-07 09:25 UTC (hand-authored, not a tracker run)
+
+Before clearing the session, a fresh agent was started **cold** from `CLAUDE.md` — no context, no
+knowledge of what had just shipped — and asked to pick up the one open backlog item using only
+what is on disk and reachable by following pointers. It reported what it could not reach.
+
+**The chain works.** `CLAUDE.md` → backlog §3 → `A13` in one hop, and all three of `A13`'s code
+citations resolve exactly. Nothing blocked starting. Eight gaps around it, all verified before
+acting on them — this repo has a documented case of a critic being confidently wrong, so a
+critic's finding is a claim until checked.
+
+**The one that matters for this KB's credibility.** The `v3.4.2` entry below says the Phase 5d
+guard was *"proven, not asserted"*. The proof ran in a throwaway scratch repo and reached this
+repository only as the prose you are reading. `RESUME.md` lesson 6 says anything a repo file
+instructs must live in the repo — a proof nobody can re-run cannot tell you whether a later edit
+broke the guard. It is now `scripts/verify-digest-guard.sh`, six cases including a **sanity case
+that must abort before any passing case is believed**, and mutation-tested: reverting the guard to
+its unscoped form fails case 4a, moving it before the `--soft` reset fails case 1b — each mutant
+reproducing one of the two real bugs `v3.4.2` shipped and then fixed.
+
+**The one that matters for the next session.** `RESUME.md` was unreachable — named by nothing in
+`CLAUDE.md` or the backlog. A session following the documented chain would never have opened it,
+losing the concurrency note and the three lessons most relevant to the open item. On-disk is not
+the test; **reachable from what the next session actually reads** is the test.
+
+**Two stale claims that no check could ever have caught.** A "found but not fixed" note about
+README source-type drift sat in the backlog's retained step-10 block — already closed by
+`85f69f0`, and outside §3/§4/§5 where "delete this note once every tier is empty" would never
+reach it. And `run-loop-news.sh` credited a test that does not exist; `git ls-files` finds no test
+for the wrapper at all. Both had been true when written. Neither is checkable by any gate this
+repo runs — which is the argument for the cold-read audit, not against it.
+
+### Docs updated this run
+None. This pass changed instruction files, a plan, the wrapper's comments and one new script; no
+`docs/*.md` claim was affected.
+
+### Gates
+`mkdocs build --strict` exit 0 (bare). `scripts/kb-structure-check.sh` exit 0, three hits, all
+under the standing waivers recorded below. `bash -n scripts/run-loop-news.sh` clean.
+`scripts/verify-digest-guard.sh` exit 0, and proven to exit non-zero under two mutants.
+`plutil -lint` on both the tracked and the newly-synced live LaunchAgent.
+
+### No new content
+No sources were searched this pass — it is a handover audit, not a sweep.
+
+---
+
 ## Pipeline change — 2026-09-07 08:02 UTC (hand-authored, not a tracker run)
 
 **A zero-finding run now commits its digest section.** Backlog `C4`, decided by the user this
