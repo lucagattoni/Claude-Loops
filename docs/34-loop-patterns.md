@@ -326,7 +326,7 @@ an artifact handoff, run under worktree isolation.
 | **Action** | **Stage A (`fetch-loop-news`)** searches tracked sources + the general web, scores candidates, writes `.loop-news/findings.json`, and stops. **Stage B (`integrate-loop-news`)** consumes that artifact, writes the digest, integrates each finding into the docs, runs the structural reviews (Phase 4b/4c), cuts a release, and `push origin HEAD:main` |
 | **Cadence** | One run per day; the two stages run as two separate `claude -p` sessions sharing the worktree |
 | **Readiness** | L3 — commits and publishes to `main` autonomously; bounded by per-stage budgets and a publish-safety retry guard |
-| **Stop condition** | Digest section written for the date and pushed; a zero-finding day writes an empty section and makes no commit |
+| **Stop condition** | Digest section written for the date and pushed — including on a zero-finding day, which commits an empty section rather than discarding it, so "swept, found nothing" and "did not run" leave different traces in the committed record |
 
 **Why two stages.** Search (retrieval, external I/O, noisy, parallel) and integration
 (KB reasoning, sequential, writes) fail for unrelated reasons and need disjoint context.

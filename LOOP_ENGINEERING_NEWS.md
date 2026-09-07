@@ -6,6 +6,62 @@ Sources are defined in [`SOURCES.md`](https://lucagattoni.github.io/Claude-Loops
 
 ---
 
+## Pipeline change — 2026-09-07 08:02 UTC (hand-authored, not a tracker run)
+
+**A zero-finding run now commits its digest section.** Backlog `C4`, decided by the user this
+date: commit the section, cut no release. Until now `integrate-loop-news` mandated writing the
+empty section (Phase 4) and then discarded it (Phase 5a's `None` tier skipped the commit), so a
+quiet day left no trace at all.
+
+**Why it mattered more than the record-keeping gap the item was filed as.**
+`scripts/check-digest-freshness.sh` reads the newest **committed** `## YYYY-MM-DD HH:MM UTC`
+header against a 48-hour limit. Two consecutive quiet days therefore paged a perfectly healthy
+tracker as STALE — and an alarm that cries wolf on quiet days is the one nobody reads. Secondly,
+`fetch-loop-news` derives `last_run_date` from that same committed header, so skipping the commit
+froze it and widened every later run's search window.
+
+**What a reader of this file should expect.** Empty digest sections will now appear here on quiet
+days. **That is the pipeline working, not failing** — an empty section means "swept, found
+nothing", and its absence means "did not run". Do not delete them and do not read them as a
+broken tracker. The `None` tier still cuts no version; only the commit/skip decision changed.
+
+**Guarded, not assumed.** The `None` commit keeps the `feat: loop news run ` subject prefix that
+`run-loop-news.sh`'s `OUR_COMMIT_REGEX` matches, so the wrapper's double-publish guard still
+recognises it, and Phase 5b now requires the run to assert its staged diff is non-empty before
+committing — a run that finds nothing staged never wrote the section and must fail rather than
+commit nothing and report success.
+
+**Also this pass — `H14`, the tracker's DST-dependent schedule comments.** `StartCalendarInterval`
+is local time, so the launchd job's `Hour: 5` is 04:00 UTC under IST and 05:00 UTC under GMT. Two
+comments asserted the summer stamp as if it were fixed and would have gone stale on 2026-10-25.
+Both now state the rule rather than one regime's stamp, so they do not expire again at the
+2027-03-29 changeover: `scripts/com.luca.loop-news.plist:15` and
+`.github/workflows/tracker-watchdog.yml:15`. The schedule itself is unchanged — this was doc
+accuracy, and the watchdog's margin covers both regimes. The `04:00 UTC` stamps in this file's
+older headers, in `CHANGELOG.md` and in `run-loop-news.sh:59` record real runs and were
+deliberately left as written.
+
+### Docs updated this run
+- `docs/09-headless-mode.md` — the retry-guard rationale said "a zero-finding day makes no commit,
+  so success stays judged by exit code". Now: every run commits, so the durable artifact exists to
+  check against, even though the wrapper does not yet check it (logged as backlog `A13`).
+- `docs/34-loop-patterns.md` — the KB-tracker pattern's **Stop condition** row said a zero-finding
+  day "makes no commit". Corrected, with the reason the distinction matters.
+
+### Gates
+
+`mkdocs build --strict` exit 0 (run bare). `scripts/kb-structure-check.sh` exit 0 with three hits,
+all covered by the standing waivers recorded in the *Doc fact-check sweep* entry below (2026-09-07
+06:36 UTC): the two appendix-style orphans (`docs/18`, `docs/32`) and `docs/31:102`'s literal
+Slack `@mention` syntax. No new hits. `check-digest-freshness.sh` re-run after adding this entry
+and still reads the **06:30 tracker run**, not this header — confirming the word-leading-header
+rule works as documented rather than merely as asserted.
+
+### No new content
+No sources were searched this pass — it is a pipeline and documentation change, not a sweep.
+
+---
+
 ## 2026-09-07 06:30 UTC (run)
 
 ### New findings

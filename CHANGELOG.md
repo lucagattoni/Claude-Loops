@@ -7,7 +7,7 @@ Versioning follows [Semantic Versioning](https://semver.org/):
 - **MAJOR** — existing doc removed/renamed, or `LOOP_ENGINEERING.md` index restructured
 - **MINOR** — ≥1 new `docs/*.md` file created (new concept documented)
 - **PATCH** — existing docs updated or new findings added to digest with no new doc files
-- **None** — zero findings and zero doc changes (no commit made)
+- **None** — zero findings and zero doc changes (no version cut; the run still commits its digest section)
 
 ---
 
@@ -15,6 +15,69 @@ Versioning follows [Semantic Versioning](https://semver.org/):
 
 ### Added
 ### Changed
+
+---
+
+## [3.4.2] — 20260907 08:03
+
+Backlog **step 13** — `C4` and `H14`, the last two items in §4 and §5. Both are shipped; the
+backlog's §4 and §5 are now empty, and one new item (`A13`) was opened rather than silently done.
+
+### Changed
+
+- **A zero-finding tracker run now commits its digest section instead of discarding it** (`C4`).
+  Decision taken by the user 20260907: commit the section, cut no release. `integrate-loop-news`
+  mandated writing the empty section in Phase 4 and then threw it away in Phase 5a, so a quiet day
+  left no trace. **The consequence was sharper than the item was filed as:**
+  `check-digest-freshness.sh` reads the newest *committed* dated header against a 48-hour limit, so
+  two consecutive quiet days paged a healthy tracker as STALE — a false alarm, not just a gap in
+  the record. `fetch-loop-news` also derives `last_run_date` from that header, so skipping froze it
+  and widened every later run's search window. The **None** tier still cuts no version; only the
+  commit/skip decision changed. Phase 5b additionally requires a `None` run to assert its staged
+  diff is non-empty before committing — a run that finds nothing staged never wrote the section and
+  must fail rather than commit nothing and report success. The commit keeps the
+  `feat: loop news run ` subject prefix that `run-loop-news.sh`'s `OUR_COMMIT_REGEX` matches, so
+  the wrapper's double-publish guard still recognises it.
+- **The DST-dependent scheduling comments now state the rule, not one regime's stamp** (`H14`).
+  `StartCalendarInterval` is *local* time, so the launchd job's `Hour: 5` is 04:00 UTC under IST
+  and 05:00 UTC under GMT; two comments asserted the summer stamp as fixed and would have gone
+  stale on 2026-10-25. `scripts/com.luca.loop-news.plist:15` and
+  `.github/workflows/tracker-watchdog.yml:15` now name both regimes, so they do not expire again
+  at the 2027-03-29 changeover. The schedule itself is unchanged — this was doc accuracy, and the
+  watchdog keeps 4–5h of margin either way. Historical `04:00 UTC` stamps (this file, the digest
+  headers, `run-loop-news.sh:59`) record real runs and were deliberately left as written.
+
+### Fixed
+
+- **Three downstream claims that asserted the discarded-section behaviour** — this file's release
+  tier legend (`:10`), `docs/34`'s KB-tracker **Stop condition** row, and `docs/09`'s retry-guard
+  rationale. `plans/split-fetch-loop-news.md:568` says the same thing and was deliberately left:
+  that plan is retired and its own header declares the checklist historical.
+- **Two backlog rows that this work proved wrong.** `C4`'s `D1` half was already shipped — the
+  `SKILL.md:300` line it cites no longer exists; Phase 5b has mandated `date -u '+%Y%m%d %H:%M'`
+  since the `CLAUDE.md` UTC rule landed. `H14` named `CHANGELOG.md:867`, which had drifted to
+  `:1609` and is a historical entry that stays as written; its live surface was **two comments**,
+  not the two files named — `docs/09:379`, `docs/34:324` and `scripts/SCHEDULING.md:52` already
+  said "05:00 local", correct in both regimes.
+- **A contradictory pointer-deletion condition.** Backlog §1 said to delete the `CLAUDE.md`
+  pointer when "§3 and §4" are empty; `CLAUDE.md` said "§4 and §5". Both now read "every tier",
+  which matters immediately — §4 and §5 emptied this pass while §3 gained `A13`.
+
+### Added
+
+- **`A13`** in the backlog's §3 — the wrapper still logs `Run complete` on Stage B's exit status.
+  `C4` makes the artifact assertion possible (every run now commits, so a matching commit in the
+  delta is a reliable post-condition) but does not make it. Recorded rather than done: it changes
+  unattended retry-path behaviour and deserves its own adversarial review.
+- A digest entry explaining that **empty sections are now expected on quiet days** — so a future
+  reader does not "fix" them or read them as a broken pipeline.
+
+### Housekeeping
+
+- `CLAUDE.md`'s open-work note slimmed to a pointer (165 → 158 lines, back under the ~150-line
+  guardrail's neighbourhood); its "do not re-spend budget on" list relocated to backlog §1, which
+  is now its one home. `RESUME.md` rewritten for the current state, and its duplicated
+  workflow-resume lesson (recorded twice as items 3 and 6) merged.
 
 ---
 

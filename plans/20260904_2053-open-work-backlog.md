@@ -20,8 +20,27 @@ disagree, **the tree won** — see §6 for the list of claims those documents ge
 - **§2 first** — three decisions are yours and two of them block items.
 - Work top-down within a tier. §8 is the recommended order across tiers.
 - Every commit passes the standing gates in §9.
-- Tick items here as they land, and **delete this file's pointer from `CLAUDE.md` when §3 and §4
-  are empty.** Add a "Shipped in vX.Y.Z" note rather than silently deleting a row.
+- Tick items here as they land, and **delete this file's pointer from `CLAUDE.md` when every tier
+  (§3, §4, §5) is empty.** Add a "Shipped in vX.Y.Z" note rather than silently deleting a row.
+  *(Reconciled 20260907: this bullet said "§3 and §4" while `CLAUDE.md`'s note said "§4 and §5".
+  Both are now "every tier" — §4 and §5 emptied on 20260907 while §3's new `A13` stayed open, and
+  the two conditions would have disagreed about whether to delete the pointer.)*
+
+### Do not re-spend budget on
+
+Moved here from `CLAUDE.md` on 20260907 (hygiene rule 2 — one home per rule; the entry point keeps
+only the pointer). This list exists because each entry was paid for once already.
+
+- What **C1**'s completeness critic verified clean.
+- `docs/11`, `docs/23`, `docs/27`, `docs/04`'s quoted material, and the blockquote corpus —
+  swept 20260906.
+- The four `KB_GAPS` entries step 9 closed.
+- **The 3,774 changelog bullets and 4,025 doc lines swept 20260907** — evidence packs are in
+  `plans/`, and the sweep cost ~17M tokens. Do not repeat it.
+- **Cross-model reviewer pairing** — closed as still-open after four retries. Do not schedule a
+  fifth.
+- **Seventeen** claims no search can settle sit in `KB_GAPS.md` § *Claims Awaiting Verification*.
+  Read them before re-deriving any.
 
 ---
 
@@ -222,6 +241,23 @@ account session limit and the re-run paid for the 23-minute search a second time
 **Standing requirement set by the user 20260905:** *each stage must be resumable at any point,
 because it can die at any point.* Applies to anything expensive added to this pipeline later.
 
+### A13 — the wrapper still asserts on exit status, and C4 has now made the artifact checkable · small · **OPEN, opened 20260907**
+
+Not a defect introduced by C4 — a follow-up C4 *unlocked*, recorded rather than silently done
+(the C4 pass was scoped to the skill and its docs).
+
+- **Now true:** every run commits, including a zero-finding one, so `origin/main` gaining a
+  `^feat: loop news run ` commit is a reliable post-condition of a successful run. Before C4 it
+  was not: a quiet day published nothing, so the wrapper could not distinguish "published
+  nothing because there was nothing" from "published nothing because it died".
+- **Still true:** `run-loop-news.sh:477` logs `Run complete` on Stage B's exit status. It checks
+  for our commit only on the *failure* path (`:409`, `:456`), as a double-publish guard.
+- **Do:** after a successful Stage B, assert the delta contains a matching commit; if it does
+  not, fail loudly. This is `CLAUDE.md`'s own rule — *assert on the artifact, never a run's exit
+  status* — applied to the one place in the pipeline that still does not.
+- **Why it was not done here:** it changes unattended retry-path behaviour, which deserves its
+  own adversarial review rather than riding along on a docs-and-skill change.
+
 ---
 
 ## 4. Tier 2 — content correctness
@@ -401,7 +437,42 @@ three copy-pasteable instances behind.
 - The `disable-model-invocation` example is attributed to the doc-06 row (`:44`); it actually lives
   at `docs/03-building-blocks.md:50`.
 
-### C4 — Zero-finding runs write a digest section the pipeline then throws away · small · needs **D1**-adjacent judgement
+### C4 — ~~Zero-finding runs write a digest section the pipeline then throws away~~ · **SHIPPED 20260907**
+
+**Done.** Decision taken by the user 20260907: **commit the section, cut no release.** Phase 5a's
+`None` row and Phase 5b now say so; Phase 4's "never skip the section" gained the forward pointer
+it was missing; Phase 5d's `[none]` parenthetical (which still asserted "the commit is skipped
+anyway") was corrected. The **None** tier still cuts no version — only the commit/skip decision
+changed.
+
+**The sharper consequence, found while working the item and worth recording:** the framing above
+says the *record* cannot distinguish states. It is worse than that — the watchdog **false-alarms**.
+`check-digest-freshness.sh` reads the newest *committed* dated header against a 48h limit, so two
+consecutive quiet days page a perfectly healthy tracker as STALE. An alarm that cries wolf on quiet
+days is the failure mode that makes the real alarm unreadable.
+
+**Downstream claims corrected in the same change** (all asserted the discarded-section behaviour):
+`CHANGELOG.md:10`'s tier legend, `docs/34`'s Stop-condition row, `docs/09`'s retry-guard rationale.
+`plans/split-fetch-loop-news.md:568` says the same thing and was **deliberately left** — that plan
+is retired (`Shipped as v2.6.0`) and its own header declares the checklist historical.
+
+**Correction to this item as filed — its `D1` half was already shipped.** The row cites
+`SKILL.md:300` emitting `## [X.Y.Z] — <today's date> <TZ>`; the line no longer exists. Phase 5b
+now mandates `date -u '+%Y%m%d %H:%M'`, "never local time, never a `%Z` suffix". `D1` was resolved
+into project `CLAUDE.md`'s UTC rule and the skill followed; only the commit half of C4 was open.
+
+**Guarded, not assumed:** the new `None` commit keeps the `feat: loop news run ` subject prefix
+that `run-loop-news.sh`'s `OUR_COMMIT_REGEX` matches, so the wrapper's double-publish guard still
+recognises it. Phase 5b also now requires the run to assert its staged diff is non-empty before
+committing — a `None` run that finds nothing staged wrote no digest section and must fail rather
+than commit nothing and report success.
+
+**Left open, as `A13` in §3:** the wrapper still judges success by exit status. C4 makes the
+artifact assertion possible; it does not make it.
+
+Original analysis below.
+
+### C4 — original analysis · small · needs **D1**-adjacent judgement
 
 - **Evidence:** `integrate-loop-news/SKILL.md:69-70` mandates writing the section ("Never skip the
   section"); `:293` and `:304` skip the commit entirely for `N=0,M=0,U=0`. `fetch-loop-news/SKILL.md:23-25`
@@ -790,7 +861,7 @@ rule this KB already states and its own pipeline did not follow (see **A1**).
 | ~~**H10**~~ | ~~15 tags have no release~~ · **BACKFILL SHIPPED 20260906** (`v3.1.9`) | small | Was 53 tags / 38 releases; now **63 tags, 63 releases, 0 missing**, `latest` still `v3.1.8`. All 15 (`v1.1.0 v1.2.0 v2.0.1 v2.0.2 v2.1.1 v2.1.2 v2.3.1`–`v2.3.9`) created from each version's own `CHANGELOG.md` section verbatim, marked `--latest=false`. **The other half stays open:** the pipeline still has no tag/release step, by the deliberate decision recorded in `CLAUDE.md` § Releases — `gh` is not in the unattended agent's allowlist. So this recurs every pipeline-cut version and needs the same manual backfill — **D2 already settled this as an accepted, permanent cost** (§2, resolved 20260905; see `CLAUDE.md` § Releases), not an open question |
 | ~~**H11**~~ | ~~Structural review (Phase 4b/4c) has caught none of H5/H7/H8 across ~20 runs~~ · **DONE 20260906** | small | Phase 4b/4c were 100% prose judgement questions — zero greps, zero scripts, nothing a wrapper could verify ran. `scripts/kb-structure-check.sh` now runs six mechanical checks (orphan, heading, duplicate-coverage, and three bare-citation shapes), is mandated as Phase 4c's first step, is cross-referenced from Phase 4b's questions 5 and 9, and its findings must reach the committed digest entry — either a fix or a written "reviewed, no action" line, because a flagged item with neither is an unread check, not a passed one. It exits 0 by design (several flagged shapes are legitimate), so it is a report, not a gate. **It earned its place on the first run:** it surfaced five bare repo slugs that H6's five-angle manual sweep had reported clean (see H6). Standing waivers, re-confirm rather than re-derive: `docs/18` and `docs/32` are appendix pages with 0 inbound prose links by design; `docs/31:90`'s `@mention` is a mechanism name, not a citation. ~11s at 39 docs; section 4c is O(slugs × docs) and is worth revisiting if the corpus grows an order of magnitude |
 | ~~**H12**~~ | ~~Co-resident session-leak security claim: neither verified nor tracked~~ · **LOGGED 20260906 — tracked as `KB_GAPS` V19** | medium | The claim is one sentence at `LOOP_ENGINEERING_NEWS.md:665` (drifted from `:125` as the newest-first digest grew). Now logged as **V19** with its provenance, everything that was checked (general + LinkedIn-scoped search, Anthropic's Trust Center, `code.claude.com/docs/en/security` — no CVE, no advisory, no locatable post), and two adjacent reports explicitly ruled **not** the same claim so a future pass does not mistake either for corroboration. `docs/19` still has no session-isolation content, correctly — nothing verified enough to write. The row's "ideally reproduce" half is **deliberately not done**: without the original post's mechanism, a two-session test measures local filesystem permissions, not the claim, and building a repro from a claim's title is exploit construction, not verification |
-| **H14** | The tracker's "04:00 UTC" slot expires on 2026-10-25 | small | `StartCalendarInterval` is **local** time (`Hour: 5`), so `05:00 local = 04:00 UTC` holds only during IST. When Ireland leaves IST the slot becomes 05:00 UTC and `tracker-watchdog.yml:15` plus `CHANGELOG.md:867` go stale. The watchdog keeps 4h of margin either way, so this is doc accuracy, not an operational break. Found 20260905 |
+| ~~**H14**~~ | ~~The tracker's "04:00 UTC" slot expires on 2026-10-25~~ · **SHIPPED 20260907** — fixed *permanently*, not restamped: both live comments now state the rule (`05:00 Europe/Dublin local` → 04:00 UTC under IST, 05:00 UTC under GMT) rather than one regime's stamp, so they do not expire again at the 2027-03-29 changeover. **Two corrections to this row as filed.** (1) The `CHANGELOG.md` line is `:1609`, not `:867`, and was **deliberately left alone** — it is a historical release entry that was true when written, and the repo's rule is never to rewrite one; the same applies to `run-loop-news.sh:59` and the `04:00 UTC` digest headers, which record real runs. (2) A repo-wide sweep found the live surface is exactly **two** comments, not the two files named: `scripts/com.luca.loop-news.plist:15` and `.github/workflows/tracker-watchdog.yml:15`. `docs/09:379`, `docs/34:324` and `scripts/SCHEDULING.md:52` all say "05:00 local", which is correct in both regimes and needed no change. `plutil -lint` and a YAML parse confirm both files still valid and the schedule itself unchanged — this was always doc accuracy, never an operational break | small | `StartCalendarInterval` is **local** time (`Hour: 5`), so `05:00 local = 04:00 UTC` holds only during IST. When Ireland leaves IST the slot becomes 05:00 UTC and `tracker-watchdog.yml:15` plus `CHANGELOG.md:867` go stale. The watchdog keeps 4h of margin either way, so this is doc accuracy, not an operational break. Found 20260905 |
 | ~~**H13**~~ | ~~`plans/` has no retirement policy~~ · **DONE — resolved by D3, confirmed 20260906** | small | **Correction to this row as written:** its own recommended action ("archive the two delivered plans") is exactly what D3 rejected — "No archive directory — moving files breaks inbound links" (§2). The adopted policy is retire-in-place with a `Shipped as vX.Y.Z` header, written into `CLAUDE.md`'s Plans section and already applied to both plans named in §6: `plans/split-fetch-loop-news.md` ("Shipped as v2.6.0") and `plans/loop-engineering-tracker.md` ("Shipped, then superseded"). `find . -iname '*archive*'` still returns nothing — correctly, because archiving was the rejected option, not a gap |
 
 ---
@@ -843,11 +914,28 @@ the remote, and is marked latest.
 | 10 | **H2**–**H9**, **H11**, **H12** — corpus hygiene | — |
 | ~~11~~ | ~~**C7**, **C10** — the two large sweeps~~ · **DONE 20260907** — C10: 3,774/3,774 changelog bullets, 29 edits; C7: 4,025 unverified lines, 150 edits; **H1 closed** (4 docs stamped, `31` waived with cause) | `mkdocs --strict` bare + `kb-structure-check.sh` §§5-6 |
 | ~~12~~ | ~~**D2**/**H10**, **D3**/**H13** — release policy and plan archival~~ · **DONE, confirmed 20260906** — D2 and D3 were resolved 20260905 (§2) and are written into `CLAUDE.md`'s Releases and Plans sections; H10 backfilled to 63 tags / 63 releases (`v3.1.9`); H13's retire-in-place policy is already applied to both delivered plans. Never struck until the step-10 staleness audit | — |
-| 13 | **H14** — retitle the IST-dependent scheduling comments **before 2026-10-25**, when the DST shift moves the tracker's "04:00 UTC" slot | — |
+| ~~13~~ | ~~**H14** — retitle the IST-dependent scheduling comments **before 2026-10-25**~~ · **DONE 20260907**, together with **C4** — both comments made DST-regime-independent so the hard date does not recur | `plutil -lint` + YAML parse; `mkdocs build --strict` |
 
-> **Status 20260907 (updated after step 11):** steps **1–12 are shipped**. Only **step 13 (H14)**
-> remains, and it has a hard date: **2026-10-25**, when Ireland leaves IST and the tracker's
-> "04:00 UTC" comment goes stale.
+> **Status 20260907 (updated after step 13):** **steps 1–13 are shipped. §4 and §5 are empty.**
+> The 2026-10-25 hard date is gone — not passed, *removed*: the two comments now state the DST
+> rule instead of one regime's stamp, so they will not expire at the 2027-03-29 changeover either.
+>
+> **One item is open, and it is new:** **`A13`** in §3 — the wrapper still judges a run by Stage
+> B's exit status. C4 is what makes the alternative possible (every run now commits, so a
+> `^feat: loop news run ` commit in the delta is a reliable post-condition), and it was recorded
+> rather than done because it changes unattended retry-path behaviour.
+>
+> **Two things step 13 established that the next step must not re-derive.**
+> 1. **C4's `D1` half was already shipped** — the `SKILL.md` line it cites no longer exists;
+>    Phase 5b has mandated `date -u '+%Y%m%d %H:%M'` since the `CLAUDE.md` UTC rule landed.
+> 2. **H14's live surface was two comments, not the two files the row named.** `CHANGELOG.md`'s
+>    mention is a historical entry that stays as written, and three docs already said "05:00
+>    local", correct in both DST regimes. The row's own line number (`:867`) had drifted to
+>    `:1609` — **backlog line numbers are stale by default; re-grep before trusting one.**
+>
+> Previous status (step 11) retained below.
+>
+> **Status 20260907 (updated after step 11):** steps **1–12 are shipped**.
 >
 > **Step 11 shipped both sweeps.** C10 read 3,774/3,774 previously-unswept changelog bullets
 > (24/24 chunks, zero count mismatches) → 29 edits. C7 swept 4,025 previously-unverified doc lines

@@ -68,7 +68,8 @@ to `main`. It does **no** searching — everything it needs is in `.loop-news/fi
 Use `run_time` from the artifact for the `YYYY-MM-DD HH:MM UTC` header.
 
 If zero new findings after deduplication, write the section with an empty findings
-table and list all sources under "No new content". Never skip the section.
+table and list all sources under "No new content". Never skip the section — and it is
+**committed**, not discarded: see Phase 5b's **None** row.
 
 4. For each item in "New findings", assess whether it introduces a **new concept,
    technique, or tool** not yet present in any `docs/*.md` file:
@@ -363,7 +364,7 @@ Apply this decision table:
 | M ≥ 1 (at least one new doc file created) | **MINOR** |
 | M = 0 and U ≥ 1 (existing docs updated, none new) | **PATCH** |
 | M = 0 and U = 0 and N ≥ 1 (findings only, no doc changes) | **PATCH** |
-| N = 0 and M = 0 and U = 0 (nothing changed) | **None** — skip commit |
+| N = 0 and M = 0 and U = 0 (nothing changed) | **None** — no release, but **still commit and push** (see 5b) |
 
 ### 5b — Cut a release if warranted
 
@@ -374,7 +375,25 @@ For **MINOR** or **PATCH** releases:
 
 For **MAJOR** releases: leave `[Unreleased]` in place and note the major change there — major releases require a manual decision.
 
-For **None**: skip all changelog changes and skip the commit entirely (do not push).
+For **None**: skip all changelog changes — there is no version to cut — but **still commit and
+push the digest section**. A quiet day and a dead tracker must not leave the same trace.
+
+- `scripts/check-digest-freshness.sh` reads the newest **committed** `## YYYY-MM-DD HH:MM UTC`
+  header with a 48-hour limit, so two consecutive uncommitted runs page a *healthy* tracker as
+  STALE — and an alarm that cries wolf on quiet days is an alarm nobody reads.
+- `fetch-loop-news` derives `last_run_date` from that same committed header, so skipping the
+  commit freezes it and widens every later run's search window.
+- The committed record is the only place "swept, found nothing" can be distinguished from "did
+  not run" — the precise signal whose absence hid the eight-week outage.
+
+Commit subject: `feat: loop news run <run_time> — 0 findings, 0 new docs [none]`. Keep the
+`feat: loop news run ` prefix: that is what `run-loop-news.sh`'s `OUR_COMMIT_REGEX` matches to
+recognise that the run published.
+
+**Assert the diff is non-empty before committing.** A None run must still change
+`LOOP_ENGINEERING_NEWS.md`, because Phase 4 wrote the empty section. If `git diff --cached
+--quiet` reports *no* staged change, the section was never written — stop and report the failure.
+Do not commit nothing and do not report success: a run that cannot tell what it did must fail.
 
 ### 5c — Build gate (blocking, run before staging anything)
 
@@ -421,8 +440,8 @@ git push origin HEAD:main
 **Verify the squash before pushing** — `git log --oneline origin/main..HEAD` must show exactly one
 commit, and it must start `feat: loop news run`. If a `wip(loop-news):` commit is still listed, the
 squash did not take: fix it rather than pushing, or the checkpoints land on `main`.
-Where `<tier>` is the release tier (e.g. `minor`, `patch`, or `none`). Omit `[none]` from
-the message when tier is None (but in that case the commit is skipped anyway).
+Where `<tier>` is the release tier (e.g. `minor`, `patch`, or `none`). A **None** run keeps
+`[none]` in the subject and commits like any other — it is the record that the day was swept.
 
 The push publishes the run. It is the pipeline's final, atomic step — everything above
 must succeed first, **including the 5c build gate**. (When run under `scripts/run-loop-news.sh` the push is a fast-forward
