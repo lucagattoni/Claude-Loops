@@ -276,13 +276,13 @@ Concrete benchmarks from operating named loop patterns (Cobus Greyling, [cobusgr
 | Noop pass (empty watchlist, early exit) | ~3,000–5,000 |
 | Report-only triage run | ~50,000–80,000 |
 | Action run (implementer + verifier) | ~200,000–250,000 |
-| CI Sweeper at 5 min cadence, no early exit | ~5,000,000/day |
+| CI Sweeper at 15 min cadence, no early exit | ~5,000,000/day |
 
 **The early exit rule:** every loop must check for work before doing any triage.
 If the watchlist is empty, exit immediately at <5k tokens. Never run the full loop
 body if there is nothing to act on.
 
-Without early exit, a CI Sweeper running every 5 minutes against a green repo burns
+Without early exit, a CI Sweeper running every 15 minutes against a green repo burns
 ~5M tokens per day on no-ops. The early exit rule converts it to ~3k tokens per pass.
 This is not an optimisation — it is a correctness requirement for always-on loops.
 
