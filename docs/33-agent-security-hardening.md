@@ -76,11 +76,12 @@ outside the declared plan. `blast_radius` complements it by capping *how much* a
 allowed action may touch. ([omnigent-ai/omnigent](https://github.com/omnigent-ai/omnigent), Jul 2026.)
 
 **Update (Jul 2026):** `intent_gate` was renamed **Intent Based Authorization** and its
-off-task-tool-call policy softened from hard-`DENY` to `ASK` — an off-plan action now
-prompts the human for approval instead of silently refusing, trading strict default-deny
-for a human-in-the-loop escalation on the boundary case. The all-or-nothing refusal
-remains the default for clearly out-of-scope actions; `ASK` only applies to the
-ambiguous middle. ([omnigent-ai/omnigent](https://github.com/omnigent-ai/omnigent), Jul 2026.)
+off-task-tool-call policy changed from hard-`DENY` to `ASK` for every off-task call — an
+off-plan action now always prompts the human for approval rather than being silently
+refused. The change is a full replacement, not a partial softening: the policy's
+classifier makes a single binary on-task/off-task judgment, and every off-task verdict
+resolves to `ASK` — there is no remaining DENY branch for off-task tool calls in the
+current implementation. ([omnigent-ai/omnigent](https://github.com/omnigent-ai/omnigent), Jul 2026; PR [#2024](https://github.com/omnigent-ai/omnigent/pull/2024).)
 
 ### Where Default-Deny Actually Gets Loaded
 
@@ -159,18 +160,24 @@ discover → reconcile → assess → prioritize → plan
 
 ([rashmi1112/Credential-Sentinel](https://github.com/rashmi1112/Credential-Sentinel), Jul 2026.)
 
-## Fail-Safe Secret Exposure Gate
+## Credential Exposure Policy at Provision Time
 
-A runtime gate that monitors agent output for potential credential leaks:
+clem's `vault.exposure_policy` is a provision-time audit, not a runtime output scanner:
+at provision, it checks whether every credential granted to an agent is accounted for
+— routed through `brokered_secrets` or explicitly listed in `reveal_secrets` — and
+flags any that fall through unmediated into the agent's plaintext `.env`.
 
 | Mode | Behaviour |
 |---|---|
-| `strict` | Halt the agent turn immediately on any detected leak |
-| `warn` | Log the detection and continue (dev/debug contexts) |
-| `off` | Disabled |
+| `warn` (default) | Prints a warning for each unaccounted-for granted key and continues provisioning |
+| `strict` | Fails provisioning until every granted key is brokered or explicitly revealed |
+| `off` | Silences the check (legacy behaviour) |
 
-Default for unattended production runs: `strict`. Default for dev environments: `warn`.
-Never ship a production loop with `off`.
+This is a config-hygiene gate, not a live leak monitor: it catches a credential that
+was granted but never given a disposition (broker/sidecar/remove/reveal) *before the
+agent ever starts*. It does not watch the agent's live output for a leak already in
+progress — that is a distinct problem this mechanism does not claim to solve.
+([jahwag/clem](https://github.com/jahwag/clem), `internal/config/vaultbroker.go`.)
 
 ## OTel Response Logging — A Silent Scope Expansion (v2.1.193)
 
@@ -235,8 +242,8 @@ pip install credbroker
 
 **[credbroker](https://pypi.org/project/credbroker/)** resolves credentials in this order:
 1. Environment variables
-2. OS keyring (Keychain, Windows Credential Store, libsecret)
-3. Dotfiles (`.env`, `~/.netrc`)
+2. OS keyring (Keychain on macOS, Credential Manager on Windows — no keyring tier on Linux, which falls straight through to the dotfile)
+3. A fixed dotfile (`~/.agentbundle/credentials.env`)
 
 The resolved value is injected as an environment variable that the tool reads directly.
 The model never sees the credential value — only the tool can access it.
@@ -251,7 +258,7 @@ Use both: provision short-lived credentials, then resolve them via credbroker.
 
 Credential and OS-level hardening (above) assume the agent's own skills/plugins are
 trustworthy. They may not be: a skill installed from a marketplace or catalog is a
-supply-chain surface with its own attack class — the **OWASP Agentic Skills Top 10**
+supply-chain surface with its own attack class — the **[OWASP Agentic Skills Top 10](https://owasp.org/www-project-agentic-skills-top-10/)**
 (AST01–AST10) names it: malicious natural-language instructions embedded in a skill,
 permission over-declaration, unsafe metadata parsing, SSRF/external-reference integrity,
 and isolation-boundary violations.
@@ -314,8 +321,7 @@ trust plugin metadata and hook configuration blindly, so an attacker-controlled 
 plugin can bind a malicious shell command to a benign lifecycle event (a `PostToolUse` or
 `SessionStart` hook, say) without the user ever approving a new permission — the update
 *looks* like a routine version bump. HookPry, the paper's attack tool, compromised **all 7
-evaluated harnesses** across 1,000 runs, up to **92.5% per-harness success**, and Microsoft
-Defender showed **0% recall** against it. The mitigation implied is structural, not
+evaluated harnesses** across 1,000 runs, up to **92.5% per-harness success**, and [Microsoft Defender](https://www.microsoft.com/en-us/windows/comprehensive-security) showed **0% recall** against it. The mitigation implied is structural, not
 signature-based: hook bindings introduced by a plugin update need the same reviewer-only,
 non-automatable gate this doc already requires at
 [skill ingestion](#skill-ingestion-security-owasp-agentic-skills-top-10) — a hook change is
@@ -356,7 +362,7 @@ running with different objectives — can discover and talk to each other at all
 coordinate in ways neither owner authorized, using whatever shared surface is reachable.
 
 **Rogue coordination via a public wiki.** Training agents exploited a GET-based edit flaw in
-UseModWiki to exchange **thousands of messages**, coordinating multi-agent collaboration
+[UseModWiki](https://en.wikipedia.org/wiki/UseModWiki) to exchange **thousands of messages**, coordinating multi-agent collaboration
 outside their intended sandbox boundaries — roughly 18,000 posts across the incident by one
 count. Neither report names malicious intent by the agents' operators; the point is that an
 editable public surface reachable by multiple agent instances became a *de facto* message
@@ -374,12 +380,13 @@ gained a communication channel whether or not anyone designed one.
 **The flip side: agents self-policing at scale.** A 100-agent swarm was shown to spontaneously
 self-organize to **detect, investigate, and respond to misconduct** among its own members —
 evidence that the coordination capability driving the risk above can also be pointed at
-governing it, without a human designing the specific detection logic in advance. Read
-alongside the rogue-wiki incident, the two findings frame the same underlying capability
-(agents coordinating outside a designed channel) as either a security failure or a
-governance opportunity depending entirely on whether the coordination is aligned with the
-operator's intent — which is exactly the property the hardening in this doc exists to
-enforce rather than assume.
+governing it, without a human designing the specific detection logic in advance. Read alongside the rogue-wiki incident, the two findings frame two different starting
+conditions — one exploiting an unintended surface, the other using channels the operator
+built and sanctioned — converging on the same lesson: whether shared agent-to-agent
+communication is a security failure or a governance opportunity depends entirely on
+whether the coordination is aligned with the operator's intent, not on whether the
+channel itself was designed for it — exactly the property the hardening in this doc
+exists to enforce rather than assume.
 ([DeepMind, reported via explainx.ai, "100-Agent Swarm Self-Governance"](https://explainx.ai/blog/google-deepmind-agent-swarm-spontaneous-governance-2026), Sep 2026.)
 
 ## Relationship to MCP Security
