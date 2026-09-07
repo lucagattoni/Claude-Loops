@@ -6,6 +6,81 @@ Sources are defined in [`SOURCES.md`](https://lucagattoni.github.io/Claude-Loops
 
 ---
 
+## Doc fact-check sweep — 2026-09-07 06:36 UTC (hand-authored, not a tracker run)
+
+> Header deliberately does not start with a digit. Two mechanisms parse this file's headers —
+> `check-digest-freshness.sh` and `fetch-loop-news`'s `last_run_date` — and a hand-authored entry
+> in the standard shape would reset the staleness clock and mis-date the next sweep.
+
+**Backlog step 11, C7.** The other half of step 11. An earlier pass verified only content added on
+or after 2026-09-04; everything older had never been checked. Measured with `git blame` per line
+that is **4,025 of 6,010 lines across 23 docs (67%)**. All of it was swept: **34 of 34 units
+returned, none lost, 656 claims examined, 471 distinct external URLs fetched, 139 findings, and 47
+claims recorded UNVERIFIABLE rather than asserted false.** 150 edits landed across 25 files.
+
+The URL figure is the one to compare against this repo's history: an earlier pass left **78 of 98**
+cited URLs unopened while reporting its docs covered.
+
+### What this sweep found is a different disease from the changelog sweep
+
+C10 found a KB **stale against a moving platform** — fixable by re-reading the changelog. C7 found
+the KB **composing plausible content around a real citation instead of reading the cited source.**
+The citation is almost always genuine and the link almost always resolves; what sits above it is
+sometimes invented. In descending order of how badly it would hurt a reader:
+
+1. **Fabricated config dressed in a real project's name — the worst class, because it is copyable.**
+   `docs/08` carried a `.claude/settings.json` block whose keys Claude Code does not recognise,
+   attributed to a real repo whose actual policy is server-side YAML. `docs/34` invented a
+   five-field heartbeat schema of which **zero** fields exist. A reader who copies these gets
+   silence, not an error.
+2. **Invented mechanisms that make a safety control sound stronger than it is.** `docs/19`
+   recommended a flag to bound MCP scope that only skips the prompt; `docs/33` described a runtime
+   credential-leak scanner that is a provision-time config audit, and listed a Linux keyring tier
+   that does not exist — the real behaviour falls through to a plaintext dotfile, so the KB was
+   hiding the risk rather than naming it.
+3. **Quotation marks around words nobody wrote.** One fully fabricated blockquote, absent from the
+   live article *and* from two Wayback snapshots predating the KB's own commit; one statistic
+   attributed to "an Anthropic engineer" traceable only to contradicting social posts; four
+   condensed paraphrases inside quote marks. The direction is telling — these are not misremembered
+   quotes, they are *better* quotes than the sources produced.
+
+### Two corrections to this repo's own record
+
+**`docs/08` and `docs/12` had settings precedence inverted** — both ordered sources "later overrides
+earlier" with **managed policy first**, making org-wide security policy the *weakest* input. The
+[settings reference](https://code.claude.com/docs/en/settings#settings-precedence) says the reverse
+in as many words. Found independently by both sweeps, which is why it is stated with confidence.
+
+**H1 is closed, four docs by stamping and one by refusing to.** `docs/05`, `06`, `19` and `35` now
+carry version markers. `docs/31` does not, deliberately: Claude Tag is a **separate product** with
+no CLI version gate — the official Slack page states no version requirement and the full changelog
+(`0.2.21`–`2.1.263`) carries no Claude Tag entry. Stamping it would have asserted a gate that does
+not exist. The doc now says so, and names the trap: the changelog's `/tag` entries are about naming
+a *session*.
+
+### What this pass does NOT support, stated plainly
+
+Its completeness critic returned **INCOMPLETE**, and it was right. Claim density ran **inverted
+against document size** — r = **-0.64**. Units over 160 unverified lines were checked at 10.8 claims
+per 100 lines; units under 100 lines at 26.5. `docs/24`, the largest doc with the most findings and
+the most high-severity ones, got the **thinnest** sampling in the whole pass, and one spot-check
+inside a range it declared clean found a real defect. **"34/34 units returned" is a statement about
+reporting, not coverage** — the same shape as "the workflow succeeded", which has been true in this
+repo while nothing shipped. `docs/24` needs re-cutting at the small-unit rate; that and the rest are
+logged in `KB_GAPS.md` rather than left implicit.
+
+### Mechanical follow-through
+
+`scripts/kb-structure-check.sh` gained two sections, because both promises were previously enforced
+by nothing: **§5** compares README's source-type table against `SOURCES.md` (they had drifted
+silently for two releases), and **§6** flags any Part II doc stating 3+ platform facts with no
+version marker — the H1 shape, made mechanical. Both were proven by negative test: the first version
+of §6's regex required lowercase after `--`, silently missed every camelCase flag, and **reported
+clean over a corpus it had undercounted** — this repo's defining defect, reproduced inside the check
+built to prevent it, and caught only because the check was tested rather than trusted.
+
+---
+
 ## Changelog sweep — 2026-09-07 00:24 UTC (hand-authored, not a tracker run)
 
 > Header deliberately does not start with a digit. Two mechanisms parse this file's headers —
