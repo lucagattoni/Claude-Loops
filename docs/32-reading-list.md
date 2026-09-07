@@ -20,15 +20,18 @@ These belong in every practitioner's reading queue before anything else.
 **Added:** 2026-06-24 · **Published:** Jun 2026
 
 **Why here:** The founding document of loop engineering as a named discipline.
-Osmani coined the vocabulary adopted by the whole community — "replace yourself as
-the person who prompts the agent" — and defined the New Software Lifecycle
-(spec quality and verification replace implementation speed).
+Osmani opens by quoting Peter Steinberger — "You shouldn't be prompting coding agents
+anymore. You should be designing loops that prompt your agents" — and Boris Cherny —
+"My job is to write loops" — then states the discipline's founding line: "Loop
+engineering is replacing yourself as the person who prompts the agent."
 
-**Summary:** Argues that AI agents have collapsed implementation speed, shifting the
-engineering bottleneck to specification quality and verification. Defines loop
-engineering as the practice of designing the system that prompts the agent instead of
-prompting it yourself. Introduces the Explore → Plan → Implement → Commit workflow
-and the concept of "vibe coding" as the new technical debt.
+**Summary:** Frames loop engineering as sitting "one floor above the harness" and maps
+five building blocks plus a sixth (memory) — Automations, Worktrees, Skills,
+Plugins/connectors, and Sub-agents — across the Codex app and Claude Code (the same
+six blocks [docs/03](03-building-blocks.md) documents for Claude Code alone). Closes
+with three risks that get sharper, not easier, as loops improve: verification staying
+on the human, "comprehension debt" from shipping code you didn't read, and "cognitive
+surrender" — the pull to stop having an opinion once the loop runs itself.
 
 ---
 
@@ -101,8 +104,9 @@ Claude Code specifically. Introduces three of the most-cited concepts in the
 community: DOER/CHECKER, the AI Leverage Formula, and the stopping-condition test.
 Practical, opinionated, and reproducible.
 
-**Summary:** Covers the DOER/CHECKER pattern ("never let the AI grade its own output"),
-the AI Leverage Formula (AI Output = Your Skill × Your Clarity), and the stopping
+**Summary:** Covers the DOER/CHECKER pattern ("No grading its own homework" — one agent
+does the work, a different one checks it),
+the AI Leverage Formula (AI Leverage = Your Skill × Your Clarity), and the stopping
 condition prerequisite: "If you can't say what done looks like, you don't have a loop.
 You have a wish." Demonstrates building an autonomous loop using /goal and Routines,
 with concrete examples of bounded vs. unbounded tasks.
@@ -116,8 +120,8 @@ with concrete examples of bounded vs. unbounded tasks.
 context. The Inner/Outer Dual Loop pattern is uniquely well-explained here and not
 documented as clearly elsewhere.
 
-**Summary:** Four-generation taxonomy: AutoGPT-era (2023) → ReAct (2024) →
-OODA/Dual Loop → Ralph/goal loops (2026). The Inner/Outer Dual Loop: an outer loop
+**Summary:** Four-generation taxonomy: AutoGPT-era (2023) → ReAct (2022–2023) →
+OODA/Dual Loop (2024) → Ralph/goal loops (2025–2026). The Inner/Outer Dual Loop: an outer loop
 monitors the inner loop and resets strategy when it fails repeatedly, preventing
 the agent from grinding indefinitely on a blocked sub-goal. Includes cost benchmarks:
 ~4× tokens for single-agent loops, ~15× for multi-agent, vs. standard chat.
@@ -189,11 +193,10 @@ not available elsewhere at this level of detail and credibility.
 
 **Summary:** Documents Anthropic's own harness evolution from a two-part (initializer +
 coding agent) to a three-agent system (Planner + Generator + QA/Evaluator). Introduces
-sprint contracts (generator and evaluator negotiate 20+ testable criteria before each
-build phase), the load-bearing vs. optional principle (re-baseline complexity with each
+sprint contracts (generator and evaluator negotiate a set of testable criteria before each
+build phase — one sprint alone had 27), the load-bearing vs. optional principle (re-baseline complexity with each
 model release), and real cost benchmarks: solo agent $9/20min (broken) vs. full harness
-$200/6h (working). Key finding: Claude Sonnet 4.5 required context resets; Opus 4.6
-largely eliminated the need.
+$200/6h (working). Key finding: Claude Sonnet 4.5 required context resets; Opus 4.5 largely eliminated the need.
 
 ---
 
@@ -222,8 +225,7 @@ discipline that prevents context pollution. The Never Argue rule and Event Model
 are immediately applicable to anyone running multi-turn agent sessions.
 
 **Summary:** Establishes the Never Argue rule: agents don't learn from corrections,
-they agree and carry the confusion forward — extended back-and-forth accumulates
-"decision noise" that degrades output predictably. Introduces Event Modeling: slice
+they agree and carry the confusion forward — extended back-and-forth buries the signal in noise, which the author says predictably produces hallucination. Introduces Event Modeling: slice
 work into discrete status-transition units (Planned → In Progress → Blocked → Done),
 execute each in one clean context window, record learnings, clear context, restart.
 "Clean iterations with recorded learnings will outperform long, polluted conversations
@@ -251,7 +253,7 @@ Essential reading once you have working harnesses and want to make them producti
 
 ---
 
-### [Building Effective Agents](https://www.anthropic.com/news/building-effective-agents) — Anthropic
+### [Building Effective Agents](https://www.anthropic.com/engineering/building-effective-agents) — Anthropic
 **Added:** 2026-06-26 · **Published:** Dec 2024
 
 **Why here:** The canonical first-party reference for agent workflow architecture. The five patterns defined here — evaluator-optimizer especially — are the vocabulary the entire field now uses, regardless of whether practitioners trace it back to this document. Pre-dates "loop engineering" as a named discipline but is the foundational design reference every serious practitioner converges on.
@@ -285,7 +287,7 @@ SWE-bench-verified aggregate with 12% fewer tokens than the seed harness; cross-
 
 ---
 
-### [Self-Harness: Harnesses That Improve Themselves](https://arxiv.org/abs/2606.09498) — arXiv 2606.09498
+### [Self-Harness: Harnesses That Improve Themselves](https://arxiv.org/abs/2606.09498v1) — arXiv 2606.09498 (v1, Jun 2026)
 **Added:** 2026-07-02 · **Published:** Jun 2026
 
 **Why here:** The cleanest statement of the self-improvement *loop* — a three-stage procedure an
@@ -297,7 +299,9 @@ from execution traces; (2) Harness Proposal generates targeted, minimal harness 
 them; (3) Proposal Validation regression-tests each candidate before acceptance. Key claim: it
 converts model-specific weaknesses into concrete, executable harness changes rather than generic
 prompt instructions. Terminal-Bench-2.0 gains with the model held fixed: MiniMax M2.5 40.5%→61.9%,
-Qwen3.5-35B-A3B 23.8%→38.1%, GLM-5 42.9%→57.1% (up to +21.4pp absolute).
+Qwen3.5-35B-A3B 23.8%→38.1%, GLM-5 42.9%→57.1% (up to +21.4pp absolute). (Figures are from v1,
+live at capture; v2/v3, Aug 2026, broadened this to 3 benchmarks / 9 model-benchmark pairs and
+reframed the headline result as a relative gain of up to 132%.)
 
 ---
 
@@ -367,7 +371,9 @@ The stopping condition is where most loops fail. These articles address it direc
 **Why here:** Introduces a formal vocabulary that the broader community lacks: the
 Goals vs. Loops distinction and the four Goal Primitives. Fills the gap between
 "define a good stopping condition" (advice) and the specific mechanism (GOAL.md,
-Verifier, Budget) for achieving it.
+Verifier, Budget) for achieving it. Written specifically about xAI's Grok Build CLI
+`/goal` feature — the article never mentions Claude — but the vocabulary itself is
+tool-agnostic and maps directly onto a Claude Code loop.
 
 **Summary:** Draws a decision boundary: if the work is recurring → Loop; if it has
 a deterministic completion state → Goal. Defines four Goal Primitives: (1) Objective
@@ -393,14 +399,14 @@ non-engineers. Claude Tag is loop engineering manifested as a team tool — ambi
 self-scheduling, org-aware. It concretises Karpathy's "third LLM paradigm" and
 Cherny's "Claude Everywhere" thesis in a form you can demo to a stakeholder.
 
-**Summary:** Claude Tag is Claude Code deployed as a persistent Slack agent.
+**Summary:** Claude Tag is a new way for teams to work with Claude, launched on Slack — Anthropic frames it as "the beginning of an evolution of Claude Code," not Claude Code itself.
 Architecture: channel-scoped instances with isolated memory and tool access,
 ambient context built from channel history, self-scheduling (plans follow-ups
-autonomously over hours or days), isolated sandbox per task invocation. Governance:
+autonomously over hours or days). Governance:
 token caps per org/channel, audit logging, role-based memory separation. Signal:
 65% of Anthropic's product team code is created using their internal version.
-"The beginning of an evolution of Claude Code: more proactive, works better with
-a full team."
+"The beginning of an evolution of Claude Code: it makes the model even more
+proactive, and it works better with a full team."
 
 ---
 
@@ -436,9 +442,12 @@ Curated for depth of design and breadth of patterns covered — not for populari
 **Why here:** The only reference implementation that provides both a GOAL.md schema
 and a readiness scoring tool (G0–G3). Fills the gap between the "write a good stopping
 condition" principle and a reproducible implementation pattern with six canonical goal templates.
+Built and documented as the canonical reference for xAI's Grok Build CLI `/goal` feature
+(quick-start commands use `--tool grok`), not Claude Code — the GOAL.md schema and G0–G3
+readiness scoring tool are portable, but the repo itself is Grok-specific.
 
-**Summary:** Six canonical goal patterns (Tests Green, Migrate Module, Fix Bug, Refactor,
-Docs Update, Security Scan) each with a typed GOAL.md template, done conditions, and natural
+**Summary:** Six canonical goal patterns (Tests Green, Migrate Module, Implement Feature, Fix Bug,
+Refactor Safely, Coverage Target) each with a typed GOAL.md template, done conditions, and natural
 verifier. Includes a G0–G3 readiness scoring tool (run before launching a goal to verify
 objective clarity, verifier independence, state file presence, and budget definition) and
 a goal-cost estimator that predicts token spend from objective scope.
@@ -449,15 +458,17 @@ a goal-cost estimator that predicts token spend from objective scope.
 **Added:** 2026-06-25 · **Published:** Jun 2026
 
 **Why here:** The only published reference implementation for fleet-level governance. The
-six production patterns and Fleet Economics cost attribution framework are not documented at
+six production patterns are not documented at
 this level of operational detail elsewhere — including F0–F3 maturity gates, Claw vs.
 Assistant identity choice, and fleet-budget.md as a first-class artefact.
 
 **Summary:** Six production fleet patterns: Team Registry, Shared Inbox HITL, Hierarchical
-Delegation, Fleet Budget Guard, Cross-Agent Audit, and Fleet Economics. The Fleet Budget Guard
-pattern implements per-agent and per-fleet spend ceilings with automatic rollback on breach.
-Fleet Economics introduces cost attribution as a fleet primitive — identifying which agent
-generated a runaway cost event is a prerequisite for F2 governance, not an optional feature.
+Delegation, Fleet Budget Guard, Cross-Agent Audit, and Agent Clone & Fork. The Fleet Budget Guard
+pattern caps per-agent token/API spend, pausing that agent's scheduler and requiring inbox
+approval before the cap can be raised — not raw ceilings with automatic rollback. Agent Clone &
+Fork defines a three-tier permission model (can run / can clone / can edit) for spreading a
+proven agent across teams without permission chaos, tracking every fork's provenance back to
+its canonical source.
 
 ---
 
@@ -502,7 +513,7 @@ deliverables, where "done" and "known" are different, both-needed completion sta
 **Added:** 2026-07-08 · **Published:** Jul 2026
 
 **Why here:** The only reference implementation that treats BUDGET as a per-turn
-admission decision (proceed/wait/ask/idle) rather than a single end-of-run ceiling,
+admission decision (deliver/ask/wait/self-repair/stay-quiet) rather than a single end-of-run ceiling,
 and pairs it with durable objectives and evidence logs that survive agent restarts —
 gaps none of the other four entries in this group address. Replaces
 Strive_Engineering, whose provenance-bound-claims contribution is now fully absorbed
@@ -511,10 +522,12 @@ with direct citations, making the standalone reading-list entry redundant.
 
 **Summary:** A local control plane for long-running, restart-prone agent workflows
 across Codex/Claude Code/Cursor. Tracks durable objectives, a quota-aware
-should-run gate with four decision states, `claimed_by` todo ownership, append-only
+should-run gate with five decision states, `claimed_by` todo ownership, append-only
 evidence logs, and verifiable handoffs that preserve scope across sessions. Explicitly
 scopes itself as *not* an autonomous production controller — dangerous permissions,
 publishing, and production writes stay with the human operator. 90 stars, 2,525
-commits, comprehensive architecture/quota-allocation/interaction-pattern docs.
+commits as of this entry's Added date (2026-07-08) — the repo has since grown fast
+(5,680 stars / 5,627 commits as of 2026-09-07); check current figures before citing them.
+Comprehensive architecture/quota-allocation/interaction-pattern docs.
 
 ---
