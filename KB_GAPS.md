@@ -65,6 +65,70 @@ targeted GitHub and web searches.
   Report" OpenAI METR`, `Hugging Face agent swarm incident Artifactory`, `AI agent
   transcript tampering incident report 2026`.
 
+### Logged by the C10 changelog sweep, 2026-09-07
+
+These came out of reading all 3,774 previously-unswept changelog bullets. Each is real and each
+is **deliberately not written into a doc**, for the reason given. Evidence pack:
+[`plans/20260906_2306-c10-changelog-sweep-evidence.md`](plans/20260906_2306-c10-changelog-sweep-evidence.md).
+
+- **Part II version stamps, as a class rather than four one-offs.** Four platform facts carry no
+  version marker against Part II's promise (`docs/index.md:76-77`): `docs/08`'s `Tool(param:value)`
+  syntax (**v2.1.178**), and `docs/09`'s `--exclude-dynamic-system-prompt-sections` (**v2.1.98**),
+  `--safe-mode` (**v2.1.169**) and `--fallback-model` (**v2.1.152**/**v2.1.166**, which also omits
+  the persistent `fallbackModel` setting). All four survived refutation and each is a one-line fix —
+  logged rather than applied because stamping four flags individually is accretion. **Do one grep of
+  every Part II doc for flags/settings/limits lacking a `vX.Y.Z` marker and stamp them together.**
+- **A restriction asserted with no version floor is a distinct defect class from a missing stamp.**
+  Five security boundaries the KB states unconditionally had enforcement floors: `Agent(model:opus)`
+  deny rules unenforced before **v2.1.186**; subagent frontmatter `mcpServers` bypassing managed
+  policy before **v2.1.153**; agent frontmatter unenforced under `-p` before **v2.1.119**; the
+  worktree sandbox write-allowlist covering the whole main checkout before **v2.1.149**; hooks able
+  to loosen a `deny` before **v2.1.77**/**v2.1.101**. Audit prompt: *for every "X cannot do Y" claim
+  in Part II, when did that become true?*
+- **`/skill-doctor`'s introduction version — two first-party sources disagree.** `CHANGELOG.md`
+  **v2.1.261** says *"Added `/skill-doctor`"*; the live
+  [Skills docs](https://code.claude.com/docs/en/skills) say it *"requires Claude Code v2.1.252 or
+  later"*. Nine versions apart. Unsettleable from available sources — recorded, not picked.
+- **The hook-output cap changed 50,000 → 10,000 characters with no changelog entry.** **v2.1.89**
+  introduced the disk-spill mechanism at 50K; the live
+  [hooks reference](https://code.claude.com/docs/en/hooks) now states 10,000. A full changelog grep
+  finds nothing recording the change, so the current number is verifiable but its version is not —
+  and a Part II claim needs both.
+- **Read-tool PDF limits disagree across three first-party sources.** The in-session Read schema says
+  20 pages/request; platform.claude.com's PDF page says 600 pages (100 under a sub-1M window) and
+  32MB; changelog **v2.1.31** implies 100 pages/20MB. Possibly three different limits (per-call CLI
+  cap, whole-document cap, raw-API cap). Needs its own pass before any number is published.
+- **`Setup` hook exit-2 stderr: changelog and live docs contradict.** **v2.1.199** says
+  `SessionStart`, `Setup` and `SubagentStart` all stopped hiding stderr on exit 2. The live exit-code
+  table today says *"Setup — Exit code and stderr are ignored"* and omits `Setup` from the events
+  that render exit-2 stderr. Either the fix was narrower than the bullet, or it regressed silently.
+- **The v2.1.183 webhook/scheduled-trigger privilege fix cannot be attributed to a subsystem.**
+  *"Fixed webhook and scheduled trigger deliveries being classified the same as literal keyboard
+  input"* is real, but the changelog's vocabulary maps "scheduled task" to the local `/loop`/cron
+  subsystem and "webhook trigger" most plausibly to `RemoteTrigger` — not to Routines' cloud fire
+  endpoint, which the docs show already wraps payloads as untrusted. The fact is real; the mechanism
+  is not settled, and the KB documents none of the three.
+- **Bash-tool login-shell sourcing has no home and no verified remedy.** **v2.1.51** made the Bash
+  tool skip the login shell (`-l`) by default when a shell snapshot exists, so login-only
+  `PATH`/profile exports stop applying — a real unattended-run gotcha. But the pre-v2.1.51 opt-out
+  `CLAUDE_BASH_NO_LOGIN` no longer appears in the live
+  [env-vars reference](https://code.claude.com/docs/en/env-vars), and `CLAUDE_CODE_SHELL` only picks
+  the shell binary. **No confirmed supported override today**, and no owning doc (`docs/18` or
+  `docs/09` are the candidates). A proposed fix naming `CLAUDE_CODE_SHELL` as the remedy was
+  refuted for exactly this reason — do not re-propose it.
+- **The plugin/marketplace subsystem has no canonical home.** A plugin bundles skills, subagents,
+  hooks and MCP servers and ships through a marketplace, so it touches `docs/03`, `06`, `12` and
+  `19` and lives in none. `docs/03:216`'s section is titled `## 4. Plugins / Connectors` but contains
+  only MCP and Chrome content — the title promises a subsystem the section never delivers, which is
+  why a well-sourced plugin edit was rejected rather than wedged in. Either its own doc or an
+  explicit retitled section with the other four pointing into it. Smaller and related:
+  tool-availability and model-gating facts (Task tools off by default on current models,
+  `ToolSearch`, skill-listing budgets) scatter across `docs/06`, `13`, `16` and `38` with no owner.
+- **GitHub Releases for `anthropics/claude-code` only go back to `v2.0.73`.** Two accepted edits had
+  to swap a `github.com/anthropics/claude-code/releases/tag/vX` citation for this reason, so **every
+  v1.x release-tag link in this KB is a live 404 risk**; `code.claude.com/docs/en/changelog#1-0-86`
+  resolves and is the safe form. Worth one mechanical grep of the whole corpus.
+
 ---
 
 ## Recently Filled (archive — keep last 2 entries; remove older ones)

@@ -515,9 +515,39 @@ All four confirmed still open. v3.0.0 was a fact-check/restructure pass that nev
 keywords, so incidental discovery is the only thing that has been tried. Gap 3
 (effort-vs-tooling boundary) has **zero** retry annotations ever — start there.
 
-### C10 — Changelog `0.2.21`–`v2.1.199` unswept; all "Fixed" bullets dropped · large
+### C10 — ~~Changelog `0.2.21`–`v2.1.199` unswept; all "Fixed" bullets dropped~~ · **SHIPPED 20260907**
 
-187 of 2,076 bullets reviewed, across 385 versions. Re-fetch the raw file
+**Done. 3,774 of 3,774 previously-unswept bullets read, 24 of 24 chunks, zero count mismatches.**
+520 verified rows → 6 `KB_WRONG`, 10 `KB_STALE`, 319 `KB_GAP`, 86 already-correct, 99 dropped.
+**29 edits landed across 18 docs**; 10 gaps logged to `KB_GAPS.md` rather than written, because the
+KB prefers consolidation over accretion and 319 additions would have roughly doubled it.
+Evidence pack: [`20260906_2306-c10-changelog-sweep-evidence.md`](20260906_2306-c10-changelog-sweep-evidence.md).
+
+**The headline defect:** `docs/08` and `docs/12` both ordered settings/hook sources *"later
+overrides earlier"* with **managed policy first**, making org-wide policy the *weakest* input. The
+official settings reference says the reverse in as many words. Security-relevant, wrong in two docs,
+and it had survived every prior pass.
+
+**The `Fixed`-bullet mandate was the highest-yield change.** The prior pass dropped all `Fixed`
+bullets as noise; mining them produced 190 of 520 verified rows (36.5%), **3 of the 6 `KB_WRONG`**,
+and a third of the shipped edits.
+
+**Correction to this item as written — the denominator was wrong, and it understated the job ~2x.**
+"187 of 2,076 bullets ... across 385 versions" inherits a figure from
+`LOOP_ENGINEERING_NEWS.md:644,649,714` (and `CHANGELOG.md:792`) that is **not correct**. Measured
+against the file as it stood at 385 versions: **5,132** top-level bullets, of which `Fixed` alone is
+**2,740** — the same paragraph that states the 2,076 total also reports 2,740 `Fixed`, 168 `Changed`
+and 35 `Removed`, which already sum to 2,943. Three of those four counts reproduce exactly; only the
+total is wrong. So the unswept remainder was **3,774**, not ~1,889. The append-only digest is
+corrected by a new entry (2026-09-07), not rewritten.
+
+**Two honest limitations.** A refutation cap left 245 of 335 actionable findings unrefuted before
+per-doc triage, and two session limits killed 43 refuters and one adjudicator mid-run — coverage was
+unaffected (sweep and verify completed and cached), refutation *depth* was not. The completeness
+critic's verdict was **INCOMPLETE** on that basis, and it independently found one defect the pass
+missed (`PermissionRequest`'s exit-2 row), which was verified and fixed. Original analysis below.
+
+Re-fetch the raw file
 (`raw.githubusercontent.com/anthropics/claude-code/main/CHANGELOG.md` — the rendered site only
 covers v2.1.235+), run the Added/Changed/Removed filter over the unswept range, then a second pass
 over `Fixed` bullets for behaviour-changing language ("now", "previously", "no longer").

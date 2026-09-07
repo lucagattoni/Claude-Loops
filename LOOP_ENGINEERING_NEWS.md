@@ -6,6 +6,77 @@ Sources are defined in [`SOURCES.md`](https://lucagattoni.github.io/Claude-Loops
 
 ---
 
+## Changelog sweep — 2026-09-07 00:24 UTC (hand-authored, not a tracker run)
+
+> Header deliberately does not start with a digit. Two mechanisms parse this file's headers —
+> `check-digest-freshness.sh` and `fetch-loop-news`'s `last_run_date` — and a hand-authored entry
+> in the standard shape would reset the staleness clock and mis-date the next sweep.
+
+**Backlog step 11, C10.** The 2026-07-16 run swept `v2.1.200`–`v2.1.260` of the Claude Code
+changelog and said so honestly. This pass covers everything it left: `0.2.21`–`v2.1.199` **plus**
+`v2.1.261`+. **3,774 of 3,774 top-level bullets, 24 of 24 chunks, zero count mismatches** between
+each reader's self-reported total and an independent script count.
+
+### Correction — that run's "2,076 bullets" is wrong, and this file states it three times
+
+`:644`, `:649` and `:714` below, and `CHANGELOG.md:792`, all record the changelog as **2,076
+bullets across 385 versions**. The version count and the 620KB size are right. The bullet count is
+not, and the same paragraph disproves it: it reports `Fixed` at **2,740** *"across all history"* —
+more than the total it claims. Add the `Changed` (168) and `Removed` (35) it also names and the
+components reach 2,943, 42% above the stated whole.
+
+Measured by reconstructing the file as it stood at 385 versions (today's file minus `2.1.261` and
+`2.1.263`, the only two added since):
+
+| Category | Then | That run said |
+|---|---|---|
+| `Fixed` | 2,740 | 2,740 ✓ |
+| `Changed` | 168 | 168 ✓ |
+| `Removed` | 35 | 35 ✓ |
+| **All** | **5,132** | **2,076 ✗** |
+
+Three of its four counts reproduce exactly; only the total is wrong, and `2,076` matches no natural
+subset (non-`Fixed` = 2,392; `Added`+`Changed`+`Removed` = 759). **Per this repo's append-only rule
+the entries below are left as written** — this entry is the correction. The two `plans/` files that
+inherited the figure are working documents and were corrected in place.
+
+The practical cost: the backlog priced C10 as *"187 of 2,076"*, implying ~1,889 bullets left. The
+real remainder was **3,774** — about twice the job, and the wrong denominator made it look
+half-finished when it was under a quarter done.
+
+### What the sweep found
+
+520 verified rows: **6 `KB_WRONG`**, **10 `KB_STALE`**, 319 `KB_GAP`, 86 already-correct, 99
+dropped as superseded or irrelevant. 29 edits landed across 18 docs. The 319 gaps were mostly
+*not* applied on purpose — the KB is a curated argument, not a changelog mirror, and it prefers
+consolidation over accretion.
+
+**The most consequential defect, and it was in two docs at once.** `docs/08` and `docs/12` both
+ordered their sources *"later overrides earlier"* with **managed policy first** — making
+organisation-wide policy the *weakest* input and CLI flags the strongest. The
+[settings reference](https://code.claude.com/docs/en/settings#settings-precedence) says the
+opposite in as many words: *"In order, highest precedence first: Managed settings ... Nothing you
+set overrides them."* Both are corrected, and `docs/12` now also distinguishes hook *entries*
+(which merge) from settings *values* (highest wins) — a distinction the old text collapsed.
+
+Other corrections: the `docs/12` hook-timeout table (command/http/mcp_tool are **600s**, not
+60/30/30); `PreCompact` **can** block (v2.1.105) where the table said it could not;
+`PermissionRequest` **cannot** block via exit 2 where the table said it could — a guard written as
+`exit 2` there fails open; `additionalContext` is no longer `Stop`-only; and `docs/08`'s permission
+pattern table asserted a `?` single-character wildcard that the live reference does not document.
+
+**The `Fixed`-bullet mandate paid for itself.** The previous pass dropped every `Fixed` bullet as
+noise. Mining them produced **190 of 520 verified rows (36.5%)**, **3 of the 6 `KB_WRONG`** and a
+third of the shipped edits. Under the old rule half the real defects would still be in the KB.
+
+**Stated limitations.** A refutation cap left 245 of 335 actionable findings unrefuted before
+triage; two session limits killed 43 refuters and one adjudicator mid-run. Coverage was unaffected
+(sweep and verify completed and were cached), but refutation *depth* was. Full accounting, the
+16 defect rows and the method are in
+[`plans/20260906_2306-c10-changelog-sweep-evidence.md`](https://github.com/lucagattoni/Claude-Loops/blob/main/plans/20260906_2306-c10-changelog-sweep-evidence.md).
+
+---
+
 ## Fact-check pass — 2026-09-06 14:57 UTC (hand-authored, not a tracker run)
 
 > Header deliberately does not start with a digit. Two mechanisms parse this file's headers —
