@@ -30,12 +30,30 @@ Deploy the current branch to production:
 9. Report deploy SHA and confirm pods are Running
 ```
 
+## SKILL.md Frontmatter Reference
+
+Beyond `name` and `description`, a `SKILL.md`'s YAML frontmatter controls when Claude invokes it, what it can touch, and where it runs:
+
+| Field | Does |
+|---|---|
+| `description` | What Claude uses to decide when to invoke the skill. Combined with `when_to_use`, truncated at **1,536 characters** in the skill listing (raised from 250, v2.1.105) — put the key use case first. |
+| `disable-model-invocation` | `true` restricts the skill to `/name` — Claude won't invoke it automatically, and it's excluded from subagent preloading. Since **v2.1.196**, it also stops the skill from running when a scheduled task names it as its prompt. Default `false`. |
+| `user-invocable` | `false` hides the skill from the `/` menu — only Claude can invoke it. The mirror of `disable-model-invocation`. Default `true`. |
+| `allowed-tools` | Tools Claude can use without a permission prompt for the turn that invokes the skill; the grant clears on your next message. Accepts a YAML list (v2.1.0) as well as a space/comma-separated string. |
+| `disallowed-tools` | Removes tools from the pool while the skill is active (v2.1.152). |
+| `context: fork` | Runs the skill in its own subagent context (v2.1.0) — a different knob from a Task-tool `subagent_type: fork` (see [Subagents → Cache-Safe Forking](07-subagents.md#cache-safe-forking-and-isolated-child-state)). Since **v2.1.218** this runs in the background by default; set `background: false` to wait for the result inline. |
+| `agent` | Which subagent type a `context: fork` skill runs under (v2.1.0). |
+| `model` / `effort` | Override the model/effort level for the skill's turn only. Skill *content* can also reference the live value directly with `${CLAUDE_EFFORT}` (v2.1.120) — distinct from the `$CLAUDE_EFFORT` environment variable hooks and Bash commands read (v2.1.133; see [Hooks → Environment variables](12-hooks.md#environment-variables-in-hooks)). |
+
+**`allowed-tools` is not gated by workspace trust.** Claude Code applies a project skill's `allowed-tools` whenever it's invoked, including in an untrusted directory under `-p`. A skill checked into a repository can grant itself broad tool access — review it before running Claude Code against a repo whose skills you didn't write yourself.
+
+Skill files also hot-reload: an edit under `.claude/skills/` takes effect immediately, no session restart needed (v2.1.0+; force a rescan with `/reload-skills`, v2.1.152). Full reference: [Skills → Frontmatter reference](https://code.claude.com/docs/en/skills#frontmatter-reference).
+
 ## Skills as SDLC Scaffolding
 
 Skills can enforce engineering process, not just task steps. By baking spec writing,
 testing, and review into the skill definition as **non-skippable phases**, you
-prevent the agent from taking shortcuts inside a loop. (Pattern from Addy Osmani,
-"Agent Skills", May 2026.)
+prevent the agent from taking shortcuts inside a loop. (Pattern from Addy Osmani, ["Agent Skills"](https://addyosmani.com/blog/agent-skills/), May 2026.)
 
 ```markdown
 <!-- .claude/skills/implement-feature/SKILL.md -->
@@ -73,7 +91,7 @@ Gains are clearest on obscure, quotation-heavy questions — exactly the materia
 model is weakest on and a hand-written skill would rarely think to cover. This is a
 production pipeline for the skill-authoring step itself, complementary to (not a
 replacement for) the manually-designed SDLC-scaffolding skills above.
-([arXiv 2609.00453, "mimeo: Compiling Public Expert Corpora into Agent Skills"](https://arxiv.org/abs/2609.00453), Aug 2026.)
+([arXiv 2609.00453, "mimeo: Compiling Public Expert Corpora into Agent Skills and Testing What Transfers"](https://arxiv.org/abs/2609.00453), Aug 2026.)
 
 ## Skill Compression for Progressive Loading
 

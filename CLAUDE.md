@@ -2,38 +2,18 @@
 
 Claude-Loops is a living knowledge base and automated daily tracker for **loop engineering** — designing systems that prompt Claude for you. Read `LOOP_ENGINEERING.md` (the index) and `README.md` before working. The KB grows automatically via a two-skill pipeline: `fetch-loop-news` (search) hands off to `integrate-loop-news` (integrate + restructure + publish).
 
-> **Open work — read this first.** `plans/20260904_2053-open-work-backlog.md` is the full ranked
-> backlog and records what each step shipped; **§8's status paragraph is the authority on progress
-> — do not duplicate it here.** Steps 1–10 and 12 are done.
-> **Start at §8 step 11 — C7 (20 partially-verified docs) and C10 (the unswept changelog range)**,
-> the largest unclaimed content risk. H1's remainder folds into it (`05 06 19 31 35` — `35` was
-> never actually stamped, despite an earlier strikethrough). **H14** is step 13, expiring 2026-10-25.
+> **Open work — read this first.** `plans/20260904_2053-open-work-backlog.md` is the ranked backlog
+> and records what each step shipped; **§8's status paragraph is the authority on progress — do not
+> duplicate it here.** **Steps 1–12 are done.** Open: **step 13 (H14)** — retitle the IST-dependent
+> scheduling comments **before 2026-10-25**, when the DST shift moves the tracker's "04:00 UTC" slot
+> — and **C4** (zero-finding digest sections) in §4.
 >
-> **A manual sweep's claim to be complete is worth nothing.** A five-angle sweep of 39 docs reported
-> the repo-slug angle clean; `scripts/kb-structure-check.sh` found five bare slugs on its first run
-> (three real, two already linked nearby). It is now Phase 4c's mandatory first step. It is a
-> candidate generator, not a verdict — triage every hit, and record a waiver in the digest for any
-> you do not fix. An unaccounted flag is an unread check, not a passed one. Run it before believing
-> any completeness claim, including your own.
->
-> **Do not re-spend budget on:** what C1's critic verified clean (it names the four classes);
-> `docs/11`, `docs/23`, `docs/27`, `docs/04`'s quoted material, or the blockquote corpus (swept
-> 20260906); the four KB_GAPS entries step 9 closed; or **cross-model reviewer pairing, closed as
-> still-open after four retries** — do not schedule a fifth.
-> **Seventeen** claims no search can settle are parked in `KB_GAPS.md` § *Claims Awaiting
-> Verification*; read them before re-deriving any. **V13 first**: it records a quote the KB got
-> *right* that the source later deleted, which a finder wrongly called fabricated. "Contradicted by
-> the source" means **contradicted as of the capture date** — and its converse, proved twice on
-> 20260906: a source that 404s where you looked is not a source that is gone.
->
-> **Three rules step 9 paid for. Apply them before searching or citing:**
-> 1. **A citation is not a read.** Exhaust the repos already in `SOURCES.md` before searching
->    outward — a two-month-old gap was closed by two files in a repo `docs/23` cited three times.
-> 2. **ClaudeWarp cannot corroborate this KB.** It ships a skill whose documented job is to read
->    this repository, so agreement between them is shared origin, never independent support. All
->    five citing docs carry a first-party disclosure; keep it on any new citation.
-> 3. **Reverse-engineered strings are not a source.** This repo is public: never publish binary
->    greps, undocumented flags, absolute `/Users/...` paths, or local machine state.
+> **Do not re-spend budget on:** what C1's critic verified clean; `docs/11`, `docs/23`, `docs/27`,
+> `docs/04`'s quoted material or the blockquote corpus (swept 20260906); the four KB_GAPS entries
+> step 9 closed; **the 3,774 changelog bullets and 4,025 doc lines swept 20260907** (evidence packs
+> in `plans/`, ~17M tokens — do not repeat); or **cross-model reviewer pairing, closed as still-open
+> after four retries** — do not schedule a fifth. **Seventeen** claims no search can settle sit in
+> `KB_GAPS.md` § *Claims Awaiting Verification*; read them before re-deriving any.
 >
 > **Delete this note once the backlog's §4 and §5 are empty.**
 
@@ -154,9 +134,32 @@ Claude-Loops is a living knowledge base and automated daily tracker for **loop e
   `master`). Two live examples: `harness-books`' quoted sentence is in a chapter file, absent from
   the README; `v2.1.243` has a git tag and a `CHANGELOG.md` entry but **no GitHub Release**, so the
   releases API 404s on a citation that is perfectly good. Report **UNVERIFIABLE**, never absence.
+- **A citation is not a read, and the link resolving is not the source being right.** This KB's
+  own failure mode is **composing plausible prose around a real citation** — fabricated
+  `.claude/settings.json` blocks whose keys the CLI does not recognise, a schema with zero real
+  fields, quotes *better* than the source produced. Open the source. Exhaust the repos already in
+  `SOURCES.md` — and this repo's own digest — before searching outward.
+- **"Contradicted by the source" means contradicted as of the capture date**, and its converse: a
+  source that 404s or 403s where you looked is not a source that is gone — reach for Wayback before
+  calling anything absent. `KB_GAPS` V13 is the worked example in the first direction; the OpenAI
+  citation fixed 20260907 is the second.
+- **ClaudeWarp cannot corroborate this KB.** It ships a skill whose documented job is to read this
+  repository, so agreement between them is shared origin, never independent support.
+- **Check a peer's claim before acting on it — including a critic's.** A completeness critic reported
+  a pipeline silently dropping 21 candidates (this repo's signature defect); it was agents
+  miscounting a ~100-object JSON array in their own self-reports, and the downstream agent had used
+  the whole set. Its *recommendation* still stood — assert the invariant in code, not afterwards.
 - **Keep docs current in the same session.** Any infra/process/pattern change updates the relevant `docs/*.md` (e.g. headless → `docs/09`, routines → `docs/28`, loop patterns → `docs/34`) and `SOURCES.md` before committing — don't wait to be asked.
 - **Every timestamp is UTC, `YYYYMMDD HH:MM`.** Skills and humans alike: read the clock with `date -u '+%Y%m%d %H:%M'`, never compose or convert one. Applies to digest headers, changelog and release entries, plan filenames and branch names. **Never rewrite an existing timestamp** — entries recorded in local time (everything before `[3.0.0]`) stay exactly as written, because restamping them invents precision nobody measured. Decided 20260905; supersedes the previous skills-UTC/humans-local split, which had produced three formats inside one `CHANGELOG.md`.
 
 ## Structural review (norm after every news run)
 
 After every tracker run, do a critical, findings-driven structural review of the whole KB (codified as Phase 4c in `integrate-loop-news`) — read the findings as a *set* and ask whether the KB should be restructured (missing canonical home, missing thesis, centrality drift, docs to merge/reorder). The organizing spine is the five loop-design questions: **What / How / When / How much / How do you know it's done?** (Loop Contract: SCOPE / ACTION / TRIGGER / BUDGET / STOP + verifier). Prefer consolidation over new docs. Index restructures = MAJOR; new canonical sections + cross-refs = MINOR/PATCH.
+
+`scripts/kb-structure-check.sh` is Phase 4c's mandatory first step and now runs **six** sections —
+orphans, headings, duplicate coverage, three bare-citation shapes, **§5** README-vs-`SOURCES.md`
+drift, and **§6** Part II's version-stamp promise. It is a candidate generator, not a verdict:
+triage every hit and record a waiver for any you do not fix, because an unaccounted flag is an
+unread check. **Prove a new check fires before trusting it** — §6's first regex required lowercase
+after `--`, silently missed every camelCase flag, and reported clean over a corpus it had
+undercounted; only stripping a doc's markers and watching it *fail* to flag caught it.

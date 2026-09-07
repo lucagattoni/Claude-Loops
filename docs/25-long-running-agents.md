@@ -10,7 +10,7 @@ Each context window is finite. A long-running agent must externalise its state s
 the next invocation can resume exactly where it left off, without re-reading the
 entire history.
 
-## The Ralph Loop (Planner–Worker–Judge)
+## Planner–Worker–Judge
 
 A three-role multi-agent pattern for complex, multi-stage tasks:
 
@@ -24,11 +24,9 @@ Planner → Worker → Judge → (loop back to Planner if not done)
 
 The Planner writes state; the Worker reads and updates it; the Judge is the loop's stopping condition.
 
-**Origin.** The technique traces to Geoff Huntley's "Ralph Wiggum" pattern: run a single
-monolithic agent process autonomously in a loop, one task per iteration, prioritizing
-determinism and watchability over multi-agent complexity — the community precedent Osmani
-and others cite as predating Claude Code's own built-in loop primitives.
-([ghuntley.com, "The Ralph Wiggum (as a Software Engineering technique)"](https://ghuntley.com/loop/), Jan 2026.)
+(Wilson Lin, ["Scaling long-running autonomous coding"](https://cursor.com/blog/scaling-agents), Cursor, Jan 2026.)
+
+**A related but distinct single-agent technique: the Ralph Loop.** Where the pattern above splits work across separate Planner/Worker/Judge roles, Geoff Huntley's "Ralph Wiggum" technique deliberately keeps it to a single monolithic agent process run autonomously in a loop, one task per iteration, prioritizing determinism and watchability over multi-agent complexity — the community precedent Osmani and others cite as predating Claude Code's own built-in loop primitives. ([ghuntley.com, "Ralph Wiggum as a 'software engineer'"](https://ghuntley.com/ralph/), Jul 2025.)
 
 **A multi-day case study at scale.** Iterative planning-coding-testing loops sustained over
 *multiple days* report a 52.25% average relative gain across three benchmarks and, as a
@@ -89,17 +87,13 @@ the Dual Loop nests *execution inside strategy* (both can be automated); the thr
 feedback loops nest *agent inside developer inside user* by who supplies the correcting
 signal and at what cadence.
 
-(Data Science Dojo, ["Agentic Loops: From ReAct to Loop Engineering"](https://datasciencedojo.com/blog/agentic-loops-explained-from-react-to-loop-engineering-2026-guide/), 2026.)
+The outer-loop/inner-loop split traces to Microsoft's Magentic-One multi-agent architecture (the Orchestrator's task ledger drives the outer loop, its progress ledger the inner loop) — see ["Magentic-One: A Generalist Multi-Agent System for Solving Complex Tasks"](https://www.microsoft.com/en-us/research/articles/magentic-one-a-generalist-multi-agent-system-for-solving-complex-tasks/) (Microsoft Research, Nov 2024). (Framing here follows Data Science Dojo, ["Agentic Loops: From ReAct to Loop Engineering"](https://datasciencedojo.com/blog/agentic-loops-explained-from-react-to-loop-engineering-2026-guide/), Jun 2026.)
 
 ## Real-World Scale
 
-`/goal` loops have demonstrated remarkable autonomous reach. [@samwillis](https://x.com/samwillis) ran
-`/goal make postgres multithreaded` unattended for 10 days:
-**1,000 commits · 124,000 lines changed · 786 files modified** —
-driven entirely by a single /goal command and the loop's built-in stopping condition.
+`/goal` loops have demonstrated remarkable autonomous reach on a large, mature codebase. [Sam Willis](https://x.com/samwillis/status/2069147163255312392) directed Codex agents through a multi-week `/goal`-driven rewrite of PostgreSQL for native threading: **1,000 commits · 124,000 lines changed · 786 files modified** over 10 days — though Willis notes the diff includes planning docs and a work log that inflate the changed-line count by about 35%, and the run was not unattended: he wrote and refined the plan up front, then guided the branch through goals, review, and benchmark interpretation across many separate `/goal` sessions (one phase, Phase 12, ran unsupervised for up to four days). ([samwillis/multithreaded-postgres README](https://github.com/samwillis/multithreaded-postgres), Jun 2026.)
 
-The limiting factor was not model capability but the quality of the stopping condition
-and the budget cap.
+The limiting factor was not raw model capability but the quality of each phase's plan and the human review between `/goal` sessions.
 
 **A cross-domain reference point: 100% on ARC-AGI-3.** NVIDIA's AVO agent completed the
 full 25-environment public ARC-AGI-3 set with a **100.00 RHAE score**, solving all 183
@@ -157,7 +151,8 @@ The watchdog is the layer the other two cannot cover: it detects stalled process
 enforces an absolute wall-clock limit (e.g. 2 hours), and restarts crashed sessions
 cleanly from the state file without human intervention.
 
-Implementation pattern (systemd or equivalent):
+Implementation pattern (systemd or equivalent — **not a shell loop, which can itself become a
+zombie**; the supervisor has to be able to outlive the thing it supervises):
 1. Agent runs until it completes or hits the 2-hour limit
 2. On limit hit, the agent sleeps and externalises its current state
 3. Watchdog detects the sleep, waits the configured interval, and re-invokes
@@ -167,6 +162,19 @@ This prevents zombie agents — processes that are running but producing nothing
 neither failing nor succeeding, consuming tokens and budget indefinitely.
 
 (clem — [jahwag/clem](https://github.com/jahwag/clem), Jun 2026.)
+
+**A narrower, in-process cousin.** The watchdog above handles a stalled or crashed *process*.
+Claude Code also aborts a single hung MCP tool call from inside a live session: before
+**v2.1.187**, a remote MCP tool call that received no response could block a turn indefinitely —
+the same zombie failure, at the scale of one tool call. It now aborts after an idle timeout, set
+by `CLAUDE_CODE_MCP_TOOL_IDLE_TIMEOUT` (configurable, or `0` to disable): 300000ms (5 min) by
+default for network MCP servers (HTTP/SSE/WebSocket/claude.ai connector) and 1800000ms (30 min)
+for stdio servers. For the API-retry watchdog (`CLAUDE_CODE_RETRY_WATCHDOG`,
+`CLAUDE_CODE_MAX_RETRIES`), see [Headless Mode → Fault-tolerant headless
+loop](09-headless-mode.md#fault-tolerant-headless-loop).
+
+([env-vars reference](https://code.claude.com/docs/en/env-vars);
+[CHANGELOG.md](https://raw.githubusercontent.com/anthropics/claude-code/main/CHANGELOG.md), v2.1.187.)
 
 ## Relationship to Cost Control
 

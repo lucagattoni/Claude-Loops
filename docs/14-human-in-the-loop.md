@@ -13,8 +13,8 @@ If you encounter any of the following, stop and ask for human input:
 - Three consecutive test failures with no clear fix
 ```
 
-**Auto mode escalates automatically** when:
-- The classifier blocks the same action 3 consecutive times
+**Auto mode escalates automatically** ([When auto mode falls back](https://code.claude.com/docs/en/permission-modes#when-auto-mode-falls-back)) when:
+- The classifier blocks 3 actions in a row — not necessarily the same action; any approved action resets this counter
 - Total denied actions reach 20 in a session
 
 ## Where to Place a Checkpoint
@@ -112,7 +112,7 @@ loops that run at different cadences** in AI-powered product development:
 |---|---|---|---|
 | **Agentic coding loop** | The agent itself | Every few minutes (build + test a new version) | Code-level correctness |
 | **Developer feedback loop** | The human engineer | Tens of minutes to hours (reviews the product) | Direction, judgment, taste |
-| **External feedback loop** | End users | Days+ (usage data) | Whether the product is the right one |
+| **External feedback loop** | End users | Hours to weeks (usage data) | Whether the product is the right one |
 
 > "This idea of closing the loop took off around the end of last year, and it has been a game
 > changer in enabling coding agents to work longer productively without human intervention."
@@ -137,8 +137,7 @@ the dual loop nests *execution inside strategy*; the three feedback loops nest
 
 ## Who Interrupts Whom, More Often
 
-A first-party analysis of Claude Code/API traffic found that **Claude asks for
-clarification more than twice as often as humans interrupt it** mid-task. Read
+A first-party analysis of Claude Code traffic found that, **on the most complex tasks, Claude asks for clarification more than twice as often as humans interrupt it** mid-task. Read
 against the checkpoint-placement guidance above, this cuts against the intuition
 that autonomous loops mainly fail by over-reaching without asking — in practice the
 more common friction is the model pausing for input at a rate that itself needs
@@ -157,4 +156,4 @@ rule to the persona document driving the loop. The persona document accumulates 
 standing record of exactly where the human's judgment and the model's diverged — a running,
 example-anchored calibration log rather than a one-time prompt tuned once and left alone.
 ([therundown.ai community, "Sam's full workflow (Rally News build)"](https://app.therundown.ai/community/posts/fb6ebbe2-5e7a-4cba-9301-83ddabb7f814), Sep 2026.)
-(Anthropic Research, ["Measuring agent autonomy"](https://www.anthropic.com/research/measuring-agent-autonomy), Jul 2026.)
+(Anthropic, ["Measuring AI agent autonomy in practice"](https://www.anthropic.com/research/measuring-agent-autonomy), Feb 2026.)

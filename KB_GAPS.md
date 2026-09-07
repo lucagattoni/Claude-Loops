@@ -65,6 +65,137 @@ targeted GitHub and web searches.
   Report" OpenAI METR`, `Hugging Face agent swarm incident Artifactory`, `AI agent
   transcript tampering incident report 2026`.
 
+### Logged by the C10 changelog sweep, 2026-09-07
+
+These came out of reading all 3,774 previously-unswept changelog bullets. Each is real and each
+is **deliberately not written into a doc**, for the reason given. Evidence pack:
+[`plans/20260906_2306-c10-changelog-sweep-evidence.md`](plans/20260906_2306-c10-changelog-sweep-evidence.md).
+
+- **Part II version stamps, as a class rather than four one-offs.** Four platform facts carry no
+  version marker against Part II's promise (`docs/index.md:76-77`): `docs/08`'s `Tool(param:value)`
+  syntax (**v2.1.178**), and `docs/09`'s `--exclude-dynamic-system-prompt-sections` (**v2.1.98**),
+  `--safe-mode` (**v2.1.169**) and `--fallback-model` (**v2.1.152**/**v2.1.166**, which also omits
+  the persistent `fallbackModel` setting). All four survived refutation and each is a one-line fix —
+  logged rather than applied because stamping four flags individually is accretion. **Do one grep of
+  every Part II doc for flags/settings/limits lacking a `vX.Y.Z` marker and stamp them together.**
+- **A restriction asserted with no version floor is a distinct defect class from a missing stamp.**
+  Five security boundaries the KB states unconditionally had enforcement floors: `Agent(model:opus)`
+  deny rules unenforced before **v2.1.186**; subagent frontmatter `mcpServers` bypassing managed
+  policy before **v2.1.153**; agent frontmatter unenforced under `-p` before **v2.1.119**; the
+  worktree sandbox write-allowlist covering the whole main checkout before **v2.1.149**; hooks able
+  to loosen a `deny` before **v2.1.77**/**v2.1.101**. Audit prompt: *for every "X cannot do Y" claim
+  in Part II, when did that become true?*
+- **`/skill-doctor`'s introduction version — two first-party sources disagree.** `CHANGELOG.md`
+  **v2.1.261** says *"Added `/skill-doctor`"*; the live
+  [Skills docs](https://code.claude.com/docs/en/skills) say it *"requires Claude Code v2.1.252 or
+  later"*. Nine versions apart. Unsettleable from available sources — recorded, not picked.
+- **The hook-output cap changed 50,000 → 10,000 characters with no changelog entry.** **v2.1.89**
+  introduced the disk-spill mechanism at 50K; the live
+  [hooks reference](https://code.claude.com/docs/en/hooks) now states 10,000. A full changelog grep
+  finds nothing recording the change, so the current number is verifiable but its version is not —
+  and a Part II claim needs both.
+- **Read-tool PDF limits disagree across three first-party sources.** The in-session Read schema says
+  20 pages/request; platform.claude.com's PDF page says 600 pages (100 under a sub-1M window) and
+  32MB; changelog **v2.1.31** implies 100 pages/20MB. Possibly three different limits (per-call CLI
+  cap, whole-document cap, raw-API cap). Needs its own pass before any number is published.
+- **`Setup` hook exit-2 stderr: changelog and live docs contradict.** **v2.1.199** says
+  `SessionStart`, `Setup` and `SubagentStart` all stopped hiding stderr on exit 2. The live exit-code
+  table today says *"Setup — Exit code and stderr are ignored"* and omits `Setup` from the events
+  that render exit-2 stderr. Either the fix was narrower than the bullet, or it regressed silently.
+- **The v2.1.183 webhook/scheduled-trigger privilege fix cannot be attributed to a subsystem.**
+  *"Fixed webhook and scheduled trigger deliveries being classified the same as literal keyboard
+  input"* is real, but the changelog's vocabulary maps "scheduled task" to the local `/loop`/cron
+  subsystem and "webhook trigger" most plausibly to `RemoteTrigger` — not to Routines' cloud fire
+  endpoint, which the docs show already wraps payloads as untrusted. The fact is real; the mechanism
+  is not settled, and the KB documents none of the three.
+- **Bash-tool login-shell sourcing has no home and no verified remedy.** **v2.1.51** made the Bash
+  tool skip the login shell (`-l`) by default when a shell snapshot exists, so login-only
+  `PATH`/profile exports stop applying — a real unattended-run gotcha. But the pre-v2.1.51 opt-out
+  `CLAUDE_BASH_NO_LOGIN` no longer appears in the live
+  [env-vars reference](https://code.claude.com/docs/en/env-vars), and `CLAUDE_CODE_SHELL` only picks
+  the shell binary. **No confirmed supported override today**, and no owning doc (`docs/18` or
+  `docs/09` are the candidates). A proposed fix naming `CLAUDE_CODE_SHELL` as the remedy was
+  refuted for exactly this reason — do not re-propose it.
+- **The plugin/marketplace subsystem has no canonical home.** A plugin bundles skills, subagents,
+  hooks and MCP servers and ships through a marketplace, so it touches `docs/03`, `06`, `12` and
+  `19` and lives in none. `docs/03:216`'s section is titled `## 4. Plugins / Connectors` but contains
+  only MCP and Chrome content — the title promises a subsystem the section never delivers, which is
+  why a well-sourced plugin edit was rejected rather than wedged in. Either its own doc or an
+  explicit retitled section with the other four pointing into it. Smaller and related:
+  tool-availability and model-gating facts (Task tools off by default on current models,
+  `ToolSearch`, skill-listing budgets) scatter across `docs/06`, `13`, `16` and `38` with no owner.
+- **GitHub Releases for `anthropics/claude-code` only go back to `v2.0.73`.** Two accepted edits had
+  to swap a `github.com/anthropics/claude-code/releases/tag/vX` citation for this reason, so **every
+  v1.x release-tag link in this KB is a live 404 risk**; `code.claude.com/docs/en/changelog#1-0-86`
+  resolves and is the safe form. Worth one mechanical grep of the whole corpus.
+
+### Logged by the C7 doc sweep and its completeness critic, 2026-09-07
+
+Evidence pack: [`plans/20260907_0100-c7-doc-sweep-evidence.md`](plans/20260907_0100-c7-doc-sweep-evidence.md).
+
+- **Is there a real Anthropic-published figure for internal loop-engineering adoption?** The
+  unsourced *"More than 80% of Anthropic engineers now build with self-improving loops"* blockquote
+  was removed from `docs/01`. Before removing it, an exhaustive check opened Anthropic's engineering
+  blog, `claude.com/blog`, the Anthropic-hosted **"Building Effective AI Agents" eBook PDF**, and the
+  Anthropic Institute page. None carries it. The traceable origin is
+  `LOOP_ENGINEERING_NEWS.md:1573` — an **X trending headline**, not an engineer quote — plus a
+  cluster of mutually contradicting posts (80% / 90% / 99% / ~100%), each citing a differently-named
+  unnamed Anthropic role. **The one real Anthropic ">80%" figure is a different claim**: *"more than
+  80% of the code we merge into Anthropic's codebase was authored by Claude"*
+  ([Anthropic Institute](https://www.anthropic.com/institute/recursive-self-improvement)) — code
+  authorship, not engineer adoption. **Do not "rescue" the deleted line by substituting it**; that
+  recreates the conflation. If a first-party adoption figure exists, re-add with the link.
+- **`docs/24` was under-sampled and its clean ranges are not proof.** The critic measured claim
+  density against previously-unverified lines: r = **-0.64** between unit size and scrutiny. Units
+  over 160 unverified lines got **10.8 claims per 100 lines**; units under 100 lines got **26.5** —
+  a 2.5x gap running the wrong way. `docs/24` is the largest doc (788 unverified lines), produced
+  the most findings (21) and the most highs (9), and got the **lowest** rate in the pass (11.8/100).
+  One spot-check inside a range it declared clean found a real defect. **Re-cut `docs/24` as eight
+  units of ~100 lines, not four of ~250, with a floor of 20 claims per 100 in-scope lines; a unit
+  under the floor counts as not checked, not as clean.**
+- **The 47 UNVERIFIABLE claims need triage against what is already on disk.** At least one was
+  settleable: the OpenAI citation date (`docs/26`) was logged unverifiable because `openai.com`
+  returns 403 to `curl` — a Wayback snapshot loaded fine and gave the byline. Fixed. Others are
+  genuinely changelog-silent but do not say what was searched. **Every entry must state what was
+  searched and why it could not settle it.** Drop entry #29 (explicitly out of scope). Re-run
+  #13/#33/#34/#44 with the Wayback fallback that settled the OpenAI date.
+- **`docs/15` produced no by-doc artifact at all** — 22 doc files exist for 23 docs. Its only record
+  is a prose "verifiedClean" note, so "checked clean" is an absence rather than a record. It also has
+  two unstamped Part II platform facts (`claude --permission-mode plan`, `Ctrl+G`) that the pass
+  raised nowhere, while raising four stamp findings on `docs/35`, a unit with **zero** in-scope lines.
+- **The C7 adjudication artifact does not reconcile.** 139 findings entered refutation; 73 + 0 + 3 +
+  49 = **125** came out; 136 (125 apply + 5 gaps + 6 rejected) went into adjudication. **Fourteen
+  findings have no recorded refutation verdict and eleven adjudicated items have no recorded
+  refutation origin.** Unaccounted flags are unread checks. A future adjudication artifact must
+  carry file, line, type, severity, refutation verdict and adjudication verdict for **every** item,
+  including rejected and gap-logged ones, and a removal must be auditable from the artifact alone.
+- **`docs/32` is the highest-defect-density doc in the KB and needs a maintenance contract, not a
+  move.** 18-20 findings across ~15 entries checked — roughly one defect per entry. The failure mode
+  is specific: reading-list entries are *summaries*, and a summary is exactly the artifact you can
+  compose plausibly without reading the source. **Rule to adopt: a Why-here/Summary may only quote or
+  paraphrase material verified in the fetched body**, and each entry keeps its capture date.
+- **`docs/31`'s version-stamp state is a known false positive.** `grep -c 'v2\.1\.[0-9]'` returns 2,
+  but both markers are the deliberately-cited **counter-examples** (`/tag` at v2.1.92 and v2.1.19 are
+  about naming a *session*, not Claude Tag). The doc carries **no** version stamps by design — Claude
+  Tag is a separate product with no CLI version gate, verified against the official Slack page and
+  the full changelog. `kb-structure-check.sh` § 6 therefore passes it for the wrong reason.
+- **`docs/24`: which paragraph does the `eugenelim/agent-ready-repo` citation actually source?** The
+  repo's README contains none of the `.apm/` primitive-manifest content the citation trails, so it
+  sources *something*, just not what it appears to sit under. Needs someone to read the whole
+  Harness-Agnostic Projection section against the repo and assign each paragraph its source.
+- **`docs/05` has two `## Import syntax` sections** (near-identical content, two anchors with the
+  same slug; mkdocs disambiguates the second silently). Deciding which survives is a docs-hygiene
+  change, not a fact-check one.
+- **`docs/09`: should the LaunchAgent example recommend `KeepAlive`?** The prose correction landed
+  (LaunchAgents restart on failure only via the optional `KeepAlive` key, which the example omits),
+  but adding it to the plist was rejected: for a persistently-failing daily job `KeepAlive` produces
+  a throttled restart loop rather than one retry. A bounded in-script retry is probably right — a
+  design call, not a fact check.
+- **`docs/14`: the "Measuring AI agent autonomy in practice" citation is stranded**, sitting two
+  headings below the paragraph it supports. Its title and date were corrected in place rather than
+  moved, because relocating a citation across section boundaries risks orphaning the paragraph it
+  currently trails.
+
 ---
 
 ## Recently Filled (archive — keep last 2 entries; remove older ones)

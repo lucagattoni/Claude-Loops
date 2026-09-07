@@ -6,6 +6,152 @@ Sources are defined in [`SOURCES.md`](https://lucagattoni.github.io/Claude-Loops
 
 ---
 
+## Doc fact-check sweep — 2026-09-07 06:36 UTC (hand-authored, not a tracker run)
+
+> Header deliberately does not start with a digit. Two mechanisms parse this file's headers —
+> `check-digest-freshness.sh` and `fetch-loop-news`'s `last_run_date` — and a hand-authored entry
+> in the standard shape would reset the staleness clock and mis-date the next sweep.
+
+**Backlog step 11, C7.** The other half of step 11. An earlier pass verified only content added on
+or after 2026-09-04; everything older had never been checked. Measured with `git blame` per line
+that is **4,025 of 6,010 lines across 23 docs (67%)**. All of it was swept: **34 of 34 units
+returned, none lost, 656 claims examined, 471 distinct external URLs fetched, 139 findings, and 47
+claims recorded UNVERIFIABLE rather than asserted false.** 150 edits landed across 25 files.
+
+The URL figure is the one to compare against this repo's history: an earlier pass left **78 of 98**
+cited URLs unopened while reporting its docs covered.
+
+### What this sweep found is a different disease from the changelog sweep
+
+C10 found a KB **stale against a moving platform** — fixable by re-reading the changelog. C7 found
+the KB **composing plausible content around a real citation instead of reading the cited source.**
+The citation is almost always genuine and the link almost always resolves; what sits above it is
+sometimes invented. In descending order of how badly it would hurt a reader:
+
+1. **Fabricated config dressed in a real project's name — the worst class, because it is copyable.**
+   `docs/08` carried a `.claude/settings.json` block whose keys Claude Code does not recognise,
+   attributed to a real repo whose actual policy is server-side YAML. `docs/34` invented a
+   five-field heartbeat schema of which **zero** fields exist. A reader who copies these gets
+   silence, not an error.
+2. **Invented mechanisms that make a safety control sound stronger than it is.** `docs/19`
+   recommended a flag to bound MCP scope that only skips the prompt; `docs/33` described a runtime
+   credential-leak scanner that is a provision-time config audit, and listed a Linux keyring tier
+   that does not exist — the real behaviour falls through to a plaintext dotfile, so the KB was
+   hiding the risk rather than naming it.
+3. **Quotation marks around words nobody wrote.** One fully fabricated blockquote, absent from the
+   live article *and* from two Wayback snapshots predating the KB's own commit; one statistic
+   attributed to "an Anthropic engineer" traceable only to contradicting social posts; four
+   condensed paraphrases inside quote marks. The direction is telling — these are not misremembered
+   quotes, they are *better* quotes than the sources produced.
+
+### Two corrections to this repo's own record
+
+**`docs/08` and `docs/12` had settings precedence inverted** — both ordered sources "later overrides
+earlier" with **managed policy first**, making org-wide security policy the *weakest* input. The
+[settings reference](https://code.claude.com/docs/en/settings#settings-precedence) says the reverse
+in as many words. Found independently by both sweeps, which is why it is stated with confidence.
+
+**H1 is closed, four docs by stamping and one by refusing to.** `docs/05`, `06`, `19` and `35` now
+carry version markers. `docs/31` does not, deliberately: Claude Tag is a **separate product** with
+no CLI version gate — the official Slack page states no version requirement and the full changelog
+(`0.2.21`–`2.1.263`) carries no Claude Tag entry. Stamping it would have asserted a gate that does
+not exist. The doc now says so, and names the trap: the changelog's `/tag` entries are about naming
+a *session*.
+
+### What this pass does NOT support, stated plainly
+
+Its completeness critic returned **INCOMPLETE**, and it was right. Claim density ran **inverted
+against document size** — r = **-0.64**. Units over 160 unverified lines were checked at 10.8 claims
+per 100 lines; units under 100 lines at 26.5. `docs/24`, the largest doc with the most findings and
+the most high-severity ones, got the **thinnest** sampling in the whole pass, and one spot-check
+inside a range it declared clean found a real defect. **"34/34 units returned" is a statement about
+reporting, not coverage** — the same shape as "the workflow succeeded", which has been true in this
+repo while nothing shipped. `docs/24` needs re-cutting at the small-unit rate; that and the rest are
+logged in `KB_GAPS.md` rather than left implicit.
+
+### Mechanical follow-through
+
+`scripts/kb-structure-check.sh` gained two sections, because both promises were previously enforced
+by nothing: **§5** compares README's source-type table against `SOURCES.md` (they had drifted
+silently for two releases), and **§6** flags any Part II doc stating 3+ platform facts with no
+version marker — the H1 shape, made mechanical. Both were proven by negative test: the first version
+of §6's regex required lowercase after `--`, silently missed every camelCase flag, and **reported
+clean over a corpus it had undercounted** — this repo's defining defect, reproduced inside the check
+built to prevent it, and caught only because the check was tested rather than trusted.
+
+---
+
+## Changelog sweep — 2026-09-07 00:24 UTC (hand-authored, not a tracker run)
+
+> Header deliberately does not start with a digit. Two mechanisms parse this file's headers —
+> `check-digest-freshness.sh` and `fetch-loop-news`'s `last_run_date` — and a hand-authored entry
+> in the standard shape would reset the staleness clock and mis-date the next sweep.
+
+**Backlog step 11, C10.** The 2026-07-16 run swept `v2.1.200`–`v2.1.260` of the Claude Code
+changelog and said so honestly. This pass covers everything it left: `0.2.21`–`v2.1.199` **plus**
+`v2.1.261`+. **3,774 of 3,774 top-level bullets, 24 of 24 chunks, zero count mismatches** between
+each reader's self-reported total and an independent script count.
+
+### Correction — that run's "2,076 bullets" is wrong, and this file states it three times
+
+`:644`, `:649` and `:714` below, and `CHANGELOG.md:792`, all record the changelog as **2,076
+bullets across 385 versions**. The version count and the 620KB size are right. The bullet count is
+not, and the same paragraph disproves it: it reports `Fixed` at **2,740** *"across all history"* —
+more than the total it claims. Add the `Changed` (168) and `Removed` (35) it also names and the
+components reach 2,943, 42% above the stated whole.
+
+Measured by reconstructing the file as it stood at 385 versions (today's file minus `2.1.261` and
+`2.1.263`, the only two added since):
+
+| Category | Then | That run said |
+|---|---|---|
+| `Fixed` | 2,740 | 2,740 ✓ |
+| `Changed` | 168 | 168 ✓ |
+| `Removed` | 35 | 35 ✓ |
+| **All** | **5,132** | **2,076 ✗** |
+
+Three of its four counts reproduce exactly; only the total is wrong, and `2,076` matches no natural
+subset (non-`Fixed` = 2,392; `Added`+`Changed`+`Removed` = 759). **Per this repo's append-only rule
+the entries below are left as written** — this entry is the correction. The two `plans/` files that
+inherited the figure are working documents and were corrected in place.
+
+The practical cost: the backlog priced C10 as *"187 of 2,076"*, implying ~1,889 bullets left. The
+real remainder was **3,774** — about twice the job, and the wrong denominator made it look
+half-finished when it was under a quarter done.
+
+### What the sweep found
+
+520 verified rows: **6 `KB_WRONG`**, **10 `KB_STALE`**, 319 `KB_GAP`, 86 already-correct, 99
+dropped as superseded or irrelevant. 29 edits landed across 18 docs. The 319 gaps were mostly
+*not* applied on purpose — the KB is a curated argument, not a changelog mirror, and it prefers
+consolidation over accretion.
+
+**The most consequential defect, and it was in two docs at once.** `docs/08` and `docs/12` both
+ordered their sources *"later overrides earlier"* with **managed policy first** — making
+organisation-wide policy the *weakest* input and CLI flags the strongest. The
+[settings reference](https://code.claude.com/docs/en/settings#settings-precedence) says the
+opposite in as many words: *"In order, highest precedence first: Managed settings ... Nothing you
+set overrides them."* Both are corrected, and `docs/12` now also distinguishes hook *entries*
+(which merge) from settings *values* (highest wins) — a distinction the old text collapsed.
+
+Other corrections: the `docs/12` hook-timeout table (command/http/mcp_tool are **600s**, not
+60/30/30); `PreCompact` **can** block (v2.1.105) where the table said it could not;
+`PermissionRequest` **cannot** block via exit 2 where the table said it could — a guard written as
+`exit 2` there fails open; `additionalContext` is no longer `Stop`-only; and `docs/08`'s permission
+pattern table asserted a `?` single-character wildcard that the live reference does not document.
+
+**The `Fixed`-bullet mandate paid for itself.** The previous pass dropped every `Fixed` bullet as
+noise. Mining them produced **190 of 520 verified rows (36.5%)**, **3 of the 6 `KB_WRONG`** and a
+third of the shipped edits. Under the old rule half the real defects would still be in the KB.
+
+**Stated limitations.** A refutation cap left 245 of 335 actionable findings unrefuted before
+triage; two session limits killed 43 refuters and one adjudicator mid-run. Coverage was unaffected
+(sweep and verify completed and were cached), but refutation *depth* was. Full accounting, the
+16 defect rows and the method are in
+[`plans/20260906_2306-c10-changelog-sweep-evidence.md`](https://github.com/lucagattoni/Claude-Loops/blob/main/plans/20260906_2306-c10-changelog-sweep-evidence.md).
+
+---
+
 ## Fact-check pass — 2026-09-06 14:57 UTC (hand-authored, not a tracker run)
 
 > Header deliberately does not start with a digit. Two mechanisms parse this file's headers —

@@ -95,12 +95,13 @@ you are supervising** — the agent runs unattended for minutes to hours, but yo
 | Primitive | What it does | You are… |
 |---|---|---|
 | [Plan mode](15-explore-plan-implement.md) | Explore and design with edits disabled | at the keyboard |
-| `/goal` | Runs until an independent per-turn evaluator says the criterion is met | supervising |
+| `/goal` (added v2.1.139) | Runs until an independent per-turn evaluator says the criterion is met | supervising |
 | [Subagents](07-subagents.md) | A side task in its own context, reporting back | supervising |
 | [Dynamic workflows](39-dynamic-workflows.md) | Scripted fan-out over many agents, in background | supervising |
-| [Agent teams](38-agent-teams.md) | Several teammates coordinating on a shared task list | supervising |
-| `/loop` | Recurs on an interval — but needs a session open | nearby |
-| [Routines](28-routines.md) / cron | Fires with no session at all | absent |
+| [Agent teams](38-agent-teams.md) (Research Preview, v2.1.32+) | Several teammates coordinating on a shared task list | supervising |
+| `/loop` (added v2.1.71) | Recurs on an interval — but needs a session open | nearby |
+| [`CronCreate`/`CronList`/`CronDelete`](https://code.claude.com/docs/en/scheduled-tasks) | Cron-syntax recurring or one-time prompts, up to 50 per session — needs a session open; `CLAUDE_CODE_DISABLE_CRON=1` (v2.1.72) kills every job mid-session | nearby |
+| [Routines](28-routines.md) (`/schedule`) | Fires with no session at all | absent |
 
 **Most productive Claude Code work sits in the middle rows.** If you are reaching for a scheduled
 unattended loop for something you will do twice, you have skipped the middle.
@@ -139,7 +140,7 @@ his applications costs about \$0.50 per query and another about \$3.00 per 10-mi
 
 The loop-engineering version of that number is *cost per closed unit*: per triaged issue, per
 merged PR, per digest published. A loop whose per-unit cost you cannot state is a loop you cannot
-decide about. `/usage` now reports a per-loop breakdown — run count, total tokens, tokens per run,
+decide about. `/usage` now reports a per-loop breakdown (added in v2.1.243) — run count, total tokens, tokens per run,
 last run — so this is measurable rather than estimated. See [Cost & Turn Control](11-cost-control.md).
 
 **The trap this catches:** autonomous loops make token spend invisible, because nobody is watching

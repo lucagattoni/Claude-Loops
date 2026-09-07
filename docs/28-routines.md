@@ -13,7 +13,7 @@ be closed — the loop keeps running until its stopping condition is met.
 | Trigger types | Manual / cron / CI event | Schedule (launchd) | Schedule / API / GitHub event |
 | Chrome browser automation | Yes (if Chrome open) | Yes (if Chrome open) | No — no local Chrome |
 | Local filesystem / credentials | Yes | Yes | No — git + connectors only |
-| Permission prompts during run | Auto-denied | Auto-denied | Routed to your main session |
+| Permission prompts during run | Auto-denied | Auto-denied | None — full autonomous cloud session, no approval prompts of any kind |
 | Setup | Shell script / CI YAML | plist + `launchctl load` | `/schedule` CLI command |
 
 **Rule of thumb:** use Routines for laptop-independent runs where all tools are git/API-based.
@@ -50,13 +50,13 @@ anthropic-beta: experimental-cc-routine-2026-04-01
 { "text": "optional context injected into this run" }
 ```
 
-Returns immediately with `{"session_id": "...", "session_url": "..."}` — the run
+Returns immediately with `{"type": "routine_fire", "claude_code_session_id": "...", "claude_code_session_url": "..."}` — the run
 continues asynchronously in the cloud.
 
 ### GitHub
 Trigger on repository events:
-- **PR events**: opened / closed / labeled / synchronize / ready_for_review
-- **Release events**: published / created / edited
+- **PR events**: opened / closed / assigned / labeled / synchronized, or any other PR update (docs describe the category as "opened, closed, assigned, labeled, synchronized, or otherwise updated" rather than an exhaustive action list; use the **Is draft** filter to scope specifically to ready-for-review PRs)
+- **Release events**: created / published / edited / deleted
 
 Pair with path filters to scope which changes invoke the Routine.
 
@@ -152,10 +152,12 @@ logged-in reader on 20260906 and are **unretrieved, not absent**. No per-routine
 
 ## Constraints to design around
 
-- **No permission prompts during run** — prompts route to your main session asynchronously;
-  design the Routine to not need interruption, or accept that it may pause waiting for you
-- **Branch policy** — by default Routines push only to `claude/`-prefixed branches;
-  configure if you need direct pushes to feature branches
+- **No permission prompts during run** — Routines run as full autonomous cloud sessions with no permission-mode picker and no approval prompts of any kind; design the Routine's prompt, repositories, environment, and connectors so nothing needs mid-run approval, since none is possible once it starts
+- **Branch policy** — Claude always pushes to `claude/`-prefixed branches, which are always
+  accepted. A push to any other branch is checked automatically and rejected if the branch is
+  protected on GitHub, someone else has an open PR from it, or it carries commits authored by
+  someone other than you (mechanism as documented 2026-09-07; this is an account-side policy,
+  not a CLI-version-gated one)
 - **Network allowlist** — Anthropic-managed (package registries, cloud APIs, common dev
   domains); custom internal endpoints require a connector (MCP server)
 - **Connectors** — MCP tools must be pre-configured in the Routine; local filesystem
@@ -169,6 +171,8 @@ notes](https://github.com/anthropics/claude-code/releases/tag/v2.1.251).) Local 
 (`.mcp.json`, `claude mcp add` entries) doesn't travel to the cloud — a Routine that needs an
 MCP tool needs a claude.ai-side connector attached in the `/schedule` setup flow, not just a
 working local server.
+
+**API-key auth disables Routines outright.** As of **v2.1.139**, Remote Control, `/schedule`, claude.ai MCP connectors, and notification preferences are all disabled when `ANTHROPIC_API_KEY`, `apiKeyHelper`, or `ANTHROPIC_AUTH_TOKEN` is set — even when a claude.ai login also exists, because these credentials take precedence over it. ([v2.1.139 release notes](https://github.com/anthropics/claude-code/releases/tag/v2.1.139).) A CI or headless session authenticated with a Console API key sees `/schedule` itself say *"available with Claude for Enterprise — ask your admin about migrating from API-key access"* rather than let you configure a Routine there. Two ways around it: unset the key for the shell where you run `/schedule`, or skip the CLI and manage Routines directly at [claude.ai/code/routines](https://claude.ai/code/routines) — that surface works regardless of local CLI auth, org policy permitting. ([Routines — Troubleshooting](https://code.claude.com/docs/en/routines), fetched 20260907.)
 
 ## Related
 

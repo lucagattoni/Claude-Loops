@@ -96,6 +96,12 @@ anything earlier. **This release's own pass covered only `v2.1.200`–`v2.1.260`
 bullets, filtered from 385 versions).** Everything from `0.2.21` through `v2.1.199` — the large
 majority of the project's history — has never been examined for KB relevance.
 
+> **Correction, 20260907.** The `2,076` figure is wrong and was inherited from
+> `LOOP_ENGINEERING_NEWS.md:644`. The file held **5,132** top-level bullets at 385 versions —
+> `Fixed` alone was 2,740. The unswept remainder was **3,774**, not ~1,889.
+> **This gap is now closed:** the whole range was swept 20260907 (backlog **C10**), 3,774/3,774
+> bullets read. See [`20260906_2306-c10-changelog-sweep-evidence.md`](20260906_2306-c10-changelog-sweep-evidence.md).
+
 **Two failure modes this release hit, in opposite directions — guard against both:**
 
 1. **A fabricated claim can ship.** This release itself invented a table row (a spawn-cap env var

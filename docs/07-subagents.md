@@ -56,7 +56,7 @@ generator improves because the discriminator provides real pressure.
 same-model CHECKER still shares the DOER's *training* blind spots — it can rationalise the
 same mistakes because it reasons from the same priors. A growing Jun 2026 pattern adds a
 **model-diversity** axis: run the CHECKER on a *different model* (the recurring config is
-Claude implements, Codex reviews). This is distinct from the cost-asymmetry below — the goal
+Claude implements, [Codex](https://github.com/openai/codex) reviews). This is distinct from the cost-asymmetry below — the goal
 here is catching what one model is systematically blind to, not saving tokens. See
 [Verifier Integrity → cross-model independence](04-verification.md#verifier-integrity-keeping-the-check-unfakeable)
 for the full pattern and its dual stop condition.
@@ -68,7 +68,7 @@ higher-stakes than typing, allocate models by role rather than uniformly:
 
 | Role | Job | Model class |
 |---|---|---|
-| **Cheap hands** | Write code, author tests, execute — constrained by deterministic rails | Cheapest capable model (e.g. local Ollama) |
+| **Cheap hands** | Write code, author tests, execute — constrained by deterministic rails | Cheapest capable model (e.g. local [Ollama](https://ollama.com)) |
 | **Throughput middle** | Orchestrate, route, high token volume | Mid model (e.g. Sonnet) for throughput, not deep judgment |
 | **Strong eyes** | Plan, review the plan, adversary, security — the decision points | Most capable model (e.g. Opus), used *only at the gates* |
 
@@ -105,8 +105,8 @@ Fix with explicit prompt refinement against real examples of divergent judgment:
 - Require it to output *evidence* (test output, stack trace, reproduction steps) — not verdicts
 - Instruct it to fail loudly on any criterion not met, with no partial credit
 
-Tuning the evaluator is iterative: expect 3–5 prompt refinement cycles before it
-produces reliable results. (Anthropic Engineering, Mar 2026.)
+Tuning the evaluator is iterative: the source reports several rounds of prompt
+refinement before the evaluator graded reliably, without giving an exact count. (Prithvi Rajasekaran, [Anthropic Engineering — "Harness design for long-running application development"](https://www.anthropic.com/engineering/harness-design-long-running-apps), Mar 2026.)
 
 ## Synthesis — The Non-Delegable Bottleneck
 
@@ -129,19 +129,21 @@ If your orchestrator's output is "here are the results from agents A, B, C" — 
 is task forwarding. Synthesis looks like: "Based on A's auth race condition finding
 and B's retry logic finding, the next step is exactly X."
 
-([wquguru/harness-books](https://github.com/wquguru/harness-books), AgentWay, Jun 2026.)
+([wquguru/harness-books](https://github.com/wquguru/harness-books) — [AgentWay](https://agentway.dev), Jun 2026.)
 
 ## Confidence-Scored Quality Gates
 
-Between phases, a quality gate can suppress low-confidence findings rather than
+Between phases, a quality gate can route findings by confidence rather than
 propagating noise upstream:
 
 - A reviewer audits deliverables across a defined set of dimensions
 - Each finding is scored for confidence (0–100%)
-- Only findings above a confidence threshold surface to the orchestrator or user
-  (the session-orchestrator uses **≥80%** as its threshold; calibrate to your
-  verifier's false-positive rate)
-- Low-confidence findings are logged but suppressed — they do not block or notify
+- Findings at or above a confidence threshold surface in the main section reports
+  to the orchestrator or user (the session-orchestrator uses **≥80%**; calibrate to
+  your verifier's false-positive rate)
+- Findings in the band below it (50–79 in the session-orchestrator) are grouped into
+  a separate "Possible Issues" section for human review rather than dropped
+- Only findings below that band go unreported — too uncertain to be actionable
 
 Use confidence scoring for heuristic checks (code quality, design coherence) where
 the verifier itself has inherent uncertainty. Keep binary gates (exit 0 / exit 2) for
@@ -250,8 +252,7 @@ flag → `.claude/agents/` → `~/.claude/agents/` → plugin `agents/`.
 `/agents` still exists as a command; running it now prints that reminder rather than opening the
 interactive **Running** / **Library** interface it opened on v2.1.197 and earlier. The file format,
 frontmatter fields and the two directory locations are unchanged — only the authoring UI went.
-The nudges went with it: v2.1.232 also removed *"the startup tip and `/powerup` nudge to create
-custom subagents."*
+The nudges went with it: v2.1.232 also removed *"the startup tip suggesting you create custom subagents, and the matching nudge in the `/powerup` tour."*
 
 For a loop this is the useful direction of travel, not a loss: a subagent defined by a **file in the
 repo** is reviewable, diffable and reproducible on another machine, which a wizard-created one never
@@ -326,7 +327,7 @@ orchestrator → specialist → verifier.
 | Limit | Default | Override |
 |---|---|---|
 | Nesting depth below the main conversation | **3** | `CLAUDE_CODE_MAX_SUBAGENT_SPAWN_DEPTH` (set to `1` to disable nesting) |
-| Concurrent subagents per session | **20** — the Agent tool refuses to spawn another until one finishes. The variable takes a positive whole number in plain digits; anything else is ignored, so it can raise or lower the cap but **cannot disable it** | `CLAUDE_CODE_MAX_CONCURRENT_SUBAGENTS` (requires v2.1.217+) |
+| Concurrent subagents per session | **20** — the Agent tool refuses to spawn another until one finishes. The variable takes a positive whole number in plain digits; anything else is ignored, so it can raise or lower the cap but **cannot disable it** — except in a session with Ultracode active, where the limit isn't enforced at all | `CLAUDE_CODE_MAX_CONCURRENT_SUBAGENTS` (requires v2.1.217+) |
 
 There is **no cap on total spawns over a session** — only the two limits above. A 200-spawn
 per-session cap did exist (added v2.1.212) and was **removed in v2.1.224**: *"Removed the
@@ -352,11 +353,7 @@ total number of subagents Claude can spawn over a session."*
 Forked subagents (`subagent_type: "fork"`) inherit the full parent context and
 prompt cache — ideal when the subtask needs all the context the parent has built up.
 
-**Quantified payoff of recursive spawning.** A Recursive Agent Harness (RAH) pattern —
-parent agents spawn subagents in parallel, recursively, rather than a fixed one-level
-fan-out — improved a baseline from 71.75% to 89.77% on Oolong-Synthetic when paired with
-a stronger backbone model, evidence that the *depth* of delegation (not just breadth) is
-a real lever, not just an organisational convenience.
+**Quantified payoff of recursive spawning, with a caveat.** A Recursive Agent Harness (RAH) pattern — parent agents spawn subagents in parallel, recursively, rather than a fixed one-level fan-out — raised a Codex coding-agent baseline from 71.75% to 81.36% on Oolong-Synthetic (199 samples, 13 context-length buckets up to 4M tokens) with the same GPT-5 backbone, a gain the paper attributes to the harness rather than the model. Swapping to a stronger backbone (Claude Sonnet 4.5) with the same RAH design reached 89.77% — a separate, backbone-driven jump, not a further harness-only effect. The paper's own limitations section states it does **not** ablate recursion depth, entries-per-subagent, or the spawning path, so it is not itself evidence that delegation *depth* specifically (as opposed to breadth) is the lever — that attribution does not appear in the source.
 ([arXiv 2606.13643](https://arxiv.org/abs/2606.13643), Jun 2026.)
 
 ## Controlling subagent permissions
@@ -384,6 +381,18 @@ Disable built-in agents in headless mode only:
 ```bash
 CLAUDE_AGENT_SDK_DISABLE_BUILTIN_AGENTS=1 claude -p "task"
 ```
+
+**These restrictions had real enforcement gaps before specific versions — verify you're past all
+four before treating a deny rule or MCP restriction here as load-bearing for cost or security:**
+
+| Fixed in | Gap |
+|---|---|
+| v2.1.153 | A subagent's own frontmatter `mcpServers` ignored `--strict-mcp-config`, `--bare`, remote mode, enterprise managed MCP config, and managed-settings MCP server allow/deny policies — a subagent-declared server could bypass a policy the session was meant to enforce. |
+| v2.1.178 | Server-level MCP specs in a subagent's `disallowedTools` (`mcp__server`, `mcp__server__*`, `mcp__*`) were silently ignored; a per-tool spec (`mcp__server__toolname`) was unaffected. |
+| v2.1.178 | *"Subagent spawns are now evaluated by the classifier before launch, closing a gap where a subagent could request a blocked action without review"* — auto mode previously reviewed a session's own tool calls but not the spawn itself. |
+| v2.1.186 | The `Agent(model:opus)`-style `deny` rule above, and `Agent(x,y)` allowlists, were **not enforced for named subagent spawns** before this version — the syntax only became reliable here. |
+
+(All four: [CHANGELOG.md](https://raw.githubusercontent.com/anthropics/claude-code/main/CHANGELOG.md).)
 
 ## Adversarial Reviewer Checklists
 

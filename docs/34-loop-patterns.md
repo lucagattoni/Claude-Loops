@@ -91,9 +91,9 @@ escalates to human after that.
 | Risk | Medium-high — writes code autonomously |
 | Attempt cap | 3 per failure (required — prevents infinite fix loop) |
 | Early exit | If CI is green, exit immediately at <5k tokens |
-| Token cost at 5 min without early exit | ~5M tokens/day |
+| Token cost at 15 min without early exit | ~5M tokens/day |
 
-**The early exit rule is mandatory.** Without it, a CI Sweeper running at 5-minute
+**The early exit rule is mandatory.** Without it, a CI Sweeper running at 15-minute
 cadence against a passing repo burns ~5M tokens/day on no-ops. The loop must check
 for work before doing any triage; if the watchlist is empty, exit immediately.
 
@@ -173,7 +173,7 @@ Benchmarks from operating experience:
 | Noop pass (empty watchlist, early exit) | ~3,000–5,000 |
 | Report-only triage | ~50,000–80,000 |
 | Action run (implementer + verifier) | ~200,000–250,000 |
-| CI Sweeper at 5 min cadence, no early exit | ~5M/day |
+| CI Sweeper at 15 min cadence, no early exit | ~5M/day |
 
 These are third-party operating benchmarks, not a measurement of any specific loop. As of
 **v2.1.243**, `/usage` reports the real per-loop figure instead — see [Cost Per Loop, Now
@@ -198,49 +198,48 @@ Each action loop writes `acting_on: <branch-or-pr-id>` to its STATE.md before sp
 a fix. All other loops read all STATE.md files before starting work and **skip any
 item that is already claimed**. Rule: one owner per branch per hour.
 
+([cobusgreyling/loop-engineering](https://github.com/cobusgreyling/loop-engineering/blob/main/docs/multi-loop.md), Jun 2026.)
+
 When a conflict cannot be resolved automatically, the loop writes to a human inbox
 section in STATE.md and notifies rather than acting.
 
 ### Concrete Multi-Loop STATE.md Example
 
-Two loops coexisting on the same repo — PR Babysitter and CI Sweeper — with non-overlapping claimed work:
+Two loops coexisting on the same repo — PR Babysitter and CI Sweeper — with non-overlapping claimed work, each in its own state file (the convention this KB's cited source actually uses — see [cobusgreyling/loop-engineering's multi-loop.md](https://github.com/cobusgreyling/loop-engineering/blob/main/docs/multi-loop.md)):
 
 ```markdown
-# STATE.md
-
-## CI Sweeper
+# ci-sweeper-state.md
 acting_on: fix/auth-token-race
 locked_at: 2026-06-26T09:12Z
 attempt: 1 of 3
 
-## PR Babysitter
+# pr-babysitter-state.md
 acting_on: pr-1048
 locked_at: 2026-06-26T09:14Z
 status: awaiting-ci
 ```
 
-Each loop writes its own `## <loop-name>` section and reads **all** sections before claiming work. If `acting_on` under any section matches the branch/PR a loop was about to claim, that loop skips the item and moves to the next candidate.
+Each loop reads every other loop's state file before claiming work. If `acting_on` in any file matches the branch/PR a loop was about to claim, that loop skips the item and moves to the next candidate.
 
 ### Per-Agent Heartbeat Alternative (Harnery Pattern)
 
-An alternative to a shared STATE.md — each agent writes a heartbeat file to `.harnery/active/<agent-id>.json` while it holds a claim:
+An alternative to per-loop markdown state files — [harnery](https://github.com/ryanjkelly/harnery) gives each agent instance a continuously-updated heartbeat file at `.harnery/active/<instance_id>.json` (fields include `session_id`, `last_heartbeat`, and a `files_touched` array of claimed paths):
 
 ```json
 {
-  "acting_on": "fix/auth-token-race",
-  "claimed_at": "2026-06-26T09:12:00Z",
-  "ttl_seconds": 300,
-  "status": "running"
+  "instance_id": "claude-worktree-a1b2",
+  "session_id": "sess_9f2c",
+  "last_heartbeat": "2026-06-26T09:12:00Z",
+  "files_touched": ["src/auth/token.ts"]
 }
 ```
 
 Coordination rules:
-1. **Claim gate** — write the file before starting any work
-2. **Commit gate** — rewrite with `"status": "committing"` before any write operations
-3. **Release** — delete the file after commit, or on failure add a `"failure_reason"` field
-4. **Stale claims** — any file older than `ttl_seconds` is treated as abandoned; other agents may re-claim
+1. **Claim** — a claim check (`evaluateClaim`) adds the path to `files_touched` when no fresh peer already holds it
+2. **Release** — the path is removed from `files_touched` on completion (`releaseClaim`); a crashed group's claims can be swept via `groupUnclaim`
+3. **Liveness, not per-claim TTL** — `last_heartbeat` is refreshed on every heartbeat write; a background stale-sweep prunes the whole heartbeat file once it is older than a single repo-wide freshness threshold (default 600s, `HARNERY_AGENT_COORD_FRESHNESS`), not a per-claim `ttl_seconds`
 
-Benefits over shared STATE.md: no merge conflict risk (separate files per agent), atomic via filesystem rename semantics, TTL prevents orphaned claims after crashes.
+Benefits over a markdown state file: no merge conflict risk (one file per agent instance, atomic rename writes), and orphaned claims are swept automatically after a crash.
 
 ([ryanjkelly/harnery](https://github.com/ryanjkelly/harnery), Jun 2026.)
 
@@ -276,9 +275,7 @@ do not add a fourth until the first three are stable:
 2. **PR Babysitter** — monitors existing PRs; limited write scope (labels, comments only at L1)
 3. **Post-Merge Cleanup** — runs after merge; bounded scope (a closed PR cannot regress)
 
-**Add CI Sweeper only after two weeks of zero collisions** in the first three loops. CI
-Sweeper is more aggressive (writes code, opens PRs) and requires the collision-detection
-infrastructure (STATE.md `acting_on` field) to already be working and trusted.
+**Add CI Sweeper only after PR Babysitter's attempt limits and verifier have been proven for two weeks** in the first three loops. CI Sweeper is more aggressive (writes code, opens PRs) and requires the collision-detection infrastructure (the `acting_on` field in each loop's state file) to already be working and trusted.
 
 Starting with CI Sweeper before the triage + babysitter + cleanup loops are stable is a
 common failure mode: the team gains no observability before the first high-risk loop runs.
@@ -289,8 +286,8 @@ common failure mode: the team gains no observability before the first high-risk 
 
 | Property | Value |
 |---|---|
-| **Trigger** | Weekly cron (Monday 08:00) |
-| **Scope** | Entire codebase — read-only discovery pass |
+| **Trigger** | Weekly cron (Monday 09:00) |
+| **Scope** | Entire codebase — discovery pass; scoped to read-only behavior by the prompt, not by permission mode (the template runs under `acceptEdits`) |
 | **Action** | Identify tech debt items (dead code, deprecated deps, TODO comments, coverage gaps); append to `.loopflow/reports/debt-audit.md` — never modifies code |
 | **Cadence** | Weekly discovery; human reviews report and creates tickets manually |
 | **Token cost** | ~80,000–120,000 (report-only run across large codebase) |
@@ -307,7 +304,7 @@ tech-debt register rather than a static weekly snapshot.
 
 | Property | Value |
 |---|---|
-| **Trigger** | Post-merge webhook (any commit to `src/`) |
+| **Trigger** | Scheduled (weekly cron or CI — LoopFlow ships no daemon; e.g. the maintainer's `examples/github-action-docs-sync.yml` runs it every Monday) |
 | **Scope** | `docs/` only; runs in isolated git worktree |
 | **Action** | Detects drift between code and documentation (API signatures, config fields, deprecated flags); proposes doc edits as a PR |
 | **Token cost** | ~50,000–100,000 depending on diff size |

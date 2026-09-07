@@ -11,11 +11,16 @@ breakers, audit logging, and automatic continuation.
 
 | Type | What it does | Timeout |
 |---|---|---|
-| `command` | Runs a shell command; stdout parsed as JSON | 60 s |
-| `http` | POSTs JSON to an HTTP endpoint | 30 s |
-| `mcp_tool` | Calls an MCP tool | 30 s |
-| `prompt` | Sends a prompt to an LLM for yes/no decisions (experimental) | 30 s |
+| `command` | Runs a shell command; stdout parsed as JSON | 600 s (10 min) |
+| `http` | POSTs JSON to an HTTP endpoint | 600 s (10 min) |
+| `mcp_tool` | Calls an MCP tool | 600 s (10 min) |
+| `prompt` | Sends a prompt to an LLM for yes/no decisions | 30 s |
 | `agent` | Spawns a subagent for verification (experimental) | 60 s |
+
+Raised from 60 s to 10 minutes in **v2.1.3**. Claude Code lowers the `command`/`http`/`mcp_tool`
+default back to 30 s specifically on `UserPromptSubmit`, `PreModelSwitch`, and `PostModelSwitch`
+(and to 10 s on `MessageDisplay`), because those events block the model turn while they run — see
+the [Hooks reference](https://code.claude.com/docs/en/hooks#timeouts).
 
 ## Exit codes (`command` hooks)
 
@@ -29,7 +34,8 @@ Exit code `2` is the **loop control signal**: returning `2` from a `Stop` hook
 tells Claude "you are not done — re-enter the loop."
 
 After 8 consecutive blocks from a Stop hook, Claude Code overrides and ends the
-turn to prevent infinite loops.
+turn to prevent infinite loops (v2.1.143+). The cap is configurable via the
+`CLAUDE_CODE_STOP_HOOK_BLOCK_CAP` environment variable.
 
 ### Safety contract: never exit 1 in a denial hook
 
@@ -59,28 +65,32 @@ fi
 exit 0  # allow
 ```
 
-(session-orchestrator — [Kanevry/session-orchestrator](https://github.com/Kanevry/session-orchestrator), Jun 2026.)
-
 ## Key lifecycle events
 
 | Event | Fires when | Can block (exit 2)? |
 |---|---|---|
 | `SessionStart` | Session begins | No |
-| `Setup` | Before first user turn | No |
+| `Setup` | Fires only on `claude --init-only`, or `claude -p --init`/`claude -p --maintenance` (v2.1.10+) — never on normal startup | No |
 | `UserPromptSubmit` | User sends a message — can inject context or block | Yes |
 | `PreToolUse` | Before any tool call — can modify input or deny | Yes |
-| `PermissionRequest` | Instead of interactive permission dialog | Yes |
+| `PermissionRequest` | Instead of interactive permission dialog | **No**¹ |
 | `PostToolUse` | After tool completes — can rewrite what Claude sees | No |
 | `PostToolBatch` | After all parallel tool calls, before next model turn | Yes |
 | `SubagentStart` | Subagent session begins | No |
 | `SubagentStop` | Subagent ends — can validate output and continue | Yes |
 | `Stop` | Claude is about to stop — can inject more work | Yes |
 | `StopFailure` | Claude stopped due to error (rate limit, billing, etc.) | No |
-| `PreCompact` | Before context compaction | No |
+| `PreCompact` | Before context compaction — can block by exiting 2 or returning `{"decision":"block"}` (v2.1.105) | Yes |
 | `PostCompact` | After context compaction | No |
 | `PreModelSwitch` | Before a model switch — block, confirm, or annotate it (v2.1.251+) | Yes |
 | `PostModelSwitch` | After a model switch completes — annotate the outcome (v2.1.251+) | No* |
 | `SessionEnd` | Session terminates | No |
+
+¹ `PermissionRequest` is the trap in this column: it *is* a decision hook, but **exit code 2 is
+not honored for it** — *"the permission flow proceeds unchanged. Deny through the decision object
+instead"* ([Hooks reference — Exit code 2 behavior per
+event](https://code.claude.com/docs/en/hooks), fetched 2026-09-07). A guard written as `exit 2`
+here fails open and looks like it is working.
 
 \* The switch has already happened by the time `PostModelSwitch` fires, so blocking applies to
 `PreModelSwitch`; the changelog states both events together as "block, confirm, or annotate a
@@ -107,24 +117,58 @@ Every hook can return a JSON object on stdout to influence what happens next:
   "hookSpecificOutput": {
     "hookEventName": "PreToolUse",
 
-    "permissionDecision": "allow",   // PreToolUse/PermissionRequest: allow|deny|ask|defer
+    "permissionDecision": "allow",   // PreToolUse only: allow|deny|ask|defer
     "updatedInput": {},              // PreToolUse: replace the tool's input before execution
 
     "updatedToolOutput": "...",      // PostToolUse: replace what Claude sees as output
 
-    "additionalContext": "..."       // Stop/SubagentStop: inject context and keep the loop going
+    "additionalContext": "..."       // injects context at the point the hook fired (see below)
   }
 }
 ```
 
+`PermissionRequest` does **not** use `permissionDecision` — it returns a `decision` object with
+`behavior: "allow"|"deny"` instead. See [Permissions & Auto Mode → PermissionRequest
+hook](08-permissions.md#permissionrequest-hook) for that event's own schema.
+
 Key fields for loop engineering:
 
-- **`additionalContext`** — inject a message and *continue the loop* (Stop/SubagentStop:
-  prevents stopping, Claude reads the context and acts on it next turn)
+- **`additionalContext`** — inject a message into Claude's context at the point the hook fired.
+  Originally Stop/SubagentStop-only; extended to `PreToolUse` in **v2.1.9**. As of the current
+  [Hooks reference](https://code.claude.com/docs/en/hooks#add-context-for-claude) (fetched
+  2026-09-07) it also works on `SessionStart`, `SubagentStart`, `UserPromptSubmit`,
+  `UserPromptExpansion`, `PostToolUse`, `PostToolUseFailure`, `PostToolBatch`, and
+  `PostModelSwitch`. Only on `Stop`/`SubagentStop` does it *continue the loop* by preventing the
+  stop; elsewhere it just adds context to the next model turn without blocking anything.
 - **`updatedInput`** — rewrite a tool's input before execution (PreToolUse)
 - **`updatedToolOutput`** — rewrite what Claude sees after a tool runs (PostToolUse)
-- **`continue: false`** — halt the entire session immediately
+- **`continue: false`** — halt the entire session immediately. For `TeammateIdle`, and for
+  `TaskCompleted` when a teammate finishing its turn triggered the event, it instead stops *that
+  teammate* — the lead and other teammates in the [agent team](38-agent-teams.md) keep running
+  (fixed to match `Stop` hook semantics in **v2.1.69**). `TaskCompleted` ignores `continue: false`
+  when the `TaskUpdate` tool itself triggered the event — only exit code 2 blocks that completion.
 - **`suppressOutput`** — hide the hook result from the transcript (clean logs)
+
+**Hooks cannot loosen a static `deny` or `ask` rule.** Three fixes establish this as current
+behavior:
+
+- **v2.1.77**: "Fixed `PreToolUse` hooks returning `"allow"` bypassing `deny` permission rules,
+  including enterprise managed settings."
+- **v2.1.101**: "Fixed `permissions.deny` rules not overriding a `PreToolUse` hook's
+  `permissionDecision: "ask"` — previously the hook could downgrade a deny into a prompt."
+- **v2.1.110 / v2.1.211**: closed the same gap for `PermissionRequest`'s `updatedInput` and for
+  auto mode overriding a hook's `ask` decision on unsandboxed Bash.
+
+Net effect: a `PreToolUse`/`PermissionRequest` hook can make an action *stricter* than the static
+rules (turn an allow into an ask, or deny outright) but cannot make it *looser* — not by returning
+a laxer `permissionDecision`, and not by rewriting the tool input. Design permission hooks as a
+restriction layered on top of `permissions.deny`/`ask`, never as a way to route around them.
+
+*Source: [Permissions reference](https://code.claude.com/docs/en/permissions), verbatim: "Hook
+decisions don't bypass permission rules." ([v2.1.77](https://github.com/anthropics/claude-code/releases/tag/v2.1.77),
+[v2.1.101](https://github.com/anthropics/claude-code/releases/tag/v2.1.101),
+[v2.1.110](https://github.com/anthropics/claude-code/releases/tag/v2.1.110),
+[v2.1.211](https://github.com/anthropics/claude-code/releases/tag/v2.1.211) release notes.)*
 
 ## Async hooks and the circuit breaker pattern
 
@@ -170,7 +214,7 @@ fi
 
 ## Conditional hooks (`if` field)
 
-Run a hook only when the tool input matches a pattern:
+Run a hook only when the tool input matches a pattern (the `if` field, added in **v2.1.85**):
 
 ```json
 {
@@ -189,9 +233,9 @@ Avoids running expensive hooks on every tool call.
 
 | Variable | Value |
 |---|---|
-| `CLAUDE_PROJECT_DIR` | Absolute path to project root |
+| `CLAUDE_PROJECT_DIR` | Absolute path to project root (hook env var since v1.0.58) |
 | `CLAUDE_CODE_SESSION_ID` | Current session ID. Matches the `session_id` field in the hook JSON input, and is updated on `/clear` |
-| `CLAUDE_EFFORT` | Current effort level (`low`/`medium`/`high`/`xhigh`/`max`) |
+| `CLAUDE_EFFORT` | Current effort level (`low`/`medium`/`high`/`xhigh`/`max`), since v2.1.133 |
 | `CLAUDE_CODE_REMOTE` | `true` in a cloud session (Routines run as cloud sessions) |
 | `CLAUDE_CODE_REMOTE_SESSION_ID` | The cloud session's own ID — use it to build a link back to the session transcript |
 | `CLAUDE_ENV_FILE` | Write `KEY=VALUE` here to persist env vars across Bash tool calls |
@@ -215,47 +259,75 @@ Bash tool calls in the same session.
 
 ## Configuration example
 
+Each entry under an event is a **matcher group**, and its handlers live in that group's own
+nested `hooks` array — the flat `matcher` + `type` + `command` shorthand used elsewhere in this
+doc is abbreviated notation, not loadable file content. A `PostToolUse` command hook receives
+the tool input as JSON on stdin.
+
 ```json
 // .claude/settings.json
 {
   "hooks": {
     "Stop": [
       {
-        "type": "command",
-        "command": "scripts/verify.sh",
-        "async": true,
-        "asyncRewake": true
+        "hooks": [
+          {
+            "type": "command",
+            "command": "scripts/verify.sh",
+            "async": true,
+            "asyncRewake": true
+          }
+        ]
       }
     ],
     "PreToolUse": [
       {
         "matcher": "Bash",
-        "if": "Bash(rm -rf *)",
-        "type": "command",
-        "command": "scripts/confirm-destruct.sh"
+        "hooks": [
+          {
+            "type": "command",
+            "if": "Bash(rm -rf *)",
+            "command": "scripts/confirm-destruct.sh"
+          }
+        ]
       }
     ],
     "PostToolUse": [
       {
         "matcher": "Edit",
-        "type": "command",
-        "command": "scripts/auto-lint.sh",   // receives tool input as JSON on stdin
-        "async": true
+        "hooks": [
+          {
+            "type": "command",
+            "command": "scripts/auto-lint.sh",
+            "async": true
+          }
+        ]
       }
     ]
   }
 }
 ```
 
+*Schema verified against [Hooks reference](https://code.claude.com/docs/en/hooks), fetched
+2026-09-07 — every worked `settings.json` example on that page nests handlers this way.*
+
 ## Scope hierarchy
 
-Hooks from multiple sources are merged in order (later overrides earlier):
-1. Managed policy
-2. `~/.claude/settings.json` (user-wide)
-3. `.claude/settings.json` (project)
-4. `.claude/settings.local.json` (local, gitignored)
-5. Plugin `hooks.json`
-6. Skill or agent frontmatter (skill-scoped hooks)
+Hook **entries merge** across sources rather than one replacing another — user, project, local,
+and plugin hooks all add to the set that runs; a hook from one source doesn't remove or replace a
+hook from another. (Settings *values* follow a different rule — highest level wins; see
+[Permissions & Auto Mode → Settings precedence](08-permissions.md#settings-precedence).)
+`disableAllHooks` and `allowManagedHooksOnly` are the exception: for these, managed policy is a
+floor nothing below it can lower. Ordinary precedence still applies among the non-managed scopes —
+Claude Code reads the value left after settings precedence applies, so a project's
+`"disableAllHooks": false` overrides a user setting of `true`, and `claude --settings
+'{"disableAllHooks": true}'` overrides both for one run — but **only `disableAllHooks` set at the
+managed-settings level can disable hooks an administrator configured through managed policy**.
+Fixed in **v2.1.49**, verbatim: "Fixed `disableAllHooks` setting to respect managed settings
+hierarchy — non-managed settings can no longer disable managed hooks set by policy (#26637)."
+
+*Source: [Hooks reference — Disable or remove hooks](https://code.claude.com/docs/en/hooks#disable-or-remove-hooks),
+verified against `claude` **2.1.263**, 2026-09-07.*
 
 ## Loop engineering patterns
 
@@ -274,13 +346,15 @@ with the test output as context.
   "command": "echo '{\"hookSpecificOutput\":{\"hookEventName\":\"PreToolUse\",\"permissionDecision\":\"deny\"}}'" }
 ```
 
-**Audit log every tool call (fire-and-forget):**
+**Audit log every tool call:**
 ```json
-{ "event": "PostToolUse", "type": "http", "async": true,
-  "url": "https://audit.example.com/events",
-  "headers": { "Authorization": "Bearer ${AUDIT_TOKEN}" },
-  "allowedEnvVars": ["AUDIT_TOKEN"] }
+{ "event": "PostToolUse", "type": "command", "async": true,
+  "command": "curl -s -X POST https://audit.example.com/events -H \"Authorization: Bearer $AUDIT_TOKEN\" -d @-" }
 ```
+HTTP-type hooks have no `async` field — they run synchronously and block the tool call until the
+endpoint responds or the timeout elapses (600 s by default). True fire-and-forget audit logging
+needs a `command`-type hook with `async: true`, piping the JSON input to `curl` in the background,
+as above.
 
 **Gate a model switch (v2.1.251+):** before `PreModelSwitch`/`PostModelSwitch` existed, a model
 switch mid-session (whether Claude's own choice or a user's `/model` call) was unobservable and

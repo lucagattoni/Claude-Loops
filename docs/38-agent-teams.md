@@ -161,6 +161,15 @@ Stated plainly by the docs, as of the same page:
   transfer.
 - **Split panes require tmux or iTerm2** and are unsupported in VS Code's integrated terminal,
   Windows Terminal, or Ghostty.
+- **Task tools may not exist at all.** As of **v2.1.233**, the todo/task-tracking tools
+  (`TaskCreate`/`TaskGet`/`TaskList`/`TaskUpdate`, `TodoWrite`) are no longer available by default
+  on Opus 4.8, Sonnet 5, Fable 5, Mythos 5, and newer models; set `CLAUDE_CODE_ENABLE_TODO_TOOLS=1`
+  to bring them back ([v2.1.233 release
+  notes](https://github.com/anthropics/claude-code/releases/tag/v2.1.233).) The shared **Task
+  list** described above, and the reuse-property note that an in-process teammate gets
+  `TaskCreate`/`TaskGet`/`TaskList`/`TaskUpdate` "where the session has the Task tools," both
+  assume this variable is set on a current default model — without it, teammates fall back to
+  coordinating through messages only, with no shared claimable list.
 
 (— [Agent teams: Limitations](https://code.claude.com/docs/en/agent-teams#limitations).)
 

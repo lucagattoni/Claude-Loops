@@ -24,8 +24,11 @@ you ship. Ng's own three-loop model — carried in
 [Human-in-the-Loop](14-human-in-the-loop.md) — has the developer loop firing every tens of minutes
 to hours, and his one first-party figure for unattended running is *"around an hour."*
 
-The key insight (credited to Boris Cherny, who built Claude Code):
-**replace yourself as the person who prompts the agent**.
+The key insight — [Boris Cherny](https://www.youtube.com/watch?v=RkQQ7WEor7w&t=11m45s),
+who built Claude Code, put it as *"I don't prompt Claude anymore ... my job is to write
+loops"*, and [Addy Osmani](https://addyosmani.com/blog/loop-engineering/) generalised it
+into the discipline's founding line:
+**loop engineering is replacing yourself as the person who prompts the agent**.
 
 See [The Factory Model](26-factory-model.md) for the deeper treatment: what the
 engineer's role becomes once implementation speed is no longer the bottleneck.
@@ -56,7 +59,7 @@ complex, single-turn invocations fail not because the model is bad at any single
 but because compound error rates make reliability impossible without a correction loop.
 
 > "The performance ceiling of any LLM-based system is not set by model quality —
-> it is set by the quality of the loop surrounding the model." — [@roanbrasil](https://x.com/roanbrasil), Jun 2026
+> it is set by the quality of the loop surrounding the model." — [@roanbrasil](https://x.com/roanbrasil), ["Loop Engineering: Designing the Execution Harness Around an LLM"](https://medium.com/p/loop-engineering-designing-the-execution-harness-around-an-llm-936afeb6a72d), Jun 2026
 
 > "A mediocre model inside a well-engineered loop outperforms a frontier model invoked once."
 
@@ -66,7 +69,7 @@ but because compound error rates make reliability impossible without a correctio
 | 2023 | Agent loop (LangChain era) — ReAct scaffolding, but unstable |
 | 2024–2026 | Stabilised harness architecture — the loop is the primary engineering surface |
 
-([@roanbrasil](https://x.com/roanbrasil), "Loop Engineering: Designing the Execution Harness Around an LLM", Jun 2026.)
+([@roanbrasil](https://x.com/roanbrasil), ["Loop Engineering: Designing the Execution Harness Around an LLM"](https://medium.com/p/loop-engineering-designing-the-execution-harness-around-an-llm-936afeb6a72d), Jun 2026.)
 
 ## The New Software Lifecycle
 
@@ -89,8 +92,6 @@ The harness and the spec are now first-class engineering artefacts. "Vibe coding
 
 ## Loop Engineering at Anthropic
 
-> "More than 80% of Anthropic engineers now build with self-improving loops." — Anthropic engineer, Jun 2026
-
 Anthropic published five canonical agent workflow patterns that underpin their internal loop engineering practice:
 
 | Pattern | Description |
@@ -103,7 +104,7 @@ Anthropic published five canonical agent workflow patterns that underpin their i
 
 The **evaluator-optimizer** is the canonical implementation of the maker/checker verification loop: the generator produces an artifact, the evaluator judges it against defined criteria, and the result drives the next generation. The loop exits when the evaluator's criteria are met — this is loop engineering's stopping condition in practice. See [Subagents](07-subagents.md) for the DOER/CHECKER pattern and evaluator tuning.
 
-(Anthropic, ["Building Effective Agents"](https://www.anthropic.com/news/building-effective-agents), Dec 2024.)
+(Anthropic, ["Building Effective Agents"](https://www.anthropic.com/engineering/building-effective-agents), Dec 2024.)
 
 ## Who Benefits Most From the Shift
 
@@ -117,4 +118,4 @@ than a strong general-purpose engineer working outside their domain, because
 clarity about *what "done" means in this domain* is what lets Claude do more per
 turn — the throughline back to the compound-probability argument above: fewer,
 clearer decisions per instruction compounds into fewer total turns needed.
-(Anthropic Research, ["Claude Code expertise analysis"](https://www.anthropic.com/research/claude-code-expertise), Jul 2026.)
+(Anthropic Research, ["Agentic coding and persistent returns to expertise"](https://www.anthropic.com/research/claude-code-expertise), Jun 2026.)

@@ -7,7 +7,7 @@ deserves the most engineering attention.
 
 ## The positions
 
-**Loop engineering is primary** (Cherny / Osmani view):
+**Loop engineering is primary** ([Boris Cherny](https://www.youtube.com/watch?v=RkQQ7WEor7w&t=11m45s) / [Addy Osmani](https://addyosmani.com/blog/loop-engineering/) view):
 The architecture of the loop — when it fires, what it monitors, how it verifies, when it stops —
 is the fundamental shift. Get the loop right and the prompts inside it are a detail.
 
@@ -237,7 +237,7 @@ detail (this quarter's prompt wording).
 ## The four disciplines (2026 vocabulary consolidation)
 
 As of mid-2026 the community has consolidated around four named engineering disciplines
-(Cobus Greyling, "The Evolving Vocabulary of AI", Jun 2026):
+([Cobus Greyling, "The Evolving Vocabulary of AI"](https://cobusgreyling.substack.com/p/the-evolving-vocabulary-of-ai), Jun 2026):
 
 | Discipline | Focus |
 |---|---|

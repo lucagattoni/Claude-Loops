@@ -40,6 +40,21 @@ judgement is a rule worth cutting, not just tolerating.
 - Never ask Claude to "explore the whole codebase" — scope narrowly
 - After two failed corrections, `/clear` and write a better prompt
 
+## `/context` — checking what's actually filling the window
+
+Before reaching for `/compact` or a full reset, run `/context` (added **v1.0.86**) to see what is
+actually consuming the window: a breakdown by tool definitions, skills, MCP servers, memory, and
+message history. Later releases added actionable suggestions — the command now flags
+context-heavy tools, memory bloat, and capacity warnings with specific fixes. (On a build before
+**v2.1.129**, calling it repeatedly had its own cost: `/context` injected its own rendered ASCII
+visualization grid into the conversation, ~1.6K tokens per call — fixed since, but a reason to
+prefer the status line's percentage over polling `/context` on an older CLI.) Check it before
+choosing between `/compact` and a hard reset, not after.
+([v1.0.86](https://code.claude.com/docs/en/changelog#1-0-86) and
+[v2.1.129](https://code.claude.com/docs/en/changelog#2-1-129) changelog entries;
+[Commands](https://code.claude.com/docs/en/commands); [Debug your
+configuration](https://code.claude.com/docs/en/debug-your-config).)
+
 ## Compaction shortcuts
 
 ```
@@ -62,7 +77,7 @@ to that accumulated wreckage rather than the current goal.
 
 Findings from Anthropic engineering ([Prithvi Rajasekaran, "Harness design for long-running application development"](https://www.anthropic.com/engineering/harness-design-long-running-apps), Mar 2026):
 - Claude Sonnet 4.5 exhibited significant context anxiety — resets were essential for reliable output
-- Claude Opus 4.6 largely eliminated this behaviour — compaction is often sufficient
+- Claude Opus 4.5 largely removed this behaviour on its own — compaction is often sufficient
 
 **Practical rule:** If you observe a model re-litigating earlier decisions or
 drifting from the original goal across turns, switch from compaction to resets.
@@ -107,7 +122,7 @@ bloat from accumulating in the first place. Run these steps at session or turn s
 
 | Step | What it does |
 |---|---|
-| **Prefetch** | Load only the files and state actually needed for this turn |
+| **Prefetch** | Preload memory and skill-discovery state before the model call, not the whole file tree |
 | **Snip** | Truncate or summarise oversized inputs before they enter context |
 | **Microcompact** | Compress completed subtask summaries into one-line records |
 | **Collapse** | Merge redundant assistant-turn repetitions |
