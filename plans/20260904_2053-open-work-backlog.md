@@ -454,7 +454,37 @@ never written up. `docs/03:31-36` and `docs/29:20-67` cover only the building-bl
 `.worktreeinclude`, and the four hard-enforced isolation checks — which are mechanically enforced
 where this repo's own worktree rule is advisory prose. No new research needed.
 
-### C7 — Sweep the 20 partially-verified docs · large
+### C7 — ~~Sweep the 20 partially-verified docs~~ · **SHIPPED 20260907**
+
+**Done, and the scope was measured rather than assumed.** Two of the 20 (`11`, `23`) were excluded —
+`CLAUDE.md` records them swept 20260906 — and **H1**'s remainder (`05 06 19 31 35`) folded in, giving
+**23 docs**. The real scope is not "23 docs" but the part never checked: `git blame` per line puts it
+at **4,025 of 6,010 lines (67%)**. `docs/19` is 100% unverified; `docs/35` is 0% (written entirely
+after the cutoff).
+
+**34/34 units returned, none lost. 656 claims examined, 471 distinct URLs fetched, 139 findings,
+47 claims recorded UNVERIFIABLE. 150 edits landed across 25 files.** Evidence pack:
+[`20260907_0100-c7-doc-sweep-evidence.md`](20260907_0100-c7-doc-sweep-evidence.md).
+
+**The defect class is different from C10's, and worse.** C10 found the KB stale against a moving
+platform. C7 found it **composing plausible content around a real citation instead of reading the
+cited source** — fabricated `.claude/settings.json` blocks whose keys Claude Code does not recognise,
+a heartbeat schema of which zero fields exist, invented mechanisms that make a safety control sound
+stronger than it is, and one blockquote absent from the cited article *and* from two Wayback
+snapshots predating the KB's own commit.
+
+**Corroboration worth noting:** C7 independently found the `docs/08` settings-precedence inversion
+that C10 found. Two methods, same defect.
+
+**This item is NOT a clean bill.** Its completeness critic returned **INCOMPLETE** on a measured
+density inversion: r = **-0.64** between unit size and scrutiny; units over 160 unverified lines got
+10.8 claims per 100 lines against 26.5 for units under 100. **`docs/24` — the largest doc, the most
+findings, the most highs — got the thinnest sampling in the pass**, and a spot-check inside a range
+it declared clean found a real defect. `34/34 returned` is reporting, not coverage. The re-cut plan
+(eight units of ~100 lines, a floor of 20 claims per 100, a unit under the floor counts as *not
+checked*) is in `KB_GAPS.md`, with the 47 UNVERIFIABLE triage and the artifact-reconciliation gap.
+
+Original analysis below.
 
 `01 07 08 09 11 12 13 14 15 17 18 21 23 24 25 26 28 32 33 34`. Only the *new* content was verified;
 treat every pre-`20260904` sentence as unverified. Do after **C1**. `docs/09` (**C2**) is the proof
@@ -748,7 +778,7 @@ rule this KB already states and its own pipeline did not follow (see **A1**).
 
 | # | Item | Effort | Evidence / action |
 |---|---|---|---|
-| **H1** | Part II's "version-stamped" promise unkept in **5** of 21 docs | medium | Zero `v2.1.x` markers in ~~`03`~~ `05 06` ~~`15`~~ ~~`16`~~ `19` ~~`29`~~ `31` `35` — **`16` closed 20260906 by C5, 0 → 8 markers**; `docs/11` has 34. **`03`, `29` and `18` stamped 20260905 (PR #36)**. **Correction, confirmed 20260906: `35` was never actually stamped** — its earlier strikethrough was wrong, and contradicted this row's own "`35` re-check pending" clause; `grep -c 'v2\.1\.[0-9]' docs/35-choosing-your-mode.md` still returns 0, so it stays open. **`15` closed 20260906 by this pass's own H8 work** — substantiating it added a `v2.1.198` marker at `docs/15:66`, which the H1 row would otherwise have gone on reporting as missing; net count **5**, not 6. Promised at `docs/index.md:76-77` and `LOOP_ENGINEERING.md:78` (both still current). Fold the rest into **C7** |
+| ~~**H1**~~ | ~~Part II's "version-stamped" promise unkept in **5** of 21 docs~~ · **CLOSED 20260907 by C7** — `05 06 19 35` stamped; `31` waived **with cause** (Claude Tag is a separate product: the official Slack page states no version requirement and the full changelog `0.2.21`–`2.1.263` has no Claude Tag entry, so a `v2.1.x` marker would assert a gate that does not exist). **Known false positive:** `grep -c 'v2\.1\.[0-9]' docs/31` now returns **2**, but both are the deliberately-cited counter-examples (`/tag` at v2.1.92 / v2.1.19 are about naming a *session*). The promise is now enforced mechanically by `kb-structure-check.sh` § 6 | medium | Zero `v2.1.x` markers in ~~`03`~~ `05 06` ~~`15`~~ ~~`16`~~ `19` ~~`29`~~ `31` `35` — **`16` closed 20260906 by C5, 0 → 8 markers**; `docs/11` has 34. **`03`, `29` and `18` stamped 20260905 (PR #36)**. **Correction, confirmed 20260906: `35` was never actually stamped** — its earlier strikethrough was wrong, and contradicted this row's own "`35` re-check pending" clause; `grep -c 'v2\.1\.[0-9]' docs/35-choosing-your-mode.md` still returns 0, so it stays open. **`15` closed 20260906 by this pass's own H8 work** — substantiating it added a `v2.1.198` marker at `docs/15:66`, which the H1 row would otherwise have gone on reporting as missing; net count **5**, not 6. Promised at `docs/index.md:76-77` and `LOOP_ENGINEERING.md:78` (both still current). Fold the rest into **C7** |
 | ~~**H2**~~ | ~~Three repo self-descriptions are falsified~~ · **SHIPPED 20260906, PR #38** | small | `LOOP_ENGINEERING_NEWS.md:3` **and** `KB_GAPS.md:4` both credited `fetch-loop-news`, which writes only `.loop-news/findings.json` — both now credit `integrate-loop-news`. **Correction to this item:** the `docs/34` half is not falsified. `:317`'s "05:00 local" is *correct* (it is the watchdog comment's "04:00 UTC" that drifts — see **H14**), and `:321`'s "L3 — commits and publishes autonomously" became **true** when the tracker published on 20260905; it was only false against the since-superseded `runs = 0`. `CLAUDE.md:3` was rewritten in `v3.1.0`. So: 2 real, 1 self-resolved, 1 already fixed |
 | ~~**H3**~~ | ~~README's tracker section is stale and structurally misplaced~~ · **SHIPPED 20260906, PR #38** | small | Both halves fixed: the example + type list moved back under "Add or remove a source", and all **7** types are now documented as a table with row counts. Counts corrected — **28 of 54** rows were of undocumented types (github **23**, not 22; 54 rows, not 53) |
 | ~~**H4**~~ | ~~The Boris Cherny "write loops" quote is unpinned in four places~~ · **DONE 20260906** | small | Pinned to [the WorkOS *Acquired Unplugged* talk](https://www.youtube.com/watch?v=RkQQ7WEor7w), verified against the video's own caption track at ~11:45–11:53. **Two corrections to this row:** `docs/20:14` is a *paraphrase* in a table cell, not a quote reproduction — it now carries the full quote and the link; and the row's four-location list **missed `docs/03:3`**, a fifth uncited reproduction, while over-counting `LOOP_ENGINEERING_NEWS.md:268` (drifted to `:808`), which is append-only history and was corrected by a new hand-authored entry rather than rewritten. `docs/32`'s "Primary source ... in his own words" label was false — thenewstack.io embeds a third-party tweet — and both its "Why here" and "Summary" paragraphs are corrected. (`docs/39:334-347` was correctly pinned and was not part of this) |
@@ -811,10 +841,34 @@ the remote, and is marked latest.
 | ~~8b~~ | ~~**C1b** — the coverage the C1 pass did not reach~~ · **DONE** — P0s in PR #40 (`v3.1.6`), P1/P2 in `v3.1.8` | Re-run `docs/03`/`docs/29` against HEAD; open the 78 unopened URLs |
 | ~~9~~ | ~~**C5**, **C8**, **C9**, **C11**, **C12**~~ · **DONE 20260906** — C5/C9/C11/C12 shipped this pass; C8 was already done | Resource-review rule (score ≥ 3.0 before extracting) |
 | 10 | **H2**–**H9**, **H11**, **H12** — corpus hygiene | — |
-| 11 | **C7**, **C10** — the two large sweeps | — |
+| ~~11~~ | ~~**C7**, **C10** — the two large sweeps~~ · **DONE 20260907** — C10: 3,774/3,774 changelog bullets, 29 edits; C7: 4,025 unverified lines, 150 edits; **H1 closed** (4 docs stamped, `31` waived with cause) | `mkdocs --strict` bare + `kb-structure-check.sh` §§5-6 |
 | ~~12~~ | ~~**D2**/**H10**, **D3**/**H13** — release policy and plan archival~~ · **DONE, confirmed 20260906** — D2 and D3 were resolved 20260905 (§2) and are written into `CLAUDE.md`'s Releases and Plans sections; H10 backfilled to 63 tags / 63 releases (`v3.1.9`); H13's retire-in-place policy is already applied to both delivered plans. Never struck until the step-10 staleness audit | — |
 | 13 | **H14** — retitle the IST-dependent scheduling comments **before 2026-10-25**, when the DST shift moves the tracker's "04:00 UTC" slot | — |
 
+> **Status 20260907 (updated after step 11):** steps **1–12 are shipped**. Only **step 13 (H14)**
+> remains, and it has a hard date: **2026-10-25**, when Ireland leaves IST and the tracker's
+> "04:00 UTC" comment goes stale.
+>
+> **Step 11 shipped both sweeps.** C10 read 3,774/3,774 previously-unswept changelog bullets
+> (24/24 chunks, zero count mismatches) → 29 edits. C7 swept 4,025 previously-unverified doc lines
+> (34/34 units, 656 claims, 471 URLs) → 150 edits. **H1 is closed**: `05 06 19 35` stamped, and
+> `31` deliberately **not** stamped — Claude Tag is a separate product with no CLI version gate, so
+> a marker would assert a gate that does not exist.
+>
+> **Two things step 11 paid for that the next step must not re-derive.**
+> 1. **The backlog's own C10 denominator was wrong.** "187 of 2,076 bullets" understated the job
+>    ~2x; the real total was 5,132 and the unswept remainder 3,774. Three of the source digest's
+>    four counts reproduce exactly — only the total was wrong, and it was self-contradicted in its
+>    own paragraph. Corrected in place here and by a new digest entry.
+> 2. **Both sweeps' completeness critics found defects the sweeps missed**, and one critic's own
+>    headline was wrong. C10's critic found `PermissionRequest`'s exit-2 row (a guard written as
+>    `exit 2` there fails open) — real, fixed. It also reported a pipeline "silently dropping 21
+>    candidates"; that was **agents miscounting a ~100-object JSON array in their own self-reports**,
+>    disproved by checking which array indices the downstream agent actually used. **Check a peer's
+>    claim before acting on it** — including a critic's.
+>
+> Previous status (step 10) retained below.
+>
 > **Status 20260906 (updated after step 10):** steps 1–10 **and 12** are shipped. Step 12 was
 > already fully resolved by the 20260905 decisions and the `v3.1.9` backfill, and was never struck
 > off until this pass's staleness audit found it.
