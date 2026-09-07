@@ -170,6 +170,8 @@ notes](https://github.com/anthropics/claude-code/releases/tag/v2.1.251).) Local 
 MCP tool needs a claude.ai-side connector attached in the `/schedule` setup flow, not just a
 working local server.
 
+**API-key auth disables Routines outright.** As of **v2.1.139**, Remote Control, `/schedule`, claude.ai MCP connectors, and notification preferences are all disabled when `ANTHROPIC_API_KEY`, `apiKeyHelper`, or `ANTHROPIC_AUTH_TOKEN` is set — even when a claude.ai login also exists, because these credentials take precedence over it. ([v2.1.139 release notes](https://github.com/anthropics/claude-code/releases/tag/v2.1.139).) A CI or headless session authenticated with a Console API key sees `/schedule` itself say *"available with Claude for Enterprise — ask your admin about migrating from API-key access"* rather than let you configure a Routine there. Two ways around it: unset the key for the shell where you run `/schedule`, or skip the CLI and manage Routines directly at [claude.ai/code/routines](https://claude.ai/code/routines) — that surface works regardless of local CLI auth, org policy permitting. ([Routines — Troubleshooting](https://code.claude.com/docs/en/routines), fetched 20260907.)
+
 ## Related
 
 - [The Loop Contract](27-loop-contract.md) — define TRIGGER/SCOPE/STOP before creating a Routine
