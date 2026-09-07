@@ -34,6 +34,14 @@ injection through tool results is harder:
 - MCP servers often read from external, attacker-influenced sources (error trackers, issue queues, email, Slack)
 - Auto-mode permission classifiers review tool *calls*, not tool *results* — a poisoned result bypasses the gate
 
+## Connector Trust Is a Separate Boundary From Output Validation
+
+Everything above assumes the MCP server is already running and connected, and the attack is in its *output*. A hostile repository can also try to get its own MCP servers running with more trust than you intended:
+
+- **Trust approval is per-server, not per-repo.** Before [v2.1.69](https://github.com/anthropics/claude-code/releases/tag/v2.1.69), the trust dialog could silently enable *every* server listed in a cloned repo's `.mcp.json` on first run, instead of asking per server — so cloning a hostile repo could hand its entire MCP config a blanket pass.
+- **A repo cannot self-approve its own servers** — the same pattern as [Permissions & Auto Mode § Repo Settings Cannot Escalate Their Own Privilege](08-permissions.md#repo-settings-cannot-escalate-their-own-privilege), applied to MCP. Before [v2.1.196](https://github.com/anthropics/claude-code/releases/tag/v2.1.196), a repo could list its MCP servers as pre-approved inside a committed `.claude/settings.json`, and `claude mcp list`/`get` would spawn them on that claim alone. As of v2.1.196, a `.mcp.json` server's approval committed to the repo is ignored in a workspace you haven't trusted — it stays `⏸ Pending approval` until you personally accept that workspace's trust dialog ([MCP docs](https://code.claude.com/docs/en/mcp)).
+- **The org-level allow/deny list has needed repeated hardening.** `allowedMcpServers`/`deniedMcpServers` (managed settings) restrict which MCP servers can run at all, but enforcement has shipped with distinct gaps fixed across separate releases — a single bad entry disabling the whole managed policy, the `--mcp-config` flag bypassing it, claude.ai connectors not being covered, and enforcement missing on reconnect and IDE-typed configs, among others. Treat it as a boundary you verify against your specific installed version, not one you configure once and trust indefinitely ([CHANGELOG.md](https://raw.githubusercontent.com/anthropics/claude-code/main/CHANGELOG.md)).
+
 ## Mitigations for Loop Engineers
 
 | Risk | Mitigation |
