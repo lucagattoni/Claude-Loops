@@ -1126,15 +1126,19 @@ Read together: coding agents (Claude Code among them) were already leaning on th
 decide more, before the rest of the field caught up. That does not exempt this doc from the
 trend it documents — it means the trend arrives here *first*.
 
-**A harness built minimal by design, not by later removal.** Pi takes the removal test
-above and applies it at design time instead of as a later cut: it bills itself as "a
+**A harness built minimal by design, not by later removal.** Pi applies [the removal
+test](#the-removal-test) below at design time instead of as a later cut: it bills itself as "a
 minimal agent harness" that deliberately omits MCP, sub-agents, permission popups, and plan
 mode from its core, exposing each only as an optional TypeScript primitive a user wires in
 if their task needs it — plus mid-session model switching across 15+ providers, so the
 harness-minimalism choice isn't coupled to a single vendor's capability ceiling. Contrast
 with the additive corpus this doc otherwise documents: Pi's default state is closer to
 "nothing" than to any of the multi-role harnesses above, and the maintainers treat that as
-the point rather than a gap to fill. ([pi.dev](https://pi.dev/), Sep 2026.)
+the point rather than a gap to fill. It is also the clearest illustration of the distinction
+[What the shrink mechanism actually measured](#what-the-shrink-mechanism-actually-measured)
+draws below: *"designed to shrink" is a claim about design, not about size.* Pi is small
+without claiming the property; the retirement mechanism measured there claims the property
+and has so far retired nothing. ([pi.dev](https://pi.dev/), Sep 2026.)
 
 ### The removal test
 

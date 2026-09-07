@@ -474,17 +474,6 @@ Fable 5.1 with an API key or a Claude subscription also invalidated the cache" �
 release ([v2.1.257](https://github.com/anthropics/claude-code/releases/tag/v2.1.257)) that
 shipped Fable 5.1 itself shipped it with that bug, fixed three versions later.
 
-**The same mechanic, generalized past Claude Code: per-turn routing is a cache-invalidation
-anti-pattern.** Routing to a different model or tier on each turn — a common technique when
-cost-optimizing individual calls in isolation — breaks the prefix/KV cache the same way a
-mid-session model switch does above, because the router is choosing per-request rather than
-per-session. A 15-turn session that should hit roughly 90% cache reuse instead recomputes at
-full price on every routed turn; cited alongside this pattern, Uber's ~5,000-engineer Claude
-Code rollout reportedly burned its annual AI budget by April. The fix is the same principle
-[Choosing a Model for the Job](#choosing-a-model-for-the-job) already states: pick the model
-per *session*, not per *call*, so caching stays intact across the turns that would otherwise
-share it. ([@akshay_pachaar](https://x.com/akshay_pachaar/status/2096601734072402054), Sep 2026.)
-
 ### Setting the cache TTL directly
 
 For API-key and cloud-provider (Bedrock/Vertex/Foundry) users, the cache TTL is also a
@@ -527,12 +516,21 @@ this KB's maintainer, so this figure is self-reported and unreproduced** — see
 
 **Consequence for a loop:** switching model or effort mid-run to save money on the harder half
 of a task can cost more than it saves, because the next request re-processes the *entire*
-conversation history uncached. Two corollaries:
+conversation history uncached. The mechanic isn't Claude-Code-specific: **per-turn routing is a
+cache-invalidation anti-pattern generally.** Routing to a different model or tier on each turn —
+a common technique when cost-optimizing individual calls in isolation — breaks the prefix/KV
+cache the same way a mid-session switch does, because the router is choosing per-request rather
+than per-session. A 15-turn session that should hit roughly 90% cache reuse instead recomputes
+at full price on every routed turn; cited alongside this pattern, Uber's ~5,000-engineer Claude
+Code rollout reportedly burned its annual AI budget by April
+([@akshay_pachaar](https://x.com/akshay_pachaar/status/2096601734072402054), Sep 2026). Two
+corollaries, the first restating [Choosing a Model for the
+Job](#choosing-a-model-for-the-job)'s principle at the cache layer:
 
 - **Pick model and effort at the top of a session** (or at the top of each subagent spawn) and
-  hold them for the run. A DOER→CHECKER handoff that also changes model is not "free
-  role-switching" — it is a cache-busting event, on top of whatever the role switch itself
-  costs.
+  hold them for the run — per *session*, not per *call*. A DOER→CHECKER handoff that also
+  changes model is not "free role-switching" — it is a cache-busting event, on top of whatever
+  the role switch itself costs.
 - **A judge/adjudicator pass is the exception that doesn't need this warning** — it should
   already run in a fresh context (see [Session Architecture](37-session-architecture.md) and
   [Verification](04-verification.md)), so it pays the uncached first turn regardless of which

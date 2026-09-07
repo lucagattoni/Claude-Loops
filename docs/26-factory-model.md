@@ -127,7 +127,9 @@ critical systems or complex state management.
   monday.com platform rather than a one-off automation. A **"Brand Reviewer"** agent
   specifically keeps a human in the loop as a maker/checker pair: it drafts or reviews
   brand-sensitive output, but a human approves before anything ships, distinguishing which
-  agentic routines in the platform are autonomous end-to-end from which keep a checkpoint.
+  agentic routines in the platform are autonomous end-to-end from which keep a checkpoint — a
+  live instance, inside one platform, of the ["lit" vs. "dark"
+  distinction](#lit-vs-dark-factories-and-where-judgment-relocates) below.
   ([Anthropic, "How monday.com transformed its platform into an agent-first product"](https://claude.com/blog/how-monday-com-transformed-its-platform-into-an-agent-first-product-where-humans-and-agents-collaborate), Sep 2026.)
 - **Droid Shield 2.0** (Factory.ai): a deterministic scanner that inspects every line of an autonomous commit/push for secret-shaped patterns and blocks the commit on a suspicious hit. The 2.0 release adds two new fine-tuned classifier models on top of the deterministic scanner — one ("Risk") optimized for recall, catching secrets the pattern-matcher misses; one ("Downgrade") optimized for precision, clearing false-positive flags on placeholders/fixtures/docs — reported as the strongest or tied-strongest classifiers on both tasks versus frontier models, at lower cost and latency; model weights released publicly.
   ([factory.ai/news/droid-shield-2-0](https://factory.ai/news/droid-shield-2-0), Jul 2026.)

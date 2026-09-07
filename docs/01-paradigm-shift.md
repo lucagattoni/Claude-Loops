@@ -29,6 +29,12 @@ who built Claude Code, put it as *"I don't prompt Claude anymore ... my job is t
 loops"*, and [Addy Osmani](https://addyosmani.com/blog/loop-engineering/) generalised it
 into the discipline's founding line:
 **loop engineering is replacing yourself as the person who prompts the agent**.
+Cobus Greyling frames the same replacement from the practitioner's side, spelling out the
+operational consequence: *"stop being the person who prompts the agent. Design the system
+that finds the work, hands it out, checks it, remembers state, and decides the next
+step"* — loops as *"highly intelligent cron jobs,"* an "Agent Lite" alternative to building a
+full agent framework.
+([Cobus Greyling, "Loop Engineering is Agent Lite"](https://cobusgreyling.substack.com/p/loop-engineering-is-agent-lite), Sep 2026.)
 
 See [The Factory Model](26-factory-model.md) for the deeper treatment: what the
 engineer's role becomes once implementation speed is no longer the bottleneck.
@@ -37,13 +43,7 @@ engineer's role becomes once implementation speed is no longer the bottleneck.
 Anish Acharya argues the shift this page documents for one engineer's workflow is also
 happening one level up — "how every job function becomes a loop" — framing loop design as a
 *company-building* skill, not just a coding-agent one.
-([Anish Acharya, Lenny's Newsletter, "Why companies are becoming a series of loops"](https://www.lennysnewsletter.com/p/why-companies-are-becoming-a-series), Sep 2026.) Cobus
-Greyling frames the same replacement from the practitioner's side, with the operational
-consequence spelled out: *"stop being the person who prompts the agent. Design the system
-that finds the work, hands it out, checks it, remembers state, and decides the next
-step"* — loops as *"highly intelligent cron jobs,"* an "Agent Lite" alternative to building a
-full agent framework.
-([Cobus Greyling, "Loop Engineering is Agent Lite"](https://cobusgreyling.substack.com/p/loop-engineering-is-agent-lite), Sep 2026.)
+([Anish Acharya, Lenny's Newsletter, "Why companies are becoming a series of loops"](https://www.lennysnewsletter.com/p/why-companies-are-becoming-a-series), Sep 2026.)
 
 ## AI Leverage Formula
 
