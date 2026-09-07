@@ -296,6 +296,34 @@ Not a defect introduced by C4 — a follow-up C4 *unlocked*, recorded rather tha
   not create this** — the same was true of every other in-skill failure before it — but C4 added a
   new way to reach it, so `A13` is now the guard's own missing half, not just a tidy-up.
 
+
+### A14 — the two sibling guards share the non-ancestor hazard `A13` just fixed · small · **OPEN, opened 20260907 11:30**
+
+Found by `A13`'s adversarial review and recorded rather than folded in, because it changes
+unattended retry-path behaviour — the same reason `A13` itself was recorded rather than done
+inside `C4`.
+
+- **The mechanism, proven while shipping `A13`:** `git log A..B` requires only that both objects
+  *exist*, not that A is an ancestor of B. After a force-push or history rewrite `BASE_SHA` is
+  normally still a loose object locally (`gc.pruneExpire` keeps unreachable objects two weeks), so
+  the range silently becomes "the new history minus the old one" and a stray `^feat: loop news run `
+  subject in it matches. Reproduced against `assert-published.sh` before its guard existed:
+  `PUBLISHED … (1 commit(s) in the delta)`, exit 0, on a run that published nothing.
+- **Where it still applies.** Two call sites in `run-loop-news.sh`, both greping the same unguarded
+  delta. Grep the anchor text, never a line number: the pre-flight guard logs
+  `origin/main already has a loop-news commit — Stage B would be redundant, skipping`; the
+  failure-path guard notifies `failed AFTER publishing (origin/main has our loop-news commit)`.
+- **This is NOT a fabricated-success path, which is why it is small.** Both guards take the
+  *conservative* action on a match — skip Stage B, or stop retrying — and `assert-published.sh`
+  then runs on the same delta and exits 2 (not an ancestor), so the wrapper exits 6 instead of
+  reporting success. The residual is a **misdiagnosis in the log**, not a green run that shipped
+  nothing.
+- **Do:** hoist the precondition so all three call sites share one implementation — most likely by
+  having the two guards call `assert-published.sh` as well, or by extracting the delta query. Do
+  **not** paste `merge-base --is-ancestor` in three places; a rule with three homes drifts.
+- **Verify:** extend `scripts/verify-publish-guard.sh`, which already has the force-push fixture
+  (case 6d) and the two-clone harness. Do not start a second harness.
+
 ---
 
 ## 4. Tier 2 — content correctness
@@ -965,24 +993,34 @@ the remote, and is marked latest.
 | ~~12~~ | ~~**D2**/**H10**, **D3**/**H13** — release policy and plan archival~~ · **DONE, confirmed 20260906** — D2 and D3 were resolved 20260905 (§2) and are written into `CLAUDE.md`'s Releases and Plans sections; H10 backfilled to 63 tags / 63 releases (`v3.1.9`); H13's retire-in-place policy is already applied to both delivered plans. Never struck until the step-10 staleness audit | — |
 | ~~13~~ | ~~**H14** — retitle the IST-dependent scheduling comments **before 2026-10-25**~~ · **DONE 20260907**, together with **C4** — both comments made DST-regime-independent so the hard date does not recur | `plutil -lint` + YAML parse; `mkdocs build --strict` |
 
-> **Status 20260907 10:15 (updated after A13):** **A13 is shipped. §3, §4 and §5 are all empty — no
-> backlog items remain open.** The wrapper now asserts on the published commit instead of Stage
+> **Status 20260907 11:30 (updated after A13, round 2):** **A13 is shipped. §4 and §5 are
+> empty. One item is open, and it is new: `A14`** — the wrapper's two sibling guards share the
+> non-ancestor hazard A13 fixed. The wrapper now asserts on the published commit instead of Stage
 > B's exit status: `scripts/assert-published.sh`, called between the retry loop and artifact
-> retirement, with `scripts/verify-publish-guard.sh` proving both the logic and the placement.
-> This fires §1's delete condition for `CLAUDE.md`'s open-work note, which is now a one-line
-> pointer rather than a deletion — deleting it outright would have left the backlog and
-> `KB_GAPS.md` unreachable from the entry point, which is the defect `v3.5.0` had just fixed for
-> `RESUME.md`.
+> retirement, with `scripts/verify-publish-guard.sh` (18 checks) proving the logic, the diagnostic
+> and the placement.
 >
-> **Open work has not run out — only *backlog* work has.** `KB_GAPS.md` § *Active Gaps* still
-> holds `docs/24`'s under-sampling and 47 UNVERIFIABLE claims awaiting triage.
+> **This paragraph claimed "§3, §4 and §5 are all empty — no backlog items remain open" until the
+> adversarial review ran.** It was written before the review found `A14`, and correcting it in
+> place rather than quietly is the point of §1's rule. `CLAUDE.md`'s open-work note was corrected
+> with it, and now names `A14`.
+>
+> **Two things A13's review paid for that the next agent must not re-derive.**
+> 1. **`git log A..B` does not require A to be an ancestor of B** — it requires only that both
+>    objects resolve. That is the whole of `A14`, and it was reproduced, not reasoned.
+> 2. **Exit code alone stops discriminating once several guards share one code.** Adding the
+>    ancestry guard masked two mutants the first round had killed, with no test touched. The
+>    cannot-tell cases now assert *which* guard fired.
+>
+> **Open work has not run out, and never had.** `KB_GAPS.md` § *Active Gaps* still holds
+> `docs/24`'s under-sampling and 47 UNVERIFIABLE claims awaiting triage.
 >
 > **What A13 did NOT solve, deliberately:** `notify()` is still an osascript popup plus a
 > gitignored day log, so a caught non-publish stays invisible off-machine for up to 48h until
-> `check-digest-freshness.sh` pages STALE. And **nothing runs either harness automatically** —
-> `.github/` holds only `docs.yml` and `tracker-watchdog.yml`, neither of which invokes a
-> `verify-*.sh`. `verify-digest-guard.sh` has the same gap. A path-filtered CI job is the
-> natural fix and is a decision, not a defect, so it is recorded here rather than taken.
+> `check-digest-freshness.sh` pages STALE. Widening it is a separate, larger question.
+> *(The "nothing runs either harness automatically" gap this paragraph also listed was closed in
+> the same PR: `.github/workflows/guards.yml` runs both on any change to `scripts/**` or
+> `.claude/skills/**`.)*
 >
 > Previous status (step 13) retained below.
 >

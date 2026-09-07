@@ -320,8 +320,14 @@ copying for any self-writing daily loop:
    exists to catch. **Reach:** "fail loudly" is only as loud as the channel, and here that is a
    desktop notification plus a gitignored log *on the machine that failed*, so the off-machine
    freshness watchdog remains the real backstop. `scripts/verify-publish-guard.sh` proves the
-   check fires — including a static case pinning where in the wrapper it is called from, which no
-   amount of behavioural testing of the check itself can see.
+   check fires — including static cases pinning *where* in the wrapper it is called from and that
+   its failure branch actually terminates, neither of which any amount of behavioural testing of
+   the check itself can see. Two further lessons came out of proving it, and both generalise.
+   **A guard added later can silently un-cover an earlier one:** once several guards share a
+   single "cannot tell" exit code, removing one is masked by the next and the mutation test stops
+   failing, so the cases assert *which* guard fired, not merely that one did. And **a proof
+   nothing runs decays** — the harness is wired into CI on any change to the scripts or the
+   skills, because a check on disk that nobody executes is the same defect one level up.
 
 On success the wrapper fast-forwards the primary checkout (`git pull --ff-only`) only if it
 is on `main`, so the local checkout tracks the published run without disturbing other work.
