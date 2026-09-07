@@ -1,7 +1,6 @@
 # CLAUDE.md — Your Persistent Context Layer
 
-`CLAUDE.md` is loaded at the start of every session. It is **re-injected on every
-request**, so rules survive context compaction.
+`CLAUDE.md` is loaded into context at the start of every session. It survives context compaction because Claude Code re-reads project-root `CLAUDE.md` and unscoped rules from disk and re-injects them specifically when `/compact` runs (or when automatic compaction triggers) — not on every request. Nested `CLAUDE.md` files load into context again the next time Claude reads a file in that subdirectory, and rules carrying `paths:` frontmatter reload the next time Claude reads a matching file.
 
 ## The rule: short and surgical
 
@@ -48,27 +47,18 @@ permanent fixture. ([Addy Osmani, "Audit your Agent files"](https://addyo.substa
 | Team-wide rules | `CLAUDE.md` (committed) |
 | Rules for a subdirectory | `subdir/CLAUDE.md` (auto-loaded when Claude reads files there) |
 
-## Import syntax
-
-```markdown
-# CLAUDE.md
-See @README.md for project overview and @package.json for available scripts.
-
-- Git workflow: @docs/git-instructions.md
-```
-
 ## Load hierarchy
 
-CLAUDE.md files are loaded in this order (broadest → most specific, each can override):
+CLAUDE.md files and rules are loaded in this order (broadest → most specific, each can override):
 
-1. Managed policy (`/Library/Application Support/ClaudeCode/CLAUDE.md`)
-2. User (`~/.claude/CLAUDE.md`)
-3. Project root (`./CLAUDE.md` or `./.claude/CLAUDE.md`)
+1. Managed policy (`/Library/Application Support/ClaudeCode/CLAUDE.md` on macOS; `/etc/claude-code/CLAUDE.md` on Linux/WSL; `C:\Program Files\ClaudeCode\CLAUDE.md` on Windows)
+2. User (`~/.claude/CLAUDE.md`), then user-level rules (`~/.claude/rules/*.md`)
+3. Project root (`./CLAUDE.md` or `./.claude/CLAUDE.md`), plus project rules with no `paths:` frontmatter (`.claude/rules/*.md` — same priority as project CLAUDE.md)
 4. Local override (`./CLAUDE.local.md`, gitignored — personal preferences)
 5. Subdirectory files — loaded **lazily** when Claude reads files in that directory
-6. Path-scoped rules (`.claude/rules/*.md`) — loaded when matching files are touched
+6. Path-scoped rules — `.claude/rules/*.md` files that DO carry `paths:` frontmatter, loaded only when Claude reads a matching file
 
-## Path-scoped rules (`.claude/rules/`)
+## Path-scoped rules (`.claude/rules/`, v2.0.64+)
 
 Rules that only apply to specific file patterns — reduce context noise for
 large projects where different subsystems have different conventions:
@@ -89,7 +79,7 @@ paths:
 These rules are only injected into context when Claude is working with files
 matching the `paths` patterns — they don't consume context tokens on unrelated tasks.
 
-## Import syntax
+## Import syntax (available since v0.2.107)
 
 Pull in other files without duplicating content:
 
@@ -102,10 +92,12 @@ Available scripts: @package.json
 
 Maximum 4 import hops. Circular imports are ignored.
 
-## HTML comment stripping
+## HTML comment stripping (v2.1.72+)
 
-HTML comments in CLAUDE.md are stripped before injection — use them for
-maintainer notes that should not consume context tokens:
+Block-level HTML comments in CLAUDE.md are stripped before injection into Claude's
+context — use them for maintainer notes that shouldn't consume context tokens.
+Comments inside fenced code blocks are preserved (not stripped), and opening the file
+directly with the Read tool still shows all comments:
 
 ```markdown
 <!-- Last reviewed: 2026-06 — remove the pnpm rule when Node 24 ships -->
@@ -117,7 +109,7 @@ maintainer notes that should not consume context tokens:
 In monorepos, exclude specific CLAUDE.md files from loading:
 
 ```json
-// .claude/settings.json
+// .claude/settings.local.json  (use settings.json instead only if the whole team should share this exclusion)
 {
   "claudeMdExcludes": ["**/packages/legacy/**"]
 }
