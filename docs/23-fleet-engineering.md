@@ -49,6 +49,17 @@ a single loop's internal orchestration.
 In a fleet, a misconfigured prompt or runaway loop can cascade across many agents before
 anyone notices. Fleet engineering adds circuit breakers, spend caps, and automated rollback.
 
+**5. Shared config/credential concurrency**
+Two failure classes have shipped from letting multiple Claude Code instances share one `~/.claude` config/credentials store at once — worth naming directly against this doc's own "what happens with 50 running simultaneously" question.
+
+*Config corruption.* As of **v2.1.59**, concurrent instances could corrupt the config file badly enough to wipe authentication ("Fixed config file corruption that could wipe authentication when multiple Claude Code instances ran simultaneously") — one entry in a longer-running history of config-corruption fixes (atomic writes, a single backup file, concurrent-write corruption on Windows) spanning many versions. As of **v2.1.259**, concurrent sessions also no longer silently revert each other's `~/.claude.json` changes (workspace trust resetting, MCP/project state lost). Treat this as a recurring risk class, not a bug closed once.
+
+*MCP OAuth token refresh races.* A separate **v2.1.59** fix addressed "MCP OAuth token refresh race condition when running multiple Claude Code instances simultaneously," but the family recurred both before and after — a macOS keychain overwrite race, a stale cached-token read race, and, most recently, a **v2.1.221** fix for "a rare wake-from-sleep race where two Claude Code processes could both refresh the same MCP connector or WIF OAuth token at once, forcing re-authentication."
+
+*Mitigation.* Give each fleet worker its own `CLAUDE_CONFIG_DIR` rather than sharing one `~/.claude` across concurrent processes. Per Anthropic's [Authentication docs](https://code.claude.com/docs/en/authentication), this isolates credentials completely, including on macOS: "If you've set the `CLAUDE_CONFIG_DIR` environment variable, Claude Code keeps the `.credentials.json` file under that directory instead, including the file the macOS fallback writes, and keys the macOS Keychain entry to that directory too, so a session with a different `CLAUDE_CONFIG_DIR` reads a different entry." If a fleet still sees unexpected `/login` prompts or a re-authentication storm after isolating `CLAUDE_CONFIG_DIR` per worker, check the current version's changelog for OAuth-race fixes before assuming misconfiguration.
+
+(Anthropic, [CHANGELOG.md](https://raw.githubusercontent.com/anthropics/claude-code/main/CHANGELOG.md), v2.1.59, v2.1.221, v2.1.259; [Authentication](https://code.claude.com/docs/en/authentication), checked 2026-09-07.)
+
 ---
 
 ## Relationship to loop engineering
