@@ -100,7 +100,7 @@ now generate **99% of output tokens via Codex** rather than direct chat, with
 external corroboration of the factory-model shift's direction, not as a Claude-Code
 data point — the underlying pattern (agents doing the bulk of token-generating work,
 humans orchestrating and reviewing) is provider-agnostic.
-([OpenAI, "How agents are transforming work"](https://openai.com/index/how-agents-are-transforming-work/), Jul 2026.)
+([OpenAI, "How agents are transforming work"](https://openai.com/index/how-agents-are-transforming-work/), Jun 2026.)
 
 **The primary source for the "dark factory" name, cited here directly rather than only
 through secondary coverage.** Dan Shapiro's original taxonomy names six levels, explicitly

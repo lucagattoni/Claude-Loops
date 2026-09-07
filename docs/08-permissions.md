@@ -267,7 +267,7 @@ parsed and silently did nothing. [Subagents → Controlling subagent
 permissions](07-subagents.md#controlling-subagent-permissions) has the four enforcement gaps and
 the version each closed in.
 
-`*` matches any text and can appear at any position in a rule (v2.1.0+); a trailing wildcard like `Bash(ls *)` needs the preceding space to exclude prefix matches like `lsof`, and `Bash(ls:*)` is an equivalent trailing-wildcard shorthand. `**` matches across path segments in `Read`/`Edit`/`Cd` rules. There is no single-character (`?`) wildcard — the current [Configure permissions](https://code.claude.com/docs/en/permissions) reference documents only `*` and `**`; drop or re-verify any use of `?` in your own rules.
+`*` matches any text and can appear at any position in a rule (v2.1.0+); a trailing wildcard like `Bash(ls *)` needs the preceding space to exclude prefix matches like `lsof`, and `Bash(ls:*)` is an equivalent trailing-wildcard shorthand. `**` matches across path segments in `Read`/`Edit`/`Cd` rules. There is **no single-character (`?`) wildcard**. [Configure permissions](https://code.claude.com/docs/en/permissions) documents only `*` and `**` — checked on the live page plus Wayback snapshots from 2026-06-03, 2026-07-03 and 2026-08-03, i.e. spanning the whole period this KB has made the claim, so this is not a token that was quietly dropped. A rule using `?` matches literally, not as a wildcard.
 
 ## PermissionRequest hook
 
