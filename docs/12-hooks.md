@@ -14,7 +14,7 @@ breakers, audit logging, and automatic continuation.
 | `command` | Runs a shell command; stdout parsed as JSON | 600 s (10 min) |
 | `http` | POSTs JSON to an HTTP endpoint | 600 s (10 min) |
 | `mcp_tool` | Calls an MCP tool | 600 s (10 min) |
-| `prompt` | Sends a prompt to an LLM for yes/no decisions (experimental) | 30 s |
+| `prompt` | Sends a prompt to an LLM for yes/no decisions | 30 s |
 | `agent` | Spawns a subagent for verification (experimental) | 60 s |
 
 Raised from 60 s to 10 minutes in **v2.1.3**. Claude Code lowers the `command`/`http`/`mcp_tool`
@@ -34,7 +34,8 @@ Exit code `2` is the **loop control signal**: returning `2` from a `Stop` hook
 tells Claude "you are not done — re-enter the loop."
 
 After 8 consecutive blocks from a Stop hook, Claude Code overrides and ends the
-turn to prevent infinite loops.
+turn to prevent infinite loops (v2.1.143+). The cap is configurable via the
+`CLAUDE_CODE_STOP_HOOK_BLOCK_CAP` environment variable.
 
 ### Safety contract: never exit 1 in a denial hook
 
@@ -63,8 +64,6 @@ if [[ "$SOME_CONDITION" == "true" ]]; then
 fi
 exit 0  # allow
 ```
-
-(session-orchestrator — [Kanevry/session-orchestrator](https://github.com/Kanevry/session-orchestrator), Jun 2026.)
 
 ## Key lifecycle events
 
@@ -215,7 +214,7 @@ fi
 
 ## Conditional hooks (`if` field)
 
-Run a hook only when the tool input matches a pattern:
+Run a hook only when the tool input matches a pattern (the `if` field, added in **v2.1.85**):
 
 ```json
 {
@@ -234,9 +233,9 @@ Avoids running expensive hooks on every tool call.
 
 | Variable | Value |
 |---|---|
-| `CLAUDE_PROJECT_DIR` | Absolute path to project root |
+| `CLAUDE_PROJECT_DIR` | Absolute path to project root (hook env var since v1.0.58) |
 | `CLAUDE_CODE_SESSION_ID` | Current session ID. Matches the `session_id` field in the hook JSON input, and is updated on `/clear` |
-| `CLAUDE_EFFORT` | Current effort level (`low`/`medium`/`high`/`xhigh`/`max`) |
+| `CLAUDE_EFFORT` | Current effort level (`low`/`medium`/`high`/`xhigh`/`max`), since v2.1.133 |
 | `CLAUDE_CODE_REMOTE` | `true` in a cloud session (Routines run as cloud sessions) |
 | `CLAUDE_CODE_REMOTE_SESSION_ID` | The cloud session's own ID — use it to build a link back to the session transcript |
 | `CLAUDE_ENV_FILE` | Write `KEY=VALUE` here to persist env vars across Bash tool calls |
@@ -260,37 +259,57 @@ Bash tool calls in the same session.
 
 ## Configuration example
 
+Each entry under an event is a **matcher group**, and its handlers live in that group's own
+nested `hooks` array — the flat `matcher` + `type` + `command` shorthand used elsewhere in this
+doc is abbreviated notation, not loadable file content. A `PostToolUse` command hook receives
+the tool input as JSON on stdin.
+
 ```json
 // .claude/settings.json
 {
   "hooks": {
     "Stop": [
       {
-        "type": "command",
-        "command": "scripts/verify.sh",
-        "async": true,
-        "asyncRewake": true
+        "hooks": [
+          {
+            "type": "command",
+            "command": "scripts/verify.sh",
+            "async": true,
+            "asyncRewake": true
+          }
+        ]
       }
     ],
     "PreToolUse": [
       {
         "matcher": "Bash",
-        "if": "Bash(rm -rf *)",
-        "type": "command",
-        "command": "scripts/confirm-destruct.sh"
+        "hooks": [
+          {
+            "type": "command",
+            "if": "Bash(rm -rf *)",
+            "command": "scripts/confirm-destruct.sh"
+          }
+        ]
       }
     ],
     "PostToolUse": [
       {
         "matcher": "Edit",
-        "type": "command",
-        "command": "scripts/auto-lint.sh",   // receives tool input as JSON on stdin
-        "async": true
+        "hooks": [
+          {
+            "type": "command",
+            "command": "scripts/auto-lint.sh",
+            "async": true
+          }
+        ]
       }
     ]
   }
 }
 ```
+
+*Schema verified against [Hooks reference](https://code.claude.com/docs/en/hooks), fetched
+2026-09-07 — every worked `settings.json` example on that page nests handlers this way.*
 
 ## Scope hierarchy
 
@@ -327,13 +346,15 @@ with the test output as context.
   "command": "echo '{\"hookSpecificOutput\":{\"hookEventName\":\"PreToolUse\",\"permissionDecision\":\"deny\"}}'" }
 ```
 
-**Audit log every tool call (fire-and-forget):**
+**Audit log every tool call:**
 ```json
-{ "event": "PostToolUse", "type": "http", "async": true,
-  "url": "https://audit.example.com/events",
-  "headers": { "Authorization": "Bearer ${AUDIT_TOKEN}" },
-  "allowedEnvVars": ["AUDIT_TOKEN"] }
+{ "event": "PostToolUse", "type": "command", "async": true,
+  "command": "curl -s -X POST https://audit.example.com/events -H \"Authorization: Bearer $AUDIT_TOKEN\" -d @-" }
 ```
+HTTP-type hooks have no `async` field — they run synchronously and block the tool call until the
+endpoint responds or the timeout elapses (600 s by default). True fire-and-forget audit logging
+needs a `command`-type hook with `async: true`, piping the JSON input to `curl` in the background,
+as above.
 
 **Gate a model switch (v2.1.251+):** before `PreModelSwitch`/`PostModelSwitch` existed, a model
 switch mid-session (whether Claude's own choice or a user's `/model` call) was unobservable and
