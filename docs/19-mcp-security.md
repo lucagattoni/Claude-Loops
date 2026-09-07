@@ -6,9 +6,9 @@ before wiring up production MCP connectors.
 
 ## The AgentJacking Attack
 
-Documented June 2026 by security researchers (via The New Stack):
+Disclosed June 17, 2026 by Tenet Security's Threat Labs, reported by [The New Stack](https://thenewstack.io/agentjacking-sentry-mcp-attack/) (Janakiram MSV, Jun 21, 2026). Tenet also sells an agent-runtime defense product, so read its scale figures as its own controlled-test results, not independent measurements:
 
-A **public Sentry DSN (client key)** is often embedded in frontend JavaScript —
+A **public [Sentry](https://sentry.io) DSN (client key)** is often embedded in frontend JavaScript —
 visible to anyone who reads the page source. An attacker can use that key to submit
 fake error reports to the target's Sentry project. If the Sentry MCP server is
 connected to an AI coding agent (Claude Code, Cursor, Codex), the agent reads those
@@ -46,11 +46,13 @@ Everything above assumes the MCP server is already running and connected, and th
 
 | Risk | Mitigation |
 |---|---|
-| Fake errors from public DSNs | Rotate Sentry DSNs; mark them as server-side only (not embedded in frontend) |
+| Fake errors from public DSNs | Rotate/revoke the DSN in Sentry's Client Keys settings and add IP/rate-limit rules. Sentry [documents DSNs as safe to keep public](https://docs.sentry.io/product/sentry-basics/concepts/dsn-explainer/) by design for frontend reporting — there is no supported "server-side only" mode, so treat MCP-side content filtering (below) as the real control, not DSN secrecy |
 | Injected instructions in tool results | Add a `PreToolUse` hook that validates inputs; add a `PostToolUse` hook that audits outputs for unexpected instructions |
-| Unconstrained MCP scope | Use `--allowedTools` to limit which MCP tools the loop can call in each session |
+| Unconstrained MCP scope | Use `--tools` to restrict which MCP tools are available to the session — `--allowedTools` only pre-approves tools to skip the permission prompt, it does not bound what the session can call (see [`docs/10-fan-out.md`](10-fan-out.md) and the [CLI reference](https://code.claude.com/docs/en/cli-reference)) |
 | Agent executes code from external sources | Require human confirmation before any `Bash` call triggered by MCP-sourced content |
 | Prompt injection in issue trackers | Sanitize or summarize external content with a lightweight model before passing to the main agent |
+
+*Flags and hook events checked against the Claude Code [CLI reference](https://code.claude.com/docs/en/cli-reference) and [hooks guide](https://code.claude.com/docs/en/hooks-guide); confirmed unchanged from v2.1.185 (current at this doc's June 2026 capture) through v2.1.263 (current 2026-09-07).*
 
 ## The Broader Principle
 
