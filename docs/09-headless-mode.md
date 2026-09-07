@@ -57,6 +57,33 @@ claude -p "task" --fallback-model claude-sonnet-5,claude-haiku-4-5
 continues running after your shell exits. Manage with `claude agents`, `claude attach`,
 `claude logs`. See [Background Agents](29-background-agents.md) for the full pattern.
 
+## Bash commands that hang no longer kill the turn (v2.0.19+)
+
+> "Auto-background long-running bash commands instead of killing them. Customize with
+> BASH_DEFAULT_TIMEOUT_MS"
+> — [CHANGELOG.md](https://raw.githubusercontent.com/anthropics/claude-code/main/CHANGELOG.md), v2.0.19
+
+Before v2.0.19, a Bash command that ran past its timeout was killed and reported as a failure.
+Now it is auto-backgrounded instead: the tool call returns, Claude is told the command is still
+running, and the turn continues. This is a different mechanism from `claude --bg` above — that
+backgrounds a whole *session*; this backgrounds one long-running Bash *command* inside an
+otherwise normal session.
+
+For an unattended loop, this changes what "the command didn't finish" looks like — and headless
+mode changes it again. Before v2.0.19, a hung command printed a timeout failure your retry
+wrapper's `ERROR_REGEX` (see [Fault-tolerant headless loop](#fault-tolerant-headless-loop)) could
+catch. Now it's moved to the background instead, and in a `claude -p` run [that backgrounded shell
+is terminated about five seconds after Claude returns its final result and stdin
+closes](https://code.claude.com/docs/en/headless#background-tasks-at-exit) — a grace period for
+output that arrives right after, not a wait for the command to finish. So a long build or deploy
+step that overruns the timeout inside a headless loop's task can be silently killed mid-run: the
+`-p` process still exits with whatever code the turn produced (typically `0`), nothing matches
+`ERROR_REGEX`, and the command's work is simply gone.
+
+- `BASH_DEFAULT_TIMEOUT_MS` — how long a command runs before being backgrounded (2 minutes by default)
+- `CLAUDE_CODE_DISABLE_BACKGROUND_TASKS` (v2.1.4+) — set to disable auto-backgrounding
+  entirely, if a loop needs a hang to fail loudly instead
+
 ## Prompt cache optimisation for CI
 
 In CI or multi-machine setups, the system prompt varies per machine (working directory,
@@ -137,6 +164,25 @@ claude -p "Refactor src/auth" --output-format stream-json --verbose \
 ```
 
 ## Fault-tolerant headless loop
+
+**Before hand-rolling this, know what the CLI already does.** Claude Code has its own
+retry/backoff for transient failures:
+
+- `CLAUDE_CODE_RETRY_WATCHDOG` (persistent retry mode, meant for unattended sessions such as CI
+  jobs or eval harnesses) raises the default retry count for non-capacity transient errors to
+  **300** and lifts the earlier cap of 15 on `CLAUDE_CODE_MAX_RETRIES` (v2.1.199), but fails at
+  once — rather than waiting indefinitely — on a `429` that reports an organization spend limit
+  or exhausted usage credits (v2.1.239).
+- `API_TIMEOUT_MS` governs the per-request timeout, including how long a retry waits when the
+  API sends no response headers at all: **10 minutes by default** (600000ms) as of v2.1.261,
+  raised from 3 minutes.
+
+*Source: [environment variables reference](https://code.claude.com/docs/en/env-vars), verified
+against `claude` **2.1.261**, 2026-09-07.*
+
+The wrapper below still earns its place for the git-safety and idempotency checks further down —
+but a bare retry-on-transient-error loop may now just be duplicating what the CLI already does on
+its own.
 
 ```bash
 #!/bin/bash
