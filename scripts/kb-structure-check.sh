@@ -188,5 +188,43 @@ fi
 [ "$found5" -eq 0 ] && echo "   (none — $src_total rows, $(printf '%s\n' "$actual" | wc -l | tr -d ' ') types, README agrees)"
 
 echo
+echo "## 6. Part II version-stamp check — docs that state platform facts with no version marker"
+echo "   (Part II promises 'platform facts here carry the version they were true in'"
+echo "    — docs/index.md and LOOP_ENGINEERING.md. That promise was enforced by nothing"
+echo "    until this check; H1 sat open for weeks because nobody re-ran the grep.)"
+# Part II membership is derived from LOOP_ENGINEERING.md, never hardcoded, so the check
+# follows the index if docs move between parts.
+if [ ! -f LOOP_ENGINEERING.md ]; then
+  echo "kb-structure-check.sh: LOOP_ENGINEERING.md missing — aborting, NOT reporting clean" >&2
+  exit 1
+fi
+part2=$(awk '/^# Part II/{f=1} /^# [0-9]+\. Reference/{f=0} f' LOOP_ENGINEERING.md \
+  | grep -oE '\(https://lucagattoni\.github\.io/Claude-Loops/([0-9]{2})-' | grep -oE '[0-9]{2}' | sort -u)
+if [ -z "$part2" ]; then
+  echo "kb-structure-check.sh: parsed zero Part II docs from LOOP_ENGINEERING.md — aborting, NOT reporting clean" >&2
+  exit 1
+fi
+found6=0
+for n in $part2; do
+  f=$(ls docs/${n}-*.md 2>/dev/null | head -1)
+  [ -n "$f" ] || continue
+  # a "platform fact" is a CLI flag, a slash command, a CLAUDE_*/ANTHROPIC_* env var,
+  # or a settings key shown in backticks — the shapes that move between releases
+  # camelCase matters: an earlier version of this regex required lowercase after '--' and
+  # silently missed `--allowedTools`, `--maxTurns` and friends — undercounting the very docs
+  # most likely to need a stamp. Verified by stripping a doc's markers and watching it flag.
+  facts=$(grep -oE '`--[a-zA-Z][a-zA-Z0-9-]+`|`/[a-z][a-z-]+`|`(CLAUDE|ANTHROPIC)_[A-Z0-9_]+`' "$f" | sort -u | wc -l | tr -d ' ')
+  stamps=$(grep -cE 'v[0-9]+\.[0-9]+\.[0-9]+' "$f")
+  if [ "$facts" -ge 3 ] && [ "$stamps" -eq 0 ]; then
+    printf '   %-38s %s distinct platform facts, %s version markers\n' "$f" "$facts" "$stamps"
+    found6=1
+  fi
+done
+[ "$found6" -eq 0 ] && echo "   (none — every Part II doc stating 3+ platform facts carries at least one version marker)"
+echo "   NOTE: this is a floor, not a proof. It cannot tell whether a marker is attached to the"
+echo "   right fact, and a doc can pass with one marker and ten unstamped facts. It catches the"
+echo "   H1 shape — a Part II doc with platform facts and no versions anywhere — and nothing more."
+
+echo
 echo "Done. A non-empty section is a candidate list to review, not an automatic fix —"
 echo "read every hit and either fix it or write down why it stands (Phase 4c Output)."
