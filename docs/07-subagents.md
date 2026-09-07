@@ -385,6 +385,18 @@ Disable built-in agents in headless mode only:
 CLAUDE_AGENT_SDK_DISABLE_BUILTIN_AGENTS=1 claude -p "task"
 ```
 
+**These restrictions had real enforcement gaps before specific versions — verify you're past all
+four before treating a deny rule or MCP restriction here as load-bearing for cost or security:**
+
+| Fixed in | Gap |
+|---|---|
+| v2.1.153 | A subagent's own frontmatter `mcpServers` ignored `--strict-mcp-config`, `--bare`, remote mode, enterprise managed MCP config, and managed-settings MCP server allow/deny policies — a subagent-declared server could bypass a policy the session was meant to enforce. |
+| v2.1.178 | Server-level MCP specs in a subagent's `disallowedTools` (`mcp__server`, `mcp__server__*`, `mcp__*`) were silently ignored; a per-tool spec (`mcp__server__toolname`) was unaffected. |
+| v2.1.178 | *"Subagent spawns are now evaluated by the classifier before launch, closing a gap where a subagent could request a blocked action without review"* — auto mode previously reviewed a session's own tool calls but not the spawn itself. |
+| v2.1.186 | The `Agent(model:opus)`-style `deny` rule above, and `Agent(x,y)` allowlists, were **not enforced for named subagent spawns** before this version — the syntax only became reliable here. |
+
+(All four: [CHANGELOG.md](https://raw.githubusercontent.com/anthropics/claude-code/main/CHANGELOG.md).)
+
 ## Adversarial Reviewer Checklists
 
 A reviewer subagent that works from a structured checklist catches categories of failure
