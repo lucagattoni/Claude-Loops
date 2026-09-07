@@ -39,7 +39,8 @@ The classifier itself defaults to a specific model, version-stamped:
 > validated on the session's first request and pinned for the session."
 > — [CHANGELOG.md](https://raw.githubusercontent.com/anthropics/claude-code/main/CHANGELOG.md), v2.1.210
 
-If the classifier blocks the same action 3 consecutive times (or 20 total), auto mode pauses and
+If the classifier blocks an action 3 times in a row — not necessarily the same action; any
+allowed action resets the consecutive counter — or 20 times total in the session, auto mode pauses and
 Claude Code falls back to prompting you rather than looping forever
 ([Choose a permission mode](https://code.claude.com/docs/en/permission-modes#when-auto-mode-falls-back)).
 
@@ -244,16 +245,21 @@ Block specific tools or prompt for confirmation before others run:
 
 - **`deny`** — tool call is blocked outright
 - **`ask`** — permission dialog appears even in auto mode
-- `"*"` in the deny list blocks all tools (emergency lockdown)
+- `"*"` in the deny list blocks all tools (emergency lockdown) — except `EndConversation`, which a bare or glob deny rule can never remove while any other tool remains (added v2.1.214; [Configure permissions § Tool name wildcards](https://code.claude.com/docs/en/permissions#tool-name-wildcards))
 
-### Tool-parameter pattern syntax
+### Command-argument and input-parameter patterns
 
-Patterns can match on the command argument, not just the tool name:
+`Bash(git *)` and `Bash(rm -rf *)` match on the Bash command text itself — a wildcard within
+the tool's primary content field. `Agent(model:opus)` uses a different mechanism, matching a
+named input parameter, that only works for fields *other than* a tool's primary content: a
+rule like `Bash(command:rm *)` is rejected with a startup warning ("would be bypassable by a
+compound command"); use `Bash(rm *)` instead
+([Configure permissions § Match by input parameter](https://code.claude.com/docs/en/permissions#match-by-input-parameter)).
 
 ```json
-"allow": ["Bash(git *)"],          // any git command
-"deny":  ["Agent(model:opus)"],    // block Opus subagents (see caveat below)
-"deny":  ["Bash(rm -rf *)"]        // block recursive deletes
+"allow": ["Bash(git *)"],          // command-text wildcard: any git command
+"deny":  ["Agent(model:opus)"],    // input-parameter match: block Opus subagents (see caveat below)
+"deny":  ["Bash(rm -rf *)"]        // command-text wildcard: block recursive deletes
 ```
 
 `Agent(...)` rules were **not enforced for named subagent spawns before v2.1.186** — the syntax
@@ -265,8 +271,11 @@ the version each closed in.
 
 ## PermissionRequest hook
 
-For fine-grained control in auto mode, handle permission decisions programmatically
-instead of using static lists:
+Handle permission decisions programmatically instead of relying only on static allow/deny
+lists. The event is not auto-mode-specific: it runs whenever Claude Code is about to ask you
+for permission to use a tool — the ordinary interactive prompt in default mode included — and
+also in sessions that cannot show a prompt, where it denies the call if no hook returns a
+decision:
 
 ```json
 {
@@ -485,39 +494,47 @@ threshold. The agent does not retry, does not replan — it waits. This is the s
 **Surface** action described in [Verification](04-verification.md): emit a situation
 report and halt until a human responds.
 
-### Soft warning thresholds (`ask_thresholds_usd`)
+### Soft warning thresholds
 
-Hard budget caps (`max_cost_usd`) block the loop when spend is exceeded. Soft warning
-thresholds trigger ASK *before* the hard cap, giving humans an interception point:
+[omnigent-ai/omnigent](https://github.com/omnigent-ai/omnigent)'s `cost_budget` policy gates
+spend at two levels: soft checkpoints that ASK once when cumulative spend first crosses them,
+and a hard `max_cost_usd` limit that then acts as a *downgrade gate* — denying further calls
+only while the session is on an expensive model, not stopping the session outright. It is
+configured as a server-side YAML policy, not a `.claude/settings.json` key:
 
-```json
-// .claude/settings.json
-{
-  "budget_tokens": 50000,
-  "max_cost_usd": 2.00,
-  "ask_thresholds_usd": {
-    "single_action": 0.10,
-    "session_total": 1.50
-  }
-}
+```yaml
+# server_config.yaml (omnigent)
+budget:
+  type: function
+  handler: omnigent.policies.builtins.cost.cost_budget
+  factory_params:
+    max_cost_usd: 5.00
+    ask_thresholds_usd: [1.00, 3.00]
 ```
 
-When any single action would cost ≥ $0.10, or the session total has reached $1.50, the loop
-surfaces for approval before continuing. The agent states: what action it wants to take,
-estimated cost, and current session total. The human approves or redirects.
+When cumulative session spend first crosses $1.00 or $3.00, the session ASKs for approval; once
+spend reaches $5.00, further turns/tool calls are blocked while the session is on an expensive
+model. Claude Code itself has no native `budget_tokens`, `max_cost_usd`, or `ask_thresholds_usd`
+settings keys — this is omnigent's own policy layer, illustrating the soft-threshold pattern
+rather than a `.claude/settings.json` feature.
 
-### Session-fires-first evaluation order
+### Evaluation order for a layered gate
 
-When multiple threshold types apply simultaneously, evaluate in this order:
-1. **Schema / intent validation** (first; cheapest to check)
-2. **Scope** (permission list — ALLOW/DENY/ASK per action)
-3. **Single-action soft threshold** (`ask_thresholds_usd.single_action`)
-4. **Session budget** (hard `max_cost_usd` cap — fires last)
+Policies compose, and the order they run in matters: a cost/budget gate that fires *before* a
+scope (allow/deny) check would let a denied action consume budget before being blocked. A
+layered gate should evaluate cheapest/most-fundamental checks first:
+1. Schema / intent validation (cheapest to check)
+2. Scope (permission list — ALLOW/DENY/ASK per action)
+3. Soft cost threshold (ASK)
+4. Hard budget cap (fires last)
 
-A session-level cap that fires before a scope check would allow a denied action to consume
-budget before being blocked. Scope must gate before spend.
+This is a general design pattern, not omnigent's own evaluation order — omnigent's policies run
+in the declaration order they're listed in the server/agent config, and any policy's DENY
+short-circuits the rest
+([docs/POLICIES.md](https://github.com/omnigent-ai/omnigent/blob/main/docs/POLICIES.md#policies)).
 
-([omnigent-ai/omnigent](https://github.com/omnigent-ai/omnigent), Jun 2026.)
+([omnigent-ai/omnigent](https://github.com/omnigent-ai/omnigent),
+[docs/POLICIES.md](https://github.com/omnigent-ai/omnigent/blob/main/docs/POLICIES.md), fetched 2026-09-07.)
 
 ## Settings precedence
 
