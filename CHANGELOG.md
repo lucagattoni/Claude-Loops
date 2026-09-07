@@ -33,9 +33,18 @@ backlog's §4 and §5 are now empty, and one new item (`A13`) was opened rather 
   two consecutive quiet days paged a healthy tracker as STALE — a false alarm, not just a gap in
   the record. `fetch-loop-news` also derives `last_run_date` from that header, so skipping froze it
   and widened every later run's search window. The **None** tier still cuts no version; only the
-  commit/skip decision changed. Phase 5b additionally requires a `None` run to assert its staged
-  diff is non-empty before committing — a run that finds nothing staged never wrote the section and
-  must fail rather than commit nothing and report success. The commit keeps the
+  commit/skip decision changed. Phase 5d additionally requires every run to assert its staged diff
+  is non-empty *after* the `--soft` reset, before committing — a run that finds nothing staged never
+  wrote the section and must fail rather than commit nothing and report success. The placement is
+  the point: an adversarial review of this change caught the assertion sitting in 5b, before any
+  staging, where it would have read empty on every *correct* quiet-day run and halted it — this
+  repo's own defect class pointed the other way, a check that cannot tell and so fails always.
+  **Proven, not asserted** (four cases in a scratch repo, with a sanity case confirming the harness
+  could produce both outcomes): a healthy run passes whether or not Phase 4d checkpointed the
+  digest; a run that never wrote the section fails; and the original 5b placement does halt a
+  healthy checkpointed run. The check is also **scoped to `LOOP_ENGINEERING_NEWS.md`** rather than
+  the whole index — unscoped, it passed on a run that staged something else and never wrote the
+  digest, which is the exact failure it exists to catch. The commit keeps the
   `feat: loop news run ` subject prefix that `run-loop-news.sh`'s `OUR_COMMIT_REGEX` matches, so
   the wrapper's double-publish guard still recognises it.
 - **The DST-dependent scheduling comments now state the rule, not one regime's stamp** (`H14`).
@@ -43,7 +52,7 @@ backlog's §4 and §5 are now empty, and one new item (`A13`) was opened rather 
   and 05:00 UTC under GMT; two comments asserted the summer stamp as fixed and would have gone
   stale on 2026-10-25. `scripts/com.luca.loop-news.plist:15` and
   `.github/workflows/tracker-watchdog.yml:15` now name both regimes, so they do not expire again
-  at the 2027-03-29 changeover. The schedule itself is unchanged — this was doc accuracy, and the
+  at the next changeover in either direction. The schedule itself is unchanged — this was doc accuracy, and the
   watchdog keeps 4–5h of margin either way. Historical `04:00 UTC` stamps (this file, the digest
   headers, `run-loop-news.sh:59`) record real runs and were deliberately left as written.
 
@@ -51,14 +60,18 @@ backlog's §4 and §5 are now empty, and one new item (`A13`) was opened rather 
 
 - **Three downstream claims that asserted the discarded-section behaviour** — this file's release
   tier legend (`:10`), `docs/34`'s KB-tracker **Stop condition** row, and `docs/09`'s retry-guard
-  rationale. `plans/split-fetch-loop-news.md:568` says the same thing and was deliberately left:
-  that plan is retired and its own header declares the checklist historical.
+  rationale. `plans/split-fetch-loop-news.md` repeats the superseded claim at `:303`, `:514` and
+  `:568`, all deliberately left: that plan is retired and its own header declares the checklist
+  historical, and rewriting a retired design document to match current behaviour would be worse
+  than leaving it. (The first pass of this change said "one occurrence"; it is three.)
 - **Two backlog rows that this work proved wrong.** `C4`'s `D1` half was already shipped — the
   `SKILL.md:300` line it cites no longer exists; Phase 5b has mandated `date -u '+%Y%m%d %H:%M'`
   since the `CLAUDE.md` UTC rule landed. `H14` named `CHANGELOG.md:867`, which had drifted to
-  `:1609` and is a historical entry that stays as written; its live surface was **two comments**,
-  not the two files named — `docs/09:379`, `docs/34:324` and `scripts/SCHEDULING.md:52` already
-  said "05:00 local", correct in both regimes.
+  the `05:00 local (= 04:00 UTC)` LaunchAgent bullet in the v2.x notes — a historical entry that
+  stays as written. (Do not re-cite it by line number: every release prepends a section and moves
+  it. It was `:867` when the row was filed and `:1609` before this release; grep the text.) Its
+  live surface was **two comments**, not the two files named — `docs/09`, `docs/34` and
+  `scripts/SCHEDULING.md` already said "05:00 local", correct in both regimes.
 - **A contradictory pointer-deletion condition.** Backlog §1 said to delete the `CLAUDE.md`
   pointer when "§3 and §4" are empty; `CLAUDE.md` said "§4 and §5". Both now read "every tier",
   which matters immediately — §4 and §5 emptied this pass while §3 gained `A13`.

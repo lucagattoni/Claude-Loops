@@ -390,10 +390,9 @@ Commit subject: `feat: loop news run <run_time> — 0 findings, 0 new docs [none
 `feat: loop news run ` prefix: that is what `run-loop-news.sh`'s `OUR_COMMIT_REGEX` matches to
 recognise that the run published.
 
-**Assert the diff is non-empty before committing.** A None run must still change
-`LOOP_ENGINEERING_NEWS.md`, because Phase 4 wrote the empty section. If `git diff --cached
---quiet` reports *no* staged change, the section was never written — stop and report the failure.
-Do not commit nothing and do not report success: a run that cannot tell what it did must fail.
+**A None run must still assert its diff is non-empty before committing** — the check lives in
+**5d**, after the `--soft` reset, because that is the only point where the index means "everything
+this run changed". Placed any earlier it reads empty on a *healthy* run and halts it.
 
 ### 5c — Build gate (blocking, run before staging anything)
 
@@ -432,6 +431,18 @@ git add LOOP_ENGINEERING_NEWS.md LOOP_ENGINEERING.md SOURCES.md CHANGELOG.md KB_
 # Fold any Phase 4d checkpoints into one commit, so main keeps exactly one commit per run.
 # --soft keeps the tree exactly as it is and only moves the branch pointer; nothing is lost.
 git reset --soft "$(git merge-base HEAD origin/main)"
+
+# Every run changes LOOP_ENGINEERING_NEWS.md, because Phase 4 writes a digest section even on a
+# zero-finding day. Scoped to that file on purpose: an unscoped `git diff --cached --quiet` passes
+# on a run that staged something else and never wrote the digest, which is the exact failure this
+# is here to catch.
+# This MUST run after the --soft reset. Before it, the index matches HEAD whenever Phase 4d
+# checkpointed the digest entry, so --cached reads empty on a perfectly healthy run and this
+# check would halt every quiet day it exists to protect.
+if git diff --cached --quiet -- LOOP_ENGINEERING_NEWS.md; then
+  echo "FATAL: no staged change to LOOP_ENGINEERING_NEWS.md — Phase 4's digest section was never written" >&2
+  exit 1
+fi
 
 git commit -m "feat: loop news run <run_time> — <N> findings, <M> new docs [<tier>]"
 git push origin HEAD:main

@@ -27,15 +27,29 @@ broken tracker. The `None` tier still cuts no version; only the commit/skip deci
 
 **Guarded, not assumed.** The `None` commit keeps the `feat: loop news run ` subject prefix that
 `run-loop-news.sh`'s `OUR_COMMIT_REGEX` matches, so the wrapper's double-publish guard still
-recognises it, and Phase 5b now requires the run to assert its staged diff is non-empty before
-committing — a run that finds nothing staged never wrote the section and must fail rather than
-commit nothing and report success.
+recognises it, and Phase 5d now requires the run to assert its staged diff is non-empty — *after*
+the `--soft` reset, before committing — so a run that finds nothing staged fails rather than
+committing nothing and reporting success. **The placement is the whole point.** The assertion was
+first written into Phase 5b, before any staging; there the index still matches HEAD whenever
+Phase 4d checkpointed the digest, so it would have read "empty" on every *correct* zero-finding
+run and halted it. A check that cannot tell, and therefore fails always, is the same defect as one
+that cannot tell and therefore passes always. Caught by the adversarial review of this change, not
+by the change itself.
+
+The relocated check was then **proven rather than asserted**, per this repo's own rule. Four cases
+in a scratch repo, plus a sanity case confirming the harness could produce both outcomes at all:
+a healthy run passes whether or not Phase 4d checkpointed the digest; a run that never wrote the
+section fails; the original 5b placement does halt a healthy checkpointed run. Two things the proof
+changed that reading could not: the check is now **scoped to `LOOP_ENGINEERING_NEWS.md`** — unscoped
+it passed on a run that staged something else and never wrote the digest — and the first two
+attempts at the harness leaked staged state across `git checkout`, reporting a broken run as
+healthy. A harness that cannot produce a failure is not evidence.
 
 **Also this pass — `H14`, the tracker's DST-dependent schedule comments.** `StartCalendarInterval`
 is local time, so the launchd job's `Hour: 5` is 04:00 UTC under IST and 05:00 UTC under GMT. Two
 comments asserted the summer stamp as if it were fixed and would have gone stale on 2026-10-25.
 Both now state the rule rather than one regime's stamp, so they do not expire again at the
-2027-03-29 changeover: `scripts/com.luca.loop-news.plist:15` and
+next changeover in either direction: `scripts/com.luca.loop-news.plist:15` and
 `.github/workflows/tracker-watchdog.yml:15`. The schedule itself is unchanged — this was doc
 accuracy, and the watchdog's margin covers both regimes. The `04:00 UTC` stamps in this file's
 older headers, in `CHANGELOG.md` and in `run-loop-news.sh:59` record real runs and were
