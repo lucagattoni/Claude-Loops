@@ -1,8 +1,9 @@
 # Claude Tag — Ambient Loops in Team Tools
 
-Claude Tag is Claude Code deployed as a persistent, ambient agent inside Slack.
-Rather than a scheduled cron or a manually triggered terminal session, the loop
-lives inside the communication layer where the team already works.
+Claude Tag is Anthropic's product for a persistent, ambient Claude agent inside Slack — distinct
+from the earlier [Claude Code in Slack](https://code.claude.com/docs/en/slack) integration, which still runs on Pro/Max plans under
+an individual user's account. Rather than a scheduled cron or a manually triggered terminal
+session, the loop lives inside the communication layer where the team already works.
 
 (Anthropic, ["Introducing Claude Tag"](https://www.anthropic.com/news/introducing-claude-tag), Jun 2026.)
 
@@ -16,7 +17,7 @@ context, different guardrails. Admins configure each instance per channel.
 ### Ambient context
 Claude Tag reads the full channel history without requiring re-explanation. It
 builds tacit knowledge from team conversations over time and can draw on other
-accessible Slack channels and data sources (not private channels). This is
+accessible Slack channels and data sources, though it does not report information out of private channels. This is
 persistent memory built from natural team communication rather than explicit
 knowledge files.
 
@@ -78,7 +79,7 @@ wrong; metrics tell you what did."* When the same pattern recurs often enough, i
 promoted out of the log and into the investigation skill itself — a lighter-weight
 version of [Warp's inner/outer skill-improvement loop](24-harness-patterns.md#self-improving-harnesses),
 here triggered by pattern frequency in a log rather than a scheduled observer agent.
-([Anthropic, "How Claude Tag runs on-call for CI/CD at Anthropic"](https://claude.com/blog/ai-ci-cd-on-call), Aug 2026.)
+([Anthropic, "How Claude Tag serves as Anthropic's first responder for CI/CD failures"](https://claude.com/blog/ai-ci-cd-on-call), Aug 2026.)
 
 ## Deployment mode comparison
 
