@@ -38,7 +38,7 @@ conversation."* And it deliberately skips *"anything your CLAUDE.md files alread
 | **Portability** | *"Auto memory is machine-local. […] Files are not shared across machines or cloud environments."* |
 | **Loaded** | *"the first 200 lines of MEMORY.md, or the first 25KB, whichever comes first"*, every session. Beyond that is not loaded |
 | **Over-limit** | Since **v2.1.210** an over-limit index write *"produce[s] an explicit error instead of silent truncation."* Before that it was truncated silently |
-| **Subagents** | *"The main conversation's auto memory isn't loaded into subagents; the exception is a fork […]. A subagent's own auto memory, enabled with the subagent `memory` field, is a separate directory"* — `~/.claude/agent-memory/<name-of-agent>/` (user scope) or `.claude/agent-memory/<name-of-agent>/` (project scope), added **v2.1.33** |
+| **Subagents** | *"The main conversation's auto memory isn't loaded into subagents; the exception is a fork […]. A subagent's own auto memory, enabled with the subagent `memory` field, is a separate directory"* — `~/.claude/agent-memory/<name-of-agent>/` (**user** scope, across all projects), `.claude/agent-memory/<name-of-agent>/` (**project** scope, shareable via version control), or `.claude/agent-memory-local/<name-of-agent>/` (**local** scope, project-specific but *not* checked into version control) — added **v2.1.33** |
 | **Off switch** | `/memory` toggle → `autoMemoryEnabled` in settings; or `CLAUDE_CODE_DISABLE_AUTO_MEMORY=1`. Setting it to **`0` forces it on** even where `--bare` or `autoMemoryEnabled: false` would disable it |
 | **Timestamps** | An ISO-8601 `modified` frontmatter field, **v2.1.214+** |
 
