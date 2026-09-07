@@ -119,6 +119,39 @@ effort — spend the marginal dollar where it changes the outcome — applied to
 instead of reasoning depth. A judge that flips one bad "confirmed" into a shipped defect costs
 far more than the price delta between Sonnet and Opus on that one call.
 
+### Plan mode can run on a different model than execution
+
+Effort and role aren't the only levers — which *phase* of the loop model tokens hit matters
+too. Since **v2.0.17**, a Haiku 4.5 session automatically runs plan mode on Sonnet and
+execution on Haiku (the changelog's own shorthand: "SonnetPlan by default") — the model doing
+your architecture review is not the model that writes the code. Bedrock and Vertex are not
+auto-upgraded; set `ANTHROPIC_DEFAULT_HAIKU_MODEL` there to opt in manually. The mechanism
+generalizes: a session that would upgrade to a model excluded by an `availableModels`
+allowlist instead uses the newest permitted version of that family, and only stays on its own
+model when every upgrade candidate is excluded (fixed at v2.1.205 — before it, an excluded
+newest version blocked the upgrade entirely even when an older version was still allowed).
+
+A comparable option exists for higher tiers: `/model opusplan` (added **v1.0.77**) runs Opus
+only during plan mode and switches to Sonnet for execution — Opus's research quality on the
+phase where mistakes are cheapest to review, Sonnet's price on the phase that runs the most
+tokens. On subscription tiers where Opus auto-upgrades to 1M context, `opusplan` gets that
+upgrade in the plan phase too (append `[1m]` — `opusplan[1m]` — to force it where you aren't
+on an auto-upgrade tier).
+
+What these auto-upgrades resolve to is itself configurable: `ANTHROPIC_DEFAULT_SONNET_MODEL`,
+`ANTHROPIC_DEFAULT_OPUS_MODEL`, `ANTHROPIC_DEFAULT_HAIKU_MODEL`, and
+`ANTHROPIC_DEFAULT_FABLE_MODEL` (the Sonnet/Opus pair added **v1.0.88**; Haiku and Fable added
+later) pin what the `sonnet`, `opus`, `haiku`, and `fable` aliases — and `opusplan` — resolve
+to, letting a fleet lock every session to a specific dated model without rewriting every
+`--model` flag or waiting for an alias to move underneath it. See [Model
+configuration](https://code.claude.com/docs/en/model-config) for the full mechanics, and
+[Explore→Plan→Implement→Commit](15-explore-plan-implement.md) for where plan mode itself sits
+in a loop.
+
+**Practical read:** if a loop's cost model assumes one model runs the whole session, check
+`/model` (or the pinned env vars above) for which phase actually ran on which model — a
+Haiku-tier budget can be quietly spending Sonnet-tier tokens on every planning step.
+
 ### Which model a subagent actually runs on
 
 Whether a subagent honours the tier you intended depends on precedence, not on what you wrote
