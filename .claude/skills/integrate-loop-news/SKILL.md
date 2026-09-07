@@ -69,7 +69,7 @@ Use `run_time` from the artifact for the `YYYY-MM-DD HH:MM UTC` header.
 
 If zero new findings after deduplication, write the section with an empty findings
 table and list all sources under "No new content". Never skip the section — and it is
-**committed**, not discarded: see Phase 5b's **None** row.
+**committed**, not discarded: see Phase 5a's **None** tier and the instruction under it in 5b.
 
 4. For each item in "New findings", assess whether it introduces a **new concept,
    technique, or tool** not yet present in any `docs/*.md` file:
