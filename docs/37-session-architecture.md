@@ -270,6 +270,35 @@ deterministic and guarantee the action happens."*
 
 ---
 
+## Branching and forking a session
+
+Claude Code ships three built-in ways to turn one session into two, easy to conflate:
+
+| Command | Does |
+|---|---|
+| `/branch [name]` | Copies the current transcript into a **new session in the same process** and switches you into it; the original is untouched on disk and stays in the session picker |
+| `/fork` | Copies the whole session into a **new background session** that runs alongside it — its own row in `claude agents` |
+| `/subtask` | Spawns an **in-session** forked subagent that inherits your full conversation context; only available when [agent view](https://code.claude.com/docs/en/agents) (`claude agents`) is turned on |
+| `--fork-session` (v2.0.73+) | Combine with `--resume <id>` or `--continue` to branch a session's history from the CLI, giving the branch a **new session ID** instead of overwriting the original |
+
+The names moved. `/fork` was renamed to `/branch` at **v2.1.77** (`/fork` kept working as an
+alias), then un-aliased at **v2.1.212** and given its current, distinct meaning — a background
+session rather than an in-place branch — with the in-session-subagent role handed to the new
+`/subtask`. One nuance the rename left behind, current as of the live docs: **with agent view
+turned off, `/subtask` isn't available and `/fork` itself becomes the forked-subagent command** —
+so which kind of session `/fork` actually produces depends on that setting, not only on the
+version you're running.
+
+`/branch` and `--fork-session` differ in what the branch inherits, because `/branch` stays in the
+same running process while `--fork-session` starts a separate one: a `/branch`'s "allow for this
+session" permission grants carry over, but forking into a separate process with `--fork-session`
+starts without them and you re-approve there. Useful for a checkpoint-and-branch pattern — fork
+before a risky step so a bad outcome doesn't corrupt the session you'd otherwise resume from.
+
+([Sessions](https://code.claude.com/docs/en/sessions) · [Agents and parallel work](https://code.claude.com/docs/en/agents) · [CLI reference](https://code.claude.com/docs/en/cli-reference).)
+
+---
+
 ## Sessions that can talk to each other
 
 If you do run several sessions, they are no longer blind to one another. Claude Code ships
