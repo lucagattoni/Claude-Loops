@@ -148,6 +148,10 @@ Evidence pack: [`plans/20260907_0100-c7-doc-sweep-evidence.md`](plans/20260907_0
   genuinely changelog-silent but do not say what was searched. **Every entry must state what was
   searched and why it could not settle it.** Drop entry #29 (explicitly out of scope). Re-run
   #13/#33/#34/#44 with the Wayback fallback that settled the OpenAI date.
+  **The 47 claims are listed, numbered, in
+  [`plans/20260907_0645-c7-unverifiable-and-coverage-appendix.md`](plans/20260907_0645-c7-unverifiable-and-coverage-appendix.md)** —
+  along with what each unit verified *clean*, so the next pass does not re-derive it. #40 is
+  already closed there.
 - **`docs/15` produced no by-doc artifact at all** — 22 doc files exist for 23 docs. Its only record
   is a prose "verifiedClean" note, so "checked clean" is an absence rather than a record. It also has
   two unstamped Part II platform facts (`claude --permission-mode plan`, `Ctrl+G`) that the pass

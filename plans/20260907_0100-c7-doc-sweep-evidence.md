@@ -106,8 +106,16 @@ restructured to bank discovery *before* spending on refutation, which is why 34/
 
 ## 5. Do not re-derive
 
-- The 47 UNVERIFIABLE claims are in the run artifact. They are **not** "false" — they are claims no
-  fetch settled. Read them before re-searching any of them.
-- Per-unit `verifiedClean` notes record what each finder checked and found **correct**, with sources.
-  That is the half of a sweep normally thrown away, and it is what stops the next pass re-checking
-  13 arXiv citations, the Terminal-Bench figures, or the Anthropic harness articles.
+Both of the following are on disk in
+[`20260907_0645-c7-unverifiable-and-coverage-appendix.md`](20260907_0645-c7-unverifiable-and-coverage-appendix.md) — they were transcript-only
+until the pre-clear check for step 11 caught it, which is exactly the handoff failure `CLAUDE.md`
+names (*research held only in a workflow transcript is lost*).
+
+- The 47 UNVERIFIABLE claims, **numbered**, with what was tried for each. They are **not** "false" —
+  they are claims no fetch settled. Read them before re-searching any of them. `#40` is closed
+  there; `#29` is marked for dropping as out of scope.
+- Per-unit `verifiedClean` notes recording what each finder checked and found **correct**, with
+  sources and a per-unit claims-per-100-lines rate. That is the half of a sweep normally thrown
+  away, and it is what stops the next pass re-checking 13 arXiv citations, the Terminal-Bench
+  figures, or the Anthropic harness articles — while the rate column shows where that record is
+  thin enough not to lean on.

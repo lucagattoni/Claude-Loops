@@ -102,7 +102,9 @@ chunk — too many for any verifier to treat rigorously.
 
 **Two honest limitations.**
 1. A refutation cap of 90 was applied to 335 actionable findings; 245 reached triage with no
-   refuter. They are marked, not hidden.
+   refuter. **All 335 are indexed in [`20260907_0650-c10-findings-index-appendix.md`](20260907_0650-c10-findings-index-appendix.md)** —
+   they were transcript-only until the pre-clear check for step 11 caught it, which made
+   "marked, not hidden" true of a transcript rather than of the repo.
 2. The run was killed twice by session limits. 43 refuters and the first adjudicator died. The
    sweep and verify stages are complete and cached; the loss was in refutation depth, not coverage.
 
