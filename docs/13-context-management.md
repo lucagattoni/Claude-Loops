@@ -40,6 +40,21 @@ judgement is a rule worth cutting, not just tolerating.
 - Never ask Claude to "explore the whole codebase" — scope narrowly
 - After two failed corrections, `/clear` and write a better prompt
 
+## `/context` — checking what's actually filling the window
+
+Before reaching for `/compact` or a full reset, run `/context` (added **v1.0.86**) to see what is
+actually consuming the window: a breakdown by tool definitions, skills, MCP servers, memory, and
+message history. Later releases added actionable suggestions — the command now flags
+context-heavy tools, memory bloat, and capacity warnings with specific fixes. (On a build before
+**v2.1.129**, calling it repeatedly had its own cost: `/context` injected its own rendered ASCII
+visualization grid into the conversation, ~1.6K tokens per call — fixed since, but a reason to
+prefer the status line's percentage over polling `/context` on an older CLI.) Check it before
+choosing between `/compact` and a hard reset, not after.
+([v1.0.86](https://code.claude.com/docs/en/changelog#1-0-86) and
+[v2.1.129](https://code.claude.com/docs/en/changelog#2-1-129) changelog entries;
+[Commands](https://code.claude.com/docs/en/commands); [Debug your
+configuration](https://code.claude.com/docs/en/debug-your-config).)
+
 ## Compaction shortcuts
 
 ```
