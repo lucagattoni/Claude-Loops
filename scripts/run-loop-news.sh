@@ -435,7 +435,14 @@ while (( attempt <= MAX_ATTEMPTS )); do
   fi
   git -C "$WT_DIR" clean -fd            # NOT -x → keeps ignored .loop-news/
 
-  ok=1; BUDGET_EXCEEDED=0; SESSION_LIMIT=0
+  # Reset ALL FOUR deterministic-failure markers, not two. run_claude() sets them by grepping the
+  # whole transcript and returns 0 anyway for three of them, while CREDIT_BALANCE and
+  # UNKNOWN_COMMAND were initialised once, globally — so a marker string appearing in a SUCCESSFUL
+  # stage's transcript survived into later attempts and could exit the run with a notify() telling
+  # the operator to wait for a quota reset that never happened. Retry behaviour and artifact
+  # preservation were identical either way, so this is diagnostic accuracy, not a safety fix — but
+  # A14's pre-flight cannot-tell path is a new way to reach the wrong message instead of exit 7's.
+  ok=1; BUDGET_EXCEEDED=0; SESSION_LIMIT=0; CREDIT_BALANCE=0; UNKNOWN_COMMAND=0
   # STAGE A — search; skipped entirely if a valid artifact already exists (B-only retry)
   if ! findings_valid; then
     run_claude "attempt ${attempt}/${MAX_ATTEMPTS} · A (search)" "${A_ARGS[@]}" || ok=0

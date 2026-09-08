@@ -297,7 +297,17 @@ Not a defect introduced by C4 — a follow-up C4 *unlocked*, recorded rather tha
   new way to reach it, so `A13` is now the guard's own missing half, not just a tidy-up.
 
 
-### A14 — the two sibling guards share the non-ancestor hazard `A13` just fixed · small · **OPEN, opened 20260907 11:30**
+### A14 — ~~the two sibling guards share the non-ancestor hazard `A13` just fixed~~ · **SHIPPED v3.6.2**
+
+**Done 20260908 07:29 UTC.** All three call sites now go through `published_state()`, which wraps
+`assert-published.sh`; no bare `git log … | grep -qE` survives. **What the item did not anticipate:
+the two guards' conservative directions are opposite**, so "cannot tell" could not take the same
+branch in both — the pre-flight declines to *start* Stage B, the failure path declines to *retry*
+and exits 7. **What the review then found, and the item could not have:** routing through a script
+introduced a *new* fabricated-success path, because both `case` blocks enumerated only 0 and 2 and
+swept bash's rc 127 (script missing from the primary checkout) into a `*)` arm meaning "checked
+cleanly" — which would have retried after a successful push and double-committed the digest.
+Original analysis retained below.
 
 Found by `A13`'s adversarial review and recorded rather than folded in, because it changes
 unattended retry-path behaviour — the same reason `A13` itself was recorded rather than done
@@ -993,7 +1003,11 @@ the remote, and is marked latest.
 | ~~12~~ | ~~**D2**/**H10**, **D3**/**H13** — release policy and plan archival~~ · **DONE, confirmed 20260906** — D2 and D3 were resolved 20260905 (§2) and are written into `CLAUDE.md`'s Releases and Plans sections; H10 backfilled to 63 tags / 63 releases (`v3.1.9`); H13's retire-in-place policy is already applied to both delivered plans. Never struck until the step-10 staleness audit | — |
 | ~~13~~ | ~~**H14** — retitle the IST-dependent scheduling comments **before 2026-10-25**~~ · **DONE 20260907**, together with **C4** — both comments made DST-regime-independent so the hard date does not recur | `plutil -lint` + YAML parse; `mkdocs build --strict` |
 
-> **Status 20260907 11:30 (updated after A13, round 2):** **A13 is shipped. §4 and §5 are
+> **Status 20260908 07:29 (updated after A14):** **A14 is shipped. §3, §4 and §5 are all empty.**
+>
+> Previous status (A13) retained below.
+>
+> > **Status 20260907 11:30 (updated after A13, round 2):** **A13 is shipped. §4 and §5 are
 > empty. One item is open, and it is new: `A14`** — the wrapper's two sibling guards share the
 > non-ancestor hazard A13 fixed. The wrapper now asserts on the published commit instead of Stage
 > B's exit status: `scripts/assert-published.sh`, called between the retry loop and artifact
