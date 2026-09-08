@@ -19,6 +19,17 @@
 # process — so scripts/assert-published.sh checks the delta after the retry loop and exits 6 if a
 # run that reported success published nothing. scripts/verify-publish-guard.sh proves that check.
 #
+# One question, one implementation: published_state() below wraps that script and is the only way
+# this file asks "has origin/main gained one of our commits since BASE_SHA?" — the pre-flight
+# guard, the failure-path guard and the post-run assertion all go through it. It answers three
+# ways, not two: published, not-ours, or CANNOT TELL, and each guard has its own conservative
+# branch for the third. Exit 7 is the failure-path one: the run failed and we could not determine
+# whether it had already published, so it stops rather than risk a second commit.
+#
+# Exit codes: 0 ok · 1 attempts exhausted / failed after publishing / deterministic stop · 3 no
+# usable claude binary · 4 a slash command did not resolve · 5 credit balance · 6 reported success
+# but published nothing · 7 failed and could not tell whether it published.
+#
 # Drop -e: a failed attempt must NOT kill the script — we handle failures explicitly.
 set -uo pipefail
 
