@@ -290,13 +290,13 @@ fi
 # nothing must fail loudly, never silently skip the check it was supposed to perform — then their
 # line numbers must run in this order:
 #   the all-attempts-failed notify  <  the assert call  <  the run-complete line  <  retirement
-# The middle anchor is the WHOLE invocation, not just the script's name: it proves the call passes
-# $REPO_ROOT, $BASE_SHA and $OUR_COMMIT_REGEX — a correct check wired to the wrong arguments is
-# still a broken gate. None of the four may appear anywhere else in the file, comments included,
+# The middle anchor is the final assertion's own call. Since A14 the three call sites share one
+# implementation, published_state(), so the ARGUMENTS are pinned once in case 10 rather than at
+# each site — a correct check wired to the wrong arguments is still a broken gate. None of the four may appear anywhere else in the file, comments included,
 # which is why the retirement anchor is its comment line and not `rm -f "$SEED_ARTIFACT"` (the new
 # A13 comment block quotes that, so it now appears twice).
 A1='All ${MAX_ATTEMPTS} attempts failed'
-A2='ASSERT_OUT="$(bash "$REPO_ROOT/scripts/assert-published.sh" "$REPO_ROOT" "$BASE_SHA" "$OUR_COMMIT_REGEX" 2>&1)"'
+A2='if published_state "$REPO_ROOT"; then'
 A3='Run complete (succeeded on attempt'
 A4='# Retire the artifact so a later run today re-searches'
 # A5 is the terminating statement. Without it the four anchors above are all satisfied by a call
@@ -323,11 +323,80 @@ else
   fi
 fi
 
-# --- 9. Both scripts still parse ---------------------------------------------------------------
-if bash -n "$WRAPPER" 2>/dev/null && bash -n "$SCRIPT_UNDER_TEST" 2>/dev/null; then
-  printf '  ok    %-56s %s\n' "9 run-loop-news.sh and assert-published.sh parse" "ok"
+# --- 10. A14: ONE implementation of "has origin/main gained one of our commits?" --------------
+# The two sibling guards used to ask this with a bare `git log "$BASE..$NEW" | grep -qE`, which
+# omits the ancestry precondition and therefore answers "we published" over a rewritten history.
+# The fix was to route all three call sites through published_state(). Three properties, each of
+# which has failed in this repo before:
+#   (a) the helper exists exactly once — one home for the rule, per A14's "do not paste
+#       merge-base in three places";
+#   (b) it is invoked by all three call sites — a guard left behind still carries the bug;
+#   (c) NO bare `git log … | grep -qE "$OUR_COMMIT_REGEX"` survives anywhere in the wrapper.
+# (c) is the real regression test: (a) and (b) can both hold while an old call site sits untouched.
+DEF_N=$(grep -cE '^published_state\(\) \{' "$WRAPPER")
+USE_N=$(grep -cE '^[[:space:]]*(if )?published_state "' "$WRAPPER")
+ARG_N=$(grep -Fc -- 'assert-published.sh" "$dir" "$BASE_SHA" "$OUR_COMMIT_REGEX"' "$WRAPPER")
+# Match the SHAPE `git … log … | grep -q…E`, not one variable name: a reimplementation that copies
+# the regex into a local first (`_rx="$OUR_COMMIT_REGEX"; git log … | grep -qE "$_rx"`) walked past
+# the name-pinned version with raw=0. Comments are stripped BEFORE matching — the wrapper's own
+# design-rationale comment quotes the bad pipeline verbatim, so an unstripped grep returns 1 on a
+# perfectly clean tree and the check would fail always, which is as useless as passing always.
+RAW_N=$(grep -vE '^[[:space:]]*#' "$WRAPPER" | grep -cE 'git .*log [^|]*\| *grep -q[a-zA-Z]*E')
+if [[ "$DEF_N" -eq 1 && "$USE_N" -eq 4 && "$ARG_N" -eq 1 && "$RAW_N" -eq 0 ]]; then
+  printf '  ok    %-56s %s\n' "10 one delta implementation, 4 sites, no raw grep" "def=1 uses=4 args=1 raw=0"
 else
-  printf '  FAIL  %-56s %s\n' "9 a script does not parse (bash -n)" "fix this first"
+  printf '  FAIL  %-56s def=%s uses=%s args=%s raw=%s (need 1/4/1/0)\n' \
+    "10 A14: delta question must have exactly one home" "$DEF_N" "$USE_N" "$ARG_N" "$RAW_N"
+  FAILURES=$((FAILURES + 1))
+fi
+
+# --- 11. A14's two cannot-tell branches must EXIST and sit in the right guard -----------------
+# Deleting either left this harness fully green, reproduced twice. That is the identical defect
+# case 8 already records paying for once with `exit 6` — the lesson was not applied to the branches
+# A14 is entirely about. These are the only new fail-closed logic in the change.
+#   pre-flight  : two `ok=0` exits (the cannot-tell arm and the off-contract arm), both after the
+#                 pre-flight call and before the failure-path call.
+#   failure path: two `exit 7`s (same two arms), both after the failure-path call.
+PRE_CALL=$(grep -Fn -- 'published_state "$WT_DIR"; rc_pre=$?'    "$WRAPPER" | cut -d: -f1)
+FAIL_CALL=$(grep -Fn -- 'published_state "$REPO_ROOT"; rc_fail=$?' "$WRAPPER" | cut -d: -f1)
+OK0_N=$(grep -Fxc '        ok=0' "$WRAPPER")
+EX7_N=$(grep -cE '^[[:space:]]*exit 7$' "$WRAPPER")
+OK0_FIRST=$(grep -Fxn '        ok=0' "$WRAPPER" | head -1 | cut -d: -f1)
+EX7_FIRST=$(grep -nE '^[[:space:]]*exit 7$' "$WRAPPER" | head -1 | cut -d: -f1)
+if [[ "$OK0_N" -eq 2 && "$EX7_N" -eq 2 && -n "$PRE_CALL" && -n "$FAIL_CALL" \
+      && "$PRE_CALL" -lt "$OK0_FIRST" && "$OK0_FIRST" -lt "$FAIL_CALL" && "$FAIL_CALL" -lt "$EX7_FIRST" ]]; then
+  printf '  ok    %-56s %s\n' "11 both cannot-tell branches present, in the right guard" "ok0=2 exit7=2"
+else
+  printf '  FAIL  %-56s ok0=%s(@%s) exit7=%s(@%s) pre@%s fail@%s\n' \
+    "11 A14 cannot-tell branches missing or misplaced" "$OK0_N" "${OK0_FIRST:-?}" "$EX7_N" "${EX7_FIRST:-?}" "${PRE_CALL:-?}" "${FAIL_CALL:-?}"
+  FAILURES=$((FAILURES + 1))
+fi
+
+# --- 11b. Both catch-all arms must FAIL CLOSED --------------------------------------------------
+# published_state() returns assert-published.sh's code verbatim, so a `case` that enumerates only
+# 0 and 2 sweeps every other value — including bash's 127 when the script is missing from the
+# PRIMARY checkout another agent may have moved mid-run — into `*)`. When that arm meant "checked
+# cleanly, not ours", the failure-path guard RETRIED after a successful push and committed the
+# digest twice. Found by adversarial review, reproduced at rc=127. Both arms must therefore be
+# reached only by off-contract codes and must say so: `1)` is named explicitly, and no `*)` may
+# carry the "Checked cleanly" body. Deleting this check is how the hole comes back.
+CATCH_N=$(grep -cE '^[[:space:]]+\*\)$' "$WRAPPER")
+CATCH_OPEN=$(grep -A4 -E '^[[:space:]]+\*\)$' "$WRAPPER" | grep -c 'Checked cleanly')
+CATCH_CLOSED=$(grep -A4 -E '^[[:space:]]+\*\)$' "$WRAPPER" | grep -c 'checker did not run\|check did not run')
+ARM1_N=$(grep -cE '^[[:space:]]+1\)$' "$WRAPPER")
+if [[ "$CATCH_N" -eq 2 && "$CATCH_OPEN" -eq 0 && "$CATCH_CLOSED" -eq 2 && "$ARM1_N" -eq 2 ]]; then
+  printf '  ok    %-56s %s\n' "11b catch-alls fail closed, 1) named explicitly" "catch=2 open=0 closed=2 arm1=2"
+else
+  printf '  FAIL  %-56s catch=%s open=%s closed=%s arm1=%s (need 2/0/2/2)\n' \
+    "11b a catch-all arm can be reached as 'checked cleanly'" "$CATCH_N" "$CATCH_OPEN" "$CATCH_CLOSED" "$ARM1_N"
+  FAILURES=$((FAILURES + 1))
+fi
+
+# --- 12. Both scripts still parse ---------------------------------------------------------------
+if bash -n "$WRAPPER" 2>/dev/null && bash -n "$SCRIPT_UNDER_TEST" 2>/dev/null; then
+  printf '  ok    %-56s %s\n' "12 run-loop-news.sh and assert-published.sh parse" "ok"
+else
+  printf '  FAIL  %-56s %s\n' "12 a script does not parse (bash -n)" "fix this first"
   FAILURES=$((FAILURES + 1))
 fi
 

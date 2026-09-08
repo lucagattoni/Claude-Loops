@@ -2,16 +2,12 @@
 
 Claude-Loops is a living knowledge base and automated daily tracker for **loop engineering** — designing systems that prompt Claude for you. Read `LOOP_ENGINEERING.md` (the index) and `README.md` before working. The KB grows automatically via a two-skill pipeline: `fetch-loop-news` (search) hands off to `integrate-loop-news` (integrate + restructure + publish).
 
-> **Open work.** `plans/20260904_2053-open-work-backlog.md` is the ranked backlog — its §8 status
-> paragraph is the authority on progress, and §1's *"Do not re-spend budget on"* list names work
-> already paid for; read both before planning anything that looks like a sweep. **§4 and §5 are
-> empty. One item is open: `A14` in §3** — the wrapper's two sibling guards share the
-> non-ancestor hazard `A13` fixed in `assert-published.sh`. Open **content** work lives in
-> `KB_GAPS.md` § *Active Gaps*: `docs/24` is under-sampled and 47 UNVERIFIABLE claims need triage.
->
-> **Delete this note once every backlog tier (§3, §4, §5) is empty** — replacing it with a
-> one-line pointer, not removing it outright, or the backlog and `KB_GAPS.md` become unreachable
-> from this file.
+> **Open work.** **No backlog items remain** — `plans/20260904_2053-open-work-backlog.md` §3, §4
+> and §5 are all empty; it stays the historical record and its §1 *"Do not re-spend budget on"*
+> list names work already paid for. Open **content** work lives in `KB_GAPS.md` § *Active Gaps*:
+> `docs/24` is under-sampled and 47 UNVERIFIABLE claims need triage (the numbered list is in
+> `plans/20260907_0645-c7-unverifiable-and-coverage-appendix.md`). An empty backlog is not an
+> empty repo.
 
 ## Repository map
 

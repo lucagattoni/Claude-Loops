@@ -304,6 +304,17 @@ copying for any self-writing daily loop:
    rather than discarding it — so "did the run publish?" is answerable from `main` on every
    run, not only on productive ones.
 
+   **That question has three answers, not two, and the third needs a branch per guard.**
+   `git log A..B` requires only that both objects exist, not that A is an ancestor of B, so a
+   rewritten or force-pushed upstream turns the delta into "the new history minus the old one"
+   and a stray matching subject reads as *we published*. The check must therefore be able to
+   return **cannot tell** — and the guards must not share one reflex for it, because their
+   conservative directions are opposite. A guard deciding *skip the expensive stage?* is
+   conservative when it declines to skip on an unanswerable state; a guard deciding *retry the
+   push?* is conservative when it declines to retry. Wire both to the same "cannot tell" and one
+   of them is wrong. Keep the question in **one** implementation, and let each caller choose its
+   own safe direction.
+
 5. **Assert on the artifact, not on the run's exit status.** `claude -p` exits 0 whenever the
    *session* ended cleanly, which is not the same as the loop having done its job. A guard
    *inside* the session — a build gate, a "did you actually write the file" check — aborts the

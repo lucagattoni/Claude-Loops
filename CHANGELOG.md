@@ -18,6 +18,70 @@ Versioning follows [Semantic Versioning](https://semver.org/):
 
 ---
 
+## [3.6.2] — 20260908 07:30
+
+Backlog **`A14`**, the last open item, opened by `A13`'s own review: the pre-flight and
+failure-path guards each re-implemented "has `origin/main` gained one of our commits since
+`BASE_SHA`?" as a bare `git log "$BASE..$NEW" | grep -qE`. That omits the ancestry precondition, so
+over a rewritten history the range becomes "the new history minus the old one" and a stray matching
+subject reads as *we published*. **PATCH** — no new doc file and no new script; the tier table's
+new-capability rule does not fire.
+
+### Fixed
+
+- **One implementation of the delta question.** `published_state()` wraps
+  `scripts/assert-published.sh`, and all four call sites go through it — pre-flight guard,
+  failure-path guard, the failure path's re-check, and the post-run assertion. No bare
+  `git log … | grep -qE` survives anywhere in the wrapper.
+- **The two guards' conservative directions are opposite**, which the backlog item did not
+  anticipate, so "cannot tell" could not take the same branch in both. A guard deciding *skip the
+  expensive stage?* is conservative when it declines to skip; a guard deciding *retry the push?* is
+  conservative when it declines to retry. Pre-flight cannot-tell marks the attempt failed rather
+  than starting Stage B; the failure path re-reads once after the loop's own backoff and then
+  exits **7** rather than retrying. Retrying the *check* is not retrying the *push*, so the safety
+  property is untouched while a four-second network blip no longer costs the day.
+- **A fabricated-success path this change itself introduced, found by adversarial review.** Both
+  `case` blocks enumerated only 0 and 2 and swept everything else into a `*)` arm whose comment
+  said "checked cleanly". Reproduced: with the script absent, `bash` returns **127** and took that
+  arm — so on the exact case the failure-path guard exists for (Stage B pushed, then the attempt
+  was marked failed) the wrapper would have **retried and committed the digest twice**. `REPO_ROOT`
+  is the primary checkout, which this repo's own rules warn other agents mutate mid-run. Both arms
+  now name `1)` explicitly and fail closed on anything else.
+- **The exit-7 justification was false.** It claimed "the 48h freshness watchdog pages for it".
+  Measured: `check-digest-freshness.sh` runs at 09:00 UTC against `MAX_AGE_HOURS` 48 while the
+  tracker fires 04:00–05:00 UTC, so a single lost day reads **29h** and prints FRESH. Two
+  consecutive misses (53h) are needed. The comment now states the real backstop and says the branch
+  takes a possibly silent lost day knowingly — the same defect class as the corrections in
+  `[3.6.1]`'s follow-up PR, in the one comment a future agent reads before relaxing the trade-off.
+- **All four deterministic-failure markers now reset per attempt**, not two. `CREDIT_BALANCE` and
+  `UNKNOWN_COMMAND` were initialised once, globally, while `run_claude()` sets them by grepping the
+  whole transcript — so a marker string in a *successful* stage's transcript could exit the run
+  telling the operator to wait for a quota reset that never happened. Diagnostic accuracy, not a
+  safety fix, but A14's new pre-flight path is another way to reach the wrong message.
+
+### Added
+
+- **`scripts/verify-publish-guard.sh` grows to 21 checks.** Case 10 pins one home for the delta
+  question and matches the pipeline *shape* rather than one variable name — a reimplementation that
+  copied the regex into a local walked past the name-pinned version — and strips comments first,
+  since the file's own design-rationale comment quotes the bad pipeline verbatim and made the naive
+  regex report a hit on a clean tree. Case 11 pins both cannot-tell branches; case 11b pins that
+  both catch-all arms fail closed. **Every one of those three was added because a mutant survived**:
+  deleting `exit 7`, deleting `ok=0`, and restoring the 127 hole each left the harness fully green.
+- **An exit-code table in `scripts/SCHEDULING.md`**, where the operator actually reads them — none
+  existed anywhere. `6` and `7` are called out as the two that need someone to look at the
+  repository rather than just re-run, and as pinning nobody off-machine inside 48h.
+
+### Changed
+
+- **`docs/09-headless-mode.md`** point 4 described the retry guard as a two-way decision. It now
+  carries the generalisable part: the question has three answers, and wiring both guards to one
+  "cannot tell" reflex necessarily makes one of them wrong.
+- **`scripts/run-loop-news.sh`'s header** carries the full exit-code list; `CLAUDE.md`'s open-work
+  note records an empty backlog; `RESUME.md` replaced; `A14` struck.
+
+---
+
 ## [3.6.1] — 20260908 05:01
 
 Loop news run 2026-09-08 04:00 UTC — 92 new findings after dedup (24 already covered under

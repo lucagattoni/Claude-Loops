@@ -1,97 +1,66 @@
-# RESUME — backlog `A13` (the wrapper asserts on the published commit) · COMPLETE
+# RESUME — backlog `A14` (one home for the delta question) · COMPLETE
 
-**Branch:** `20260907_0932-a13-assert-published-commit`.
-**Plan item:** `plans/20260904_2053-open-work-backlog.md` §3 — `A13`, struck.
-**Backlog state:** §4 and §5 are empty; **one item is open, `A14`**, opened by this branch's own
-adversarial review. Open *content* work still sits in `KB_GAPS.md` § *Active Gaps*.
+**Branch:** `20260908_0650-a14-ancestry-in-sibling-guards`.
+**Plan item:** `plans/20260904_2053-open-work-backlog.md` §3 — `A14`, struck.
+**Backlog state:** **§3, §4 and §5 are all empty. No backlog items remain open.**
+Open *content* work continues in `KB_GAPS.md` § *Active Gaps* — an empty backlog is not an empty repo.
 
 ## Done
-- **`scripts/assert-published.sh`** (new) — re-fetches `origin/main` and requires a commit matching
-  `OUR_COMMIT_REGEX` in `BASE_SHA..origin/main`. Exit **0** published / **1** checked, no match /
-  **2** could not check. Callers treat 1 and 2 alike. **Every** cannot-tell path exits 2: bad
-  arguments, a non-positive-integer retry count, a non-git target, fetch failure after a bounded
-  retry, an unresolvable `origin/main`, a `BASE_SHA` that is **not an ancestor** of the new
-  `origin/main`, a `git log` failure, and a grep that itself fails on a malformed regex. An empty
-  regex is refused up front — `grep -qE ""` matches any input, so it would have fabricated a pass.
-- **`scripts/run-loop-news.sh`** — calls it between the retry loop's failure exit and the
-  artifact-retirement block, above the run-complete line. New exit code **6**. The verdict line
-  reaches the day log on both paths, so a healthy run leaves positive evidence the check ran.
-- **`scripts/verify-publish-guard.sh`** (new, **18 checks**) — two clones of one bare origin, so
-  "committed but never pushed" is constructable rather than vacuous. Sanity case first; both
-  healthy shapes; the main-moved-but-not-by-us twin; eight cannot-tell cases, three of which assert
-  **which guard fired** rather than only that one did; and static cases 7/8 pinning the regex
-  against the wrapper's and the call site's **arguments, ordering and terminating `exit 6`**.
-- **`.github/workflows/guards.yml`** (new) — runs both guard harnesses on any PR or push touching
-  `scripts/**` or `.claude/skills/**`. Nothing invoked either before this.
-- Docs synced in the same change: `docs/09` gained a point 5 (its old parenthetical "the wrapper
-  still judges success by exit code" was falsified by this commit), `docs/17`'s scheduler-death row
-  now names the implementation, `LOOP_ENGINEERING.md`'s row 9, `CLAUDE.md` (open-work note
-  rewritten to name `A14`; two map rows for the new scripts), and the backlog.
+- **`published_state()`** in `run-loop-news.sh` is the one implementation of "has `origin/main`
+  gained one of our commits since `BASE_SHA`?". Four call sites use it; no bare
+  `git log … | grep -qE` survives. The pre-flight and failure-path guards had each re-implemented
+  it without the ancestry precondition, which reads a rewritten history as *we published*.
+- **A cannot-tell branch per guard, in opposite directions** — the part `A14` did not anticipate.
+  Pre-flight declines to *start* Stage B; the failure path re-reads once after the loop's own
+  backoff, then exits **7** rather than retrying. Retrying the check is not retrying the push.
+- **Exit codes documented** in the wrapper header and, for the operator, as a table in
+  `scripts/SCHEDULING.md` — none existed anywhere before.
+- **`verify-publish-guard.sh` at 21 checks**; `docs/09` point 4 rewritten; `CLAUDE.md`, the
+  backlog and `CHANGELOG.md` `[3.6.2]` updated in the same PR.
 
 ## What is NOT done, and is logged rather than implied
-- **`notify()` is still desktop-only.** An osascript popup plus a gitignored day log, both on the
-  machine that failed. A caught non-publish stays invisible off-machine for up to 48h until
-  `check-digest-freshness.sh` pages STALE. Named in the code, not solved. Widening it is a
-  separate, larger question.
-- **`A14` is open** — the wrapper's two sibling guards (pre-flight "already published, skipping"
-  and failure-path "failed AFTER publishing") grep the same delta without the ancestry
-  precondition. Not a fabricated-success path: both take the conservative action, and
-  `assert-published.sh` then exits 2 on the same delta, so the run exits 6. The residual is a
-  misdiagnosis in the log. Full analysis in the backlog's §3.
-- **The `git log` failure branch in `assert-published.sh` is unreachable in practice** and is
-  therefore uncovered — reaching it needs a repo where `merge-base` succeeds and `log` does not.
-  Kept as defence in depth, recorded as an equivalent mutant, **not** claimed as tested.
-- **The premise is inferred, not measured.** That a Phase 5c/5d abort leaves `claude -p` exiting 0
-  is read from `SKILL.md` and `run_claude()`, never observed. The assertion is a post-condition, so
-  it holds either way — but the next run that legitimately trips the 5d guard should have its
-  observed `claude -p` exit code recorded in the day log.
-- **A transient network failure right after a genuine push now raises a false alarm** (exit 6 on a
-  run that succeeded). The 3-try fetch retry reduces it; nothing eliminates it, and nothing should
-  — the alternative is a stale-ref fallback, which is the fabricated-success class this closes.
-- Carried, still open in `KB_GAPS.md`: **`docs/24` under-sampled**; **47 UNVERIFIABLE claims** to
-  triage; **C10 left 245 of 335 findings unrefuted** under a cap — marked, not hidden.
+- **`notify()` is still desktop-only**, and the off-machine backstop is weaker than it reads:
+  `check-digest-freshness.sh` runs 09:00 UTC against `MAX_AGE_HOURS` 48 while the tracker fires
+  04:00–05:00 UTC, so **a single lost day reads ~29h and pages nobody**. Two consecutive misses
+  are needed. Measured, not assumed. Widening `notify()` remains a separate question.
+- **`cleanup()` is still never executed by any test.** Exit 6 and exit 7 both *promise* the
+  operator that the artifact and checkpoint branch are preserved; that promise is read from the
+  code, not run. An executable `cleanup()` test is the obvious next infrastructure step.
+- **The premise remains inferred:** that a Phase 5c/5d abort leaves `claude -p` exiting 0 is read
+  from `SKILL.md` and `run_claude()`, never observed.
+- Carried in `KB_GAPS.md`: `docs/24` under-sampled (now **1,354** lines — re-measure before
+  cutting); 47 UNVERIFIABLE claims, numbered in
+  `plans/20260907_0645-c7-unverifiable-and-coverage-appendix.md`; C10 left 245 of 335 findings
+  unrefuted under a cap.
 
 ## Concurrency note — the daily tracker runs alongside this
-It fires daily at 05:00 Europe/Dublin local (04:00 UTC under IST, 05:00 under GMT) and has landed a
-run mid-flight before — on 20260907 it pushed 76 findings into 12 docs 21 minutes after a branch
-landed. **Re-run `scripts/kb-structure-check.sh` after any concurrent landing.**
-A run that publishes an *empty* digest section is correct and expected since `v3.4.2` — do not
-"fix" it. **New from this branch:** a run that publishes *nothing at all* now exits 6 instead of
-logging success, and leaves `logs/findings-YYYYMMDD.json` and the `loop-news-run-YYYYMMDD` branch
-in place for a cheap resumed re-run.
+It fires daily at 05:00 Europe/Dublin (04:00 UTC under IST, 05:00 under GMT) and lands mid-flight
+routinely — on 20260908 it published while this branch was open. **Re-run
+`scripts/kb-structure-check.sh` after any concurrent landing.** A run publishing an *empty* digest
+section is correct since `v3.4.2`. A run publishing *nothing* now exits 6; a run that cannot tell
+exits 7. Both preserve `logs/findings-YYYYMMDD.json` and the `loop-news-run-YYYYMMDD` branch.
 
 ## Lessons carried forward
-1. **A mutation pass earns its cost by surviving.** Round 1: eight mutants, seven killed — the
-   survivor was the one the design had argued hardest about (an unchecked `rev-parse` letting
-   `BASE_SHA..` collapse to `BASE_SHA..HEAD`). Round 2, after the adversarial review's fix:
-   12 mutants, 11 killed, 1 equivalent. **Reasoning about a guard is not coverage of it**; only
-   the mutant showed the hole, and case 5c (single-branch clone) closed it.
-2. **A new guard can silently un-cover an old one.** Adding the ancestry check masked two mutants
-   round 1 had killed: with several guards able to return exit 2, removing one is hidden by the
-   next, and the mutant survives with no test touched. **Exit code alone stops discriminating —
-   assert which guard fired.** Three cases now pin the diagnostic string.
-3. **Reproduce the mechanism; do not trust the label.** Case 6b was called "git log fails" and
-   never exercised that branch — the ancestry guard reaches an unresolvable base first. Running it
-   and reading the message is what showed that; the label had been wrong since it was written.
-4. **A fixture must assert its own precondition.** Case 5c is only meaningful if its `fetch`
-   really succeeds; if it silently failed, the case would degrade into a duplicate of case 5 and
-   still print `ok`. It now checks and fails loudly instead.
-5. **An empty string is not a permissive check, it is a guaranteed pass.** `grep -qE ""` matches
-   any input, including the blank line an empty delta produces. Any regex arriving from a caller
-   must be rejected when empty.
-6. **Some hazards are properties of the text, not of the behaviour.** No amount of behavioural
-   testing of `assert-published.sh` can see *where* it is called from, and the call site's
-   position is the thing the backlog warned would make the fix destructive. That needs a static
-   check — and it caught the ordering mutant when every git-state case stayed green.
-7. **Deleting a stale note can be worse than editing it.** `CLAUDE.md`'s open-work note met its own
-   stated delete condition, but deleting it outright would have left the backlog and `KB_GAPS.md`
-   unreachable from the entry point — the exact defect `v3.5.0` had just fixed for `RESUME.md`.
-   Rewritten in place instead, and its delete condition now says *replace with a pointer*.
-8. **Prose describing an edit goes stale when the edit changes.** Round 1 made that note a one-line
-   pointer and three files said so; round 2 rewrote it to ten lines naming `A14` and none of the
-   three were re-read. One changelog bullet ended up contradicting itself inside a single
-   paragraph. **Re-read what you wrote *about* a file whenever you touch the file again** — and
-   never put a line count in a changelog, because it is false as soon as anyone edits again.
-9. **Carried from the last branch, still true:** backlog line numbers are stale by default (re-grep
-   the anchor, never cite a new number); a guard must be placed where its precondition holds; a
-   harness that cannot produce a failure proves nothing; verify a date, do not compute one.
+1. **Commit before mutating — I broke this rule and paid for it in this branch.** The mutation
+   loop calls `git checkout -- <file>`, which restores to the last *commit*, not to the
+   pre-mutation state. Two must-fixes' worth of uncommitted work were silently reverted mid-run;
+   only the harness file survived, because it was never a mutation target. The rule was already
+   written down. Committing costs nothing.
+2. **Fixing a defect without pinning it is how it comes back.** After closing the rc-127 hole, the
+   mutation pass showed that *restoring* it left the harness green. Three of this branch's checks
+   (11, 11b, and case 10's widened shape match) exist only because a mutant survived.
+3. **A guard added later can silently un-cover an earlier one.** Adding the ancestry check in
+   `A13` masked two mutants a previous round had killed. Exit code alone stops discriminating once
+   several guards share one code — assert *which* guard fired.
+4. **Routing through a script introduces a status you did not enumerate.** `bash` returns 127 for a
+   missing file. A `case` listing only the contract's codes, with a `*)` arm that means "fine", is
+   a fabricated result — and the primary checkout is exactly where another agent may remove a file
+   mid-run.
+5. **A justification comment is a claim, and gets checked like one.** "The 48h watchdog pages for
+   it" was false by 19 hours, and it was the sole ground for the trade-off it justified.
+6. **Never put a count in prose without re-deriving it at the end.** "162 → 159 lines" and
+   "22 checks" were both wrong when written; the file had changed under the first and the second
+   was never counted. Both were caught, one by review and one by me, in the same day.
+7. **Carried, still true:** backlog line numbers are stale by default (re-grep the anchor); a
+   fixture must assert its own precondition; an empty regex is a guaranteed pass, not a lenient
+   check; some hazards are properties of the text and need a static check.

@@ -32,6 +32,24 @@ tail -f /Users/luca/Code/repos/github_lucagattoni/Claude-Loops/logs/launchd.log
 `launchctl list`'s middle column is the **last exit code** (`-` = not running, `0` =
 last run succeeded, nonzero = last run failed).
 
+**What a nonzero code means.** The wrapper distinguishes its failures, so the number tells you
+whether to re-run, wait, or go and look at the repository:
+
+| Code | Meaning | What to do |
+|---|---|---|
+| `0` | Published, and the commit was verified on `origin/main` | Nothing |
+| `1` | All attempts failed, or a deterministic stop (session limit, budget), or it failed *after* publishing | Read the day log; re-run when the cause has cleared |
+| `3` | No usable `claude` binary at preflight | Fix `CLAUDE_BIN` / `PATH`; this never resolves on its own |
+| `4` | A slash command did not resolve — the skill is missing from the checked-out tree | Check `.claude/skills/` on `origin/main` |
+| `5` | `Credit balance is too low` — an API key is shadowing the subscription | Unset `ANTHROPIC_API_KEY`, or top up |
+| `6` | **Reported success but published nothing.** A guard inside the session aborted; `claude -p` still exited 0 | Look for `FATAL` in the day log. Stage A's artifact is preserved — re-run resumes cheaply |
+| `7` | **Failed, and it could not tell whether it had already published.** It refused to retry rather than risk committing the digest twice | Check `origin/main` by hand before re-running. The artifact and any checkpoint branch are preserved |
+
+`6` and `7` are the two that need a human to look at the repository rather than just re-run: both
+mean the run stopped precisely because it would otherwise have reported something it had not
+verified. Neither pages anyone off-machine — `check-digest-freshness.sh` only fires after 48h, and
+a single missed day is under that threshold.
+
 ---
 
 ## Set the periodicity
