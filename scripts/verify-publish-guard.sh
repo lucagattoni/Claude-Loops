@@ -290,13 +290,13 @@ fi
 # nothing must fail loudly, never silently skip the check it was supposed to perform — then their
 # line numbers must run in this order:
 #   the all-attempts-failed notify  <  the assert call  <  the run-complete line  <  retirement
-# The middle anchor is the WHOLE invocation, not just the script's name: it proves the call passes
-# $REPO_ROOT, $BASE_SHA and $OUR_COMMIT_REGEX — a correct check wired to the wrong arguments is
-# still a broken gate. None of the four may appear anywhere else in the file, comments included,
+# The middle anchor is the final assertion's own call. Since A14 the three call sites share one
+# implementation, published_state(), so the ARGUMENTS are pinned once in case 10 rather than at
+# each site — a correct check wired to the wrong arguments is still a broken gate. None of the four may appear anywhere else in the file, comments included,
 # which is why the retirement anchor is its comment line and not `rm -f "$SEED_ARTIFACT"` (the new
 # A13 comment block quotes that, so it now appears twice).
 A1='All ${MAX_ATTEMPTS} attempts failed'
-A2='ASSERT_OUT="$(bash "$REPO_ROOT/scripts/assert-published.sh" "$REPO_ROOT" "$BASE_SHA" "$OUR_COMMIT_REGEX" 2>&1)"'
+A2='if published_state "$REPO_ROOT"; then'
 A3='Run complete (succeeded on attempt'
 A4='# Retire the artifact so a later run today re-searches'
 # A5 is the terminating statement. Without it the four anchors above are all satisfied by a call
@@ -321,6 +321,28 @@ else
       "8 assert is called, terminates, then retirement" "$l1" "$l2" "$l5" "$l3" "$l4"
     FAILURES=$((FAILURES + 1))
   fi
+fi
+
+# --- 10. A14: ONE implementation of "has origin/main gained one of our commits?" --------------
+# The two sibling guards used to ask this with a bare `git log "$BASE..$NEW" | grep -qE`, which
+# omits the ancestry precondition and therefore answers "we published" over a rewritten history.
+# The fix was to route all three call sites through published_state(). Three properties, each of
+# which has failed in this repo before:
+#   (a) the helper exists exactly once — one home for the rule, per A14's "do not paste
+#       merge-base in three places";
+#   (b) it is invoked by all three call sites — a guard left behind still carries the bug;
+#   (c) NO bare `git log … | grep -qE "$OUR_COMMIT_REGEX"` survives anywhere in the wrapper.
+# (c) is the real regression test: (a) and (b) can both hold while an old call site sits untouched.
+DEF_N=$(grep -cE '^published_state\(\) \{' "$WRAPPER")
+USE_N=$(grep -cE '^[[:space:]]*(if )?published_state "' "$WRAPPER")
+ARG_N=$(grep -Fc -- 'assert-published.sh" "$dir" "$BASE_SHA" "$OUR_COMMIT_REGEX"' "$WRAPPER")
+RAW_N=$(grep -cE 'git .*log .*\| *grep -qE "\$OUR_COMMIT_REGEX"' "$WRAPPER")
+if [[ "$DEF_N" -eq 1 && "$USE_N" -eq 3 && "$ARG_N" -eq 1 && "$RAW_N" -eq 0 ]]; then
+  printf '  ok    %-56s %s\n' "10 one delta implementation, all 3 sites, no raw grep" "def=1 uses=3 args=1 raw=0"
+else
+  printf '  FAIL  %-56s def=%s uses=%s args=%s raw=%s (need 1/3/1/0)\n' \
+    "10 A14: delta question must have exactly one home" "$DEF_N" "$USE_N" "$ARG_N" "$RAW_N"
+  FAILURES=$((FAILURES + 1))
 fi
 
 # --- 9. Both scripts still parse ---------------------------------------------------------------
