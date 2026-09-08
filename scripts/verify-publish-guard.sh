@@ -336,20 +336,47 @@ fi
 DEF_N=$(grep -cE '^published_state\(\) \{' "$WRAPPER")
 USE_N=$(grep -cE '^[[:space:]]*(if )?published_state "' "$WRAPPER")
 ARG_N=$(grep -Fc -- 'assert-published.sh" "$dir" "$BASE_SHA" "$OUR_COMMIT_REGEX"' "$WRAPPER")
-RAW_N=$(grep -cE 'git .*log .*\| *grep -qE "\$OUR_COMMIT_REGEX"' "$WRAPPER")
-if [[ "$DEF_N" -eq 1 && "$USE_N" -eq 3 && "$ARG_N" -eq 1 && "$RAW_N" -eq 0 ]]; then
-  printf '  ok    %-56s %s\n' "10 one delta implementation, all 3 sites, no raw grep" "def=1 uses=3 args=1 raw=0"
+# Match the SHAPE `git … log … | grep -q…E`, not one variable name: a reimplementation that copies
+# the regex into a local first (`_rx="$OUR_COMMIT_REGEX"; git log … | grep -qE "$_rx"`) walked past
+# the name-pinned version with raw=0. Comments are stripped BEFORE matching — the wrapper's own
+# design-rationale comment quotes the bad pipeline verbatim, so an unstripped grep returns 1 on a
+# perfectly clean tree and the check would fail always, which is as useless as passing always.
+RAW_N=$(grep -vE '^[[:space:]]*#' "$WRAPPER" | grep -cE 'git .*log [^|]*\| *grep -q[a-zA-Z]*E')
+if [[ "$DEF_N" -eq 1 && "$USE_N" -eq 4 && "$ARG_N" -eq 1 && "$RAW_N" -eq 0 ]]; then
+  printf '  ok    %-56s %s\n' "10 one delta implementation, 4 sites, no raw grep" "def=1 uses=4 args=1 raw=0"
 else
-  printf '  FAIL  %-56s def=%s uses=%s args=%s raw=%s (need 1/3/1/0)\n' \
+  printf '  FAIL  %-56s def=%s uses=%s args=%s raw=%s (need 1/4/1/0)\n' \
     "10 A14: delta question must have exactly one home" "$DEF_N" "$USE_N" "$ARG_N" "$RAW_N"
   FAILURES=$((FAILURES + 1))
 fi
 
-# --- 9. Both scripts still parse ---------------------------------------------------------------
-if bash -n "$WRAPPER" 2>/dev/null && bash -n "$SCRIPT_UNDER_TEST" 2>/dev/null; then
-  printf '  ok    %-56s %s\n' "9 run-loop-news.sh and assert-published.sh parse" "ok"
+# --- 11. A14's two cannot-tell branches must EXIST and sit in the right guard -----------------
+# Deleting either left this harness fully green, reproduced twice. That is the identical defect
+# case 8 already records paying for once with `exit 6` — the lesson was not applied to the branches
+# A14 is entirely about. These are the only new fail-closed logic in the change.
+#   pre-flight  : two `ok=0` exits (the cannot-tell arm and the off-contract arm), both after the
+#                 pre-flight call and before the failure-path call.
+#   failure path: two `exit 7`s (same two arms), both after the failure-path call.
+PRE_CALL=$(grep -Fn -- 'published_state "$WT_DIR"; rc_pre=$?'    "$WRAPPER" | cut -d: -f1)
+FAIL_CALL=$(grep -Fn -- 'published_state "$REPO_ROOT"; rc_fail=$?' "$WRAPPER" | cut -d: -f1)
+OK0_N=$(grep -Fxc '        ok=0' "$WRAPPER")
+EX7_N=$(grep -cE '^[[:space:]]*exit 7$' "$WRAPPER")
+OK0_FIRST=$(grep -Fxn '        ok=0' "$WRAPPER" | head -1 | cut -d: -f1)
+EX7_FIRST=$(grep -nE '^[[:space:]]*exit 7$' "$WRAPPER" | head -1 | cut -d: -f1)
+if [[ "$OK0_N" -eq 2 && "$EX7_N" -eq 2 && -n "$PRE_CALL" && -n "$FAIL_CALL" \
+      && "$PRE_CALL" -lt "$OK0_FIRST" && "$OK0_FIRST" -lt "$FAIL_CALL" && "$FAIL_CALL" -lt "$EX7_FIRST" ]]; then
+  printf '  ok    %-56s %s\n' "11 both cannot-tell branches present, in the right guard" "ok0=2 exit7=2"
 else
-  printf '  FAIL  %-56s %s\n' "9 a script does not parse (bash -n)" "fix this first"
+  printf '  FAIL  %-56s ok0=%s(@%s) exit7=%s(@%s) pre@%s fail@%s\n' \
+    "11 A14 cannot-tell branches missing or misplaced" "$OK0_N" "${OK0_FIRST:-?}" "$EX7_N" "${EX7_FIRST:-?}" "${PRE_CALL:-?}" "${FAIL_CALL:-?}"
+  FAILURES=$((FAILURES + 1))
+fi
+
+# --- 12. Both scripts still parse ---------------------------------------------------------------
+if bash -n "$WRAPPER" 2>/dev/null && bash -n "$SCRIPT_UNDER_TEST" 2>/dev/null; then
+  printf '  ok    %-56s %s\n' "12 run-loop-news.sh and assert-published.sh parse" "ok"
+else
+  printf '  FAIL  %-56s %s\n' "12 a script does not parse (bash -n)" "fix this first"
   FAILURES=$((FAILURES + 1))
 fi
 

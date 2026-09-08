@@ -187,6 +187,9 @@ stamp() { date -u +%Y-%m-%dT%H:%M:%SZ; }
 # fix is to stop re-implementing the question rather than to paste `merge-base` in three places.
 #
 # Returns assert-published.sh's code verbatim: 0 published · 1 checked, not ours · 2 CANNOT TELL.
+# ANY OTHER CODE means the checker itself did not run — a missing or unreadable script is rc 127
+# from bash, not a verdict — and callers must treat it exactly like 2. So enumerate 0 and 1, and
+# make the catch-all fail closed: a `*)` arm that means "checked cleanly" is a fabricated result.
 # Sets MAIN_SHA_NOW to the freshly-fetched origin/main (empty when it could not be resolved) and
 # ASSERT_OUT to the diagnostic, so callers can log which guard fired without re-running anything.
 # assert-published.sh does the fetch, with its own bounded retry, so callers must not fetch first.
@@ -449,8 +452,8 @@ while (( attempt <= MAX_ATTEMPTS )); do
   # which is common in this repo), and that must NOT be mistaken for "this run already
   # published" — doing so would silently skip a day's digest that was never written.
   if (( ok )); then
-    published_state "$WT_DIR"
-    case $? in
+    published_state "$WT_DIR"; rc_pre=$?
+    case "$rc_pre" in
       0)
         echo "[$(stamp)] attempt ${attempt}: origin/main already has a loop-news commit — Stage B would be redundant, skipping" | tee -a "$LOG_FILE"
         success=1; break
@@ -466,7 +469,7 @@ while (( attempt <= MAX_ATTEMPTS )); do
         echo "[$(stamp)] attempt ${attempt}: cannot tell whether origin/main already carries this run — not starting Stage B" | tee -a "$LOG_FILE"
         ok=0
         ;;
-      *)
+      1)
         # Checked cleanly, and the commit is not ours. If main moved anyway, a human merged
         # something concurrently — rebase our notion of "base" forward so the publish-safety guard
         # below does not later mistake that same unrelated advance for "our run already published."
@@ -474,6 +477,14 @@ while (( attempt <= MAX_ATTEMPTS )); do
           echo "[$(stamp)] attempt ${attempt}: origin/main advanced for an unrelated reason — continuing" | tee -a "$LOG_FILE"
           BASE_SHA="$MAIN_SHA_NOW"
         fi
+        ;;
+      *)
+        # The checker did not run at all — bash returns 127 when scripts/assert-published.sh is
+        # missing from $REPO_ROOT, which is the PRIMARY checkout that this repo's own rules warn
+        # another agent may check out to an older commit mid-run. Not a verdict, so never read as
+        # one. Same action as 2.
+        echo "[$(stamp)] attempt ${attempt}: assert-published.sh returned an unexpected status ${rc_pre} — the check did not run: ${ASSERT_OUT}" | tee -a "$LOG_FILE"
+        ok=0
         ;;
     esac
   fi
@@ -510,29 +521,63 @@ while (( attempt <= MAX_ATTEMPTS )); do
   # unrelated reason (a concurrently-merged human PR), which must not be mistaken for
   # "our push already happened" — that would wrongly abandon a legitimately retriable
   # failure. Check for a matching loop-news commit in the delta, not just "did it move."
-  published_state "$REPO_ROOT"
-  case $? in
+  published_state "$REPO_ROOT"; rc_fail=$?
+  case "$rc_fail" in
     0)
       notify "Attempt ${attempt} failed AFTER publishing (origin/main has our loop-news commit) — not retrying; check repo state."
       exit 1                           # B already pushed → never retry (would double-commit)
       ;;
     2)
-      # CANNOT TELL, so do not retry. This guard exists to stop a second publish, and the whole
-      # point of a retry here is to push again — doing that blind after a history rewrite is
-      # exactly how the digest gets committed twice. Losing the day is recoverable and the 48h
-      # freshness watchdog pages for it; a duplicate commit on main is not. Stage A's artifact and
-      # any Stage-B checkpoints are preserved by cleanup(), so a resumed re-run is cheap.
+      # CANNOT TELL, so do not retry the PUSH. This guard exists to stop a second publish, and the
+      # whole point of a retry here is to push again — doing that blind after a history rewrite is
+      # exactly how the digest gets committed twice. Losing the day is recoverable: cleanup()
+      # preserves Stage A's artifact and any Stage-B checkpoints, so tomorrow resumes cheaply,
+      # whereas a duplicate commit on main is unpicked by hand.
+      #
+      # BE PRECISE ABOUT THE BACKSTOP — it is weaker than it sounds, and this comment is the ground
+      # for the trade-off. check-digest-freshness.sh runs at 09:00 UTC against MAX_AGE_HOURS 48
+      # while the tracker fires 04:00-05:00 UTC, so a SINGLE lost day reads ~29h old and the
+      # watchdog prints FRESH — it pages nobody. Only a second consecutive miss (~53h) crosses the
+      # threshold. Until then the only signal is notify(): a desktop popup and a gitignored day
+      # log, both on the machine that failed. So this trades a possibly silent lost day against a
+      # certain duplicate commit, and takes the silent one knowingly.
+      #
+      # Re-check once before giving up. Retrying the CHECK is not retrying the PUSH, so the safety
+      # property is untouched: assert-published.sh's own window is 3 tries x 2s, far shorter than
+      # this loop's own backoff, and a transient blip deserves that backoff while a genuine rewrite
+      # simply answers 2 again.
       echo "[$(stamp)] ${ASSERT_OUT}" | tee -a "$LOG_FILE"
-      notify "Attempt ${attempt} failed and the publish-safety check could not tell whether we published — not retrying, because retrying blind is how the digest gets committed twice. Stage A's artifact and any checkpoints on ${TEMP_BRANCH} are preserved. See ${LOG_FILE}."
-      exit 7
+      wait_recheck="${BACKOFF_SECONDS[$((attempt - 1))]}"
+      echo "[$(stamp)] publish-safety check could not tell — re-reading (not re-pushing) in ${wait_recheck}s before giving up" | tee -a "$LOG_FILE"
+      sleep "$wait_recheck"
+      published_state "$REPO_ROOT"; rc_recheck=$?
+      if (( rc_recheck == 0 )); then
+        notify "Attempt ${attempt} failed AFTER publishing (the re-check confirmed our commit on origin/main) — not retrying; check repo state."
+        exit 1
+      elif (( rc_recheck == 1 )); then
+        echo "[$(stamp)] re-check settled it: nothing of ours on origin/main — continuing to retry" | tee -a "$LOG_FILE"
+        if [[ -n "$MAIN_SHA_NOW" && "$MAIN_SHA_NOW" != "$BASE_SHA" ]]; then BASE_SHA="$MAIN_SHA_NOW"; fi
+      else
+        echo "[$(stamp)] ${ASSERT_OUT}" | tee -a "$LOG_FILE"
+        notify "Attempt ${attempt} failed and the publish-safety check still could not tell whether we published (status ${rc_recheck}) — not retrying, because retrying blind is how the digest gets committed twice. Stage A's artifact and any checkpoints on ${TEMP_BRANCH} are preserved. See ${LOG_FILE}."
+        exit 7
+      fi
       ;;
-    *)
+    1)
       # Checked cleanly, nothing of ours on main. If it moved, a human merged something
       # concurrently — rebase forward and keep retrying rather than abandoning a retriable failure.
       if [[ -n "$MAIN_SHA_NOW" && "$MAIN_SHA_NOW" != "$BASE_SHA" ]]; then
         echo "[$(stamp)] origin/main advanced for an unrelated reason during attempt ${attempt} — continuing" | tee -a "$LOG_FILE"
         BASE_SHA="$MAIN_SHA_NOW"
       fi
+      ;;
+    *)
+      # The checker did not run (127 = the script is not on disk; anything else is off-contract).
+      # Falling through to the retry below would push again without ever having asked whether we
+      # already published — the one thing this guard exists to prevent, reached through a side door.
+      echo "[$(stamp)] ${ASSERT_OUT}" | tee -a "$LOG_FILE"
+      notify "Attempt ${attempt} failed and the publish-safety check itself did not run (status ${rc_fail}) — not retrying. Is scripts/assert-published.sh present in ${REPO_ROOT}? Stage A's artifact and any checkpoints on ${TEMP_BRANCH} are preserved. See ${LOG_FILE}."
+      exit 7
       ;;
   esac
   if (( attempt < MAX_ATTEMPTS )); then
@@ -571,7 +616,8 @@ fi
 # assertion placed after retirement would destroy Stage A's ~23-minute search on the exact failure
 # it exists to catch, turning a cheap resumed re-run into a full re-search — against this repo's
 # "every expensive stage must be resumable" rule. verify-publish-guard.sh's case 8 checks the
-# placement AND the arguments mechanically; re-run it if you touch this block or that script.
+# placement and ordering; case 10 pins the arguments, once, inside published_state(). Re-run it if
+# you touch this block or that script.
 #
 # ON "LOUDLY": notify() is an osascript popup plus this machine's gitignored day log. The only
 # off-machine signal remains scripts/check-digest-freshness.sh under tracker-watchdog.yml (daily,
