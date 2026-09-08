@@ -372,6 +372,26 @@ else
   FAILURES=$((FAILURES + 1))
 fi
 
+# --- 11b. Both catch-all arms must FAIL CLOSED --------------------------------------------------
+# published_state() returns assert-published.sh's code verbatim, so a `case` that enumerates only
+# 0 and 2 sweeps every other value — including bash's 127 when the script is missing from the
+# PRIMARY checkout another agent may have moved mid-run — into `*)`. When that arm meant "checked
+# cleanly, not ours", the failure-path guard RETRIED after a successful push and committed the
+# digest twice. Found by adversarial review, reproduced at rc=127. Both arms must therefore be
+# reached only by off-contract codes and must say so: `1)` is named explicitly, and no `*)` may
+# carry the "Checked cleanly" body. Deleting this check is how the hole comes back.
+CATCH_N=$(grep -cE '^[[:space:]]+\*\)$' "$WRAPPER")
+CATCH_OPEN=$(grep -A4 -E '^[[:space:]]+\*\)$' "$WRAPPER" | grep -c 'Checked cleanly')
+CATCH_CLOSED=$(grep -A4 -E '^[[:space:]]+\*\)$' "$WRAPPER" | grep -c 'checker did not run\|check did not run')
+ARM1_N=$(grep -cE '^[[:space:]]+1\)$' "$WRAPPER")
+if [[ "$CATCH_N" -eq 2 && "$CATCH_OPEN" -eq 0 && "$CATCH_CLOSED" -eq 2 && "$ARM1_N" -eq 2 ]]; then
+  printf '  ok    %-56s %s\n' "11b catch-alls fail closed, 1) named explicitly" "catch=2 open=0 closed=2 arm1=2"
+else
+  printf '  FAIL  %-56s catch=%s open=%s closed=%s arm1=%s (need 2/0/2/2)\n' \
+    "11b a catch-all arm can be reached as 'checked cleanly'" "$CATCH_N" "$CATCH_OPEN" "$CATCH_CLOSED" "$ARM1_N"
+  FAILURES=$((FAILURES + 1))
+fi
+
 # --- 12. Both scripts still parse ---------------------------------------------------------------
 if bash -n "$WRAPPER" 2>/dev/null && bash -n "$SCRIPT_UNDER_TEST" 2>/dev/null; then
   printf '  ok    %-56s %s\n' "12 run-loop-news.sh and assert-published.sh parse" "ok"
