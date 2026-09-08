@@ -25,8 +25,8 @@ adversarial review. Open *content* work still sits in `KB_GAPS.md` § *Active Ga
   `scripts/**` or `.claude/skills/**`. Nothing invoked either before this.
 - Docs synced in the same change: `docs/09` gained a point 5 (its old parenthetical "the wrapper
   still judges success by exit code" was falsified by this commit), `docs/17`'s scheduler-death row
-  now names the implementation, `LOOP_ENGINEERING.md`'s row 9, `CLAUDE.md` (open-work note → a
-  one-line pointer; two map rows for the new scripts), and the backlog.
+  now names the implementation, `LOOP_ENGINEERING.md`'s row 9, `CLAUDE.md` (open-work note
+  rewritten to name `A14`; two map rows for the new scripts), and the backlog.
 
 ## What is NOT done, and is logged rather than implied
 - **`notify()` is still desktop-only.** An osascript popup plus a gitignored day log, both on the
@@ -86,7 +86,12 @@ in place for a cheap resumed re-run.
 7. **Deleting a stale note can be worse than editing it.** `CLAUDE.md`'s open-work note met its own
    stated delete condition, but deleting it outright would have left the backlog and `KB_GAPS.md`
    unreachable from the entry point — the exact defect `v3.5.0` had just fixed for `RESUME.md`.
-   Replaced with a one-line pointer instead.
-8. **Carried from the last branch, still true:** backlog line numbers are stale by default (re-grep
+   Rewritten in place instead, and its delete condition now says *replace with a pointer*.
+8. **Prose describing an edit goes stale when the edit changes.** Round 1 made that note a one-line
+   pointer and three files said so; round 2 rewrote it to ten lines naming `A14` and none of the
+   three were re-read. One changelog bullet ended up contradicting itself inside a single
+   paragraph. **Re-read what you wrote *about* a file whenever you touch the file again** — and
+   never put a line count in a changelog, because it is false as soon as anyone edits again.
+9. **Carried from the last branch, still true:** backlog line numbers are stale by default (re-grep
    the anchor, never cite a new number); a guard must be placed where its precondition holds; a
    harness that cannot produce a failure proves nothing; verify a date, do not compute one.

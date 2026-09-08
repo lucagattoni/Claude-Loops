@@ -145,12 +145,18 @@ set: the project's own tier table is doc-scoped, so the global new-capability ru
   themselves exist to catch, one level up. The skills path is in the filter because
   `verify-digest-guard.sh`'s subject is Phase 5d of `integrate-loop-news/SKILL.md`, which can be
   falsified without touching `scripts/` at all.
-- **`CLAUDE.md`'s open-work note is now a one-line pointer, not a deletion.** The note met its own
-  stated delete condition (every tier empty), but deleting it outright would have left the backlog
-  and `KB_GAPS.md` unreachable from the entry point — the defect `[3.5.0]` had just fixed for
-  `RESUME.md`. Two map rows added for the new scripts. 162 → 159 lines. The note names `A14`
-  rather than claiming an empty backlog — see below — and its own delete condition now says to
-  *replace* it with a pointer rather than remove it.
+- **`CLAUDE.md`'s open-work note was rewritten, not deleted.** The note met its own stated delete
+  condition (every tier empty), but deleting it outright would have left the backlog and
+  `KB_GAPS.md` unreachable from the entry point — the defect `[3.5.0]` had just fixed for
+  `RESUME.md`. Two map rows added for the new scripts. The note names `A14` rather than claiming
+  an empty backlog — see below — and its own delete condition now says to *replace* it with a
+  pointer rather than remove it.
+
+  *Corrected 20260908: this bullet originally read "is now a one-line pointer" and "162 → 159
+  lines". Both were true of round 1 and false by the time the PR merged — round 2 rewrote the note
+  again to name `A14`, making it ten lines, and the file was **164** lines at merge. The prose
+  describing an edit was not re-read after the edit changed. A line count in a changelog goes stale
+  the moment the file is touched again, so it is dropped here rather than restated.*
 - **`docs/17-failure-patterns.md`**'s silent-scheduler-death row now names the implementation of
   the fix it prescribes; **`LOOP_ENGINEERING.md`** row 9 gained the wrapper shape;
   **`RESUME.md`** replaced; **`A13`** struck in the backlog with a status paragraph recording that
