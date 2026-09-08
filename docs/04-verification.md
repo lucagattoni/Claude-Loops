@@ -343,6 +343,22 @@ are the converging community answer to [Verifier Theater](17-failure-patterns.md
 verifier, the contract, and the evidence all live outside the agent's reach, no single judge
 can wave work through, and the judge that does check does not share the maker's blind spots.
 
+**A sixth mechanism, orthogonal to the five above: a reviewer with no shell at all, and an
+advisory-only skeptic that cannot start a round.** A CLI driving a Codex-implementer /
+Claude-panel review loop found that restricting tool access is not the same as denying it:
+"an allowlist as narrow as `Bash(git diff:*)` still permits `git diff --output=FILE`, which
+git creates," so a reviewer holding any shell — however constrained — can still write. The
+fix is structural rather than a tighter allowlist: the reviewer gets **no shell at all**, and
+the diff it needs is written to a run-dir patch file for it to `Read` instead. Separately, the
+panel splits into two files with different authority — `.rb-lite-reviewers` (gating: a finding
+here starts another round) and `.rb-lite-skeptics` (advisory: findings reach the implementer
+in every round the gating reviewers keep alive, but a skeptic alone never starts one and never
+blocks a clean verdict). The skeptic's job is explicitly to argue for removing scope — "the
+only one that can argue for removing something, which is what keeps a run from ratcheting" —
+and making it advisory-only is what stops a skeptic from becoming a second gate that can never
+converge: across eight runs on one drive, the panel went clean zero times when a skeptic's
+findings were allowed to gate. ([douglaz/rb-lite](https://github.com/douglaz/rb-lite), Sep 2026.)
+
 **Arbitrating disagreement between cross-model reviewers.** Once you pair multiple
 independent models as reviewers (pattern 5), a new question follows: what do you do when
 they disagree? A multi-model (Claude + Codex + Gemini) reconciliation harness found that

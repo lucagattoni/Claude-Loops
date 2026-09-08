@@ -54,6 +54,35 @@ targeted GitHub and web searches.
   `parallel review agent cost benchmark`, `"ensemble" vs "chorus" LLM reviewers`, `graph
   vs sequential loop cost comparison agent`.
 
+### Logged by the 2026-09-08 tracker run
+
+- **"Loop engineering" / "harness engineering" GitHub search is now dominated by a
+  copycat genre, not novel contributions.** Of 30 newly-surfaced GitHub repos this run
+  (from `"loop engineering claude"`, `"claude code harness"`, and cross-model
+  maker/checker searches), 19 were thin restatements of maker/checker gates, worktree
+  isolation, budget caps, or stop-conditions already deep in this KB — several with zero
+  commits beyond scaffold, or single-file `SKILL.md` repos under 5KB. The term has become
+  a genre label attached to generic agent-wrapper templates rather than a marker of
+  genuine technique. **Implication for future sourcing:** weight signal (real code,
+  measured numbers, working examples surviving a fetch-and-read) over repo-name keyword
+  matches; expect the raw hit count on these two GitHub queries to keep climbing without
+  the useful-fraction climbing with it. Not a search-keyword gap — a standing caveat on
+  how to read future hits from these same queries.
+- **Hanako's X account (`@hanakoxbt`, tracked as a loop/graph-engineering source) is now
+  primarily promoting a crypto token ($GRAPHRUN).** Flagged during Stage A of this run
+  (2026-09-08) but not carried into the artifact, since `fetch-loop-news` writes only
+  `.loop-news/findings.json` and this is a source-quality judgment, not a finding. Needs a
+  human or a future run to decide whether to drop this source from `SOURCES.md` or keep it
+  with a narrower content filter — a source whose *account* has pivoted can still produce
+  an occasional on-topic post, so "still worth reading this specific post" and "still worth
+  tracking the account" are different questions.
+- **A LinkedIn search hit an SSO/login-wall stop during this run's Stage A.** LinkedIn
+  search results in this pipeline depend on being logged in; a session-expiry or
+  login-wall mid-search silently truncates results rather than failing loudly — the exact
+  failure shape this KB's "a check that cannot tell must fail, never pass" rule exists to
+  catch. Not actionable as a search-keyword gap; logged so a future run investigating
+  thin LinkedIn coverage checks session validity first rather than assuming a quiet week.
+
 ### Logged by the C10 changelog sweep, 2026-09-07
 
 These came out of reading all 3,774 previously-unswept changelog bullets. Each is real and each

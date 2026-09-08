@@ -429,6 +429,25 @@ implementation to deciding which disposable proposal is worth keeping.
 
 ---
 
+### [How I AI: GPT-6 Astra is a banger + Stripe's AI playbook + Grok Bot vs. OpenClaw](https://www.lennysnewsletter.com/p/how-i-ai-gpt-6-astra-is-a-banger) — Claire Vo
+**Added:** 2026-09-08 · **Published:** Sep 2026
+
+**Why here:** A concrete personal-agent-portability pattern not documented elsewhere in this
+group: migrating an entire live agent stack (accounts, routines, permissions) between
+platforms without starting over, plus an "each bot as a new hire" approval-gate framing for
+where human sign-off belongs in an otherwise autonomous personal-agent setup.
+
+**Summary:** A practitioner roundup covering three threads. GPT-6 Astra's computer-use jump
+(priced $10/$50 per million input/output tokens) solved a stalled six-month product feature
+90% of the way on first attempt. Separately covers Stripe's internal "Kai" platform (see
+[The Factory Model](26-factory-model.md#named-factory-deployments) for the deep-read). The
+reading-list-relevant thread is Vo's own migration from OpenClaw to Grok Bot: six Gmail
+accounts and multiple Slack/Linear agents exported via a secrets-free archive (a "brain
+transplant" between platforms), with human approval gates reserved for high-stakes actions —
+treating each bot's onboarding like hiring a new employee rather than installing software.
+
+---
+
 ## Reference Implementations
 
 Open-source projects demonstrating complete loop engineering implementations.

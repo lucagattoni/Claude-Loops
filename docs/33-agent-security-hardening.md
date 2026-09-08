@@ -354,6 +354,20 @@ also reproduced via harness-provided persistent goals and scheduled tasks, not j
 single malicious turn.
 ([arXiv 2608.27299, "When Context Gets Root"](https://arxiv.org/abs/2608.27299), Aug 2026.)
 
+**A concrete, running mitigation for the memory-file instance of this class.** Persistent
+memory is a standing instance of context privilege escalation above — a poisoned lesson
+file reloads at every session start with the same implicit trust as an agent's own
+observations. A small, runnable defense: before a session loads memory, a low-effort model
+pass scans each lesson file and quarantines (moves aside for a human, never loaded) any
+file that **issues instructions** to the agent ("always run", "you must", "ignore
+previous"), **carries URLs, credentials, or encoded blobs**, or **lacks a provenance line**
+stating what evidence produced it. A useful edge case in the implementation: a model
+*refusal* on the content is itself treated as a quarantine signal, not an error to retry
+past. This is memory-specific, session-start-only enforcement — narrower than the
+harness-wide context-tagging fixes above, but cheap enough to run before every session
+starts. ([kenhuangus/fable5](https://github.com/kenhuangus/fable5), Sep 2026 — citing
+Anthropic's containment framing that "an injection reloads at every agent startup.")
+
 ## Emergent Multi-Agent Coordination Risk
 
 The controls above assume a single agent (or fleet) under one owner's policy. A distinct

@@ -214,6 +214,22 @@ Durable state (`workflow-state.md`) records phase, step, pending gates, and per-
 evidence, so a session resumes mid-workflow across a context reset rather than
 restarting the DAG. ([KaolaBrother/Kaola-Workflow](https://github.com/KaolaBrother/Kaola-Workflow), Jul 2026.)
 
+**Two further cost-shaping mechanisms for the same gated-DAG shape:**
+
+- **Gate-first fan-out**: a cheap, single dedicated reviewer runs *alone* first; the
+  expensive N-lens parallel fan-out only runs *to confirm* a clean verdict from that
+  dedicated pass. A failing round never pays the fan-out cost — parallelism is spent only
+  where it can change the outcome, the same principle as
+  [Classifier-Gated Parallelism](#task-shaped-dag-orchestration) above, applied to review
+  depth instead of write-collision risk.
+- **Capture-once, inject-many**: one `git diff` is captured per review round and injected
+  into every reviewer's prompt, instead of letting each of several concurrent reviewers
+  independently re-run `git diff` and re-read the same files — measured at **~7.8x**
+  redundant reads avoided in the source repo's own accounting. External corroboration for
+  the bounded-loop cap itself: LangGraph ships the identical guard as `recursion_limit`
+  (default **25**), raising `GraphRecursionError` when a graph loop never converges.
+  ([max9159/system-design](https://github.com/max9159/system-design), Sep 2026.)
+
 ## Self-Improving Harnesses
 
 If the harness is the leverage point — and it can be tested
@@ -384,6 +400,28 @@ handful of iterations in a benchmark run — see
 [Long-Running Agents](25-long-running-agents.md) for the session-continuity mechanics a run
 this long depends on. ([arXiv 2609.01481, "Harness-of-Harness"](https://arxiv.org/abs/2609.01481), Sep 2026.)
 
+**Three practitioner instances from a YC panel, reported secondhand — cite the reporter,
+not an invented primary source.** A widely-repeated framing from the panel: *"the exact
+same model weights scored around 30% on ARC-AGI with a weak harness and roughly 95% with
+a better one"* — an anecdotal restatement of this cluster's central claim rather than a
+new measurement. Three named systems: **Prime Agent's `/refine`** command revises "the
+agent's own supplemental prompts, memories, and subagent specs" without touching model
+weights, built around a persistent IPython REPL it uses as its core reasoning surface (a
+Recursive Language Model architecture). **OpenJarvis** names five architectural
+primitives for a personal-agent harness — local inference, persistent memory, on-device
+tool execution, privacy boundaries, cloud fallback — with a cloud model periodically
+tuning the local setup before handing control back to it; the panel's own claim, unverified
+beyond this report, is roughly **800x** cheaper per routine task run locally versus the
+same task hitting a frontier cloud API. **QM**, the YC-internal fleet, runs "roughly 50
+agents, built on the OpenClaw project, across accounting, legal, events, and engineering
+work" — described as "pulling the brain out of the sandbox," decoupling persistent
+reasoning/state from disposable execution environments, a fleet-infrastructure pattern
+adjacent to [Fleet Engineering](23-fleet-engineering.md)'s crash-surviving identities.
+([explainx.ai, "YC Panel: Self-Improving Harnesses, OpenJarvis, and the Prime Agent /refine
+Loop"](https://explainx.ai/blog/yc-self-improving-harnesses-openjarvis-qm-panel-september-2026),
+Sep 2026 — no primary source located for Prime Agent or OpenJarvis; treat the 800x figure
+as an anecdotal panel claim, not a measured benchmark.)
+
 **The cost case, quantified.** A Hugging Face proposer/accept-reject loop that rewrote *only*
 the harness code around a frozen model matched Sonnet 4.6's legal-agent-benchmark score at
 roughly **7x lower inference cost** — and with identical model and tasks, score ranged from
@@ -460,6 +498,47 @@ robustness applies the same verification-loop/adversarial-review pattern this do
 for correctness ([Self-Improving Harnesses](#self-improving-harnesses)) to model *safety*
 instead — the harness evolves against attacks the same way it evolves against task failures.
 ([OpenAI, "GPT-Red: Unlocking Self-Improvement for Robustness"](https://openai.com/index/unlocking-self-improvement-gpt-red), Jul 2026.)
+
+## Agent Tool-Choice Bias
+
+How does an agent pick *which* library or SaaS tool to reach for when several would work?
+A controlled study — 5,292 validated sessions (of ~17,000 raw), 1,163 prompt variations,
+75 repos, three agents (Claude Code, Codex, Cursor), simulated human-in-the-loop via
+Gemini 3.7 Flash — measured this directly rather than assuming brand recognition
+transfers. It doesn't, cleanly:
+
+> "Watching seventeen thousand tool choice sessions in the analysis undertaken, we saw
+> twenty years of brand building carried out by tool vendors simply frozen in time.
+> Agents reach for Docker the second containers come up, then draw a blank on the
+> sandboxes it offers now... Your reputation follows you into the weights... but that
+> weight operates under a different kind of gravity today."
+>
+> — Theodore Otzenberger (Armature co-founder), quoted in [The New Stack, "'Twenty years
+> of brand building simply froze in time': How coding agents select their tools of
+> choice"](https://thenewstack.io/coding-agents-tool-choice/), 2026-09-07
+
+Concrete results: Resend won the TypeScript email-provider slot 55/89 sessions; SendGrid
+led Python (22/24), Postmark led Go (20/24), Azure Communication Services led Java
+(22/23). The three agents agreed on the same tool in only **42%** of cells tested. Per-agent
+behavior differs sharply in *how* the choice gets made: Cursor bases its decision on a web
+search in ~2/3 of sessions; Codex searches the web almost always (94%); Claude Code relies
+primarily on training priors and searches only ~30% of the time, but browses roughly 3x
+more pages than Codex when it does. Claude Code also builds in-house nearly twice as often
+as Codex or Cursor (19% vs. 10%) rather than reaching for an external dependency at all.
+Being *mentioned* is not being *chosen*: PayPal was cited 139 times across sessions and
+selected zero times; LangChain was the most-mentioned framework (194 mentions) but chosen
+only four times.
+
+**Why this belongs in a harness doc, not a marketing one.** Tool selection is itself a
+harness decision the agent makes autonomously, with real security and lock-in
+consequences (which SaaS gets your API keys, which library enters the dependency tree) —
+and it is driven by training-data prevalence and repo context, not the vendor's current
+pricing, feature set, or docs quality. A harness that constrains tool choice to an
+explicit allow-list (see [Curated Allow-list](#harness-vs-environment-engineering) above)
+removes this bias entirely rather than fighting it. See
+[Agent Security Hardening](33-agent-security-hardening.md) for the supply-chain angle —
+vendors optimizing pricing/docs pages to bias agent tool choice is an emerging SEO-for-agents
+attack surface, not yet observed in the wild but structurally enabled by this finding.
 
 ## Ledger Closure for Interrupted Tool Calls
 

@@ -18,6 +18,44 @@ Versioning follows [Semantic Versioning](https://semver.org/):
 
 ---
 
+## [3.6.1] — 20260908 05:01
+
+Loop news run 2026-09-08 04:00 UTC — 92 new findings after dedup (24 already covered under
+differently-versioned arXiv URLs, no doc changes needed for those), 0 new docs, 8 existing docs
+updated. No tag/release — this is a pipeline-cut version; see `CLAUDE.md` § Releases for the
+manual-backfill convention.
+
+### Changed
+- `docs/26-factory-model.md` — Stripe's "Kai" internal agent platform added as a Named Factory
+  Deployment (10,000+ weekly users, 86% adoption, "Projects" governance layer, a near-incident
+  naming identity management and load-shedding as the fix)
+- `docs/11-cost-control.md` — extended the OpenAI research-acceleration telemetry with The New
+  Stack's follow-on reporting on the same source (Epoch AI task taxonomy, a July 20 outage that
+  took OpenAI's training container service offline, an Aug 7 Astra safety-threshold access cut,
+  the March 2028 automated-researcher goal)
+- `docs/24-harness-patterns.md` — new "Agent Tool-Choice Bias" section (5,292-session tool-selection
+  study: brand mentions vs. actual selection, per-agent web-search behavior); Task-Shaped DAG
+  Orchestration extended with gate-first fan-out + capture-once/inject-many (~7.8x redundant-read
+  savings); Self-Improving Harnesses extended with the YC panel (Prime Agent /refine, OpenJarvis,
+  QM's 50-agent OpenClaw fleet)
+- `docs/04-verification.md` — Verifier Integrity extended with rb-lite's no-shell reviewer
+  enforcement and advisory-only skeptic (cannot gate a review round, only inform one)
+- `docs/10-fan-out.md` — added a git-ref-based distributed loop lock for cross-worktree/cross-clone
+  coordination (deterministic ref-sort race resolution, local-only degrade mode)
+- `docs/33-agent-security-hardening.md` — added a session-start memory-quarantine gate against
+  poisoned lesson files (flags instructions, credentials/URLs, or missing provenance)
+- `docs/16-memory-patterns.md` — cross-referenced the new memory-quarantine gate in docs/33
+- `docs/32-reading-list.md` — added Claire Vo's "How I AI: GPT-6 Astra is a banger..." to Loops in
+  Production
+- `KB_GAPS.md` — logged the GitHub-search buzzword-genre finding for "loop engineering"/"harness
+  engineering" (19 of 30 newly-surfaced repos this run were thin copycats); logged a source-quality
+  flag on Hanako's X account (now primarily promoting a crypto token) and a LinkedIn search
+  SSO-wall stop from this run's Stage A
+- `SOURCES.md` — flagged the Hanako source-quality concern inline; no new standing sources added
+  (all 28 new candidate GitHub repos scored below the deep-read bar)
+
+---
+
 ## [3.6.0] — 20260907 10:18
 
 Backlog **`A13`**, the last open item: the wrapper judged a run by whether `claude -p` exited 0.

@@ -278,6 +278,23 @@ Escalation](14-human-in-the-loop.md) as much as for cost: high spend and high le
 not eliminate the need for a human checkpoint, they just moved where it falls.
 ([OpenAI, "Research acceleration: The view inside OpenAI"](https://openai.com/index/research-acceleration-view-inside-openai), Sep 2026.)
 
+**Secondary coverage of the same report adds the operational detail the ratio implies.**
+The New Stack's reporting breaks the internal usage into Epoch AI's six-area taxonomy —
+Decide, Design, Build, Run, Analyze, Communicate — and names two supervision-cost signals
+the raw ratio doesn't show: internal debugging-office-hours attendance fell enough that
+one team stopped holding them, and a **July 20** series of agent-caused outages was severe
+enough that OpenAI took its training container service offline. A second incident — early
+evidence the frontier model (GPT-6 Astra) could reach the "Critical" cybersecurity
+threshold in OpenAI's own Preparedness Framework — led to an access tightening on
+**Aug 7** that cut Astra-class GPU allocation **59.2%** in the following week, with other
+models absorbing roughly 85% of that drop. OpenAI's stated next target is an automated AI
+researcher by **March 2028**. Read this as evidence that high spend and high leverage
+create their own supervision failure modes (outages, safety-threshold near-misses), not
+just a cost number to budget against.
+([Amanda Caswell, "AI Agents Create More Work Than They
+Eliminate,"](https://thenewstack.io/openai-agent-research-bottleneck/) The New Stack,
+2026-09-07 — reporting on the same OpenAI source above.)
+
 ## Token cost by loop pattern
 
 Concrete benchmarks from operating named loop patterns (Cobus Greyling, [cobusgreyling/loop-engineering](https://github.com/cobusgreyling/loop-engineering), Jun 2026):

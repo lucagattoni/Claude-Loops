@@ -337,6 +337,11 @@ See [Context Management](13-context-management.md) for why compaction makes dura
 necessary, and [Harness Patterns](24-harness-patterns.md#control-plane-execution-plane-split-kernel-gated-mutation)
 for the kernel that can be the *sole authorized writer* to such a ledger.
 
+See [Agent Security Hardening](33-agent-security-hardening.md#hook-and-context-trust-attacks-sept-2026-research)
+for the security-hardening angle on the same durable-memory surface: a poisoned lesson
+file reloads with implicit trust at every session start, and a session-start quarantine
+scan is the concrete mitigation.
+
 **The blind-spot ledger.** A doctrine-tier artifact specifically for *review misses*: an
 append-only log where each review cycle records *why* a finding was missed, categorised
 (not just what was missed). The next review cycle reads the ledger and pre-checks those

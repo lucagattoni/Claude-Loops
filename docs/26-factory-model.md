@@ -140,6 +140,18 @@ critical systems or complex state management.
   human-paced one for the PRs it's confident about, with humans reserved for the
   PRs the gate itself flags as uncertain.
   ([@thorstenball repost via @steipete](https://x.com/thorstenball/status/2074377949181030491), Jul 2026.)
+- **Stripe's "Kai"**: an internal agent platform used by 10,000+ employees per week (86%
+  company-wide adoption), built by "1.5 engineers in 2 weeks." Its skill library holds
+  ~2,000 skills, ~50 used company-wide every day. The governance mechanism is "Projects" —
+  a permissions/data-access layer letting agents "query safely at scale" over
+  infrastructure originally built for human developers, not agents. A near-incident
+  (agents "nearly take down production systems") named identity management and
+  load-shedding as the specific fixes, not a broader pullback. The team's own framing of
+  where the actual difficulty sits: *"The hardest part of bringing AI into a large
+  company isn't the model — it's governance."*
+  ([Sharadh Krishnamurthy, "Build your own company brain: the enterprise AI playbook from
+  Stripe's engineering team," Lenny's
+  Newsletter](https://www.lennysnewsletter.com/p/build-your-own-company-brain-the), Sep 2026.)
 - **Bun's granular decomposition of a total rewrite**: rather than dispatching
   "rewrite Bun in Rust" as one instruction, the work was broken into a sequence
   small enough for parallel agents to execute mechanically: generate porting guides

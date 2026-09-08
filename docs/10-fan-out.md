@@ -76,6 +76,19 @@ write-time lock above actually has to deny anything. See
 for the full pattern; the two checks are complementary layers, not substitutes for
 each other.
 
+**A remote lock for coordination that must survive across clones and worktrees**, not just
+within one working copy. Kanevry's write-claim above protects agents sharing one working
+copy; a git-ref-based lock extends the same idea to agents in *separate* worktrees or
+clones by publishing the claim as a ref on the remote: `refs/loop-lock/<feature>.<epoch>`.
+Race resolution is deterministic without a coordinator: "after publishing, the acquirer
+re-lists the lock refs and keeps the lock only if its own ref sorts first — two racing
+acquirers resolve deterministically, the loser backs off." A lock older than a stale-hours
+threshold (2h by default) is treated as abandoned and reclaimable. It degrades gracefully
+when there is no shared remote to publish to — falling back to a local-only lock file
+rather than failing closed.
+([muzafferkadir/nextjs-loop-engineering-starter](https://github.com/muzafferkadir/nextjs-loop-engineering-starter),
+Sep 2026.)
+
 ## Multi-Loop Coordination
 
 For repos running multiple distinct loops (CI Sweeper + PR Babysitter + Dependency
