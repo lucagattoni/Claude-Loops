@@ -89,6 +89,15 @@ Dependent tasks unblock automatically when a task they depend on completes, with
 the user. Agents without the Task tools coordinate through messages instead of the shared task
 list. (Quotes: [Agent teams](https://code.claude.com/docs/en/agent-teams).)
 
+**File locking needs a forced-interleaving test to pin a race, not a hope of flaky
+reproduction.** A file-locked task-claiming scheme can still admit two holders if a reclaim's
+staleness check runs before the rename that frees the lock path — a third contender's
+`O_CREAT|O_EXCL` can win the momentarily-free path in between. The fix is a narrowing
+(re-confirm the lock still holds the judged-stale file immediately before moving it), not an
+elimination — POSIX has no rename-if-unchanged. Root-causing this class of bug reliably means
+writing a test that forces the interleaving rather than waiting for it to reproduce naturally.
+([eugenelim/agent-ready-repo](https://github.com/eugenelim/agent-ready-repo), Sep 2026.)
+
 **Mailboxes.** Each agent's mailbox is a JSON file at
 `~/.claude/teams/{team-name}/inboxes/{agent-name}.json`. Claude Code validates every entry it
 reads; a malformed entry is reported as an error and removed, and the valid messages are still

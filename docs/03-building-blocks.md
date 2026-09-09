@@ -213,6 +213,18 @@ Invoke it: `/fix-issue 1234`
 `disable-model-invocation: true` confirmed there; cross-checked against `claude --version`
 **2.1.263**, 2026-09-06.*
 
+**When skills beat subagents.** Anthropic's own commerce-agent reference architecture chooses
+skills over domain-specific subagents by default: *"a commerce conversation is one tightly
+coupled session across multiple intents and turns, and requires considerable shared context,"*
+and a subagent handoff is a "state-lossy operation" that loses that context — a concrete
+counter-example to reflexively reaching for [subagents](07-subagents.md) whenever a task looks
+delegable. A companion heuristic for what goes where: content relevant to roughly a third or
+more of traffic belongs in the system prompt; everything else goes in a skill. ([Anthropic, "A
+guide to the anatomy of effective commerce agents"](https://claude.com/blog/the-anatomy-of-effective-commerce-agents), Sep 2026; reference implementation:
+[anthropics/commerce-agents](https://github.com/anthropics/commerce-agents), Sep 2026 — the same
+agent definition (prompt, skills, tool contracts) runs unmodified across the Messages API, the
+Agent SDK, and Managed Agents.)
+
 ## 4. Plugins / Connectors
 
 MCP servers that give the loop access to external systems: databases, browsers,

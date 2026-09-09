@@ -58,6 +58,20 @@ cross-run memory file ([Loop Contract](27-loop-contract.md#cross-run-memory-pers
 and behavioural eval harnesses that score real runs across multiple dimensions
 ([travisbreaks/coding-agent-evals](https://github.com/travisbreaks/coding-agent-evals), Jun 2026).
 
+## What a Turn Actually Sends (Codex, primary source)
+
+OpenAI's own account of the Codex CLI agent loop shows the turn abstraction above is not free:
+every turn resends the *entire* growing conversation as a JSON `input` list to a stateless
+Responses API (no `previous_response_id`, deliberately, to keep Zero-Data-Retention support
+simple) — with a fixed injection order of a sandbox-permissions message, optional developer
+instructions, aggregated AGENTS.md/skills content (capped at 32 KiB), and an environment-context
+block. This makes the loop quadratic in raw JSON size by construction; prompt caching turns
+effective cost linear only while the prefix stays byte-identical — changing the tool list, model,
+sandbox mode, or working directory mid-conversation invalidates the cache, so Codex appends new
+marker messages instead of editing earlier ones to preserve the shared prefix. ([OpenAI,
+"Unrolling the Codex agent loop"](https://openai.com/index/unrolling-the-codex-agent-loop), Jan
+2026; direct fetch 403s — captured via [Wayback](https://web.archive.org/web/20260904045804/https://openai.com/index/unrolling-the-codex-agent-loop/).)
+
 ## Loop Termination
 
 A session ends at one of these **runtime** signals. They are the mechanical events that

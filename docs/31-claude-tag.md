@@ -69,6 +69,14 @@ loops embedded across all team tools, not just the terminal.
 - 65% of Anthropic's product team's code is created using their internal version of Claude Tag
 - Powered by Claude Opus 4.8
 - "We see Claude Tag as the beginning of an evolution of Claude Code: it makes the model even more proactive, and it works better with a full team." — Anthropic, ["Introducing Claude Tag"](https://www.anthropic.com/news/introducing-claude-tag)
+- **A newer, higher figure — but paraphrase, not a direct quote.** Lenny's Podcast's own show notes
+  for a Feb 2026 episode with Anthropic CPO Mike Krieger state "90% of Claude's code is now written
+  by AI" and separately tease "90-95% of code for some products" — both are the show's paraphrase
+  (the transcript is paywalled, no verbatim Krieger quote is available), and the two figures describe
+  different, unstated populations — treat as a directional signal above the 65% figure, not a precise
+  update to it. The same notes summarize Krieger's MCP framing as "everything becomes an MCP
+  endpoint, making the entire digital world scriptable and composable by AI agents." ([Lenny's
+  Podcast, "Anthropic's CPO: here's what comes next" — Mike Krieger](https://www.lennysnewsletter.com/p/anthropics-cpo-heres-what-comes-next), Feb 2026.)
 
 ## Production Deployment: On-Call for CI/CD
 
@@ -91,6 +99,18 @@ promoted out of the log and into the investigation skill itself — a lighter-we
 version of [Warp's inner/outer skill-improvement loop](24-harness-patterns.md#self-improving-harnesses),
 here triggered by pattern frequency in a log rather than a scheduled observer agent.
 ([Anthropic, "How Claude Tag serves as Anthropic's first responder for CI/CD failures"](https://claude.com/blog/ai-ci-cd-on-call), Aug 2026.)
+
+## Self-Improving Instructions via a Human-Gated Friday Routine (Legal)
+
+Anthropic's legal team runs a recurring Friday routine where Claude Tag reviews the week's counsel
+feedback and proposes edits to its own shared channel instructions, which a human approves before
+they take effect — *"Claude Tag added this new instruction to its set of instructions to follow in
+all future reviews, allowing it to improve with channel feedback in real time."* A channel-native
+instance of the same inner/outer loop as [Warp's skill split](24-harness-patterns.md#self-improving-harnesses),
+except the "outer" step edits ambient channel instructions directly rather than a versioned skill
+file. The same post reports legal review of marketing assets compressed from a day to 30 minutes by
+having Claude check every asset first against internal documentation and the public web. ([Anthropic,
+"How Anthropic employees use Claude Tag"](https://claude.com/blog/how-anthropic-employees-use-claude-tag), Aug 2026.)
 
 ## Deployment mode comparison
 

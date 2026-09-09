@@ -18,6 +18,37 @@ Versioning follows [Semantic Versioning](https://semver.org/):
 
 ---
 
+## [3.6.3] — 20260909 05:02
+
+### Added
+- Loop news run 2026-09-09: OpenAI's own primary-source "harness engineering" case study and
+  Codex-agent-loop internals (docs/24, docs/02); an eleven-harness academic survey (arXiv
+  2609.00006); a distinct, disambiguated Harness-Bench (arXiv 2605.27922); Anthropic's
+  commerce-agents skills-vs-subagents heuristic (docs/03); Google Cloud's first official-vendor
+  "loop engineering" social post with a live corroborating codelab (docs/21); a three-era
+  harness-evolution periodization (docs/22); recency-weighted loop-maturity scoring (docs/20);
+  new failure-pattern rows — verifier theater's unreachable-flag variant, Guard that cannot
+  fail, Missing value gate (docs/17); OAuth2 machine-to-machine auth + a cache-path traversal
+  fix, symlink-vs-`@import` confinement, and a cryptographic witness-manifest check (docs/33);
+  two review-discipline lessons on trusting a sustained finding or a reviewer's own fix
+  (docs/04); a forced-interleaving test for file-lock races (docs/38); the Anthropic
+  multi-agent report's conformity sub-finding (docs/37); Claude Tag's human-gated Friday
+  instruction-improvement routine (docs/31); a Stop-hook self-cap rule (docs/12); Context Hub
+  (chub) as a documentation-freshness tool distinct from state-persistence patterns (docs/16);
+  stateless MCP's audit-advantage framing (docs/19); org-wide fleet-scale adoption evidence
+  (docs/23).
+
+### Changed
+- Loop news run 2026-09-09: corrected two claims a source summary overstated before they
+  reached a doc — Cursor's "$60 billion bet" is a reported acquisition price, not a valuation
+  (docs/24), and OpenAI's Sherwin Wu's "10-20 parallel agents" describes his engineering org,
+  not his personal practice (docs/23). Upgraded the QM citation in docs/24 from a secondhand,
+  caveated panel recap to QM's own primary source, correcting "built on OpenClaw" to a shared
+  Pi/OpenCode/Codex/Claude Code core. Swapped `docs/32`'s Martin Dilger "Never Argue" entry for
+  OpenAI's harness-engineering post (Harness Design & Architecture group was at its 5-entry cap).
+
+---
+
 ## [3.6.2] — 20260908 07:30
 
 Backlog **`A14`**, the last open item, opened by `A13`'s own review: the pre-flight and

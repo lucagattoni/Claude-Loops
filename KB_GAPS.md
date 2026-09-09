@@ -54,6 +54,34 @@ targeted GitHub and web searches.
   `parallel review agent cost benchmark`, `"ensemble" vs "chorus" LLM reviewers`, `graph
   vs sequential loop cost comparison agent`.
 
+### Logged by the 2026-09-09 tracker run
+
+- **`milosCvetkovicDev/claude-code-monorepo` is tracked but never deep-read.** Confirmed via
+  direct grep of `docs/38-agent-teams.md`, `LOOP_ENGINEERING.md`, and `docs/index.md`: despite
+  being listed in `SOURCES.md` and appearing in past digest entries, its actual content — a
+  sanitized real 7-month production config, 13-chapter book, 71 skills/34 hooks/31 agents,
+  crediting Addy Osmani — has never been extracted into any `docs/*.md` topic file. This is the
+  KB's own "Review new resources... deep-read and extract" rule going unmet for a source that
+  already cleared the tracking bar. Natural home: `docs/24-harness-patterns.md`'s maker/checker
+  worked-examples section. Search keywords: `milosCvetkovicDev claude-code-monorepo`,
+  `production Claude Code config 71 skills`.
+- **`InjayTseng/loop-engineering-on-product` had the same false-premise problem, now closed.**
+  A prior digest entry claimed this repo was already cited in `docs/index.md`'s Part I section;
+  direct grep found zero hits. Closed this run — its 20-rounds-vs-112-iterations value-gate data
+  point is now in `docs/17-failure-patterns.md` as the "Missing value gate" row. Recorded here as
+  a caution: a repo appearing in `SOURCES.md` or a past digest table is not evidence it was ever
+  integrated into a doc — check the doc, not the tracking list.
+- **Chrome tab-group contention across concurrent X-account sweeps.** Multiple Chrome-based
+  subagents sharing one browser tab group during this run's `@bcherny`/`@steipete`/
+  `@Sabrina_Ramonov` sweeps had tabs closed or reassigned mid-task by sibling sessions; agents
+  self-corrected by recreating tabs, so no sweep failed outright, but this is fragile. Not
+  actionable as a search-keyword gap — a future run should consider serializing Chrome-based
+  subagents or giving each an isolated tab it fully owns, rather than running them fully in
+  parallel against a shared tab group.
+- **LinkedIn search hit the same SSO/login-wall stop as 2026-09-08's run** — see that entry
+  below; this is the second consecutive occurrence, not a one-off. A future run should check
+  session validity before attempting LinkedIn search rather than discovering the wall mid-run.
+
 ### Logged by the 2026-09-08 tracker run
 
 - **"Loop engineering" / "harness engineering" GitHub search is now dominated by a

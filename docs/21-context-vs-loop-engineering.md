@@ -228,6 +228,19 @@ vocabulary — the author's own paid course names layer 4 "Loop Engineering" and
 "Harness Engineering" without reference to this KB.
 ([@hanakoxbt](https://x.com/hanakoxbt/status/2096710886782386540), Sep 2026.)
 
+**First official cloud-vendor use, in production marketing rather than a report about the
+term.** Distinct from the secondhand Graph Engineering report above: Google Cloud's Indonesia
+account posted, in Indonesian, "Building a loop engineering project? Avoid common pitfalls
+like ballooning token costs & unverified autonomy!", linking a YouTube explainer titled "4
+ways loop engineering fails (and how to fix them)" and a "Loop Engineering Codelab." The
+codelab link resolves to a live, real Google Codelabs page ("Table for N: eval as the gate,
+evolution as the loop," `codelabs.developers.google.com`) built on Google's ADK,
+self-evolving via `adk optimize` (GEPA) — independent corroboration the campaign points at
+real technical content, not a dead or placeholder link. One caveat: the codelab page itself
+never uses the phrase "loop engineering," and its authorship metadata does not resolve to a
+confirmed Google Cloud DevRel byline — the vendor-terminology claim rests on the tweet and
+video title, not the codelab's own text. ([Google Cloud Indonesia, X post](https://x.com/GoogleCloud_ID/status/2097505270783983647), Sep 2026; codelab at [g.dev/cloud/loop-lab-table](https://g.dev/cloud/loop-lab-table).)
+
 ### Is "Graph Engineering" a named discipline?
 
 Contested, and younger than the other four. It traces to a joke, not a consolidation piece —

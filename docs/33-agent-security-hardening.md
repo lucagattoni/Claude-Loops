@@ -83,6 +83,16 @@ classifier makes a single binary on-task/off-task judgment, and every off-task v
 resolves to `ASK` — there is no remaining DENY branch for off-task tool calls in the
 current implementation. ([omnigent-ai/omnigent](https://github.com/omnigent-ai/omnigent), Jul 2026; PR [#2024](https://github.com/omnigent-ai/omnigent/pull/2024).)
 
+**Machine-to-machine auth for unattended loops.** An opt-in OAuth2 `client_credentials`
+grant lets a headless loop authenticate without a human login session, folded into the
+same token-dispatch router rather than a second endpoint. Confinement is keyed on the
+scope claim's *presence*, not `grant_id`'s *absence* — a machine token stays
+permission-confined while a renewed login-grant token keeps full authority. The same
+class of bug that motivates the patterns above also hit this repo's own per-agent cache
+path: an agent-ID-derived filesystem path was resolved before being validated, opening a
+traversal/symlink-escape hole later closed by validating before resolution rather than
+after. ([omnigent-ai/omnigent](https://github.com/omnigent-ai/omnigent) #3977 and #6720, Sep 2026.)
+
 ### Where Default-Deny Actually Gets Loaded
 
 The open question was never *whether* to default-deny — it's *where in the stack* the
@@ -270,6 +280,13 @@ gate cannot be satisfied by the ingesting agent self-certifying, since a comprom
 skill could falsify its own compliance claim.
 ([eugenelim/agent-ready-repo](https://github.com/eugenelim/agent-ready-repo), Jul 2026.)
 
+**Symlink vs. `@import` inside a scanned/confined directory.** A directory-confinement
+check that rejects links/non-regular files (above) will also reject a `CLAUDE.md`→
+`AGENTS.md` symlink placed inside a scanned pack directory — use an `@AGENTS.md` import
+line (a regular file) instead, which is also Claude Code's documented portability
+recommendation, since a symlink needs elevated privileges on Windows. Symlinks outside
+any confinement-checked directory are unaffected. ([eugenelim/agent-ready-repo](https://github.com/eugenelim/agent-ready-repo), Sep 2026.)
+
 ## Grading Harness Security Posture
 
 The patterns above (OS-user isolation, credential disposition, runtime policy gating)
@@ -309,6 +326,12 @@ Treat the trust-scoring *formula* and the transport mechanism as the verifiable
 contribution here — evaluate them independently of the source's broader marketing
 claims about scale and adoption, which are not independently confirmed.
 ([ruvnet/ruflo](https://github.com/ruvnet/ruflo), Jul 2026.)
+
+A fifth ruflo mechanism, orthogonal to the trust-scoring/consensus/federation facets
+above: `ruflo verify` cryptographically checks installed bytes against a signed witness
+manifest, and its Team Gateway Checklist requires a witness-manifest entry per merge —
+supply-chain integrity for the harness's own binaries, not agent-behavior trust (~210 MCP
+tools across 5 server groups). ([ruvnet/ruflo](https://github.com/ruvnet/ruflo), Sep 2026.)
 
 ## Hook and Context Trust Attacks (Sept 2026 research)
 

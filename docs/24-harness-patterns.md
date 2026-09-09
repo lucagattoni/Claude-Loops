@@ -11,6 +11,32 @@ covering agent evals rather than harness design directly: *"the system that enab
 to act as an agent: it processes inputs, orchestrates tool calls, and returns results."*
 ([Anthropic, "Demystifying evals for AI agents"](https://www.anthropic.com/engineering/demystifying-evals-for-ai-agents), Sep 2026.)
 
+**OpenAI's own primary-source definition and case study.** Where Anthropic's definition above is a
+passing aside in an evals post, OpenAI's own engineering blog is a dedicated first-party account:
+five months, 0 lines of human-written code, ~1M LOC, ~1,500 merged PRs across 3→7 engineers (3.5
+PRs/engineer/day, throughput *increasing* as the team grew), with AGENTS.md deliberately kept to
+~100 lines as a "table of contents" pointing into a structured `docs/` system-of-record rather than
+a monolithic instruction file. A recurring cleanup that once cost a dedicated 20%-of-week "AI slop"
+day was replaced by codifying "golden principles" into linters and a scheduled Codex-driven cleanup
+pass. ([OpenAI, "Harness engineering: leveraging Codex in an agent-first world"](https://openai.com/index/harness-engineering), Feb 2026; direct fetch 403s — captured via [Wayback](https://web.archive.org/web/20260830095239/https://openai.com/index/harness-engineering).)
+
+A larger follow-on source-code study extends the validated-harness test above to eleven production
+coding harnesses (Claude Code, Codex CLI, Gemini CLI, Mistral Vibe, OpenHands, Aider,
+Mini-SWE-Agent, Hermes, Pi, OpenCode, OpenClaw) plus Omnigent as a meta-harness case — a
+source-code-level anatomy/architecture/evolution comparison rather than the definitional test
+above. ([arXiv 2609.00006, "Harness Engineering: Anatomy, Architecture, and Evolution of Coding
+Agents"](https://arxiv.org/abs/2609.00006), Sep 2026.)
+
+**The commercial stakes are not abstract.** Reporting on Cursor's SDK launch and its compute deal
+with xAI, The New Stack frames the shift as: "models are becoming commodities, and the harness is
+becoming the product." The article's own headline claim — "Cursor's $60 billion bet" — is not
+Cursor's valuation; it is a secondhand report (Bloomberg/TechCrunch, cited within the article) that
+SpaceX "will either pay Cursor $10 billion for the companies' work together or acquire Cursor
+outright for $60 billion later this year." Read as evidence for a strategic thesis (a compute/chip
+vendor valuing the harness and its developer relationship over the underlying model weights), not
+as a confirmed valuation figure. ([The New Stack, "Cursor's $60 billion bet is on the harness, not
+the model"](https://thenewstack.io/cursor-sdk-harness/), May 2026.)
+
 ## Harness vs. Loop — Two Architectural Layers
 
 | Layer | Scope | Analogy |
@@ -84,6 +110,16 @@ with the StaminaBench/Claw-SWE-Bench/harness-token-efficiency results above, har
 cost variance is now corroborated by four independent measurements, none sharing an author.
 ([The New Stack, "Aider, Claude Code, and OpenClaw ran an identical model. Token use varied
 70-fold."](https://thenewstack.io/agent-harness-token-costs/), Sep 2026.)
+
+**A fifth, purpose-built research benchmark for the same variable — not to be confused with the
+`harness-bench` conformance suite below** (omnigent's pass/fail capability test). This
+Harness-Bench is a *diagnostic* benchmark: 106 sandboxed tasks across multiple model backends
+under matched budgets, measuring completion, process quality, and efficiency as a function of
+harness configuration alone. Across 5,194 execution trajectories it finds "substantial variation"
+across model-harness pairings and recurring execution-alignment failures (plausible reasoning
+decoupled from tool feedback or workspace state) — converging on the same recommendation as this
+section: report agent capability at the model-harness configuration level, not the base model
+alone. ([arXiv 2605.27922, "Harness-Bench: Measuring Harness Effects across Models"](https://arxiv.org/abs/2605.27922), May 2026.)
 
 ### Two Settings Tripled a Benchmark Score — and the Vendor Didn't Sell the Harness
 
@@ -259,6 +295,13 @@ improves the harness" that keeps a human gate on every change, unlike the fully 
 research systems below. ([Anthropic, "How Warp builds self-improving agents on
 Claude"](https://claude.com/blog/how-warp-builds-self-improving-agents-on-claude), Aug 2026.)
 
+Warp's stated methodology precedes the skill split itself: *"Is your domain verifiable? Build the
+verification harness first, then let the agent tune against it: generate a reference corpus,
+compare output to reference, fix, repeat."* For non-verifiable domains, the fallback is
+deterministic evals against golden outputs where they exist, restricting human feedback to domain
+experts rather than opening evaluation broadly — harness-before-tuning as a sequencing rule, not
+just an architecture choice.
+
 **Self-Harness — weakness mining → propose → validate.** A three-stage self-improvement loop
 that needs no external engineer:
 
@@ -422,6 +465,14 @@ Loop"](https://explainx.ai/blog/yc-self-improving-harnesses-openjarvis-qm-panel-
 Sep 2026 — no primary source located for Prime Agent or OpenJarvis; treat the 800x figure
 as an anecdotal panel claim, not a measured benchmark.)
 
+**Correction from the primary source.** QM's own README describes a multiplayer Slack/web agent
+harness where Pi, OpenCode, Codex, and Claude Code all drive one shared core — not "built on the
+OpenClaw project" as the secondhand panel recap above states. Every person and channel gets a
+scoped memory/files/keychain/sandbox, and an org picks one of three security postures
+(Strict/Auto/Dangerous) that narrower scopes can only tighten, never loosen. At nearly 15,000
+stars and daily commits, this upgrades the citation above from secondhand-with-caveat to primary.
+([yc-software/qm](https://github.com/yc-software/qm), fetched Sep 2026.)
+
 **The cost case, quantified.** A Hugging Face proposer/accept-reject loop that rewrote *only*
 the harness code around a frozen model matched Sonnet 4.6's legal-agent-benchmark score at
 roughly **7x lower inference cost** — and with identical model and tasks, score ranged from
@@ -570,6 +621,17 @@ Interrupt handling pattern:
 ```
 
 ([wquguru/harness-books](https://github.com/wquguru/harness-books), AgentWay, Jun 2026.)
+
+**Tool calls as bounded, cancellable state streams, not async functions.** A harness-builder's
+field postmortem names the same tool-call lifecycle problem structurally: splitting a call into
+separate preview/execute/render-result phases forces every implementation to duplicate I/O and
+invent an ad hoc side channel for in-flight state — replaced by treating a call as one DOM-like
+element the executor mutates in place, with output-size limits built into the primitive itself
+rather than opt-in per tool. Validated against four architecture-test personas (multiplexed local
+workspace, remote driver, untrusted spectator, autonomous fleet) — the last forcing a host/sandbox
+boundary where only a single obedient stub (shell + grep) runs inside the untrusted VM and
+everything else (keys, session storage, policy) stays on the trusted host. ([Stencil, "The Harness
+Playbook"](https://stencil.so/blog/harness-playbook), Sep 2026.)
 
 **A related resumption failure: at-least-once delivery duplicating committed work.** A
 stalled forward-loop iteration that gets retried can re-deliver the same external item
@@ -784,6 +846,12 @@ running one model for everything.
   runtime, instead of routed through a shared API layer.
   ([dmlguq456/hearting](https://github.com/dmlguq456/hearting), Sep 2026.)
 
+  A later Hearting release moves the wait-vs-end-turn decision out of prose and into the receipt
+  itself: a `parent_next=end-turn|bounded-wait` field tells the calling agent what to do next, with
+  unrecognized delivery states failing closed to a bounded wait rather than silently ending the
+  turn — closing a class of bug (missed arming, needless polling) that prose instructions had
+  produced before. ([dmlguq456/hearting](https://github.com/dmlguq456/hearting), commit c0b311d0, Sep 2026.)
+
 This is the same underlying idea as [Subagents' "strong eyes, cheap hands"](07-subagents.md)
 cost-asymmetric role allocation, generalized from same-vendor subagents to
 cross-vendor sessions — the review/execution split survives the model boundary. It
@@ -918,6 +986,15 @@ than restated:
 10. Team/organizational process matters more than individual skill — layered `CLAUDE.md`, explicit approvals, executable skills, lifecycle hooks, traceable transcripts, and a unified definition of "verified" across the team
 
 ([Harness Books — AgentWay, "Ten Principles of Harness Engineering"](https://harness-books.agentway.dev/book1-claude-code/chapter-09-ten-principles.html), undated, fetched Sep 2026.)
+
+**A distinct, primary-adjacent source: the same author's twelve-thesis anthology.** Ryan
+Lopopolo — the OpenAI engineer whose harness-engineering case study is cited near the top of this
+doc — maintains a separate twelve-thesis anthology (2,682 stars) organizing harness engineering
+around worker-constancy, just-in-time context routing, tool legibility, authority-vs-capability
+separation, and turning recurring corrections into durable infrastructure; distinct from the Ten
+Principles above (different author, a practitioner's essay collection rather than a third-party
+code analysis) and explicitly the author's own extension of, not independent support for, the
+OpenAI post it cites as its primary source. ([lopopolo/harness-engineering](https://github.com/lopopolo/harness-engineering), fetched Sep 2026.)
 
 ## Object-Oriented / Code-as-Action Agents (NOOA)
 
@@ -1174,6 +1251,12 @@ tracks *implicit conventions*.
 
 ([eugenelim/agent-ready-repo](https://github.com/eugenelim/agent-ready-repo), Jun 2026.)
 
+**A routing decision needs its own terminal lifecycle state to survive past the session that made
+it.** Reusing an existing outcome branch for a new disposition is risky if that branch carries
+implicit gating (e.g. a due-date check) that doesn't apply to the new case — a lesson from adding
+a terminal "Reclassified" result to a lifecycle vocabulary that previously had no branch for it.
+([eugenelim/agent-ready-repo](https://github.com/eugenelim/agent-ready-repo), RFC-0096, Sep 2026.)
+
 ## When to Remove Harness
 
 Everything above this line is accretion — a growing corpus of components to add. Harness
@@ -1218,6 +1301,14 @@ the point rather than a gap to fill. It is also the clearest illustration of the
 draws below: *"designed to shrink" is a claim about design, not about size.* Pi is small
 without claiming the property; the retirement mechanism measured there claims the property
 and has so far retired nothing. ([pi.dev](https://pi.dev/), Sep 2026.)
+
+**A second, architecturally distinct minimalism: harness-as-prompt, not harness-as-scaffold.**
+Where Pi ships a minimal *external* scaffold the model calls into, hip-agent inverts the
+relationship: a ~200-line harness the model is told to read as part of its own context, so a
+capable model can repair or extend its own harness rather than treat it as fixed infrastructure.
+On a 113-task DeepSWE run it matched a Codex CLI 0.147.0 baseline (73/113 vs. 72/113 resolved; one
+run each, no error bars) using fewer model calls (187 vs. 208) but more wall-clock time per task
+(58 vs. 52 min). ([jonathanc.net, "hip-agent: a harness that fits in the prompt"](https://jonathanc.net/blog/hip-agent), Sep 2026.)
 
 ### The removal test
 

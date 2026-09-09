@@ -21,6 +21,15 @@ Coined (or popularised) by Cobus Greyling (Jun 2026).
 | Unit of design: one loop | Unit of design: the fleet |
 | Audience: individual engineers | Audience: platform teams, AI ops |
 
+**The "audience" row is a default, not a hard boundary — it can become an organization's default
+bottom-up.** OpenAI's Sherwin Wu, who leads engineering for its API platform, reports "roughly 95%
+of engineers use Codex, often working with fleets of 10 to 20 parallel AI agents" — an org-wide norm
+among his individual engineers, not a platform team's centrally governed fleet. Read as loop
+engineering scaled by adoption rather than fleet engineering by design: the same episode credits an
+unnamed process change with cutting code review turnaround from 10-15 minutes to 2-3 minutes, though
+the mechanism sits behind a paywall and is not independently confirmed here. ([Lenny's Podcast,
+"Engineers are becoming sorcerers" — Sherwin Wu](https://www.lennysnewsletter.com/p/engineers-are-becoming-sorcerers), Feb 2026.)
+
 ---
 
 ## Core concerns

@@ -705,6 +705,18 @@ producer above them or no consumer below them.
 
 ([eugenelim/agent-ready-repo](https://github.com/eugenelim/agent-ready-repo), RFC-0048/RFC-0051, Jun 2026.)
 
+## A Sustained Finding Is Not Proof the Fix Is Right
+
+Two adjacent lessons on reviewing the reviewer, from the same source as the RFCs above.
+**Adjudicate, then mutation-prove:** an independent re-review of a prior fix returned five
+findings; four were sustained on adjudication, and each accepted fix was still
+mutation-tested before landing — sustaining a finding is not itself proof the fix that
+addresses it is correct. **Verify a reviewer's own fix against the code, not its stated
+intent:** re-reviewing a landed fix found its new early-return branch discarded *every*
+finding accumulated earlier in the walk, not just the one case it targeted — a fix can
+regress prior-good behavior while looking, from its own commit message, like a narrow
+correction. ([eugenelim/agent-ready-repo](https://github.com/eugenelim/agent-ready-repo), Sep 2026.)
+
 ## Oracle Problem in AI-Generated Tests
 
 When the same agent writes both code and tests in the same session, tests exhibit very low

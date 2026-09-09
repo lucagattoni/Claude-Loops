@@ -384,6 +384,14 @@ Resolution varied sharply by model — 98% of runs on one model ended in truce; 
 
 Successful resolutions often involved an agent **asking for a human to intervene**.
 
+**A gentler failure mode from the same report: conformity, not conflict.** A separate trial in
+the same "build a game" experiment set — same model, agents started simultaneously, still no
+shared channel — found convergence instead of sabotage: "18 out of 30 agents decided to create
+a git branch with the exact same branch name, 'mvp-game-loop.'" Read alongside the sabotage
+findings above, the two results bound the range of what "no coordination protocol" produces:
+from active turf war to silent, near-total naming convergence — neither of which is
+coordination.
+
 The design consequence for anyone running parallel agents on overlapping scope: shared-scope
 coordination is a protocol you must design, not a property that emerges. See
 [Fan-Out](10-fan-out.md) for scope-verified parallelism and [Fleet Engineering](23-fleet-engineering.md)

@@ -217,19 +217,21 @@ in one month. Grinstead attributes ~50% of results to the harness architecture a
 
 ---
 
-### [Loop Engineering: Why You Should Never Argue with an Agent](https://www.linkedin.com/pulse/loop-engineering-why-you-should-never-argue-agent-martin-dilger-uql8e/) — Martin Dilger
-**Added:** 2026-06-24 · **Published:** Jun 2026
+### [Harness engineering: leveraging Codex in an agent-first world](https://openai.com/index/harness-engineering) — OpenAI
+**Added:** 2026-09-09 · **Published:** Feb 2026
 
-**Why here:** Best practical treatment of mid-loop agent behaviour and the iteration
-discipline that prevents context pollution. The Never Argue rule and Event Modeling
-are immediately applicable to anyone running multi-turn agent sessions.
+**Why here:** OpenAI's own primary-source definition and case study — the only entry in this
+group not from Anthropic, a third-party book, or a practitioner blog. Replaces Martin Dilger's
+"Loop Engineering — or why you should never argue with an agent" (a single-author LinkedIn post
+with no quantified backing, still cited directly in [docs/17](17-failure-patterns.md) for its
+Context Pollution content) with a dedicated first-party account carrying real production numbers.
 
-**Summary:** Establishes the Never Argue rule: agents don't learn from corrections,
-they agree and carry the confusion forward — extended back-and-forth buries the signal in noise, which the author says predictably produces hallucination. Introduces Event Modeling: slice
-work into discrete status-transition units (Planned → In Progress → Blocked → Done),
-execute each in one clean context window, record learnings, clear context, restart.
-"Clean iterations with recorded learnings will outperform long, polluted conversations
-every single time."
+**Summary:** Five months, 0 lines of human-written code, ~1M LOC, ~1,500 merged PRs across 3→7
+engineers (3.5 PRs/engineer/day, throughput *increasing* as the team grew). AGENTS.md is
+deliberately kept to ~100 lines as a "table of contents" pointing into a structured `docs/`
+system-of-record rather than a monolithic instruction file. A recurring cleanup that once cost a
+dedicated 20%-of-week "AI slop" day was replaced by codifying "golden principles" into linters and
+a scheduled Codex-driven cleanup pass. (Direct fetch 403s — captured via [Wayback](https://web.archive.org/web/20260830095239/https://openai.com/index/harness-engineering).)
 
 ---
 

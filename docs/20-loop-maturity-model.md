@@ -87,6 +87,13 @@ coordination rules, see [Loop Patterns](34-loop-patterns.md).
 
 (Cobus Greyling, [cobusgreyling/loop-engineering](https://github.com/cobusgreyling/loop-engineering), Jun 2026.)
 
+**Recency-weighted maturity.** A later release of the same repo's readiness scorer weights
+recent runs harder than artifact presence on disk: *"Loop Ready now weights recent runs harder
+than files on disk. A 30-day-old STATE.md is not L3."* Closes an anti-gaming gap the table above
+doesn't address — a loop that stops running should degrade its own readiness score, not keep
+reading as mature because its artifacts are still on disk. A follow-on academic study cites this
+repo as the community reference it reviewed. ([cobusgreyling/loop-engineering](https://github.com/cobusgreyling/loop-engineering), "Loop Ready" score, Sep 2026; [arXiv 2608.21884, Lulla et al., "Building Blocks, Adoption, and Impact"](https://arxiv.org/abs/2608.21884), Aug 2026.)
+
 ## Related
 
 - [The Paradigm Shift](01-paradigm-shift.md)

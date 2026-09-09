@@ -37,6 +37,12 @@ After 8 consecutive blocks from a Stop hook, Claude Code overrides and ends the
 turn to prevent infinite loops (v2.1.143+). The cap is configurable via the
 `CLAUDE_CODE_STOP_HOOK_BLOCK_CAP` environment variable.
 
+A project-level Stop hook should cap its own retry count *below* this built-in override (e.g. 5,
+not 8) so the loop's own gate, not the platform's safety valve, is what stops it — a widely-used
+implementation of this pairs the capped Stop-hook gate with a fresh-context judge that
+re-verifies every criterion each round, including ones already passed, rather than trusting a
+prior round's "done." ([first-fluke/oh-my-agent](https://github.com/first-fluke/oh-my-agent), Sep 2026.)
+
 ### Safety contract: never exit 1 in a denial hook
 
 Exit code `1` (or any non-2 non-zero exit) is treated as a **non-blocking warning**

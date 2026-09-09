@@ -122,6 +122,16 @@ is exactly the case where nobody reads it. When it is not wanted, turn it off fo
 `autoMemoryEnabled: false` in the project's settings rather than globally; `--bare` also skips it,
 along with hooks, LSP and CLAUDE.md auto-discovery (see [Headless Mode](09-headless-mode.md)).
 
+**A different, adjacent tool: documentation freshness, not state persistence.** Context Hub (chub)
+is a standalone CLI (`chub search <pkg>`, `chub get <pkg> --lang <lang>`) serving current API docs
+to compensate for a model's training-cutoff staleness — the author's own example: a model whose
+cutoff predates an API's newer version keeps defaulting to the older one a year after it shipped.
+Wiring it into Claude Code is opt-in via a user-authored `~/.claude/skills/get-api-docs/SKILL.md`,
+not a native integration. Cross-agent sharing of documentation discoveries is stated as a future
+direction only and is not yet implemented — a weekend project, six months old at capture, with no
+published adoption numbers. Solves a different problem than Patterns A–J below (stale library
+knowledge, not state loss across context resets). ([Andrew Ng, "Context Hub" — The Batch](https://www.deeplearning.ai/the-batch/crowdsourced-context-for-coding-agents), Mar 2026.)
+
 ---
 
 ## Pattern A: Progress file

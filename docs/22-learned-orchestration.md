@@ -75,6 +75,15 @@ this from [Harness Patterns' self-improving harnesses](24-harness-patterns.md#se
 (which mutate the harness's *code*) by instead training a *policy* that sits on top
 of a fixed harness. ([arXiv 2607.05458](http://arxiv.org/abs/2607.05458), Jul 2026.)
 
+**A periodization of the same trend, coined as three eras.** A synthesis essay frames Bolt-On
+(ReAct-era prompted loops outrunning model capability) → Co-Training (RL trained inside the
+harness — e.g. codex-1's RL-on-real-tasks training — with models absorbing harness behavior
+like auto-compaction into their own weights) → a predicted Attention-Interface era, where every
+harness capability the model can absorb eventually gets deleted from the scaffold, leaving only
+human-facing controls (permissions, interruption policy) as the harness's remaining job.
+Testable and not yet observed: the essay predicts an "attention policy surface" ships alongside
+AGENTS.md within a year. ([Dan McAteer / Latent Space, "The Evolution of the Agent Harness"](https://www.latent.space/p/attention-interface), Aug 2026.)
+
 A hand-designed analog of the same instinct — replan rather than restart on failure —
 appears in a large agent meta-harness's **Replanning Loop**: a GOAP-style A* planner
 decomposes a goal into an action sequence and replans specifically from the point of

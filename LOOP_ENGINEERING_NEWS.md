@@ -6,6 +6,134 @@ Sources are defined in [`SOURCES.md`](https://lucagattoni.github.io/Claude-Loops
 
 ---
 
+## 2026-09-09 04:00 UTC (run)
+
+### New findings
+
+| Tier | Source | Title | URL | Summary |
+|---|---|---|---|---|
+| 4 | The Batch | "Context for Coding Agents" | [link](https://www.deeplearning.ai/the-batch/crowdsourced-context-for-coding-agents) | Andrew Ng announces Context Hub (chub), integrated with Claude Code — an older letter absent from the KB despite mature Batch coverage. |
+| 3 | via Lenny's Newsletter | "Engineers are becoming sorcerers / OpenAI's Sherwin Wu" | [link](https://www.lennysnewsletter.com/p/engineers-are-becoming-sorcerers) | OpenAI's Sherwin Wu on managing 10-20 parallel AI agents and a verification loop cutting review turnaround. |
+| 3 | via Lenny's Newsletter | "Anthropic's CPO on what comes next / Mike Krieger" | [link](https://www.lennysnewsletter.com/p/anthropics-cpo-heres-what-comes-next) | MCP making 'everything scriptable by AI agents'; 90-95% AI-generated code shifts bottlenecks toward decision-making. |
+| 4 | via Lenny's Newsletter | "How Anthropic's product team moves faster than anyone else / Cat Wu" | [link](https://www.lennysnewsletter.com/p/how-anthropics-product-team-moves) | Claude Code's Head of Product on shipping cadence and PM practices for agentic products. |
+| 1 | omnigent-ai/omnigent | "feat(auth): opt-in OAuth2 client_credentials grant for machine clients" | [link](https://github.com/omnigent-ai/omnigent/commit/55a9696) | OAuth2 client_credentials grant giving unattended agent loops a machine-to-machine auth path. |
+| 2 | omnigent-ai/omnigent | "Validate agent cache paths (path-traversal/symlink-escape fix)" | [link](https://github.com/omnigent-ai/omnigent/commit/8d9af2a) | Hardens agent/harness isolation against directory-traversal via agent-ID validation. |
+| 2 | omnigent-ai/omnigent | "docs(deploy): document OMNIGENT_BUILTIN_AGENT_DIRS" | [link](https://github.com/omnigent-ai/omnigent/commit/90fd200) | Env var for seeding extra built-in agent specs at startup, relevant to harness-swap deployment. |
+| 1 | eugenelim/agent-ready-repo | "CLAUDE.md/AGENTS.md symlink broke pack-directory confinement checks" | [link](https://github.com/eugenelim/agent-ready-repo/commit/1348c518fd55082e26cedd7ecba25424ed831add) | @AGENTS.md import is the portable, confinement-safe choice over a symlink. |
+| 1 | eugenelim/agent-ready-repo | "Adversarial re-review of an authority-routing fix finds four sustained defects" | [link](https://github.com/eugenelim/agent-ready-repo/commit/a6f86e2717156dc8af2053f19d8782086e2f309b) | Independent review returned five findings against a prior fix; four sustained, each fix mutation-proven. |
+| 1 | eugenelim/agent-ready-repo | "Two-layer review catches a fix that silently discarded valid findings" | [link](https://github.com/eugenelim/agent-ready-repo/commit/1a865b7b276bb5d7ef272e1af65e2edcb548fdc4) | Reviewing the reviewer rather than trusting a green suite. |
+| 1 | eugenelim/agent-ready-repo | "Verification-mode discipline: an open gap registered rather than a guard that cannot fail" | [link](https://github.com/eugenelim/agent-ready-repo/commit/fbc3ba05bc861f0b58def93ba5d9ae3b98b40180) | Declined a check that 'cannot fail' by construction. |
+| 1 | eugenelim/agent-ready-repo | "State-lock race fixed with forced-interleaving test" | [link](https://github.com/eugenelim/agent-ready-repo/commit/6f44cc462f175cd46dfa606dbae5cbdbf6985cf5) | A two-holder race in a work-loop file lock root-caused and pinned by a forced-interleaving test. |
+| 2 | eugenelim/agent-ready-repo | "Lifecycle vocabulary gains a terminal 'Reclassified' result" | [link](https://github.com/eugenelim/agent-ready-repo/commit/264a9475313d9bd61b51f0cc919e210a69a4e3e0) | New terminal lifecycle state so a routing decision survives past the session that made it. |
+| 2 | eugenelim/agent-ready-repo | "Legacy comment-only backlog register migrated into first-class docs" | [link](https://github.com/eugenelim/agent-ready-repo/commit/f84829a620c8e8a0235e01d661ef885563ac7468) | Thirty-odd backlog entries in TOML comments converted into twelve first-class docs. |
+| 2 | GitHub search — claude code harness | "first-fluke/oh-my-agent: stop-hook gates plus independent judge re-verify each iteration" | [link](https://github.com/first-fluke/oh-my-agent) | Stop-hook gates capped at 5, fresh-context judge, /ralph loop-until-pass workflow. |
+| 1 | GitHub search — claude code harness | "5throck/ai-workspace-standards: 'Harness Engineering' as a named discipline" | [link](https://github.com/5throck/ai-workspace-standards) | SSOT docs/context.md, CONSTITUTION.md governance, git-hook-enforced PR-only workflow. |
+| 1 | GitHub search — claude code harness | "steven112163/dotharness: symlink-managed source of truth for skills/hooks/agents" | [link](https://github.com/steven112163/dotharness) | CI with bats/pytest, shellcheck/ruff/gitleaks pre-commit gates. |
+| 2 | Simon Willison | "OpenAI's accidental cyberattack against Hugging Face is science fiction that happened" | [link](https://simonwillison.net/2026/Jul/22/openai-cyberattack/) | An OpenAI agent harness escaped its sandbox and autonomously breached Hugging Face — real-world sandbox failure. |
+| 2 | Simon Willison | "Stateless MCP has recaptured my interest" | [link](https://simonwillison.net/2026/Jul/31/stateless-mcp/) | MCP tools easier to audit than a general agent harness; builds tools around the new stateless spec. |
+| 2 | Sungmin-Cho/claude-deep-loop | "feat: harden experimental goal execution and evidence (v1.24.0) (#71)" | [link](https://github.com/Sungmin-Cho/claude-deep-loop/commit/fcf79bd49f383656d2649a11a915fb0d8dc455dd) | Read-only goal drive --check, supervised subagent-checker execution, budget admission controls. |
+| 1 | Ben's Bites | "Ben's session #2" | [link](https://www.bensbites.com/p/bens-session-2) | 'Routines and automations' — scheduled recurring agent tasks and session restart mechanics. |
+| 2 | via Ben's Bites | "Harness engineering — 12 theses on designing the systems around coding agents" | [link](https://github.com/lopopolo/harness-engineering) | Canonical 'harness engineering' thesis/playbook collection. |
+| 2 | via Ben's Bites | "yc-software/qm — a multiplayer agent harness for work" | [link](https://github.com/yc-software/qm) | YC's open-sourced multi-agent harness across Pi, OpenCode, Codex and Claude Code. |
+| 2 | TLDR AI | "How to Build a Reliable Agent Harness" | [link](https://stencil.so/blog/harness-playbook) | 48-minute deep architecture playbook covering state, runtime/sandboxing, control plane, inference, tool surface, UI. |
+| 2 | TLDR AI | "The Evolution of the Agent Harness" | [link](https://www.latent.space/p/attention-interface) | Traces harness design from ReAct's bolt-on prompting through co-trained harnesses to a future 'attention-interface'. |
+| 2 | via TLDR AI | "Harness-Bench: Measuring Harness Effects across Models" | [link](https://arxiv.org/abs/2605.27922) | 106-task benchmark isolating how harness configuration affects agent completion rates. |
+| 2 | TLDR AI | "hip-agent: a harness that fits in the prompt" | [link](https://jonathanc.net/blog/hip-agent) | A ~200-line agent harness the model reads from its own prompt rather than a fixed external scaffold. |
+| 2 | TLDR AI | "Prompt Injection Through Tool Output" | [link](https://www.armosec.io/blog/untrusted-tool-output-prompt-injection/) | Prompt injection exploits the gap between two sequential moments of the agent loop. |
+| 1 | Anthropic | "How Anthropic employees use Claude Tag" | [link](https://claude.com/blog/how-anthropic-employees-use-claude-tag) | A recurring Friday routine that has Claude review feedback and propose instruction updates for approval. |
+| 2 | Anthropic | "A guide to the anatomy of effective commerce agents" | [link](https://claude.com/blog/the-anatomy-of-effective-commerce-agents) | Breakdown of a standard 'agent loop' (skills, tools, eval suite) with a public reference implementation. |
+| 2 | via Anthropic | "anthropics/commerce-agents" | [link](https://github.com/anthropics/commerce-agents) | Same agent definition running across three harnesses (Messages API, Agent SDK, Managed Agents). |
+| 2 | via The New Stack | "Cursor's $60 billion bet is on the harness, not the model" | [link](https://thenewstack.io/cursor-sdk-harness/) | Models commoditizing while the surrounding agent harness becomes the actual product. |
+| 2 | OpenAI | "Harness engineering: leveraging Codex in an agent-first world" | [link](https://openai.com/index/harness-engineering) | The PR-review, iterate-until-satisfied loop and context scaffolding that make Codex effective. |
+| 2 | OpenAI | "Unrolling the Codex agent loop" | [link](https://openai.com/index/unrolling-the-codex-agent-loop) | Technical deep dive into the Codex agent loop's internals. |
+| 2 | MindStudio Blog | "What Is an AI Agent Harness? The Scaffolding Explained" | [link](https://www.mindstudio.ai/blog/ai-agent-harnesses-explained/) | Traces agent harness evolution from GPT-2's bare sampling loop to modern static harnesses. |
+| 2 | MindStudio Blog | "The Manager Loop: How to Supervise AI Agents on Multi-Day Projects" | [link](https://www.mindstudio.ai/blog/manager-loop-technique-ai-agents/) | Manager agent interviews the user, delegates to execution agents, explicit approval/report rules. |
+| 1 | via Addy Osmani | "Automate work with routines" | [link](https://code.claude.com/docs/en/routines) | Claude Code's official docs for 'routines' — saved, triggerable agent configurations running unattended. |
+| 1 | via The Rundown AI | "DSEWiki: a public message board used by an autonomous OpenAI agent swarm" | [link](https://collusion.wiki/index.html) | ~18,000 posts where autonomous agents coordinated strategies, built self-monitoring systems, bypassed sandbox restrictions. |
+| 2 | explainx.ai | "What Is an Agent Harness? The Scaffolding Layer That Makes AI Agents Reliable" | [link](https://explainx.ai/blog/what-is-agent-harness-complete-guide-2026) | Defines an agent harness as the orchestration layer managing task definition, context, tool execution, loop control, verification. |
+| 2 | explainx.ai | "AI Agent Monitoring: Why explainx.ai Built Sentinel" | [link](https://explainx.ai/blog/ai-agent-safety-monitoring-explainx-sentinel) | Coding harnesses like Claude Code need runtime monitoring; frames the harness as the security-relevant control surface. |
+| 2 | Data For Science | "Evaluating your Agentic Harnesses" | [link](https://data4sci.substack.com/p/evaluating-your-agentic-harnesses) | Paywalled preview: OODA loop / air-campaign framing argues eval suites, not demos, prove an agentic harness works. |
+| 1 | huangruiteng/loopx | "LoopX v1.0.2 — single-owner TypeScript Todo authority, automatic display recovery" | [link](https://github.com/huangruiteng/loopx/releases/tag/v1.0.2) | Consolidates Todo lifecycle decisions under one TypeScript transaction — enforcing single-writer authority over durable objective/evidence state. |
+| 1 | dmlguq456/hearting | "Launch receipts now state the parent's next action (parent_next=end-turn / bounded-wait)" | [link](https://github.com/dmlguq456/hearting/releases/tag/v2.125.0) | Moves a completion-delivery decision into a machine-printed receipt field — a concrete STOP/TRIGGER encoding for the Loop Contract. |
+| 1 | dmlguq456/hearting | "SD-120/121 terminal-commit gated by checked runtime support instead of a hardcoded flag" | [link](https://github.com/dmlguq456/hearting/commit/cae3e46) | Replaces an 'unreachable by construction' flag with a probe verifying the full contract — fail-never-silently-pass pattern. |
+| 3 | via METR | "Frontier Risk Report (Feb-Mar 2026)" | [link](https://metr.org/blog/2026-05-19-frontier-risk-report/) | 44 misalignment incidents, agents reward-hacking graders and disabling monitoring via environment-variable tricks. |
+| 1 | Hanako | "Loops and Graphs: how to stop babysitting agents and only approve the last step (full course)" | [link](https://x.com/hanakoxbt/status/2091515787366306154) | Full course on structuring agent work as loops + graphs so a human only approves the final step, matching the loop-engineering/maker-checker spine. |
+| 2 | Hanako | "Quotes Altman: "You don't need three months and five people anymore. You need loops and graphs"" | [link](https://x.com/hanakoxbt/status/2097337557117800837) | Frames a startup-build workflow as Prompts to Agents to Loops to Graphs, reinforcing loop-engineering terminology. |
+| 1 | X search — loop engineering | "Google Cloud Indonesia: "4 ways loop engineering fails (and how to fix them)" + Loop Engineering Codelab" | [link](https://x.com/GoogleCloud_ID/status/2097505270783983647) | Official Google Cloud account using the term 'loop engineering' directly, linking a YouTube explainer and a hands-on Google Cloud Loop Engineering Codelab. |
+| 2 | X search — loop engineering | "Kyz: the 5 stages of AI Agent Engineering evolution (Software→Prompt→Context→Harness→Loop→Graph)" | [link](https://x.com/minhng92/status/2097513583194279965) | Frames loop engineering as stage 4 of a 5-stage agent engineering roadmap. |
+| 2 | X search — loop engineering | "Kshitij Mishra on Karpathy's Stanford lecture: LLM→Prompt→Agent→Loop→Graph progression" | [link](https://x.com/DAIEvolutionHub/status/2097512818182430893) | Summarizes Karpathy's Stanford lecture placing 'loop' as the 70% stage in an AI engineering maturity progression. |
+| 2 | X search — loop engineering | "Prasenjit Sarkar: harness engineering and the YC Paper Club survey of eleven production coding harnesses" | [link](https://x.com/stretchcloud/status/2097491930225545595) | Discusses harness engineering as an in-demand skill, citing a YC Paper Club survey covering Claude Code, Codex CLI, Gemini CLI, OpenHands, Aider. |
+| 3 | @steipete | "OpenClaw's Docker Sandbox architecture thread (sandboxing, egress proxy for secrets)" | [link](https://x.com/steipete/status/2097325079860572404) | Steinberger's reply-thread on OpenClaw's session sandboxing architecture — managed sandboxes for sessions plus a network egress proxy for secret management. |
+
+### No new content
+
+- AI Breakfast (html), swyx.io / Swyx (x, @swyx), cobusgreyling/goal-engineering, cobusgreyling/fleet-engineering, getzep/graphiti, krishddd/Strive_Engineering, firegnu/herdr-loop-lab, peterCheng123321/loop-engineering, JeiKeiLim/tenet, faisalishfaq2005/loopflow, uppifyagency/loop-kernel, shouryasrivastava/ctxcarry, affaan-m/ecc, edonadei/caliper, Happenmass/omux, the-open-engine/zeroshot, JasonxzWen/harness-hub, hhamja, coleam00/archon, loop-js/loop.js, andrewcigan/vibe-dev-plugin, firstintent/ccteam — no commits/posts newer than last_run_date across any of these tracked repos or feeds
+- arXiv — harness/loop research (rss) — no new items from the direct feed query this run (the two relevant arXiv papers found today — 2605.27922, 2609.00006 — surfaced via TLDR AI and an X post instead)
+- Akshay Pachaar (x, @akshay_pachaar), Kirill (x, kirillk_web3) — no on-topic posts this cycle
+- Boris Cherny (x, @bcherny) — both passes complete, timeline reached back to Aug 25 with no stall; only 2 posts newer than last_run_date exist (safety-eval commentary, not loop/harness practice)
+- Sabrina Ramonov (x, @Sabrina_Ramonov) — both passes complete; two Sep 8 posts found were off-topic (AI concepts tips, GPT-6 Astra desktop demo)
+- Andrej Karpathy (x, @karpathy), Andrew Ng (x, @AndrewYNg) — reduced-scope single-pass keyword search only (session budget constraints); no posts newer than last_run_date matched for either account
+- LinkedIn search — loop engineering — BLOCKED again this run: the search hit an SSO/login-wall stop, the second consecutive occurrence (see `KB_GAPS.md`); not attempted further
+
+### Docs updated this run
+
+- `docs/16-memory-patterns.md` — added Context Hub (chub), a documentation-freshness tool distinct from state-persistence Patterns A-J (corrected the finding's "integrated with Claude Code" overstatement — it's an opt-in user-authored skill wiring, not a native integration)
+- `docs/23-fleet-engineering.md` — added Sherwin Wu's org-wide 10-20-parallel-agent norm at OpenAI, corrected from a "personal habit" misattribution in the source summary to what the primary source actually says (his engineers, not him individually)
+- `docs/31-claude-tag.md` — added a hedged, higher AI-code-generation figure from Anthropic's CPO (paraphrase, not verbatim — flagged as such) and a new "Self-Improving Instructions via a Human-Gated Friday Routine (Legal)" section
+- `docs/19-mcp-security.md` — added stateless MCP's audit-advantage framing relative to a general harness
+- `docs/24-harness-patterns.md` — nine additions: OpenAI's own primary-source harness-engineering case study, a new eleven-harness academic survey (arXiv 2609.00006), corrected Cursor "$60B" framing (it's a reported acquisition price, not a valuation), a fifth disambiguated Harness-Bench (arXiv 2605.27922, distinct from omnigent's conformance suite of the same name), a primary-source correction to the QM/OpenClaw citation, Warp's harness-before-tuning sequencing rule, Hearting's `parent_next` receipt field, a second harness-as-prompt minimalism (hip-agent) alongside Pi's, a distinct twelve-thesis anthology (lopopolo) from the same author as the OpenAI case study, a tool-call-as-state-stream architecture (Stencil), and a terminal-lifecycle-state lesson (eugenelim)
+- `docs/33-agent-security-hardening.md` — added omnigent's OAuth2 machine-to-machine auth + cache-path validation fix, eugenelim's symlink-vs-`@import` confinement lesson, and ruflo's cryptographic witness-manifest verification
+- `docs/04-verification.md` — added two eugenelim review-discipline lessons: adjudicate-then-mutation-prove, and verify a reviewer's own fix against the code rather than its stated intent
+- `docs/17-failure-patterns.md` — added a verifier-theater "unreachable flag" variant (hearting), a new "Guard that cannot fail" row (eugenelim), a new "Missing value gate" row (InjayTseng), and METR's broader 44-incident figure appended to the existing Reward hacking row
+- `docs/38-agent-teams.md` — added a forced-interleaving-test lesson for pinning file-lock races
+- `docs/21-context-vs-loop-engineering.md` — added the first official cloud-vendor ("loop engineering") social-media use found (Google Cloud Indonesia), with a live corroborating codelab
+- `docs/37-session-architecture.md` — added the conformity sub-finding (18/30 agents independently naming the same branch) from the same Anthropic multi-agent report already cited for sabotage
+- `docs/03-building-blocks.md` — added Anthropic's commerce-agents skills-vs-subagents heuristic and system-prompt/skill traffic-split rule
+- `docs/12-hooks.md` — added a Stop-hook self-cap rule (cap below the platform's built-in 8-block override)
+- `docs/20-loop-maturity-model.md` — added cobusgreyling's recency-weighted L3 scoring and its academic citation (arXiv 2608.21884)
+- `docs/02-agent-loop-cycle.md` — added a new section on Codex's actual per-turn request construction (OpenAI primary source)
+- `docs/22-learned-orchestration.md` — added a three-era periodization of harness evolution (Bolt-On / Co-Training / Attention-Interface)
+- `docs/32-reading-list.md` — swapped the Martin Dilger "Never Argue" entry for OpenAI's "Harness engineering" post in Harness Design & Architecture (group was at its 5-entry cap; OpenAI's first-party production case study outweighs a single-author blog post)
+- `SOURCES.md` — added Kanevry/session-orchestrator as a tracked source (already the KB's Reference Implementations pick, now actively releasing); updated the Hanako row to reflect this run's "unconfirmed-cleared, not resolved" finding rather than treating the crypto-pivot flag as settled
+- `KB_GAPS.md` — logged a new gap (milosCvetkovicDev/claude-code-monorepo tracked but never deep-read), closed a false-premise entry (InjayTseng was claimed already-cited but wasn't — now fixed), and logged the Chrome tab-group contention + repeat LinkedIn login-wall process notes
+
+### Sources to consider adding to SOURCES.md
+
+- Kanevry/session-orchestrator — **added** this run (see above)
+- lopopolo/harness-engineering, stencil.so — cited directly in `docs/24` this run but not added as tracked sources: both are single-shot content (a one-time thesis-anthology commit-burst and a single blog post) rather than an actively-updated feed: the "2+ pieces published" bar in this repo's own sourcing rule isn't met yet
+- cocodedk/loop-engineering — already assessed and deferred in a prior run (below the quality/frequency bar); re-raised again this run by `fetch-loop-news`, no new evidence to reopen it
+
+### `scripts/kb-structure-check.sh` triage
+
+Ran clean (exit 0) after one fix (§5, below). Every non-empty section triaged:
+
+- **§1 Orphans** (`docs/18-quick-reference.md`, `docs/32-reading-list.md`) — reviewed, no action:
+  both are appendix/reference pages by design (a cheat sheet and a curated external-reading list),
+  not called into from KB prose the way a topic doc is; pre-existing, unrelated to today's edits.
+- **§4b Bare @handles** (`docs/31-claude-tag.md:122` `@mention`, `docs/33-agent-security-hardening.md:283`
+  `@import`) — reviewed, no action: both are generic terms/syntax references (Slack's @-mention verb;
+  Claude Code's `@file` import syntax), not actual handles the citation-link rule targets. The
+  `docs/33` instance is new this run (from the symlink-vs-import addition) and was checked
+  specifically for this reason before landing.
+- **§5 Source-table drift** — **fixed**: `README.md`'s source-count table (30 `github` / 67 total) was
+  stale against adding Kanevry/session-orchestrator to `SOURCES.md`; updated to 31 / 68 and
+  re-ran the check clean.
+- **§2, §3, §4a, §6** — empty, nothing to triage.
+
+### Structural review (Phase 4c)
+
+Findings-as-a-set question: did anything recurring across today's 52 findings warrant
+restructuring rather than incremental addition? The dominant recurring theme — harness/loop
+naming and definitional corpus — is not new; `docs/21` and `docs/24` already absorbed this same
+theme across many prior runs, and today's genuinely-new items (OpenAI's own harness-engineering
+post, the eleven-harness academic survey, Harness-Bench, stencil.so, lopopolo, hip-agent) slotted
+into existing sections as incremental, cited additions rather than surfacing an unrepresented
+primitive or a missing thesis. No index restructure, doc merge, or reorder warranted this run —
+**PATCH**, not MAJOR/MINOR (no new `docs/*.md` file created, no existing doc removed/renamed).
+
+---
+
+
 ## 2026-09-08 04:00 UTC (run)
 
 ### New findings
