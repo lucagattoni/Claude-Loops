@@ -2,11 +2,15 @@
 
 Claude-Loops is a living knowledge base and automated daily tracker for **loop engineering** — designing systems that prompt Claude for you. Read `LOOP_ENGINEERING.md` (the index) and `README.md` before working. The KB grows automatically via a two-skill pipeline: `fetch-loop-news` (search) hands off to `integrate-loop-news` (integrate + restructure + publish).
 
-> **Operational state — check this before anything else.** The daily tracker is **paused**: its
-> launchd job is explicitly `disabled`, so it has not run since 2026-09-09 and
-> `tracker-watchdog` fails daily. It is not broken — resuming needs `launchctl enable` *before*
-> `bootstrap`, or it silently stays dead. `RESUME.md` §1 has the diagnosis and the commands;
-> `scripts/SCHEDULING.md` is the reference. **`v3.6.3` is also cut but untagged** (`RESUME.md` §2).
+> **How the tracker runs — changed 20260912.** It is now **on demand**, not scheduled:
+> `bash scripts/run-loop-news-now.sh` (`--status` for which mode is live, `--check` for the
+> environment it would use). **Both modes remain supported and switching is two commands either
+> way** — `scripts/SCHEDULING.md` is the one home for that. The launcher reads `PATH`/`HOME`/cwd
+> out of `scripts/com.luca.loop-news.plist` and runs under `env -i`, so a manual run is identical
+> to a scheduled one; **do not run `scripts/run-loop-news.sh` bare** — your shell's `PATH` is a
+> superset and would mask the failure class that once cost this repo eight weeks.
+> Two consequences are open, not solved: `tracker-watchdog` now measures *when you last chose to
+> run* rather than health, and **`v3.6.3` is cut but untagged**. Both are in `RESUME.md`.
 >
 > **Open work.** **No backlog items remain** — `plans/20260904_2053-open-work-backlog.md` §3, §4
 > and §5 are all empty; it stays the historical record and its §1 *"Do not re-spend budget on"*
