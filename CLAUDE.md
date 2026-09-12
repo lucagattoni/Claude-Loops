@@ -2,6 +2,13 @@
 
 Claude-Loops is a living knowledge base and automated daily tracker for **loop engineering** — designing systems that prompt Claude for you. Read `LOOP_ENGINEERING.md` (the index) and `README.md` before working. The KB grows automatically via a two-skill pipeline: `fetch-loop-news` (search) hands off to `integrate-loop-news` (integrate + restructure + publish).
 
+> **FIRST DECISION IN A NEW SESSION — `D4`, and it is open.** Now that runs are on demand,
+> `tracker-watchdog` no longer measures health: it measures when you last *chose* to run a sweep,
+> so it goes red within two days of any pause and stays red. Options, evidence and a marked
+> recommendation are in `plans/20260904_2053-open-work-backlog.md` **§2** — **not** in §3/§4/§5, so
+> an empty backlog is not a signal that there is nothing to decide. `RESUME.md` §1 repeats it.
+> **Settle this before starting other work**, then strike the row in the same PR.
+>
 > **How the tracker runs — changed 20260912.** It is now **on demand**, not scheduled:
 > `bash scripts/run-loop-news-now.sh` (`--status` for which mode is live, `--check` for the
 > environment it would use). **Both modes remain supported and switching is two commands either
@@ -9,8 +16,8 @@ Claude-Loops is a living knowledge base and automated daily tracker for **loop e
 > out of `scripts/com.luca.loop-news.plist` and runs under `env -i`, so a manual run is identical
 > to a scheduled one; **do not run `scripts/run-loop-news.sh` bare** — your shell's `PATH` is a
 > superset and would mask the failure class that once cost this repo eight weeks.
-> Two consequences are open, not solved: `tracker-watchdog` now measures *when you last chose to
-> run* rather than health, and **`v3.6.3` is cut but untagged**. Both are in `RESUME.md`.
+> The watchdog consequence of that change is `D4` above. Tags and releases are in step — nothing
+> is awaiting a backfill.
 >
 > **Open work.** **No backlog items remain** — `plans/20260904_2053-open-work-backlog.md` §3, §4
 > and §5 are all empty; it stays the historical record and its §1 *"Do not re-spend budget on"*
