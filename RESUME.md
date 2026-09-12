@@ -1,12 +1,45 @@
-# RESUME — handover 20260912 · **the tracker is PAUSED, and that is the first thing to deal with**
+# RESUME — handover 20260912 · **decision `D4` first, then the work**
 
-**Repo state:** `main` at `2628171`, clean, no open branches or worktrees. All gates green.
-**Backlog:** `plans/20260904_2053-open-work-backlog.md` §3, §4 and §5 are **all empty**.
-**Last session:** shipped `A13` (`v3.6.0`) and `A14` (`v3.6.2`), backfilled `v3.6.1`.
+**Repo state:** `main` at `cec77bb`, clean, no open branches or worktrees. All gates green.
+**Tags/releases:** in step — nothing awaiting a backfill.
+**Backlog tiers:** `plans/20260904_2053-open-work-backlog.md` §3, §4 and §5 are all empty — but
+**`D4` in §2 is open**, and no tier-emptiness check reads §2. See §1 below.
+**Last session:** shipped `A13` (`v3.6.0`) and `A14` (`v3.6.2`); backfilled `v3.6.1` and `v3.6.3`;
+moved the tracker to on-demand runs (`v3.7.0`), keeping the schedule one switch away.
 
 ---
 
-## 1. The tracker is now ON DEMAND — this replaces the old "live issue"
+## 1. DECISION `D4` — TAKE THIS FIRST, BEFORE ANY OTHER WORK
+
+**Recorded 20260912 at the user's instruction: this is the first decision a new session takes.**
+
+Now that runs are on demand, `.github/workflows/tracker-watchdog.yml` no longer measures health. It
+fails when the newest digest is older than `MAX_AGE_HOURS` (48). Under a schedule that meant *a run
+was due and silently failed* — it is the only off-machine signal this pipeline has, and it is how
+the 09-11 pause was noticed at all. On demand it measures **how recently you chose to run a sweep**,
+so it goes red within two days of any pause and stays red: the *Notification Fatigue* pattern this
+KB documents in `docs/17`, and a direct hit on the repo's own rule that **an unaccounted flag is an
+unread check**.
+
+**Full options, evidence and a marked recommendation are in the backlog's §2, as `D4`** —
+`plans/20260904_2053-open-work-backlog.md`. In short: **(a)** leave it and accept daily red;
+**(b)** raise `MAX_AGE_HOURS` to ~336 (14 days), turning it into a staleness nudge — *recommended*,
+and its real cost is losing 48h sensitivity if the schedule ever returns; **(c)** `workflow_dispatch`
+only, giving up the automatic signal; **(d)** commit the active mode and make the threshold
+mode-dependent — correct in both modes, but two homes for one fact and the drift is silent.
+
+A constraint worth knowing before reaching for (d): the active mode is *local machine state*
+(`launchctl`), so **CI cannot observe it**. Mode-awareness requires committing the mode.
+
+> **`D4` lives in §2, which no tier-emptiness check reads.** §3/§4/§5 being empty does not mean
+> there is nothing to decide. This repo shipped exactly that defect once — a note parked outside
+> every tier that stayed stale for weeks.
+
+Decide, apply, and strike the row in the same PR.
+
+---
+
+## 2. How the tracker runs now — ON DEMAND
 
 **Decided 20260912 by the user: on-demand runs are the norm, replacing the daily schedule.** What
 looked like an outage earlier that day (STALE 76h, launchd job `disabled`) was the deliberate pause
@@ -35,39 +68,6 @@ Everything else is unchanged: same day log (`logs/loop-news-YYYYMMDD.log`), same
 (`logs/launchd.log`, tee'd so you also watch it live), same commit-and-push to `main`, same exit
 codes — **6** = reported success but published nothing, **7** = failed and could not tell whether it
 had published.
-
-### OPEN DECISION — the freshness watchdog now measures the wrong thing
-
-`.github/workflows/tracker-watchdog.yml` fails when the newest digest is older than 48h. Under a
-schedule that was the only off-machine health signal. **Under on-demand it measures how recently
-you chose to run a sweep**, so it goes red within two days of any pause and stays red — the
-*Notification Fatigue* pattern this KB documents in `docs/17`. Options, none yet taken:
-
-| Option | Effect |
-|---|---|
-| Leave it | Red CI daily; the signal is ignored, which is the failure mode | 
-| Raise `MAX_AGE_HOURS` (e.g. 336 = 14 days) | Becomes a "the KB is going stale" nudge, not a health check |
-| Trigger on `workflow_dispatch` only | Silent until asked; no automatic staleness signal at all |
-
-**Not changed unilaterally** — it is CI config on a public repo, and **if the schedule is ever
-restored the watchdog becomes correct again with no edit**, which argues for leaving it rather than
-deleting it.
-
-## 2. Pending: `v3.6.3` is cut but untagged
-
-The 09-09 pipeline run cut `## [3.6.3] — 20260909 05:02` in `CHANGELOG.md`. Per decision **D2** the
-pipeline deliberately never tags or releases (`gh` is not in its allowlist), so every pipeline-cut
-version needs a manual backfill. Tags and releases are otherwise in step at **73/73**.
-
-```bash
-# tag the PIPELINE COMMIT that carries the entry — the precedent for every pipeline-cut tag
-git tag -a v3.6.3 2628171 -m "..."   &&  git push origin v3.6.3
-gh release create v3.6.3 --latest --notes-file <the [3.6.3] section>
-```
-
-Check with `git tag | wc -l` against `gh release list | wc -l` rather than trusting this number.
-
----
 
 ## 3. What `A13`/`A14` do and — importantly — do **not** catch
 

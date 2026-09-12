@@ -44,7 +44,52 @@ only the pointer). This list exists because each entry was paid for once already
 
 ---
 
-## 2. Decisions — RESOLVED 20260905
+## 2. Decisions
+
+**`D4` is OPEN and is the first thing to settle in a new session.** `D1`–`D3` were resolved
+20260905 and are kept because the *reasoning* is what a later agent needs, not just the outcome.
+
+> **`D4` sits in §2, which no tier-emptiness check reads.** §3, §4 and §5 being empty does **not**
+> mean there is nothing to decide. This repo has already shipped that exact defect once — a live
+> note parked outside every tier, which stayed stale for weeks because no check covered it
+> (`[3.5.0]`, "A stale *found but not fixed* note"). `CLAUDE.md` and `RESUME.md` both point here.
+
+### D4 — what should the freshness watchdog do now that runs are on demand? · **OPEN, opened 20260912**
+
+**The problem.** `.github/workflows/tracker-watchdog.yml` runs `scripts/check-digest-freshness.sh`
+daily and fails when the newest digest entry is older than `MAX_AGE_HOURS` (48).
+
+- **Under the schedule it was a genuine health check** — a run was *due*, so a stale digest meant
+  one had silently failed. It is the only off-machine signal this pipeline has, and it did its job:
+  it went red on 2026-09-11 and that is how the pause was noticed at all.
+- **Under on-demand runs it measures something else** — how recently *you chose* to run a sweep. It
+  goes red within two days of any pause and stays red. That is the *Notification Fatigue* pattern
+  this KB documents in `docs/17`: an alarm that is always on is an alarm nobody reads, and this
+  repo's own rule is that **an unaccounted flag is an unread check**.
+
+**A constraint that kills the obvious "just make it mode-aware" fix:** the active mode is *local
+machine state* (`launchctl`), and CI cannot observe it. Any mode-aware watchdog requires the mode
+to be **committed to the repo**, which creates a second home for it that drifts the moment someone
+switches locally without updating the marker.
+
+| # | Option | Pro | Con |
+|---|---|---|---|
+| **(a)** | Leave it | Zero work; instantly correct again if the schedule returns | Red CI every day on a public repo; the signal gets ignored, which is the failure mode itself |
+| **(b)** | Raise `MAX_AGE_HOURS` to ~`336` (14 days) | Stops the false alarm; keeps a real off-machine signal that the KB is going stale — still meaningful whatever the mode; one-line change | **Loses the 48h sensitivity if the schedule returns** — a silently failing daily run would go unnoticed for two weeks |
+| **(c)** | `workflow_dispatch` only | Silent unless asked; no false alarms at all | Gives up the only automatic off-machine signal entirely — the thing that caught the 09-11 pause |
+| **(d)** | Commit the active mode; make the threshold mode-dependent | Correct in **both** modes, which is what the two-mode design deserves | Two homes for one fact, and the drift is silent — switch locally, forget the commit, and the watchdog is wrong again with no indication |
+
+**Recommendation: (b)**, with its cost stated plainly. It keeps an off-machine signal, needs no
+mode awareness, and cannot drift. The real price is sensitivity: if the schedule is ever restored,
+**change `MAX_AGE_HOURS` back to 48 in the same commit as the switch** — `SCHEDULING.md`'s
+switch-to-scheduled procedure should gain that step, or (b) quietly becomes (a)'s blind spot.
+
+**Whoever takes this:** decide, apply it, and strike this row in the same PR — the repo's rule is
+that the PR shipping the fix also closes the item.
+
+---
+
+### D1–D3 — RESOLVED 20260905
 
 All three were taken by the user on 20260905 and are implemented in the same commit as this note.
 Kept here because the *reasoning* is what a later agent needs, not just the outcome.
@@ -1003,7 +1048,21 @@ the remote, and is marked latest.
 | ~~12~~ | ~~**D2**/**H10**, **D3**/**H13** — release policy and plan archival~~ · **DONE, confirmed 20260906** — D2 and D3 were resolved 20260905 (§2) and are written into `CLAUDE.md`'s Releases and Plans sections; H10 backfilled to 63 tags / 63 releases (`v3.1.9`); H13's retire-in-place policy is already applied to both delivered plans. Never struck until the step-10 staleness audit | — |
 | ~~13~~ | ~~**H14** — retitle the IST-dependent scheduling comments **before 2026-10-25**~~ · **DONE 20260907**, together with **C4** — both comments made DST-regime-independent so the hard date does not recur | `plutil -lint` + YAML parse; `mkdocs build --strict` |
 
-> **Status 20260908 07:29 (updated after A14):** **A14 is shipped. §3, §4 and §5 are all empty.**
+> **Status 20260912 08:57 (updated after the on-demand switch):** **All three tiers (§3, §4, §5)
+> are empty — and that is NOT a signal that there is nothing to do.** `D4` in **§2** is open and is
+> the first decision a new session takes: the freshness watchdog measures *when you last chose to
+> run a sweep* rather than health, now that runs are on demand. §2 is outside every tier-emptiness
+> check, which is exactly the shape of the stale-note defect this repo shipped once before — so
+> `CLAUDE.md` and `RESUME.md` §1 both point at it directly rather than relying on anyone reading
+> this file.
+>
+> The tracker itself moved to **on-demand runs** in `v3.7.0` (`scripts/run-loop-news-now.sh`); the
+> schedule is one switch away and `scripts/SCHEDULING.md` is its one home. Tags and releases are in
+> step, nothing awaiting backfill.
+>
+> Previous status (A14) retained below.
+>
+> > **Status 20260908 07:29 (updated after A14):** **A14 is shipped. §3, §4 and §5 are all empty.**
 >
 > Previous status (A13) retained below.
 >
