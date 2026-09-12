@@ -6,49 +6,52 @@
 
 ---
 
-## 1. LIVE ISSUE — the daily tracker has not run since 2026-09-09
+## 1. The tracker is now ON DEMAND — this replaces the old "live issue"
 
-`scripts/check-digest-freshness.sh` reports **STALE, 76h** (limit 48h). Newest digest entry is
-`2026-09-09 04:00 UTC`. Runs on the 10th, 11th and 12th did not happen.
-
-**Root cause, diagnosed 20260912 — it is NOT a crash.** The launchd job is explicitly disabled:
-
-```
-$ launchctl print-disabled gui/$(id -u) | grep loop-news
-        "com.luca.loop-news" => disabled
-```
-
-Evidence it is a deliberate pause rather than a failure:
-- No day logs exist for 09-10/11/12 — `logs/loop-news-*.log` stops at `20260909`. The wrapper
-  never started, so nothing inside it failed.
-- The machine has **not rebooted** (`up 7 days`, booted Sep 4), so nothing unloaded it implicitly.
-- The `20260909` run finished normally: published, cleaned up its branch.
-- `~/Library/LaunchAgents/com.luca.loop-news.plist` is present and byte-identical to the repo copy.
-
-**The alarm worked.** `tracker-watchdog.yml` ran green on 09-10 (the 09-09 entry was still under
-48h) and **failed on 2026-09-11T13:11Z**, exactly as designed. It will keep failing daily until the
-tracker publishes again — so an unexplained red watchdog in that window is this, not a new fault.
-
-### To resume it — `enable` BEFORE `bootstrap`, or it silently stays dead
-
-`scripts/SCHEDULING.md` documents this trap: a `bootstrap` alone inherits the disabled flag.
+**Decided 20260912 by the user: on-demand runs are the norm, replacing the daily schedule.** What
+looked like an outage earlier that day (STALE 76h, launchd job `disabled`) was the deliberate pause
+that preceded this decision. Nothing is broken.
 
 ```bash
-launchctl enable    gui/$(id -u)/com.luca.loop-news
-launchctl bootout   gui/$(id -u)/com.luca.loop-news 2>/dev/null   # ignore "no such process"
-launchctl bootstrap gui/$(id -u) ~/Library/LaunchAgents/com.luca.loop-news.plist
-launchctl print     gui/$(id -u)/com.luca.loop-news | grep -E 'state|disabled'   # verify
+bash scripts/run-loop-news-now.sh            # run a sweep now (~45-60 min, real money)
+bash scripts/run-loop-news-now.sh --status   # which mode is live, when it last published
+bash scripts/run-loop-news-now.sh --check    # the environment it would use; runs nothing
 ```
 
-**Verify the artifact, not the command:** after the next 05:00 local trigger, check that
-`logs/loop-news-$(date +%Y%m%d).log` exists and that `origin/main` gained a `feat: loop news run `
-commit — `launchctl list` showing the label proves only that it is loaded.
+**Both modes stay supported, and switching is two commands either way** — `scripts/SCHEDULING.md`
+is the one home for the procedure, including the trap that cost a diagnosis: `launchctl enable`
+must precede `bootstrap`, or the job silently inherits the disabled flag and stays dead.
 
-### If the pause was deliberate and should continue
-Leave it, but expect a red `tracker-watchdog` every day. There is no "paused" state the watchdog
-understands — it only measures digest age.
+**Why there is a launcher rather than "just run the script".** An interactive shell has sourced
+your profile, so its `PATH` is a *superset* of the recorded one; `bash scripts/run-loop-news.sh`
+from a terminal can succeed where the scheduled path would fail, and you would not find out until
+you switched modes. The launcher reads `PATH`, `HOME`, the working directory and the log paths out
+of `scripts/com.luca.loop-news.plist` and starts the wrapper under `env -i` with exactly those, so
+the two modes are identical **by construction, not by intent**. `com.luca.loop-news.plist` is
+therefore the single environment definition, not merely a schedule — **do not delete it**, it would
+break on-demand runs too.
 
----
+Everything else is unchanged: same day log (`logs/loop-news-YYYYMMDD.log`), same catch-all
+(`logs/launchd.log`, tee'd so you also watch it live), same commit-and-push to `main`, same exit
+codes — **6** = reported success but published nothing, **7** = failed and could not tell whether it
+had published.
+
+### OPEN DECISION — the freshness watchdog now measures the wrong thing
+
+`.github/workflows/tracker-watchdog.yml` fails when the newest digest is older than 48h. Under a
+schedule that was the only off-machine health signal. **Under on-demand it measures how recently
+you chose to run a sweep**, so it goes red within two days of any pause and stays red — the
+*Notification Fatigue* pattern this KB documents in `docs/17`. Options, none yet taken:
+
+| Option | Effect |
+|---|---|
+| Leave it | Red CI daily; the signal is ignored, which is the failure mode | 
+| Raise `MAX_AGE_HOURS` (e.g. 336 = 14 days) | Becomes a "the KB is going stale" nudge, not a health check |
+| Trigger on `workflow_dispatch` only | Silent until asked; no automatic staleness signal at all |
+
+**Not changed unilaterally** — it is CI config on a public repo, and **if the schedule is ever
+restored the watchdog becomes correct again with no edit**, which argues for leaving it rather than
+deleting it.
 
 ## 2. Pending: `v3.6.3` is cut but untagged
 

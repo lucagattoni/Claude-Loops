@@ -1,22 +1,102 @@
-# Scheduling the daily tracker (macOS)
+# Running the tracker (macOS) — **two modes, one environment**
 
-The tracker runs via a **macOS launchd LaunchAgent** (not cron, not `CronCreate`) —
-`com.luca.loop-news`, which invokes `scripts/run-loop-news.sh`.
+The tracker supports two ways of being run, and they are meant to stay interchangeable:
 
-Two copies of the same file exist and must be kept in sync manually:
+| Mode | How it fires | Status |
+|---|---|---|
+| **On demand** | you run `scripts/run-loop-news-now.sh` | **active since 20260912 — the default** |
+| **Scheduled** | the `com.luca.loop-news` LaunchAgent, 05:00 local | available, currently disabled |
 
-| Copy | Role |
-|---|---|
-| `scripts/com.luca.loop-news.plist` (this repo, tracked) | Source of truth / history — edit **this one** first |
-| `~/Library/LaunchAgents/com.luca.loop-news.plist` | The live copy launchd actually reads |
+**Neither is a one-way door.** Switching is two commands in either direction (below), and both
+modes run the same wrapper in the same environment *by construction* — the launcher reads `PATH`,
+`HOME`, the working directory and the log paths out of `scripts/com.luca.loop-news.plist` at run
+time and starts the wrapper under `env -i` with exactly those. So "it worked when I ran it by hand"
+stays evidence about the scheduled path too, and vice versa.
 
-**Workflow for any change:** edit the tracked copy → `cp` it into `~/Library/LaunchAgents/`
-→ reload with `launchctl` (below) → commit the tracked copy. Editing only the live copy
-means the next person (or your future self) reads stale history in git.
+```bash
+bash scripts/run-loop-news-now.sh            # run a sweep now
+bash scripts/run-loop-news-now.sh --status   # which mode is live, and when it last published
+bash scripts/run-loop-news-now.sh --check    # print the environment it would use, run nothing
+```
 
-launchd's `<uid>` in the commands below is your user id — get it once with `id -u`
-(`501` on this machine); the domain target for a per-user GUI LaunchAgent is always
-`gui/<uid>/<label>`.
+**Which mode am I in?** `--status` asks launchd and the repo directly rather than inferring it. Use
+it before concluding anything about a stale digest — on 20260912 a paused tracker read as a broken
+one for three days because nothing reported the mode.
+
+A sweep takes roughly 45–60 minutes and costs real money (Stage A and Stage B each carry their own
+`--max-budget-usd`), so on demand it is a deliberate act, not a background one.
+
+## Why not just run the wrapper directly
+
+An interactive shell has sourced your profile, so its `PATH` is a **superset** of the recorded one.
+`bash scripts/run-loop-news.sh` from a terminal can therefore succeed on a machine where the
+scheduled path would fail — and you would not find out until you switched modes. This repo already
+lost eight weeks to a binary-resolution bug of exactly that shape. Use the launcher.
+
+`scripts/com.luca.loop-news.plist` is the **single definition of that environment**, committed and
+read by both modes. It is not only a schedule. **Do not delete it** — deleting it breaks on-demand
+runs as well as scheduled ones.
+
+### Output and exit codes
+
+The run is `tee`d: you watch it live *and* the same bytes land in `logs/launchd.log`, exactly as
+launchd would have captured them. The wrapper writes its own structured day log at
+`logs/loop-news-YYYYMMDD.log` in both modes. Both files are gitignored and local to this machine.
+
+The launcher passes the wrapper's exit code through unchanged. `0` is a verified publish;
+**`6`** = reported success but published nothing; **`7`** = failed and could not tell whether it had
+already published, so it refused to retry. Full table below.
+
+> **Verify the artifact, not the message.** Confirm `origin/main` gained a `feat: loop news run `
+> commit before believing any summary.
+
+---
+
+## Switching modes
+
+**To scheduled.** `enable` must come *before* `bootstrap` — a `bootstrap` alone inherits the
+disabled flag and the job silently stays dead, which is what happened on 20260912:
+
+```bash
+cp scripts/com.luca.loop-news.plist ~/Library/LaunchAgents/   # if the live copy is missing
+launchctl enable    gui/$(id -u)/com.luca.loop-news
+launchctl bootout   gui/$(id -u)/com.luca.loop-news 2>/dev/null   # ignore "no such process"
+launchctl bootstrap gui/$(id -u) ~/Library/LaunchAgents/com.luca.loop-news.plist
+bash scripts/run-loop-news-now.sh --status                     # must report SCHEDULED
+```
+
+**To on demand.** `disable` alone is not enough — it prevents future loads but does not unload a
+running job, so `bootout` is the one that actually stops it:
+
+```bash
+launchctl disable gui/$(id -u)/com.luca.loop-news
+launchctl bootout gui/$(id -u)/com.luca.loop-news 2>/dev/null
+bash scripts/run-loop-news-now.sh --status                     # must report ON DEMAND
+```
+
+Verify with `--status` in both directions rather than trusting the commands' silence.
+
+### The freshness watchdog is mode-dependent — this is the one thing switching does not fix
+
+`.github/workflows/tracker-watchdog.yml` runs `scripts/check-digest-freshness.sh` daily and fails
+when the newest digest entry is older than `MAX_AGE_HOURS` (48).
+
+- **Under SCHEDULED that is a real health check**: a run was due, so a stale digest means one
+  silently failed. It is the only off-machine signal this pipeline has.
+- **Under ON DEMAND it measures something else** — how recently *you chose* to run a sweep — so it
+  goes red within two days of any pause and stays red. Left alone that is a standing false alarm,
+  the *Notification Fatigue* pattern this KB documents in `docs/17`.
+
+It is recorded here rather than quietly changed; the open decision is in `RESUME.md`. **If you
+switch back to scheduled, the watchdog becomes correct again with no edit** — which is a reason to
+leave it alone rather than delete it.
+
+---
+
+## launchd reference
+
+Everything below is the detail behind the switch commands above. Not needed for a normal on-demand
+run.
 
 ---
 
