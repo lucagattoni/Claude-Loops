@@ -2,6 +2,12 @@
 
 Claude-Loops is a living knowledge base and automated daily tracker for **loop engineering** — designing systems that prompt Claude for you. Read `LOOP_ENGINEERING.md` (the index) and `README.md` before working. The KB grows automatically via a two-skill pipeline: `fetch-loop-news` (search) hands off to `integrate-loop-news` (integrate + restructure + publish).
 
+> **Operational state — check this before anything else.** The daily tracker is **paused**: its
+> launchd job is explicitly `disabled`, so it has not run since 2026-09-09 and
+> `tracker-watchdog` fails daily. It is not broken — resuming needs `launchctl enable` *before*
+> `bootstrap`, or it silently stays dead. `RESUME.md` §1 has the diagnosis and the commands;
+> `scripts/SCHEDULING.md` is the reference. **`v3.6.3` is also cut but untagged** (`RESUME.md` §2).
+>
 > **Open work.** **No backlog items remain** — `plans/20260904_2053-open-work-backlog.md` §3, §4
 > and §5 are all empty; it stays the historical record and its §1 *"Do not re-spend budget on"*
 > list names work already paid for. Open **content** work lives in `KB_GAPS.md` § *Active Gaps*:
