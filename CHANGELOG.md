@@ -18,6 +18,59 @@ Versioning follows [Semantic Versioning](https://semver.org/):
 
 ---
 
+## [3.7.0] — 20260912 08:49
+
+**The tracker is now run on demand rather than on a schedule** — decided by the user 20260912. The
+schedule is not removed: both modes are supported and switching is two commands either way.
+**MINOR** on the `[3.5.0]` precedent — a new runnable capability, where the project's own tier
+table is doc-scoped so the global new-capability rule governs.
+
+### Added
+
+- **`scripts/run-loop-news-now.sh`** — runs a sweep in the exact environment a scheduled run would
+  have had. It reads `PATH`, `HOME`, `WorkingDirectory`, the log paths and the invocation out of
+  `com.luca.loop-news.plist` at run time and starts the wrapper under `env -i` with exactly those,
+  so **the two modes are identical by construction, not by intent**. Output is `tee`d: the bytes
+  reaching `logs/launchd.log` are what launchd would have captured, and you also watch it live.
+  Exit codes pass through unchanged.
+  - `--status` — which mode is live, whether the agent is loaded or disabled, the newest publish
+    and day log, and digest freshness. Its absence is why a deliberate pause read as a three-day
+    outage on 20260912; it asks launchd and git directly instead of inferring from a stale digest.
+  - `--check` — prints the resolved environment and runs nothing, naming what it does *not* prove.
+
+  **Why a launcher rather than "just run the wrapper".** An interactive shell has sourced your
+  profile, so its `PATH` is a **superset** of the recorded one; a run that succeeds in a terminal
+  can fail on the scheduled path, and you would not find out until you switched. This repo already
+  lost eight weeks to a binary-resolution bug of that shape.
+
+  **Verified, not asserted.** A probe driven through the launcher reproduced the recorded `PATH`,
+  `HOME` and working directory exactly; an exported interactive variable did **not** survive
+  `env -i`; the probe's output landed in the log file as well as on screen; exit codes 0, 3, 6 and
+  7 propagated unchanged through the `tee`; a missing plist failed closed at 2. **That probe caught
+  a real flaw** — the launcher sanity-checked `$HERE/run-loop-news.sh` while exec'ing whatever
+  `ProgramArguments` names, a guard checking something other than the thing it runs. Fixed to check
+  the recorded target.
+
+### Changed
+
+- **`scripts/com.luca.loop-news.plist` is now the single definition of the run environment**, not
+  merely a schedule. Both modes read it; deleting it breaks on-demand runs too. Stated in the file.
+- **`scripts/SCHEDULING.md`** rewritten around the two modes, with symmetric switch procedures in
+  both directions — including the `enable`-before-`bootstrap` trap that cost a diagnosis on
+  20260912, where a `bootstrap` alone inherits the disabled flag and the job silently stays dead.
+- **`CLAUDE.md` and `RESUME.md`** so a cold read learns the active mode without digging.
+
+### Known limits, recorded rather than solved
+
+- **`tracker-watchdog` no longer measures health under on-demand runs.** It fails when the newest
+  digest is older than 48h, which under a schedule meant a run had silently failed. On demand it
+  measures *when you last chose to run a sweep*, so it goes red within two days of any pause and
+  stays red — the *Notification Fatigue* pattern this KB documents in `docs/17`. Left unchanged
+  deliberately: it is CI config on a public repo, and restoring the schedule makes it correct again
+  with no edit. Options are in `RESUME.md` §1.
+
+---
+
 ## [3.6.3] — 20260909 05:02
 
 ### Added
