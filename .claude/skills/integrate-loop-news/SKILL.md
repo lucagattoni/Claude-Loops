@@ -379,8 +379,9 @@ For **None**: skip all changelog changes — there is no version to cut — but 
 push the digest section**. A quiet day and a dead tracker must not leave the same trace.
 
 - `scripts/check-digest-freshness.sh` reads the newest **committed** `## YYYY-MM-DD HH:MM UTC`
-  header with a 48-hour limit, so two consecutive uncommitted runs page a *healthy* tracker as
-  STALE — and an alarm that cries wolf on quiet days is an alarm nobody reads.
+  header against `MAX_AGE_HOURS` (336 = 14 days since `D4`, 20260921), so an uncommitted run no
+  longer pages within two days — but it still freezes the clock, and a fortnight of them pages a
+  *healthy* tracker as STALE. Commit the digest section on every run, quiet day included.
 - `fetch-loop-news` derives `last_run_date` from that same committed header, so skipping the
   commit freezes it and widens every later run's search window.
 - The committed record is the only place "swept, found nothing" can be distinguished from "did

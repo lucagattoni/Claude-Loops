@@ -542,12 +542,13 @@ while (( attempt <= MAX_ATTEMPTS )); do
       # whereas a duplicate commit on main is unpicked by hand.
       #
       # BE PRECISE ABOUT THE BACKSTOP — it is weaker than it sounds, and this comment is the ground
-      # for the trade-off. check-digest-freshness.sh runs at 09:00 UTC against MAX_AGE_HOURS 48
-      # while the tracker fires 04:00-05:00 UTC, so a SINGLE lost day reads ~29h old and the
-      # watchdog prints FRESH — it pages nobody. Only a second consecutive miss (~53h) crosses the
-      # threshold. Until then the only signal is notify(): a desktop popup and a gitignored day
-      # log, both on the machine that failed. So this trades a possibly silent lost day against a
-      # certain duplicate commit, and takes the silent one knowingly.
+      # for the trade-off. check-digest-freshness.sh runs daily at 09:00 UTC against MAX_AGE_HOURS
+      # 336 (14 days; D4, resolved 20260921) — a staleness nudge, not a same-day check — and since
+      # v3.7.0 the tracker has no fixed fire time to be late against. A lost sweep therefore pages
+      # nobody off-machine until a fortnight of silence accumulates. Until then the only signal is
+      # notify(): a desktop popup and a gitignored day log, both on the machine that failed. So
+      # this trades a possibly silent lost day (or several) against a certain duplicate commit, and
+      # takes the silent one knowingly.
       #
       # Re-check once before giving up. Retrying the CHECK is not retrying the PUSH, so the safety
       # property is untouched: assert-published.sh's own window is 3 tries x 2s, far shorter than
@@ -628,7 +629,8 @@ fi
 #
 # ON "LOUDLY": notify() is an osascript popup plus this machine's gitignored day log. The only
 # off-machine signal remains scripts/check-digest-freshness.sh under tracker-watchdog.yml (daily,
-# MAX_AGE_HOURS 48), so a non-publish caught here can still be invisible elsewhere for up to 48h.
+# MAX_AGE_HOURS 336 — a 14-day staleness nudge since D4, 20260921), so a non-publish caught here
+# can still be invisible elsewhere for up to 336h.
 # Widening notify() is a separate, larger question this change deliberately does not answer.
 if published_state "$REPO_ROOT"; then
   echo "[$(stamp)] ${ASSERT_OUT}" | tee -a "$LOG_FILE"

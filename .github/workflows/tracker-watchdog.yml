@@ -1,9 +1,10 @@
 name: tracker-watchdog
 
-# Off-machine staleness alarm for the daily tracker.
+# Off-machine staleness alarm for the KB tracker.
 #
-# The tracker runs on a laptop via launchd and reports failures to a desktop notification and a
-# gitignored log — both on the machine that failed. Between 2026-07-20 and 2026-09-05 it published
+# The tracker runs on a laptop — on demand since v3.7.0 (20260912), on a launchd schedule before
+# that — and reports failures to a desktop notification and a gitignored log, both on the machine
+# that failed. Between 2026-07-20 and 2026-09-05 it published
 # nothing and nothing said so. This job runs somewhere else and asserts on the published artifact,
 # so a dead scheduler, a dead pipeline and a closed laptop all surface the same way: a red run.
 #
@@ -12,11 +13,10 @@ name: tracker-watchdog
 
 on:
   schedule:
-    # 09:00 UTC daily. The tracker fires at 05:00 Europe/Dublin local, whose UTC slot moves with
-    # DST — 04:00 UTC under IST, 05:00 UTC under GMT — so this lands 4–5h after it either way,
-    # leaving room for retries
-    # and a slow run. GitHub may delay scheduled runs under load; the 48h threshold absorbs that
-    # without turning a late run into a false alarm.
+    # 09:00 UTC daily. Since v3.7.0 the tracker runs ON DEMAND, so there is no fixed fire time for
+    # this to sit "4-5h after"; the daily cron is simply how often the staleness question gets
+    # asked. MAX_AGE_HOURS (336 = 14 days, in scripts/check-digest-freshness.sh) is a staleness
+    # threshold, not a same-day retry margin, so GitHub delaying a scheduled run is irrelevant.
     - cron: '0 9 * * *'
   workflow_dispatch:      # so the alarm can be tested on demand, not only observed in anger
   push:
@@ -33,6 +33,8 @@ jobs:
     steps:
       - uses: actions/checkout@v5
       - name: Digest freshness
-        env:
-          MAX_AGE_HOURS: '48'
+        # MAX_AGE_HOURS is deliberately NOT set here. Its one home is
+        # scripts/check-digest-freshness.sh (336 = 14 days). Overriding it at this call site would
+        # let CI and `run-loop-news-now.sh --status` report opposite verdicts on the same digest.
+        # (D4, resolved 20260921.)
         run: bash scripts/check-digest-freshness.sh
