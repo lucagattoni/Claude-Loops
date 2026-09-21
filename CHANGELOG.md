@@ -18,6 +18,63 @@ Versioning follows [Semantic Versioning](https://semver.org/):
 
 ---
 
+## [3.7.1] — 20260921 16:16
+
+**`D4` resolved: the freshness watchdog becomes a 14-day staleness nudge, single-homed.** Once runs
+went on demand in `[3.7.0]`, `tracker-watchdog` stopped measuring health and started measuring how
+recently anyone *chose* to sweep — it failed **ten consecutive scheduled runs, 20260912–20260921**.
+That is the *Notification fatigue* pattern this KB documents in `docs/17`, running in our own CI.
+**PATCH** on both tables: no doc file created, removed or renamed, and no new capability — a CI
+threshold plus a documentation sync.
+
+### Changed
+
+- **`MAX_AGE_HOURS` 48 → 336 (14 days)**, and the number now has **one home**:
+  `scripts/check-digest-freshness.sh`. The workflow's `env:` block is **deleted**, not set to 336.
+  **The backlog's "one-line change" framing of option (b) was wrong and is corrected in place:**
+  `scripts/run-loop-news-now.sh --status` calls the script with no env, so editing only the
+  workflow would have left the local status command judging against 48 while CI judged against 336
+  — the same two-homes drift that got option (d) rejected, merely relocated. The env var remains an
+  honoured override at every call site.
+- **The STALE message no longer misdirects.** It told the operator to run
+  `launchctl print gui/$(id -u)/com.luca.loop-news` — a LaunchAgent deliberately disabled since
+  `[3.7.0]`. At 48h the alarm fired constantly and wrong advice was cheap; at 336h it fires
+  fortnightly, so every firing must be actionable on its own. It now names `run-loop-news-now.sh`
+  first and reaches for `launchctl` only if `--status` reports SCHEDULED. **Six survey agents read
+  those lines and cleared them; only the adjudicating pass caught it.**
+- **`scripts/SCHEDULING.md` carries the revert step in both directions** — switching back to
+  scheduled must set 336 → 48 in the same commit, or (b) quietly becomes (a)'s blind spot, exactly
+  as `D4` warned. It also records that **a red run under ON DEMAND is a true positive whose fix is
+  a sweep, not a wider threshold**; widening until a check stops firing is this repo's *"a check
+  that cannot tell must fail"* rule broken in the other direction.
+- **Docs synced to on-demand runs** — `docs/34`'s tracker card still read `Trigger: Daily cron
+  (launchd), 05:00 local` and `Cadence: One run per day`, and `README.md` had the same shape in
+  three places. This drift dated from `[3.7.0]` and was not caused by `D4`. `docs/17`'s
+  *Notification fatigue* row gains this repo as its own worked example.
+
+### Added
+
+- **`A15`** (backlog §5, open) — teach `--status` to warn when `MAX_AGE_HOURS` disagrees with the
+  live mode. Deferred deliberately: new code on a rarely-exercised path, and single-homing the
+  number removed the larger half of the risk.
+- **`A16`** (backlog §5, open) — **nothing off-machine distinguishes "no sweep ran" from "a sweep
+  ran and published nothing".** Verified while reviewing `D4`: `run-loop-news.sh` pushes only on
+  success and `TEMP_BRANCH` checkpoints stay local, so a failed run leaves zero off-machine trace.
+  Under the schedule the digest-age check covered this because a run was *due*; on demand it
+  cannot. `D4` fixed the threshold, not this.
+
+### Notes
+
+- **Verified in real CI, not only locally:** the branch push fired `tracker-watchdog`, which
+  reported `FRESH: newest digest entry is 300h old (limit 336h)` with no `env:` override in the log
+  (run `35624147361`).
+- **A count in this release's own first commit message is wrong and stands uncorrected as history:**
+  it says "11 consecutive red scheduled runs since 20260912". There are 11 consecutive scheduled
+  failures, but they span 20260911–20260921; the 20260911 red was a *true* positive under the
+  schedule and is how the pause was noticed at all. Only ten belong to the on-demand era.
+
+---
+
 ## [3.7.0] — 20260912 08:49
 
 **The tracker is now run on demand rather than on a schedule** — decided by the user 20260912. The
