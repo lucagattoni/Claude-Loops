@@ -76,8 +76,11 @@ must precede `bootstrap`, or the job silently inherits the disabled flag and sta
 your profile, so its `PATH` is a *superset* of the recorded one; `bash scripts/run-loop-news.sh`
 from a terminal can succeed where the scheduled path would fail, and you would not find out until
 you switched modes. The launcher reads `PATH`, `HOME`, the working directory and the log paths out
-of `scripts/com.luca.loop-news.plist` and starts the wrapper under `env -i` with exactly those, so
-the two modes are identical **by construction, not by intent**. `com.luca.loop-news.plist` is
+of `scripts/com.luca.loop-news.plist`, adds the identity variables launchd synthesizes but no plist
+declares (`USER`/`LOGNAME`, from `id -un` — see `v3.7.2`), and starts the wrapper under `env -i`
+with those, so the two modes match **by construction, not by intent** — closely, though not
+identically: the launchd-internal variables are not reproducible from outside launchd.
+`com.luca.loop-news.plist` is
 therefore the single environment definition, not merely a schedule — **do not delete it**, it would
 break on-demand runs too.
 

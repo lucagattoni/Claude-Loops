@@ -18,6 +18,52 @@ Versioning follows [Semantic Versioning](https://semver.org/):
 
 ---
 
+## [3.7.2] — 20260921 19:06
+
+**The on-demand launcher could not authenticate, because it reproduced the plist rather than the
+launchd environment.** `bash scripts/run-loop-news-now.sh` died on every attempt with
+`Not logged in · Please run /login` while the same CLI worked interactively. The login was never the
+problem. **PATCH** — a bug fix in a script plus the doc sync it forces.
+
+### Changed
+
+- **`scripts/run-loop-news-now.sh` now supplies `USER` and `LOGNAME`**, derived from `id -un` — the
+  same source launchd derives them from — in addition to the plist's `PATH`/`HOME`. **The plist is
+  not the whole environment:** launchd synthesizes variables a job never declares. Measured with a
+  throwaway GUI agent whose `EnvironmentVariables` set only `HOME` and `PATH`; it received
+  `LOGNAME SHELL TMPDIR USER SSH_AUTH_SOCK XPC_FLAGS XPC_SERVICE_NAME OSLogRateLimit PWD SHLVL` on
+  top. Replaying the plist alone built an environment **stricter** than launchd's, so the launcher
+  failed where a scheduled run succeeded — the exact inverse of the interactive-`PATH`-superset
+  problem the launcher exists to prevent.
+- **Root cause, bisected with a negative control:** `PATH`/`HOME`/`TERM` alone → `Not logged in`;
+  `+USER` → works; `+LOGNAME` alone → still `Not logged in`. Without `USER` the CLI cannot reach its
+  Keychain credential. The symptom misdirects: it reads as an expired session, so the natural fix is
+  to re-authenticate, which changes nothing. Re-login was tried first here and did not help.
+- **Three "identical by construction" claims corrected** — `CLAUDE.md`, `scripts/SCHEDULING.md` and
+  `RESUME.md` all asserted the two modes ran in the same environment. They now say *closely
+  reproduced, not identical*, and name what is deliberately not reproduced (`SSH_AUTH_SOCK`,
+  `XPC_*`, `OSLogRateLimit`, `PWD`, `SHLVL`, `SHELL`) and why. An overclaim of fidelity is what makes
+  "it worked when I ran it by hand" read as evidence about the scheduled path when it is not.
+- **`--check` now prints `USER`/`LOGNAME`** and says they come from `id -un` rather than the plist,
+  so the command that exists to show the run environment actually shows it.
+
+### Added
+
+- **`docs/09`** gains *Reproducing the scheduled environment: the plist is not the whole
+  environment* — the measured variable list, the bisect table with its negative control, and why a
+  launcher should state its fidelity gap instead of claiming there is none.
+- **`docs/17`** gains a *Reproduction stricter than the original* row: a reproduction built from a
+  job's own declaration can be narrower than production, and the resulting failure misdirects.
+
+### Notes
+
+- **Not fixed, and not a regression:** the launchd-internal variables remain unreproducible from
+  outside launchd. The launcher now lists them rather than pretending otherwise.
+- **`scripts/com.luca.loop-news.plist` is unchanged.** It correctly does not declare `USER` —
+  launchd provides it. The bug was in the launcher's assumption, not the record.
+
+---
+
 ## [3.7.1] — 20260921 16:16
 
 **`D4` resolved: the freshness watchdog becomes a 14-day staleness nudge, single-homed.** Once runs

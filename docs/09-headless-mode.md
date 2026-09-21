@@ -453,6 +453,44 @@ launchctl list com.user.my-loop
 launchctl unload ~/Library/LaunchAgents/com.user.my-loop.plist
 ```
 
+### Reproducing the scheduled environment: the plist is not the whole environment
+
+A scheduled loop fails in ways an interactive run never shows, because an interactive shell has
+sourced your profile and its `PATH` is a *superset* of the scheduler's. The usual remedy is a
+"run it now, the way launchd would" launcher that replays the plist under `env -i`. That remedy has
+a trap worth knowing before you build one.
+
+**launchd injects variables the plist never declares.** Measured 2026-09-21 with a throwaway GUI
+agent whose `EnvironmentVariables` set only `HOME` and `PATH`; the job received:
+
+```
+HOME  LOGNAME  OSLogRateLimit  PATH  PWD  SHELL  SHLVL
+SSH_AUTH_SOCK  TMPDIR  USER  XPC_FLAGS  XPC_SERVICE_NAME
+```
+
+So a launcher that replays `EnvironmentVariables` alone builds an environment **stricter** than the
+scheduler's — and fails where the scheduled run succeeds. That is the inverse of the problem the
+launcher was built to solve, and it is harder to spot, because the error usually looks like
+something else.
+
+**The concrete bite:** without `USER`, the Claude CLI cannot reach its Keychain credential and exits
+with `Not logged in · Please run /login`. That reads as an expired session, so the natural response
+is to re-authenticate — which changes nothing, because the login was never the problem. Bisecting
+the environment, with a negative control, is what identifies it:
+
+| Environment | Result |
+|---|---|
+| `env -i` + `PATH`/`HOME`/`TERM` | `Not logged in` |
+| …+ `USER` | works |
+| …+ `LOGNAME` only (control) | `Not logged in` |
+
+**What to do:** synthesize the identity variables from the live user record (`id -un`) rather than
+from the plist, which correctly does not declare them. Accept that some launchd-internal variables
+(`SSH_AUTH_SOCK`, `XPC_*`, `OSLogRateLimit`) cannot be reproduced honestly from outside launchd, and
+say so in the launcher rather than claiming the environments are identical. A launcher that
+*overclaims* fidelity is worse than one that states its gap: the overclaim is what makes
+"it worked by hand" read as evidence about the scheduled path when it is not.
+
 **When to prefer LaunchAgent over Routines:** the loop uses `--chrome` (browser
 automation), needs local credentials, or reads files not in a git repo.
 **When to prefer Routines:** laptop needs to be off during the run, or you want

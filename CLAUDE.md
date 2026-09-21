@@ -6,9 +6,11 @@ Claude-Loops is a living knowledge base and automated daily tracker for **loop e
 > `bash scripts/run-loop-news-now.sh` (`--status` for which mode is live, `--check` for the
 > environment it would use). **Both modes remain supported and switching is two commands either
 > way** — `scripts/SCHEDULING.md` is the one home for that. The launcher reads `PATH`/`HOME`/cwd
-> out of `scripts/com.luca.loop-news.plist` and runs under `env -i`, so a manual run is identical
-> to a scheduled one; **do not run `scripts/run-loop-news.sh` bare** — your shell's `PATH` is a
-> superset and would mask the failure class that once cost this repo eight weeks.
+> out of `scripts/com.luca.loop-news.plist`, adds the identity vars launchd synthesizes but no
+> plist declares (`USER`/`LOGNAME`, `v3.7.2`), and runs under `env -i`, so a manual run closely
+> reproduces a scheduled one — **closely, not identically**; `SCHEDULING.md` names the gap.
+> **Do not run `scripts/run-loop-news.sh` bare** — your shell's `PATH` is a superset and would
+> mask the failure class that once cost this repo eight weeks.
 > Tags and releases are in step — nothing is awaiting a backfill.
 >
 > **Open work.** `plans/20260904_2053-open-work-backlog.md` §3 and §4 are empty; **§5 holds two
