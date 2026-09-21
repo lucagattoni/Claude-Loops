@@ -316,15 +316,16 @@ tech-debt register rather than a static weekly snapshot.
 ## Knowledge-Base Tracker Loop (two-stage: search → integrate)
 
 The loop that maintains *this* knowledge base is itself a pattern worth cataloguing: a
-self-writing KB whose daily run is decomposed into two single-responsibility stages behind
-an artifact handoff, run under worktree isolation.
+self-writing KB whose run is decomposed into two single-responsibility stages behind
+an artifact handoff, run under worktree isolation — on demand by default since `v3.7.0` (20260912),
+with the daily-cron schedule kept available but disabled (`scripts/SCHEDULING.md`).
 
 | Property | Value |
 |---|---|
-| **Trigger** | Daily cron (launchd), 05:00 local |
+| **Trigger** | On demand (`scripts/run-loop-news-now.sh`) since `v3.7.0` (20260912); the launchd 05:00-local schedule remains available but disabled — see `scripts/SCHEDULING.md` |
 | **Scope** | The KB (`docs/`, index, digest, sources, changelog); runs in a throwaway git worktree branched off `origin/main` |
 | **Action** | **Stage A (`fetch-loop-news`)** searches tracked sources + the general web, scores candidates, writes `.loop-news/findings.json`, and stops. **Stage B (`integrate-loop-news`)** consumes that artifact, writes the digest, integrates each finding into the docs, runs the structural reviews (Phase 4b/4c), cuts a release, and `push origin HEAD:main` |
-| **Cadence** | One run per day; the two stages run as two separate `claude -p` sessions sharing the worktree |
+| **Cadence** | One run per deliberate invocation (one per day only under the pre-`v3.7.0` schedule); the two stages run as two separate `claude -p` sessions sharing the worktree |
 | **Readiness** | L3 — commits and publishes to `main` autonomously; bounded by per-stage budgets and a publish-safety retry guard |
 | **Stop condition** | Digest section written for the date and pushed — including on a zero-finding day, which commits an empty section rather than discarding it, so "swept, found nothing" and "did not run" leave different traces in the committed record |
 
