@@ -8,10 +8,21 @@ The tracker supports two ways of being run, and they are meant to stay interchan
 | **Scheduled** | the `com.luca.loop-news` LaunchAgent, 05:00 local | available, currently disabled |
 
 **Neither is a one-way door.** Switching is two commands in either direction (below), and both
-modes run the same wrapper in the same environment *by construction* — the launcher reads `PATH`,
+modes run the same wrapper in a *closely* reproduced environment — the launcher reads `PATH`,
 `HOME`, the working directory and the log paths out of `scripts/com.luca.loop-news.plist` at run
-time and starts the wrapper under `env -i` with exactly those. So "it worked when I ran it by hand"
-stays evidence about the scheduled path too, and vice versa.
+time, adds the identity variables launchd synthesizes but no plist declares (`USER`, `LOGNAME`,
+from `id -un`), and starts the wrapper under `env -i` with those. So "it worked when I ran it by
+hand" is strong evidence about the scheduled path, and vice versa.
+
+**It is a close reproduction, not an identical one, and the gap has bitten once.** Until 20260921
+the launcher replayed the plist *alone*, which is **stricter** than launchd: a throwaway GUI agent
+declaring only `HOME` and `PATH` was measured receiving `LOGNAME SHELL TMPDIR USER SSH_AUTH_SOCK
+XPC_FLAGS XPC_SERVICE_NAME OSLogRateLimit PWD SHLVL` on top. Missing `USER`, the Claude CLI could
+not reach its Keychain credential and died with `Not logged in · Please run /login` — an on-demand
+run failing where a scheduled run succeeded, the exact inverse of the interactive-`PATH`-superset
+problem the launcher exists to prevent. The launchd-internal variables are still not reproduced
+(they cannot be synthesized honestly from outside launchd); `scripts/run-loop-news-now.sh` lists
+them and says so.
 
 ```bash
 bash scripts/run-loop-news-now.sh            # run a sweep now

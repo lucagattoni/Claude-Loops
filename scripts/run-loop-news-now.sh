@@ -60,6 +60,30 @@ LN_LOG="$(read_plist StandardOutPath)"            || exit 2
 LN_ARG0="$(read_plist ProgramArguments.0)" || exit 2
 LN_ARG1="$(read_plist ProgramArguments.1)" || exit 2
 
+# THE PLIST IS NOT THE WHOLE ENVIRONMENT, and assuming it was cost a diagnosis on 20260921.
+# launchd synthesizes variables a job never declares. Measured, not reasoned: a throwaway GUI agent
+# whose plist set only HOME and PATH received
+#   HOME LOGNAME OSLogRateLimit PATH PWD SHELL SHLVL SSH_AUTH_SOCK TMPDIR USER XPC_FLAGS XPC_SERVICE_NAME
+# so replaying only EnvironmentVariables under `env -i` builds an environment *stricter* than the
+# one launchd gives — the exact inverse of the interactive-PATH superset this launcher exists to
+# avoid, and it fails where a scheduled run succeeds.
+#
+# USER is load-bearing: without it the Claude CLI cannot reach its Keychain credential and exits
+# with "Not logged in · Please run /login", which reads as an auth problem and is not one.
+# Bisected 20260921 with a negative control — PATH/HOME/TERM alone fails, +USER passes,
+# +LOGNAME alone still fails.
+#
+# Derived from the live user record, which is the same source launchd derives them from — not read
+# from the plist, because the plist correctly does not declare them.
+#
+# DELIBERATELY NOT REPRODUCED: SSH_AUTH_SOCK (a per-boot launchd socket path), XPC_FLAGS,
+# XPC_SERVICE_NAME, OSLogRateLimit, PWD, SHLVL, SHELL. The first four are launchd-internal and
+# cannot be synthesized honestly from outside it; PWD and SHLVL are set by the shell that runs the
+# wrapper; SHELL is unused by this pipeline. If a future failure implicates one, add it HERE with
+# the evidence, rather than widening the env and hoping.
+LN_USER="$(id -un)" || { echo "FATAL: could not read the current user via 'id -un'" >&2; exit 2; }
+[[ -n "$LN_USER" ]] || { echo "FATAL: 'id -un' returned empty — refusing to run with no USER, which is how the Keychain lookup silently fails" >&2; exit 2; }
+
 [[ -d "$LN_WD" ]] || { echo "FATAL: WorkingDirectory '$LN_WD' does not exist" >&2; exit 2; }
 # Check the file this will ACTUALLY exec, which is whatever ProgramArguments names — not a
 # hardcoded sibling path. An earlier revision checked "$HERE/run-loop-news.sh" and would have
@@ -101,6 +125,8 @@ if [[ "${1:-}" == "--check" ]]; then
   echo "Resolved from $(basename "$PLIST") — the recorded environment this run will reproduce:"
   printf '  %-18s %s\n' "PATH"             "$LN_PATH"
   printf '  %-18s %s\n' "HOME"             "$LN_HOME"
+  printf '  %-18s %s\n' "USER"             "$LN_USER (from 'id -un'; launchd synthesizes it, the plist does not declare it)"
+  printf '  %-18s %s\n' "LOGNAME"          "$LN_USER"
   printf '  %-18s %s\n' "WorkingDirectory" "$LN_WD"
   printf '  %-18s %s\n' "launchd log"      "$LN_LOG"
   printf '  %-18s %s\n' "command"          "$LN_ARG0 $LN_ARG1"
@@ -115,9 +141,12 @@ echo "[$(date -u +%Y-%m-%dT%H:%M:%SZ)] MANUAL RUN starting — reproducing the r
 echo "  day log:     $LN_WD/logs/loop-news-\$(date +%Y%m%d).log" | tee -a "$LN_LOG"
 echo "  catch-all:   $LN_LOG" | tee -a "$LN_LOG"
 
-# `env -i` so nothing from the interactive shell leaks in. The point is to match the recorded
-# environment exactly, not to add to whatever happens to be exported in this terminal — an
-# interactive shell has sourced your profile and its PATH is a superset.
+# `env -i` so nothing from the interactive shell leaks in: an interactive shell has sourced your
+# profile and its PATH is a superset. The environment built here is the plist's EnvironmentVariables
+# PLUS the identity variables launchd synthesizes (see the LN_USER block above) — NOT the plist
+# alone, which was stricter than launchd and broke the Claude CLI's Keychain lookup.
+# It is a close reproduction, not an identical one; the launchd-internal variables listed above are
+# not reproducible from outside launchd.
 # Output is tee'd rather than redirected: the bytes reaching $LN_LOG are what launchd would have
 # captured, and you also get to watch it. PIPESTATUS[0] keeps the wrapper's exit code, which
 # carries real meaning (6 and 7 in particular) and must not be replaced by tee's.
@@ -125,6 +154,8 @@ cd "$LN_WD" || exit 2
 env -i \
   PATH="$LN_PATH" \
   HOME="$LN_HOME" \
+  USER="$LN_USER" \
+  LOGNAME="$LN_USER" \
   TERM="${TERM:-dumb}" \
   "$LN_ARG0" "$LN_ARG1" 2>&1 | tee -a "$LN_LOG"
 rc="${PIPESTATUS[0]}"
