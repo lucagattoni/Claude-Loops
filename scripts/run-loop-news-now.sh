@@ -122,7 +122,8 @@ if [[ "${1:-}" == "--status" ]]; then
 fi
 
 if [[ "${1:-}" == "--check" ]]; then
-  echo "Resolved from $(basename "$PLIST") — the recorded environment this run will reproduce:"
+  echo "The environment this run will build — from $(basename "$PLIST"), plus the identity vars launchd"
+  echo "synthesizes that no plist declares (marked below):"
   printf '  %-18s %s\n' "PATH"             "$LN_PATH"
   printf '  %-18s %s\n' "HOME"             "$LN_HOME"
   printf '  %-18s %s\n' "USER"             "$LN_USER (from 'id -un'; launchd synthesizes it, the plist does not declare it)"
