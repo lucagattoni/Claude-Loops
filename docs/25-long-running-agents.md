@@ -128,6 +128,18 @@ files credited), and this is third-party reporting on an Anthropic research post
 a formal Anthropic press release.
 ([Tech Times, reporting on Anthropic's Fermat's Last Theorem formalization](https://www.techtimes.com/articles/326745/20260905/fermats-last-theorem-machine-checked-claude-completes-11-days-what-took-years-plan.htm), Sep 2026.)
 
+**A second many-agent long-horizon research harness, this time for mathematics/theoretical CS
+rather than proof formalization.** A model-agnostic system using readiness gates and
+tree-combination aggregation (rather than Prove2Me's DAG-of-dependencies) reaches **71.0%** on
+TCS-Bench. ([arXiv 2609.15983, "Stellar Colosseum: A Many-Agent Harness for Long-Horizon Research
+in Mathematics and Theoretical CS"](https://arxiv.org/abs/2609.15983), Sep 2026.)
+
+**A cross-vendor, computer-use example of the same unattended-persistence pattern applied to
+creative-tool orchestration rather than a code-only environment:** ChatGPT Astra reportedly
+coordinated local desktop tools (Windows, Unreal Engine 5, Blender) unattended overnight to build
+a game trailer. ([@Sabrina_Ramonov](https://x.com/Sabrina_Ramonov/status/2099566351769567270), Sep
+2026 — single-source practitioner report, unconfirmed by OpenAI.)
+
 ## Detaching from the terminal
 
 Long-running agents often need to run after you close your IDE. Two shapes, illustrated with

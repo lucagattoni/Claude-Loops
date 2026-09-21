@@ -18,6 +18,45 @@ Versioning follows [Semantic Versioning](https://semver.org/):
 
 ---
 
+## [3.7.3] — 20260921 19:59
+
+### Added
+### Changed
+- `docs/24-harness-patterns.md` — Brownfield Agentic Engineering pattern (Osmani); AWS Strands
+  Harness, Writer Agent Harness, True Forge, and a second LangChain data point added to the
+  quantified harness>model corpus; Teleport CTF-prompt worked example under the removal test;
+  Meta-Harness (Stanford IRIS Lab), RobustSGPO, PRISM, and a second AHE-style ablation added to
+  the self-improving-harnesses cluster; claude-uds-bridge added to cross-model division of labor;
+  claude-deep-loop v1.24.1, hearting interim manifests, and a new mechanical drift-detection
+  section (loop-sync) added
+- `docs/26-factory-model.md` — Warp's "Wilson" factory (2,000 PRs/month) added to Named Factory
+  Deployments; Anthropic's own CI-scaling and "When AI Builds Itself" figures added as
+  cross-provider corroboration
+- `docs/04-verification.md` — a second high-volume verification-is-the-constraint case study
+  (pstack); a verification-chain demotion-pass fix (affaan-m/ecc)
+- `docs/16-memory-patterns.md` — loopx recall-filter receipts; eugenelim's versioned
+  work-item-capture contract added to Pattern I
+- `docs/25-long-running-agents.md` — Stellar Colosseum (math/TCS research harness) and a
+  cross-vendor ChatGPT Astra computer-use example added to Real-World Scale
+- `docs/33-agent-security-hardening.md` — Perplexity CobbleDB build-vs-operate blast_radius
+  example; new Maker/Verifier Process Isolation section (zeroshot)
+- `docs/23-fleet-engineering.md` — ruflo ADR-385 steerable-swarm update; new GitHub Copilot Rust
+  rewrite case study alongside Bun
+- `docs/37-session-architecture.md` — Zed Delta added as an industry data point on handoffs
+  carrying conversation, not just diffs
+- `docs/13-context-management.md` — Simon Willison's compaction-unrecoverability finding
+- `docs/27-loop-contract.md` — huvii174 v0.16.0's deterministic verdict-enum writer
+- `docs/29-background-agents.md` — @bcherny's "Projects" description added, flagged unconfirmed
+  against Cowork
+- `docs/05-claude-md.md` — new AGENTS.md fallback section (v2.1.277)
+- `docs/17-failure-patterns.md` — new Industry Infrastructure section (SAFE / Nvidia)
+- `SOURCES.md` — 11 new tracked sources; ruvnet, Hanako, Akshay Pachaar, and the GitHub
+  harness-search rows updated with 2026-09-21 findings
+- `KB_GAPS.md` — two new gaps logged (MCP-as-skill-surface coverage; an unsourced autonomy-limit
+  stat pair)
+
+---
+
 ## [3.7.2] — 20260921 19:06
 
 **The on-demand launcher could not authenticate, because it reproduced the plist rather than the

@@ -75,6 +75,12 @@ SECURITY_MATRIX implies: instead of enumerating attacks to refuse, it refuses an
 outside the declared plan. `blast_radius` complements it by capping *how much* an
 allowed action may touch. ([omnigent-ai/omnigent](https://github.com/omnigent-ai/omnigent), Jul 2026.)
 
+**A concrete build-vs-operate `blast_radius` boundary in production.** Perplexity's persistent
+coding agents built CobbleDB, a ~40,000-line Rust KV store, but were deliberately excluded from
+operating it in production — the boundary drawn at *build* vs. *run*, not at any specific tool or
+file. ([The New Stack, "Perplexity's AI agents helped build a database. They weren't allowed to
+run it."](https://thenewstack.io/perplexity-cobbledb-ai-database/), Sep 2026.)
+
 **Update (Jul 2026):** `intent_gate` was renamed **Intent Based Authorization** and its
 off-task-tool-call policy changed from hard-`DENY` to `ASK` for every off-task call — an
 off-plan action now always prompts the human for approval rather than being silently
@@ -227,6 +233,18 @@ This is not an argument for weaker gates — Ng: "Guardrails on LLMs do have a p
 argument for testing incident response as its own scenario: can the hardened agent still be used
 *defensively* once an incident is underway, or does the SECURITY_MATRIX or runtime policy gate
 above have to be bypassed to make it useful?
+
+## Maker/Verifier Process Isolation
+
+A verifier's own writes should never be promotable to the candidate it is checking or to its
+peers — a boundary distinct from credential exposure or tool-call authorization above. Hosted
+verifiers build disposable, writable copies of the candidate's workspace rather than the workspace
+itself, so a verifier's own writes can never leak into the artifact it is grading; verifier checks
+also run under worker-level permissions instead of elevated ones, tightening the boundary between
+the agent that writes code and the agent that verifies it. Fatal verifier errors persist a
+`runtime_failed` checkpoint instead of silently losing state.
+([the-open-engine/zeroshot, #1104](https://github.com/the-open-engine/zeroshot/commit/b7602c1) and
+[#1126](https://github.com/the-open-engine/zeroshot/commit/03bdebd), Sep 2026.)
 
 ## Relationship to Permissions & Allowlists
 

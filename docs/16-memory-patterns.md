@@ -432,6 +432,18 @@ production writes stay with the human operator; the durable state exists to make
 [quota-aware should-run gate](27-loop-contract.md#quota-aware-should-run-gate) from
 the same project, which governs *when* a claimed todo may actually be worked.)
 
+**Recall filter receipts** — a later release makes memory recall auditable, not just
+persistent: when the agent's own recall filter drops a stored item, it now logs *why*
+(contract/scope/lifecycle/expiry/quality reason codes) rather than silently dropping it, so a
+human auditing a miss can distinguish "the memory didn't exist" from "the memory existed and was
+filtered." ([huangruiteng/loopx](https://github.com/huangruiteng/loopx), Sep 2026.)
+
+A separate project formalizes the *capture* side of this same durable-objectives idea: a versioned
+work-item-capture contract (spec v2, 46 acceptance criteria, verified by 37 named tests plus an
+independent worker performing a real close in a scratch store) governs how a supervised agent loop
+persists unfinished work — admission requires a reasoning verdict plus a sandboxed-command
+allowlist, not just a write. ([eugenelim/agent-ready-repo](https://github.com/eugenelim/agent-ready-repo), commit 4aff045, Sep 2026.)
+
 ---
 
 ## Pattern J: Learned Memory Substrates

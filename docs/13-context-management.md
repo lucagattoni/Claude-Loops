@@ -157,6 +157,15 @@ context usage > (window − 13,000 tokens)
 
 ([wquguru/harness-books](https://github.com/wquguru/harness-books), AgentWay, Jun 2026.)
 
+**A different failure mode from the same root cause: what compaction throws away can be
+unrecoverable, not just lossy.** After thread compaction, the actual executed Python code in one
+long-running session became unrecoverable — only a prose summary of what it had done remained.
+The lesson generalizes beyond any one vendor's compaction implementation: any LLM system using
+compaction must preserve or expose pre-compaction *artifacts* (the tool calls themselves) rather
+than relying on a prose summary standing in for them. ([Simon Willison, "Generating running routes
+with GPT-6 Astra and ChatGPT
+Work"](https://simonwillison.net/2026/Sep/12/astra-running-routes/), Sep 2026.)
+
 ## What eats context fastest
 
 - Large file reads (every file read accumulates)

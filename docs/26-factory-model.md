@@ -102,6 +102,17 @@ data point — the underlying pattern (agents doing the bulk of token-generating
 humans orchestrating and reviewing) is provider-agnostic.
 ([OpenAI, "How agents are transforming work"](https://openai.com/index/how-agents-are-transforming-work/), Jun 2026.)
 
+Anthropic's own house corroborates the same shift from the inside: Anthropic's engineers merged
+**8x as much code per day in Q2 2026 vs. 2024**, and as of May 2026 **more than 80% of code merged
+into Anthropic's codebase was Claude-authored** — though Anthropic states explicitly *"we are not
+there yet, and recursive self-improvement is not inevitable."* ([Anthropic, "When AI Builds
+Itself"](https://www.anthropic.com/institute/recursive-self-improvement), 2026.) The volume this
+generates has its own infrastructure cost: Anthropic's CI saw a **25x increase in CI jobs** over
+six months as agentic coding volume grew, forcing a redesign of test-impact analysis from a
+stateful singleton (listener+selector) to a stateless, horizontally-scalable system — a 3-week fix
+by one engineer that would previously have taken a quarter. ([Anthropic, "Agentic coding is
+straining CI"](https://claude.com/blog/agentic-coding-is-straining-ci-heres-how-we-scaled-test-impact-analysis-at-anthropic), Sep 2026.)
+
 **The primary source for the "dark factory" name, cited here directly rather than only
 through secondary coverage.** Dan Shapiro's original taxonomy names six levels, explicitly
 modeled on NHTSA's driving-automation levels: **0 Manual** ("not a character hits the disk
@@ -122,6 +133,14 @@ critical systems or complex state management.
 
 ## Named Factory Deployments
 
+- **Warp's "Wilson" factory**: turns Slack/Linear/GitHub requests into merged PRs via a "foreman"
+  agent orchestrating specialized coding agents through a configurable pipeline with
+  human-approval checkpoints and failure-driven self-improvement loops, using LLM-as-judge scoring
+  to grade output. Warp reports shipping **~2,000 PRs/month** this way and cutting cost-per-PR
+  from $80 to $30. ([Lenny's Newsletter, "How Warp ships 2,000 PRs a month with AI
+  factories"](https://www.lennysnewsletter.com/p/how-warp-ships-2000-prs-a-month-with), Sep 2026;
+  [Warp, "Factories"](https://warp.dev/factories).) See also [Harness
+  Patterns](24-harness-patterns.md) for Warp's inner/outer self-improving skill pattern.
 - **monday.com's platform-wide agentic routines**: named, product-shipped agents — Intake
   & Triage, Knowledge, and Incident agents — each running as a standing loop against the
   monday.com platform rather than a one-off automation. A **"Brand Reviewer"** agent

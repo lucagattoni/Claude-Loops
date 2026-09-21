@@ -229,6 +229,12 @@ org chart for the fault-tolerance guarantees of a consensus algorithm — approp
 when the fleet must keep operating correctly through individual agent crashes, not just
 coordinate cleanly when everything is healthy. ([ruvnet/ruflo](https://github.com/ruvnet/ruflo), Jul 2026.)
 
+A later ADR turns `swarm start` from a fire-and-forget dispatch into a steerable long-horizon run:
+NDJSON progress events stream out while the swarm executes, and a file-based inbox lets an
+operator inject mid-run guidance without restarting the swarm — a rare concrete answer to "how do
+you steer a fleet that's already running" rather than only gating it before dispatch or reviewing
+it after. ([ruvnet/ruflo](https://github.com/ruvnet/ruflo), ADR-385, Sep 2026.)
+
 **A fourth: runtime isolation that moves with trust.** Below all three topologies above sits
 a question they each assume away — how tightly *isolated* two coordinating agents are at
 the infrastructure level. A bare-metal hypervisor with trust/communication-driven
@@ -392,6 +398,17 @@ Read the throughput and bug-fix numbers above as real but vendor-reported and
 favourable-case; treat the cost of reproducing this at similar concurrency as unstated by
 either primary source and plausibly large, per what practitioners report when they run
 the same feature at a fraction of the scale.
+
+## Case Study: GitHub Copilot's Own Rust Rewrite — a Different Playbook
+
+A third named large-scale agent-driven rewrite, contrasted directly against the Bun case study
+above by the outlet that covered both: GitHub rewrote its own Copilot agent runtime
+(800,000+ lines) primarily with its own Copilot coding agents across **128 incrementally-merged
+PRs** — an incremental, PR-gated approach rather than Bun's single eleven-day, ~50-workflow push.
+Read alongside Bun, the comparison is evidence that "coding agents can drive a large rewrite"
+generalizes across at least two independently-run playbooks, not just one company's specific
+process. ([The New Stack, "GitHub and Anthropic used their own agents for major Rust rewrites —
+but with very different playbooks"](https://thenewstack.io/github-copilot-anthropic-rust-migration/), Sep 2026.)
 
 ## Pattern: Desktop Multi-Agent Office (a "GOD agent" coordinator)
 

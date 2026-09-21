@@ -54,6 +54,23 @@ targeted GitHub and web searches.
   `parallel review agent cost benchmark`, `"ensemble" vs "chorus" LLM reviewers`, `graph
   vs sequential loop cost comparison agent`.
 
+### Logged by the 2026-09-21 tracker run
+
+- **MCP-as-a-skill-surface has zero coverage in docs/06.** A single-line X claim ("MCP meets
+  agent skills") flagged a real gap — checked, docs/06-skills.md has no MCP mentions at all —
+  but the finding itself named no spec, repo, or number to ground a citable sentence in, and
+  this KB's own rule against composing plausible prose around a thin citation blocks writing
+  one from this alone. Search keywords: `MCP server as Claude Code skill`, `"agent skills" MCP
+  tool exposure`, `skill-wrapped MCP server`.
+- **An unsourced pair of autonomy-limit stats needs a primary source before it can be cited.**
+  A LinkedIn post (Michael Quoc, "Loop Engineering: Meme, Outcome, Job") cites "86 deployed
+  systems stopped for human input within 10 steps" and a "64.5% self-correction failure rate,"
+  attributed secondhand to unnamed research — not currently in docs/14 or docs/17 (checked).
+  Likely METR- or Anthropic-adjacent given docs/14 already cites Anthropic's "Measuring AI
+  agent autonomy in practice," but the underlying study was not identified this run. Search
+  keywords: `"self-correction failure rate" AI agent`, `deployed agent systems human
+  intervention 10 steps`, `METR autonomy limit study 2026`.
+
 ### Logged by the 2026-09-09 tracker run
 
 - **`milosCvetkovicDev/claude-code-monorepo` is tracked but never deep-read.** Confirmed via

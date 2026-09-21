@@ -533,6 +533,11 @@ production.
   critic obliged to assume a signed-off plan is wrong.
   ([huvii174/loop-engineering-plugin](https://github.com/huvii174/loop-engineering-plugin), Sep 2026.)
 
+  A later release replaces the breaker's free-text failure history with a single deterministic
+  writer (`loop-record.mjs`) enforcing a strict verdict enum — closing a gap where prose history
+  could let a genuine two-verifier-REJECT stagnation streak score zero on the circuit breaker.
+  ([huvii174/loop-engineering-plugin](https://github.com/huvii174/loop-engineering-plugin), v0.16.0, Sep 2026.)
+
 **Benchmarking the controller, not just the harness.** LoopArena evaluates models
 specifically as *runtime controllers* guiding coding agents through long tasks — the
 loop-engineering equivalent of a harness conformance suite

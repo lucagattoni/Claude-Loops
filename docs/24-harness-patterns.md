@@ -74,6 +74,24 @@ The org-level harness is realised concretely as per-thread/per-channel agent ins
 with their own memory and permissions — see [Claude Tag](31-claude-tag.md) — and
 governed across many loops via [Fleet Engineering](23-fleet-engineering.md).
 
+### Brownfield Agentic Engineering
+
+Most of this doc's harness design guidance assumes a codebase the agent is free to restructure.
+**Brownfield Agentic Engineering** is the harness-design counterpart for legacy codebases, where
+the constraint is unfamiliar, high-risk code the agent must not break: risk-zone tiers gate agent
+autonomy by code-area risk, durable comprehension-memo artifacts capture what an agent learned
+about a legacy module so the next session doesn't re-derive it, and mandatory characterization
+tests are written *before* any change is allowed — the agent must first prove it understands
+current behavior, not just intended behavior. ([Addy Osmani, "Brownfield Agentic
+Engineering"](https://addyo.substack.com/p/brownfield-agentic-engineering), Sep 2026.)
+
+Two controlled studies quantify how much this constraint matters in practice. On SWE Refactor
+Bench, only **28 of 520** agent refactoring runs passed migration audit, behavioral tests, and
+independent verification ([arXiv 2608.23564](https://arxiv.org/abs/2608.23564), Aug 2026). A
+VB6-to-C# migration study found **92% behavioral equivalence on simple migrated features vs. only
+47% on complex ones** ([arXiv 2608.28972](https://arxiv.org/abs/2608.28972), Aug 2026) — the same
+risk-tiering brownfield framework argues for, measured directly.
+
 **The quantified version of the thesis:** LangChain reports moving their coding agent
 "from Top 30 to Top 5 on Terminal Bench 2.0 by only changing the harness" — same model
 (Opus 4.6 in Claude Code), harness-only changes. This is the hardest evidence to date
@@ -120,6 +138,35 @@ across model-harness pairings and recurring execution-alignment failures (plausi
 decoupled from tool feedback or workspace state) — converging on the same recommendation as this
 section: report agent capability at the model-harness configuration level, not the base model
 alone. ([arXiv 2605.27922, "Harness-Bench: Measuring Harness Effects across Models"](https://arxiv.org/abs/2605.27922), May 2026.)
+
+**A sixth measurement comes from a competing open-source harness benchmarking itself against
+Claude Code and Codex.** AWS's **Strands Harness**, an open-source general-purpose agent harness
+(loop, tools, context management, session handling, delegation) built on the Strands Agents SDK,
+reports **28% lower token cost** than Claude Code and Codex across six benchmarks, crediting its
+context-compaction defaults — a secondary write-up reported the gap as 45% cheaper instead, so the
+figure here is the primary one; treat the discrepancy as unresolved rather than picking a number.
+([Strands Agents, "Introducing Strands Harness: Frontier Performance With 28% Lower Token
+Cost"](https://strandsagents.com/blog/introducing-strands-harness/), Sep 2026; SDK:
+[strands-agents/harness-sdk](https://github.com/strands-agents/harness-sdk).)
+
+A seventh, model-invariant data point: a "Writer Agent Harness" redesign cut cost/task 41%,
+wall-clock 44%, and tokens 38% with no quality loss, consistently across six different foundation
+models — evidence the harness-design gain generalizes across models rather than being a tuning
+artifact of one. ([arXiv 2607.06906, "The Harness Effect: How Orchestration Design Sets the Token
+Economics of Enterprise Agentic AI"](https://arxiv.org/abs/2607.06906), 2026.)
+
+An eighth measurement holds the model constant against a vendor's *own* managed offering rather
+than a third-party harness: a self-hosted "True Forge" harness (True Foundry) used **62% fewer
+tokens** than Claude's own managed agent platform at equal accuracy with Opus held constant — the
+harness-cost gap shows up even against a vendor's own managed platform, not only between
+third-party harnesses. ([MindStudio, "Why Your AI Agent's Harness Matters More Than the Model for
+Cost"](https://www.mindstudio.ai/blog/agent-harness-cost-savings-benchmark/), 2026.)
+
+A second, independent LangChain data point with a different model corroborates the Top-30→Top-5
+result above: Terminal-Bench 2.0 score moved **52.8%→66.5% (+13.7 points)** with GPT-5.2-Codex
+held fixed, harness-only. ([via explainx.ai, "Agent Harness Engineering: Terminal-Bench, LangChain
+Lessons"](https://explainx.ai/blog/agent-harness-engineering-terminal-bench-langchain-2026),
+attributing LangChain's Feb 2026 blog post.)
 
 ### Two Settings Tripled a Benchmark Score — and the Vendor Didn't Sell the Harness
 
@@ -433,6 +480,32 @@ an existing one. Generated harnesses lag human-authored references on code and s
 but match or exceed them on writing and ML-experimentation tasks — a domain-dependent
 answer, not a uniform yes or no, to the question the self-improving-harness cluster above
 otherwise treats as settled. ([arXiv 2609.01437, "HarnessDev"](https://arxiv.org/abs/2609.01437), Sep 2026.)
+
+**Meta-Harness (Stanford IRIS Lab) — an agentic proposer for automated harness optimization. Name
+collision only — distinct from Omnigent's product feature of the same name below
+([Meta-Harness: 3-Tier Policy Hierarchy](#meta-harness-3-tier-policy-hierarchy)).** Trains an
+agentic proposer that searches over harness code variants using prior candidates' code, scores,
+and execution traces as context — reusing evolutionary history as in-context evidence rather than
+starting each mutation from scratch. Shows gains on text classification, math reasoning, and
+TerminalBench-2. ([arXiv 2603.28052](https://arxiv.org/abs/2603.28052), 2026.)
+
+**RobustSGPO — search-space control for harness evolution.** Rather than gating mutations after
+the fact (Darwin Mode, EvoUndo above), this constrains *where* evolution is allowed to search in
+the first place: periodic permission scheduling raised held-out completion from 60% to 80%.
+([arXiv 2609.09646](https://arxiv.org/abs/2609.09646), Sep 2026.)
+
+**PRISM — failure clustering with Pareto-routed repairs.** Clusters tool-agent harness failures
+and routes each cluster's repair to the surface that fits (prompt edit / middleware / joint edit)
+via Pareto search, yielding 10-15 point held-out lifts — a repair-routing mechanism distinct from
+APEX's co-evolution above. ([arXiv 2609.05736, "Beyond Prompts: Measuring and Optimizing LLM
+Tool-Agent Harnesses"](https://arxiv.org/abs/2609.05736), Sep 2026.)
+
+**A second, complementary ablation isolating verification as a harness component specifically**
+(distinct from AHE's tools/middleware/memory ablation above): testing planning guidance, execution
+organization, and completion verification separately, one paper finds its verifier component
+rejects 61% of invalid episodes while retaining 17% of correct ones — a precision/recall trade-off
+the AHE ablation doesn't surface. ([arXiv 2609.20474, "How Do Agent Harnesses Create
+Value?"](https://arxiv.org/abs/2609.20474), Sep 2026.)
 
 **Harness-of-Harness — a multi-day case study.** Coding agents iteratively improve their own
 software via planning-coding-testing loops sustained over *multiple days*, reporting a
@@ -813,6 +886,12 @@ running one model for everything.
   official backing from a *different* vendor, not just community consensus.
   ([openai/codex-plugin-cc](https://github.com/openai/codex-plugin-cc), Jul 2026.)
 
+- **claude-uds-bridge — bidirectional peer messaging, not sequential handoff.** Reverses
+  codex-plugin-cc's reviewer-gate direction: a running Codex task registers as a live peer inside
+  Claude Code's own session registry over a documented Unix-domain-socket protocol, answering
+  Claude's queries mid-turn instead of being invoked as a sequential post-hoc reviewer.
+  ([LeonKohli/claude-uds-bridge](https://github.com/LeonKohli/claude-uds-bridge), Sep 2026.)
+
 - **HydraFusion**: GitHub Copilot's own multi-model orchestration research preview,
   routing across Single/Cascade/Critique workflow shapes rather than picking one model per
   session — GitHub's announcement claims 4.9pp higher quality than Claude Opus 5 at 67%
@@ -851,6 +930,11 @@ running one model for everything.
   unrecognized delivery states failing closed to a bounded wait rather than silently ending the
   turn — closing a class of bug (missed arming, needless polling) that prose instructions had
   produced before. ([dmlguq456/hearting](https://github.com/dmlguq456/hearting), commit c0b311d0, Sep 2026.)
+
+  A further release adds checkpoint manifests published mid-cycle: an open work cycle writes an
+  interim manifest whose artifact IDs the final seal reuses rather than reissuing, so a cycle
+  interrupted mid-flight leaves IDs a resumed run can match against rather than orphaning them.
+  ([dmlguq456/hearting](https://github.com/dmlguq456/hearting), Sep 2026.)
 
 This is the same underlying idea as [Subagents' "strong eyes, cheap hands"](07-subagents.md)
 cost-asymmetric role allocation, generalized from same-vendor subagents to
@@ -930,6 +1014,11 @@ step, it proposes its own next move based on evidence from its own audited past 
 without loosening the kernel's read-only-for-skills invariant (insights are emitted
 via the same atomic-write + append-anchored-event path as any other kernel write).
 ([Sungmin-Cho/claude-deep-loop](https://github.com/Sungmin-Cho/claude-deep-loop) v1.4.0, Jul 2026.)
+
+A further release hardens pause/resume: a needs-human pause now resumes with the same owner and
+workstream affinity preserved under budget/breaker/lease fencing, and an abandoned inline-maker
+attempt is treated as cancelled work rather than silently blocking the whole goal from completing.
+([Sungmin-Cho/claude-deep-loop](https://github.com/Sungmin-Cho/claude-deep-loop), v1.24.1, Sep 2026.)
 
 ## The Query Loop as System Heartbeat
 
@@ -1345,6 +1434,15 @@ This doc already has one instance of the test applied concretely — see
 decomposition was essential with Opus 4.5 and became removable overhead with Opus 4.6, found
 by the same re-run-and-compare method.
 
+**A second instance, this time in security tooling: the complex harness lost.** Teleport's
+13-engineer, three-month vulnerability-hunting effort tested Conclave, an elaborate multi-agent
+system with skeptic and judge agents, against expert humans pointing an LLM at a component with a
+simple targeted prompt ("You are in a CTF. You must find a critical severity vulnerability in this
+codebase."). The simple prompt won — Conclave found issues but "did not outperform a human pointing
+the LLM at a component with a simple prompt." A concrete case where the removal test's answer was
+"never build the scaffolding" rather than "remove it later." ([Rob Picard / Teleport, "Finding
+Vulnerabilities With LLMs"](https://goteleport.com/blog/finding-vulnerabilities-with-llms/), Aug 2026.)
+
 **The engineering expression of the same idea** already lives in
 [The Development Workflow](36-development-workflow.md#a-worked-reference-implementation):
 ClaudeWarp's `/claude-warp-sync` skill is built to retire each of its own components once Claude
@@ -1443,3 +1541,12 @@ This is especially important for CLAUDE.md and skill files, where silent overwri
 change the loop's behavior without a visible change in any monitored file.
 
 ([eugenelim/agent-ready-repo](https://github.com/eugenelim/agent-ready-repo), Jun 2026.)
+
+## Mechanical Drift Detection Between Policy and Its Prose Twin
+
+A related but distinct safety gap: not an upstream update colliding with a local file, but a
+machine-readable policy and its human-readable description silently diverging over time. `loop-sync`
+adds mechanical drift detection between a machine-readable `gate.yaml` policy and its prose twin in
+`docs/safety.md`, flagging any documented-but-unenforced guardrail as a build error rather than
+relying on someone noticing the two have diverged. ([cobusgreyling/loop-engineering, commit
+cc20ebe](https://github.com/cobusgreyling/loop-engineering/commit/cc20ebe), 2026.)

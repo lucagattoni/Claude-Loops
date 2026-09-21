@@ -327,6 +327,16 @@ value set, Claude Code decides per message from the two sessions' permission mod
 `bypassPermissions` form one class and everything else the other, and messages crossing from a
 bypass session to a prompting one are held for approval by default.
 
+**An industry data point for the same underlying claim — that a handoff needs to carry the
+conversation, not just the diff.** Zed disabled pull requests on its own codebase and launched
+Delta, replacing diff-centric review with shared threads, arguing PRs hide the agent conversation
+that produced a change — the same reason this doc's messaging rule above restricts what crosses a
+session boundary to text, not files or history, while still insisting *some* context has to travel
+explicitly rather than being reconstructed from a diff alone. ([Nathan Sobo, Zed Delta
+announcement](https://linkedin.com/posts/nathan-sobo-92b46720_max-brunsfeld-antonio-scandurra-and-i-have-activity-7506009374222622721-ZjPO),
+Sep 2026; coverage: [The New Stack, "Everyone's in a race to replace
+GitHub"](https://thenewstack.io/zed-delta-github-alternative/).)
+
 **This does not repeal the rule at the top of this page.** Messaging lowers the *cost* of a handoff;
 it does not remove the context that a role-split handoff has to carry. A message is coordination,
 never permission — which is exactly what the second rail above enforces mechanically.

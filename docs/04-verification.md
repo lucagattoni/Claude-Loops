@@ -642,6 +642,15 @@ exact wording could not be verified against a transcript, so it is not quoted he
 
 (Mozilla Hacks — Brian Grinstead, Christian Holler & Frederik Braun, ["Behind the Scenes Hardening Firefox with Claude Mythos Preview"](https://hacks.mozilla.org/2026/05/behind-the-scenes-hardening-firefox/), May 2026; credit-split framing from Brian Grinstead interviewed by Claire Vo, ["How Claude Mythos found a 15-year-old bug in Mozilla Firefox"](https://www.lennysnewsletter.com/p/how-claude-mythos-found-a-15-year), Jun 2026.)
 
+**A second, higher-volume case study for the same "verification is the constraint, not review
+capacity" thesis:** a "pstack" workflow where a dedicated verification skill lets one engineer ship
+roughly **2,000 PRs a month (~100/day)** to production — the case argues human review structurally
+cannot be the verification layer at that volume, so the verification skill has to be. (This is a
+different case study from Warp's similarly-sized PR volume in [The Factory
+Model](26-factory-model.md#named-factory-deployments) — coincidentally similar numbers, unrelated
+companies.) ([The New Stack, "One engineer shipped 2,000 PRs a month to production. Verification is
+the key."](https://thenewstack.io/agentic-verification-distributed-systems/), Sep 2026.)
+
 ## "Surface" — the Canonical Stopping Verb
 
 When a loop reaches a point requiring human judgment, the agent's action has a precise name:
@@ -716,6 +725,11 @@ intent:** re-reviewing a landed fix found its new early-return branch discarded 
 finding accumulated earlier in the walk, not just the one case it targeted — a fix can
 regress prior-good behavior while looking, from its own commit message, like a narrow
 correction. ([eugenelim/agent-ready-repo](https://github.com/eugenelim/agent-ready-repo), Sep 2026.)
+
+**A verification-chain bug in the same family: a failed prerequisite step could still supply
+passing evidence to steps that depended on it.** The fix adds a demotion pass that retroactively
+fails every downstream step resting on a since-failed prerequisite — closing a gap where a chain's
+later "pass" outlived the earlier failure it depended on. ([affaan-m/ecc](https://github.com/affaan-m/ecc), commit 8b951d3, Sep 2026.)
 
 ## Oracle Problem in AI-Generated Tests
 

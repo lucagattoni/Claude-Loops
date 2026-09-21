@@ -58,6 +58,15 @@ CLAUDE.md files and rules are loaded in this order (broadest → most specific, 
 5. Subdirectory files — loaded **lazily** when Claude reads files in that directory
 6. Path-scoped rules — `.claude/rules/*.md` files that DO carry `paths:` frontmatter, loaded only when Claude reads a matching file
 
+## AGENTS.md fallback (v2.1.277+)
+
+In a project with no `CLAUDE.md`, Claude Code reads `AGENTS.md` instead — the same emerging
+cross-tool convention other coding agents (Codex, others) already read. Configurable under
+"Project instructions" in `/config`; not yet available on Bedrock, Vertex, or Foundry. This does
+not change the load hierarchy above when a `CLAUDE.md` is present — `AGENTS.md` is a fallback, not
+an additional layer. ([Claude Code
+changelog](https://code.claude.com/docs/en/changelog), v2.1.277, Sep 2026.)
+
 ## Path-scoped rules (`.claude/rules/`, v2.0.64+)
 
 Rules that only apply to specific file patterns — reduce context noise for

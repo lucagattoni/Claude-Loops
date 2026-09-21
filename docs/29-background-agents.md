@@ -335,6 +335,14 @@ a second cloud-hosted execution path, oriented at ad hoc cowork tasks rather tha
 scheduled/triggered loops.
 ([The New Stack, "Anthropic's Claude Cowork now keeps working when you close your laptop"](https://thenewstack.io/claude-cowork-cloud-mobile/), Jul 2026.)
 
+Claude Code team member Boris Cherny separately describes "Projects" (beta, Pro/Max) as
+auto-splitting a single conversation into parallel cloud threads that keep running after the
+laptop closes, and remembering how he works across sessions — a primary-source description that
+may be the same underlying capability as Cowork above under different/evolved naming, or a
+distinct feature; treat as unconfirmed until official docs name it.
+([@bcherny](https://x.com/bcherny/status/2100669598995816511),
+[@bcherny](https://x.com/bcherny/status/2100639991244427490), Sep 2026.)
+
 ## Restart Resumability (OpenClaw, for comparison)
 
 A different vendor's background-agent harness shows what resumability looks like when
