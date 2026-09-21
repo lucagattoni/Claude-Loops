@@ -1,41 +1,58 @@
-# RESUME — handover 20260912 · **decision `D4` first, then the work**
+# RESUME — handover 20260921 · **`D4` resolved — watchdog is now a 14-day staleness nudge**
 
-**Repo state:** `main` at `cec77bb`, clean, no open branches or worktrees. All gates green.
+**Repo state:** `main` at `ce5d763`, clean, no open branches or worktrees. All gates green.
 **Tags/releases:** in step — nothing awaiting a backfill.
-**Backlog tiers:** `plans/20260904_2053-open-work-backlog.md` §3, §4 and §5 are all empty — but
-**`D4` in §2 is open**, and no tier-emptiness check reads §2. See §1 below.
+**Backlog tiers:** `D1`–`D4` are all decided, so §2 is closed; §3 and §4 are empty. **§5 has two
+open items**, both opened by this PR: `A15` (`--status` should check the threshold against the live
+mode) and `A16` (no off-machine signal separates "no sweep ran" from "a sweep ran and published
+nothing"). Open **content** work is in `KB_GAPS.md` § *Active Gaps*.
 **Last session:** shipped `A13` (`v3.6.0`) and `A14` (`v3.6.2`); backfilled `v3.6.1` and `v3.6.3`;
-moved the tracker to on-demand runs (`v3.7.0`), keeping the schedule one switch away.
+moved the tracker to on-demand runs (`v3.7.0`), keeping the schedule one switch away; resolved `D4`
+— `MAX_AGE_HOURS` raised to 336 (14 days), single-homed in `scripts/check-digest-freshness.sh`
+(`v3.7.1`).
 
 ---
 
-## 1. DECISION `D4` — TAKE THIS FIRST, BEFORE ANY OTHER WORK
+## 1. `D4` — RESOLVED 20260921
 
-**Recorded 20260912 at the user's instruction: this is the first decision a new session takes.**
+**Applied: option (b).** `MAX_AGE_HOURS` raised **48 → 336 (14 days)**, single-homed in
+`scripts/check-digest-freshness.sh`; the workflow's `env:` override is **deleted**, not set to 336.
+Shipped in `v3.7.1`.
 
-Now that runs are on demand, `.github/workflows/tracker-watchdog.yml` no longer measures health. It
-fails when the newest digest is older than `MAX_AGE_HOURS` (48). Under a schedule that meant *a run
-was due and silently failed* — it is the only off-machine signal this pipeline has, and it is how
-the 09-11 pause was noticed at all. On demand it measures **how recently you chose to run a sweep**,
-so it goes red within two days of any pause and stays red: the *Notification Fatigue* pattern this
-KB documents in `docs/17`, and a direct hit on the repo's own rule that **an unaccounted flag is an
-unread check**.
+**What it was.** Once runs went on demand (`v3.7.0`, 20260912),
+`.github/workflows/tracker-watchdog.yml` stopped measuring health and started measuring *how
+recently you chose to run a sweep*. It went red within two days of the pause and stayed red — 11
+consecutive red scheduled runs, 20260912 → 20260921 — which is the *Notification Fatigue* pattern
+this KB documents in `docs/17`, running in our own CI.
 
-**Full options, evidence and a marked recommendation are in the backlog's §2, as `D4`** —
-`plans/20260904_2053-open-work-backlog.md`. In short: **(a)** leave it and accept daily red;
-**(b)** raise `MAX_AGE_HOURS` to ~336 (14 days), turning it into a staleness nudge — *recommended*,
-and its real cost is losing 48h sensitivity if the schedule ever returns; **(c)** `workflow_dispatch`
-only, giving up the automatic signal; **(d)** commit the active mode and make the threshold
-mode-dependent — correct in both modes, but two homes for one fact and the drift is silent.
+**Two things the fix had to do that the one-line framing missed.**
 
-A constraint worth knowing before reaching for (d): the active mode is *local machine state*
-(`launchctl`), so **CI cannot observe it**. Mode-awareness requires committing the mode.
+1. **The number had two homes.** `run-loop-news-now.sh --status` calls
+   `check-digest-freshness.sh` with no env, so it reads the script's default and never CI's value.
+   Editing only the workflow would have left `--status` judging at 48 while CI judged at 336 — the
+   same silent drift that got option (d) rejected, merely relocated. The backlog's "one-line
+   change" claim is corrected in place in §2.
+2. **The STALE message was misdirecting.** It told the operator to run
+   `launchctl print gui/$(id -u)/com.luca.loop-news` — a LaunchAgent deliberately disabled since
+   `v3.7.0`. At 48h the alarm fired constantly and the wrong advice was cheap; at 336h it fires
+   fortnightly, so every firing must be actionable on its own. It now names
+   `run-loop-news-now.sh` first and reaches for launchctl only if `--status` says SCHEDULED.
+   **Six survey agents read those lines and cleared them; only the adjudicator caught it.**
 
-> **`D4` lives in §2, which no tier-emptiness check reads.** §3/§4/§5 being empty does not mean
-> there is nothing to decide. This repo shipped exactly that defect once — a note parked outside
-> every tier that stayed stale for weeks.
+**The attached condition — do not lose this.** 336 concedes real sensitivity: a silently failing
+*scheduled* run would go unnoticed for two weeks instead of two days. **If the schedule is ever
+restored, set `MAX_AGE_HOURS` back to 48 in the same commit as the switch.**
+`scripts/SCHEDULING.md`'s "To scheduled" procedure now carries that step, and "To on demand" carries
+its mirror. Without it, (b) quietly becomes (a)'s blind spot.
 
-Decide, apply, and strike the row in the same PR.
+**A red run under ON DEMAND is a TRUE positive.** Its fix is `bash scripts/run-loop-news-now.sh`,
+never a wider threshold — widening until the check stops firing is this repo's *"a check that cannot
+tell must fail"* rule broken in the other direction: a check that cannot fail.
+
+Full options table, evidence and the original recommendation: `plans/20260904_2053-open-work-backlog.md` §2.
+
+> **Lesson kept:** §2 sits outside every tier-emptiness check. `D4` sat there from 20260912 to
+> 20260921 while §3/§4/§5 all read empty. An empty tier is never proof that nothing is open.
 
 ---
 
@@ -102,9 +119,10 @@ The backlog is empty. Open **content** work is in `KB_GAPS.md` § *Active Gaps*:
 - **C10 left 245 of 335 findings unrefuted** under a cap — marked, not hidden.
 
 ### Known limits, recorded rather than implied
-- **`notify()` is desktop-only**, and the off-machine backstop is weaker than it reads:
-  `check-digest-freshness.sh` runs 09:00 UTC against `MAX_AGE_HOURS` 48 while the tracker fires
-  04:00–05:00 UTC, so **a single lost day reads ~29h and pages nobody**. Measured, not assumed.
+- **`notify()` is desktop-only**, so the only off-machine signal is `check-digest-freshness.sh` —
+  now a 336h (14-day) staleness nudge (`D4`, 20260921), not a same-day check. Under ON DEMAND there
+  is no fixed fire time to measure a lag against, so a lost sweep is invisible off-machine until
+  roughly a fortnight of silence accumulates. That is the deliberate cost of (b).
 - **`cleanup()` is never executed by any test**, yet exits 6 and 7 both *promise* the operator that
   the artifact and checkpoint branch are preserved. That promise is read, not run. An executable
   `cleanup()` test is the obvious next infrastructure step.
