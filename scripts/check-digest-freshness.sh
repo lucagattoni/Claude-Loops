@@ -18,7 +18,12 @@
 set -uo pipefail
 
 DIGEST="${1:-LOOP_ENGINEERING_NEWS.md}"
-MAX_AGE_HOURS="${MAX_AGE_HOURS:-48}"
+# 336h = 14 days. THE ONE HOME for this number — CI reads it from here, and so does
+# `run-loop-news-now.sh --status`; nothing overrides it, deliberately. Sized for ON DEMAND runs
+# (the default since v3.7.0): it asks "has the KB gone genuinely stale", not "did today's run fire".
+# If the schedule is ever restored, set this back to 48 in the SAME commit as the switch —
+# scripts/SCHEDULING.md's "To scheduled" procedure carries that step. (D4, resolved 20260921.)
+MAX_AGE_HOURS="${MAX_AGE_HOURS:-336}"
 
 fail() { printf '%s\n' "STALE: $*" >&2; exit 1; }
 
@@ -56,7 +61,7 @@ if (( age_hours < 0 )); then
 fi
 
 if (( age_hours > MAX_AGE_HOURS )); then
-  fail "newest digest entry is ${age_hours}h old (limit ${MAX_AGE_HOURS}h) — '$stamp'. The tracker has not published. Check logs/loop-news-*.log on the scheduler host and 'launchctl print gui/\$(id -u)/com.luca.loop-news'."
+  fail "newest digest entry is ${age_hours}h old (limit ${MAX_AGE_HOURS}h) — '$stamp'. The KB has not been swept. Under ON DEMAND (the default since v3.7.0) the fix is to run 'bash scripts/run-loop-news-now.sh'; 'run-loop-news-now.sh --status' reports the live mode, and if it says SCHEDULED, read logs/loop-news-*.log on the scheduler host and 'launchctl print gui/\$(id -u)/com.luca.loop-news'."
 fi
 
 printf 'FRESH: newest digest entry is %sh old (limit %sh) — %s\n' "$age_hours" "$MAX_AGE_HOURS" "$stamp"

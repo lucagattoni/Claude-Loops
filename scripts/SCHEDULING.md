@@ -57,6 +57,11 @@ already published, so it refused to retry. Full table below.
 **To scheduled.** `enable` must come *before* `bootstrap` — a `bootstrap` alone inherits the
 disabled flag and the job silently stays dead, which is what happened on 20260912:
 
+**First, in the same commit: set `MAX_AGE_HOURS` back to `48`** in `scripts/check-digest-freshness.sh`
+(its one home — the workflow does not override it). At 336 a silently failing daily run goes
+unnoticed for two weeks instead of two days. Verify with
+`grep -n MAX_AGE_HOURS scripts/check-digest-freshness.sh` before continuing.
+
 ```bash
 cp scripts/com.luca.loop-news.plist ~/Library/LaunchAgents/   # if the live copy is missing
 launchctl enable    gui/$(id -u)/com.luca.loop-news
@@ -74,22 +79,36 @@ launchctl bootout gui/$(id -u)/com.luca.loop-news 2>/dev/null
 bash scripts/run-loop-news-now.sh --status                     # must report ON DEMAND
 ```
 
+**Mirror step:** if a previous switch-to-scheduled set `MAX_AGE_HOURS` back to 48, raise it to 336
+in `scripts/check-digest-freshness.sh` in the same commit — otherwise the daily false alarm `D4`
+fixed returns within two days.
+
 Verify with `--status` in both directions rather than trusting the commands' silence.
 
-### The freshness watchdog is mode-dependent — this is the one thing switching does not fix
+### The freshness watchdog's threshold is mode-dependent — switching modes needs one edit
 
 `.github/workflows/tracker-watchdog.yml` runs `scripts/check-digest-freshness.sh` daily and fails
-when the newest digest entry is older than `MAX_AGE_HOURS` (48).
+when the newest digest entry is older than `MAX_AGE_HOURS` — **currently 336 (14 days)**, set in
+`scripts/check-digest-freshness.sh` and nowhere else. The workflow does not override it.
 
-- **Under SCHEDULED that is a real health check**: a run was due, so a stale digest means one
-  silently failed. It is the only off-machine signal this pipeline has.
-- **Under ON DEMAND it measures something else** — how recently *you chose* to run a sweep — so it
-  goes red within two days of any pause and stays red. Left alone that is a standing false alarm,
-  the *Notification Fatigue* pattern this KB documents in `docs/17`.
+- **Under SCHEDULED, 48 is the right number**: a run was *due*, so a stale digest means one
+  silently failed. It is the only off-machine signal this pipeline has, and it is what caught the
+  09-11 pause.
+- **Under ON DEMAND, 48 measured something else** — how recently *you chose* to run a sweep — so it
+  went red within two days of any pause and stayed red: the *Notification Fatigue* pattern this KB
+  documents in `docs/17`. 336 asks the question that is still meaningful on demand: *has the KB
+  gone genuinely stale?*
 
-It is recorded here rather than quietly changed; the open decision is in `RESUME.md`. **If you
-switch back to scheduled, the watchdog becomes correct again with no edit** — which is a reason to
-leave it alone rather than delete it.
+**This is no longer a leave-it-alone setting.** 336 buys the quiet at the cost of 48h sensitivity,
+and that trade holds only while runs are on demand. **If you switch back to scheduled, set
+`MAX_AGE_HOURS` back to 48 in the same commit as the switch** — the step is in "To scheduled"
+above. Skip it and a silently failing daily run goes unnoticed for two weeks instead of two days:
+(b) quietly becomes (a)'s blind spot, exactly as `D4` warned
+(`plans/20260904_2053-open-work-backlog.md` §2).
+
+**A red run under ON DEMAND is a true positive, and its fix is `bash scripts/run-loop-news-now.sh`**
+— not a threshold change. Widening the number until it stops firing is the same defect in the other
+direction: a check that cannot fail.
 
 ---
 
@@ -127,8 +146,9 @@ whether to re-run, wait, or go and look at the repository:
 
 `6` and `7` are the two that need a human to look at the repository rather than just re-run: both
 mean the run stopped precisely because it would otherwise have reported something it had not
-verified. Neither pages anyone off-machine — `check-digest-freshness.sh` only fires after 48h, and
-a single missed day is under that threshold.
+verified. Neither pages anyone off-machine — `check-digest-freshness.sh` only fires once the newest digest
+passes `MAX_AGE_HOURS` (336h / 14 days under on demand; 48h if the schedule is restored), and a
+single missed day is far under either threshold.
 
 ---
 

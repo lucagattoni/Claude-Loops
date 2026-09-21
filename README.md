@@ -37,7 +37,7 @@ the files in this repo are the *source* the site is built from.
 | `.claude/skills/fetch-loop-news/SKILL.md` | Search skill — finds news, writes the findings artifact (source only) |
 | `.claude/skills/integrate-loop-news/SKILL.md` | KB skill — integrates + restructures + publishes (source only) |
 | `scripts/run-loop-news.sh` | Shell wrapper — runs both skills as two sessions in one worktree (source only) |
-| [`scripts/SCHEDULING.md`](scripts/SCHEDULING.md) | How to change the cron cadence, or enable/disable the daily run (macOS launchd) |
+| [`scripts/SCHEDULING.md`](scripts/SCHEDULING.md) | How to run the tracker on demand (the default), or switch back to the scheduled macOS launchd mode |
 | `plans/` | Implementation plans for features in progress (source only) |
 
 ---
@@ -56,7 +56,7 @@ and cross-links that don't work in raw GitHub Markdown.
 | Design an autonomous loop | [The Loop Contract](https://lucagattoni.github.io/Claude-Loops/27-loop-contract/) |
 | Know when a loop is actually done | [Verification](https://lucagattoni.github.io/Claude-Loops/04-verification/) |
 
-The knowledge base grows automatically: when the daily loop finds a new concept not yet
+The knowledge base grows automatically: when a tracker sweep finds a new concept not yet
 covered, it adds a page and a row to the [topic index](https://lucagattoni.github.io/Claude-Loops/).
 
 ---
@@ -135,11 +135,12 @@ week produce the same empty result, and this repo has lost two months of a high-
 exactly that twice — see the warning at the top of
 [`SOURCES.md`](https://lucagattoni.github.io/Claude-Loops/sources/).
 
-### Change the schedule, or pause it
+### Run it on demand, or restore the schedule
 
-The daily run is a macOS launchd LaunchAgent (`com.luca.loop-news`), not cron. To change
-how often it fires, or to enable/disable it, see **[scripts/SCHEDULING.md](scripts/SCHEDULING.md)**
-for the exact `launchctl` commands and `StartCalendarInterval`/`StartInterval` syntax.
+The tracker runs on demand by default (`bash scripts/run-loop-news-now.sh`); a scheduled macOS
+launchd LaunchAgent (`com.luca.loop-news`) remains available but disabled. See
+**[scripts/SCHEDULING.md](scripts/SCHEDULING.md)** for the exact commands to run a sweep, check
+which mode is live, or switch back to the schedule.
 
 ---
 
