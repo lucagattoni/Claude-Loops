@@ -74,6 +74,9 @@ targeted GitHub and web searches.
   been read as a whole. Still the KB's own "Review new resources... deep-read and extract"
   rule going unmet. Search keywords: `milosCvetkovicDev claude-code-monorepo`, `production
   Claude Code config 71 skills`.
+
+### Logged by the 2026-09-28 retry pass (hand-authored, not a tracker run)
+
 - **docs/17 has no hallucinated-dependency (package hallucination / "slopsquatting")
   failure-pattern row.** [@kachar136](https://x.com/kachar136/status/2102438021874544739)
   (Sep 22, 2026): "Asked my agent for a library. It invented one, gave it a version number,
@@ -103,7 +106,7 @@ targeted GitHub and web searches.
   with higher confidence?** [@bcherny](https://x.com/bcherny/status/2102897435614060829)
   (Sep 23, 2026), replying to a report that Codex-as-peer-reviewer finds P1-P3 issues "even
   after claude's own adversarial agents reviews with no findings": "Try /code-review low --
-  catches more bugs, and cheaper." The comparator ("more bugs" than what) is unstated. The
+  catches more bugs, and cheaper". The comparator ("more bugs" than what) is unstated. The
   official [code-review docs](https://code.claude.com/docs/en/code-review) (fetched
   2026-09-28) describe the effort levels the opposite way: "At low and medium, the review
   reports only the findings it's most confident in, so you see fewer false positives; high
@@ -332,8 +335,8 @@ Evidence pack: [`plans/20260907_0100-c7-doc-sweep-evidence.md`](plans/20260907_0
   passes**~~ — filled 2026-09-28 by the retry pass: no real conflict. `cobusgreyling/loop-engineering`'s
   direct sweep reported one commit (`d6a0f3d`, 2026-09-24, "examples/mcp: add a shared-state
   config for the anti-pattern 5 case") and its search pass reported the full repo profile;
-  both describe the same repo accurately. Live-checked 2026-09-28: **11,330 stars** (11,329
-  at run time is same-day drift); CLI `npx @cobusgreyling/loop`
+  both describe the same repo accurately. Live-checked 2026-09-28: **~11,330 stars** (11,329
+  at run time, 11,330–11,331 on later same-day checks — drift, not a discrepancy); CLI `npx @cobusgreyling/loop`
   (`init`/`doctor`/`status`/`audit`/`cost`); the README's `## Patterns` table has **8 rows**,
   including "Thin loop". [arXiv 2608.21884v2](https://arxiv.org/abs/2608.21884v2) cites it as
   bib "Greyling (2026b)" (the paper's own bib note for that entry: "GitHub repository Accessed

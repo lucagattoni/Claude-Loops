@@ -143,7 +143,7 @@ evidence the framing is not just descriptive of what other teams build, but of h
 originator works day to day — and at volume: "I usually have at least 10 Tag/Projects
 sessions running at a time. While the agent works, I start another session or unblock one
 that is running" ([@bcherny](https://x.com/bcherny/status/2102571446681878605), Sep 2026).
-Reading roughly 85 of the post's 192 replies (not the full thread) surfaced three more
+Reading roughly 85 of the post's ~190 replies (count as of 2026-09-28) (not the full thread) surfaced three more
 operational details, each its own reply: "Environment runs in the Cloud"
 ([@bcherny](https://x.com/bcherny/status/2103550751985525170), Sep 2026); "Team has a
 2-seat minimum" ([@bcherny](https://x.com/bcherny/status/2103550536536793498), Sep 2026);

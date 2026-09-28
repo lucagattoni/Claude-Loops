@@ -124,11 +124,11 @@ on the site) — the loop reads it fresh on every run.
 | `github` | One repo — commits and releases since the last run | 46 |
 | `rss` | RSS/Atom feed | 14 |
 | `x` | An X.com profile timeline | 11 |
-| `html` | A blog or index page, scraped directly | 9 |
+| `html` | A blog or index page, scraped directly | 10 |
 | `github-search` | A GitHub search API query | 3 |
 | `x-search` | An X.com search query | 1 |
 | `linkedin` | A LinkedIn content search | 2 |
-| **Total** | | **86** |
+| **Total** | | **87** |
 
 **Prefer `html` over `rss` when a publication has no discoverable feed.** A 404 feed and a quiet
 week produce the same empty result, and this repo has lost two months of a high-value source to

@@ -174,7 +174,7 @@ scant evidence that the repeats found by Anthropic's team of AI agents carry out
 functions, and there is no known DNA-slicing enzyme partnered with them."
 (Anthropic, ["Claude discovers a novel enzyme system with CRISPR-like
 repeats"](https://www.anthropic.com/news/claude-discovers-novel-enzyme-system), Sep 2026; Yoon et
-al., ["Autonomous AI Agents Discover Reverse Transcriptases with Tandem Repeat Arrays"
+al., ["Autonomous AI agents discover reverse transcriptases with tandem repeat arrays"
 (preprint)](https://www-cdn.anthropic.com/22573675ada52a8ca8a97a1a4b4326b2f208a071.pdf), Sep 2026;
 Heidi Ledford, ["Anthropic's AI biolab finds 'CRISPR-like' DNA in viruses. What's
 next?"](https://www.nature.com/articles/d41586-026-03039-6), Nature News, Sep 2026.)

@@ -1,15 +1,24 @@
-# RESUME — handover 20260921 · **`D4` resolved — watchdog is now a 14-day staleness nudge**
+# RESUME — handover 20260928 · **the 2026-09-28 run's incomplete calls retried; `A17` opened**
 
-**Repo state:** `main` at `ce5d763`, clean, no open branches or worktrees. All gates green.
-**Tags/releases:** in step — nothing awaiting a backfill.
-**Backlog tiers:** `D1`–`D4` are all decided, so §2 is closed; §3 and §4 are empty. **§5 has two
-open items**, both opened by this PR: `A15` (`--status` should check the threshold against the live
-mode) and `A16` (no off-machine signal separates "no sweep ran" from "a sweep ran and published
-nothing"). Open **content** work is in `KB_GAPS.md` § *Active Gaps*.
-**Last session:** shipped `A13` (`v3.6.0`) and `A14` (`v3.6.2`); backfilled `v3.6.1` and `v3.6.3`;
-moved the tracker to on-demand runs (`v3.7.0`), keeping the schedule one switch away; resolved `D4`
-— `MAX_AGE_HOURS` raised to 336 (14 days), single-homed in `scripts/check-digest-freshness.sh`
-(`v3.7.1`).
+**Repo state:** check `git log origin/main` — this header was written on the retry branch, before
+its PR merged. **Tags/releases:** check `git tag | wc -l` against `gh release list`; the retry's
+version is tagged and released in the same turn as its merge.
+**Backlog tiers:** `D1`–`D4` are all decided, so §2 is closed; §3 and §4 are empty. **§5 has three
+open items:** `A15` (`--status` should check the threshold against the live mode), `A16` (no
+off-machine signal separates "no sweep ran" from "a sweep ran and published nothing") and `A17`
+(`fetch-loop-news` runs every browser sweep at once, and its X Pass-2 stop rule cannot tell a
+stalled tab from the end of the timeline — opened 20260928, needs a yes because it edits
+`SKILL.md`). Open **content** work is in `KB_GAPS.md` § *Active Gaps*.
+**Last session (20260928):** ran the tracker on demand (`v3.7.4`, tag + release backfilled); then
+retried everything that run left incomplete — 7 partial X sweeps, 7 profile-only citations, three
+open verifications — in three verified rounds, and integrated the results. What failed, what was
+retried, the corrections found and what the evidence could not settle:
+`plans/20260928_1401-retry-of-20260928-run-evidence.md`.
+
+**Before that (20260921):** shipped `A13` (`v3.6.0`) and `A14` (`v3.6.2`); backfilled `v3.6.1` and
+`v3.6.3`; moved the tracker to on-demand runs (`v3.7.0`), keeping the schedule one switch away;
+resolved `D4` — `MAX_AGE_HOURS` raised to 336 (14 days), single-homed in
+`scripts/check-digest-freshness.sh` (`v3.7.1`).
 
 ---
 
