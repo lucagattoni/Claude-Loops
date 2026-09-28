@@ -180,7 +180,7 @@ definition of finished can find its own way there and can tell you when it did n
 loop with a vague or unchecked done condition can't self-correct no matter how carefully
 the rest of the prompt is written — restating this section's own point from the builder's
 side rather than the taxonomy's; the post links to a kachar.dev write-up of the same title,
-not independently fetched here. ([@kachar136](https://x.com/kachar136), Sep 2026.)
+not independently fetched here. ([@kachar136](https://x.com/kachar136/status/2103126811349852336), Sep 2026.)
 
 ### Reference implementation: the three exit codes
 

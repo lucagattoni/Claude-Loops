@@ -76,7 +76,7 @@ tools** — "the defaults are the product; they don't transfer." The lesson gene
 (`--tools`) bounds the attack surface, but does not guarantee the loop reliably picks the
 right one among what remains reachable — that is a separate, unsolved reliability problem
 worth budgeting for once a loop's MCP surface grows past a handful of tools.
-([@kachar136](https://x.com/kachar136), Sep 2026.)
+([@kachar136](https://x.com/kachar136/status/2103941428007284893), Sep 2026.)
 
 ## The Broader Principle
 

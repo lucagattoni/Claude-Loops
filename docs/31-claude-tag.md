@@ -133,7 +133,7 @@ Coming from the practitioner most associated with popularizing "loop engineering
 evidence the framing is not just descriptive of what other teams build, but of how its own
 originator works day to day. (Thread/link expansion incomplete at capture time — a
 follow-up deep-read may surface the exact prompts verbatim.)
-([@bcherny](https://x.com/bcherny), Sep 2026.)
+([@bcherny](https://x.com/bcherny/status/2103538666597691552), Sep 2026.)
 
 ## Deployment mode comparison
 

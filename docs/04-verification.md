@@ -342,7 +342,7 @@ reviewing its own work agrees with itself — that is not verification, that is 
 The prescribed fix is not just a different model but a different *lens*: ask several
 independent instances to argue the change is wrong, each from a different angle, rather
 than asking one model to confirm it is right.
-([@kachar136](https://x.com/kachar136), Sep 2026.)
+([@kachar136](https://x.com/kachar136/status/2102410602983596137), Sep 2026.)
 
 These five together — external verifier, mechanical-gate/adjudicator split, frozen tests,
 provenance-bound claims (with isomorphic-perturbation checks), and cross-model independence —
