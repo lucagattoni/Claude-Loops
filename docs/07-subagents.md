@@ -311,12 +311,13 @@ session's own stop hook.
 ([Harness Books — AgentWay, "Multi-Agent & Verification"](https://harness-books.agentway.dev/book1-claude-code/chapter-07-multi-agent-and-verification.html), undated, fetched Sep 2026.)
 
 **First-party confirmation of the same mechanism, from the model side rather than the
-harness-analysis side.** Anthropic's Opus 5.5 launch post describes forked subagents as
-starting "from the parent session's cache instead of re-paying for context" — the same
+harness-analysis side.** Anthropic's Opus 5.5 launch post states that "forked subagents
+start from the parent's cache instead of paying for the same context again" — the same
 cache-critical-parameter-preservation mechanism the third-party analysis above documents
-structurally, now stated directly by the vendor and framed around longer agentic coding
-sessions specifically (3.3x more model calls per prompt, 2.6x more context, versus Opus
-4.6). Does not by itself confirm every mechanic above (hook payloads, the isolated
+structurally, now confirmed directly by the vendor. The post frames this around aggregate
+Claude Code usage from March to September 2026, where Claude "works 3.3x longer on each
+prompt with more than 40% more model calls per prompt" and context per request "has grown
+2.6x". Does not by itself confirm every mechanic above (hook payloads, the isolated
 `abortController`) — those remain sourced to the third-party analysis only.
 ([Anthropic, "Claude Opus 5.5 is built for coding sessions that use more context"](https://claude.com/blog/claude-opus-5-5-built-for-coding-sessions-that-use-more-context), Sep 2026.)
 

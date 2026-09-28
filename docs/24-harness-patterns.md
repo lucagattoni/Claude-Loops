@@ -921,6 +921,22 @@ running one model for everything.
 - **Advisor loop**: an executor session calls a stronger model only *on demand* for
   guidance, while a cheaper model does the bulk implementation work — the stronger
   model is consulted, not driving. ([@steipete](https://x.com/steipete/status/2074638582418231495), Jul 2026.)
+- **Decision-model routing inside the harness**: OpenClaw's next version "uses a decision
+  model to automatically decide between steer or queue", that is, whether a new user
+  message interrupts the running agent or waits behind it. It is a lab feature, and the
+  supported variants are listed as "Jef* and API-compat (e.g. local models like Kef...) and
+  ONNX variants" ([@steipete](https://x.com/steipete/status/2102667004557832497), Sep 2026).
+  The user keeps a manual override for a wrong call: "You can always press the steer
+  button on a queued message" ([@steipete](https://x.com/steipete/status/2102671385311219989)).
+  The same layer already made other small harness decisions before the announcement: "For
+  queue/steer, thinking level, skill search etc"
+  ([@steipete](https://x.com/steipete/status/2102174126987489769), Sep 21 2026). Asked about
+  compaction and tool calls, he confirmed only "tool search and skills"
+  ([@steipete](https://x.com/steipete/status/2102843120031617408)). The pattern: a cheap
+  model makes the harness's routing decisions, and a human override stays one click away.
+  Possibly the same decision model [MCP Security](19-mcp-security.md) benchmarks as Jev —
+  Steinberger spells his variants "Jef"/"Kef", so the identity is plausible, not
+  established.
 - **codex-first SKILL.md**: a Claude Code skill formalizing this as a hard rule —
   Claude keeps design, review, and destructive operations; implementation is
   delegated to `codex exec --yolo` via temp-file specs, with escalation back to

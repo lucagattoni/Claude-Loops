@@ -64,6 +64,39 @@ report to a channel or file. Never takes autonomous action — discovery and not
 
 ---
 
+### Thin Loop
+**Cadence:** Event-driven (issue/PR opened) + weekday cron · **Default level:** L1
+
+A report-only loop that runs in GitHub Actions with almost no extra files: the issue
+tracker and the Actions job summary *are* the state. It lists open PRs and issues with
+`gh` and writes the snapshot to the job summary. On a run triggered by an issue or PR it
+also posts one short comment, and a `<!-- thin-loop -->` marker stops a second comment on
+the same thread. It makes no code edits, applies no labels, closes nothing and never
+auto-merges.
+
+| Property | Value |
+|---|---|
+| Risk | Low — its only write is one marked comment per triggering thread (needs `issues: write` / `pull-requests: write`) |
+| State file | None — GitHub issues/PRs carry the backlog; an optional `loop-run-log.md` line is the only persisted trace |
+| Human gate | Reads the job summary or the comment; the loop does not close issues, apply labels or push commits |
+| Token cost/run | Very low — at L1 the workflow uses `gh` only, with no agent invoked |
+
+**It matches how most loops already look, on purpose.** The pattern's own write-up
+paraphrases Lulla et al.'s study of 217 autonomous agent loops across 36k repositories,
+putting the finding as "they commit **triggers** (cron / `pull_request` workflows), and
+almost never commit `STATE.md`" — Cobus Greyling's wording, not a quotation from the paper
+itself ([Lulla et al., "Building Blocks, Adoption, and Impact," arXiv 2608.21884](https://arxiv.org/abs/2608.21884), Aug 2026, the underlying study).
+The same paper is cited in [Loop Maturity Model](20-loop-maturity-model.md). With no
+implementer there is no verifier; the check is mechanical: "`gh` succeeded and the summary
+is non-empty." Add `STATE.md` once findings must survive across runs (backlogs, attempt
+counts, budgets). The source is explicit: "Do **not** start here if you need attempt caps,
+a maker/checker split, or a token kill switch". Use [Daily Triage](#daily-triage) or
+[PR Babysitter](#pr-babysitter) instead.
+
+(Cobus Greyling, [cobusgreyling/loop-engineering — `patterns/thin-loop.md` at commit `3f7ac78`](https://github.com/cobusgreyling/loop-engineering/blob/3f7ac78c4d1fd6e363b3b1e592a44fd4cc4161a8/patterns/thin-loop.md), Aug 2026.)
+
+---
+
 ### PR Babysitter
 **Cadence:** Every 10–15 min · **Default level:** L2
 

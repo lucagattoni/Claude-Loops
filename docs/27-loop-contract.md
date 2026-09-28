@@ -179,8 +179,18 @@ design effort belongs, not step-by-step instruction quality: "an agent given a c
 definition of finished can find its own way there and can tell you when it did not." A
 loop with a vague or unchecked done condition can't self-correct no matter how carefully
 the rest of the prompt is written — restating this section's own point from the builder's
-side rather than the taxonomy's; the post links to a kachar.dev write-up of the same title,
-not independently fetched here. ([@kachar136](https://x.com/kachar136/status/2103126811349852336), Sep 2026.)
+side rather than the taxonomy's. ([@kachar136](https://x.com/kachar136/status/2103126811349852336), Sep 2026.)
+
+The same author backs this with an audit of his own usage: across 138 Claude Code `/goal`
+invocations over five weeks and eleven projects, 73% never stated a done-condition (86%
+on a strict reading). His own read of that gap is not that those goals were sloppy — the
+done-condition "didn't disappear, it got factored out" into standing rules held once in
+CLAUDE.md rather than repeated per goal. He offers 85 of 100 session-opening goals still
+naming no done-condition as confirmation the standing gates cover session starts too, not
+as a residual failure. The load-bearing caveat for treating `/goal` as a verifier: "the
+evaluator is a fresh model, but it cannot run your tests. It reads Claude's account of
+having run them." (Ilko Kacharov, ["Write the done-condition, not the
+prompt"](https://kachar.dev/blog/write-the-done-condition-not-the-prompt), Jul 2026.)
 
 ### Reference implementation: the three exit codes
 
