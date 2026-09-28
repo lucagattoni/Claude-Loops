@@ -18,6 +18,65 @@ Versioning follows [Semantic Versioning](https://semver.org/):
 
 ---
 
+## [3.7.4] — 20260928 10:27
+
+### Added
+### Changed
+- `docs/24-harness-patterns.md` — three independent meta-harness/harness-router products
+  (openrig, orchestra) converged alongside omnigent/HarnessRouter in one week; Archon
+  v0.11.0 (workflow packs, event-triggered workflows, forge plugins); four new arXiv
+  self-improving-harness entries (Harness-Zero, RRSI, Agensh, Growing Harness); a
+  multi-generation-improvement verifier distinct from an RSI claim (ruvnet/metaharness);
+  a model-score-vs-agent-score benchmark methodology (HDS6/Apodex, @akshay_pachaar); a
+  context-isolated adversarial reviewer (milosCvetkovicDev); a completion-recovery fix and
+  a harness-thinness design rule (dmlguq456/hearting; ikangai.com)
+- `docs/27-loop-contract.md` — "write the done condition, not the prompt" (kachar136);
+  huvii174's coded per-item close (loop-close.mjs, v0.18.2/0.18.3); a three-way
+  closure-eligibility gate (eugenelim); a prefilter self-match fix (InjayTseng); Kanevry
+  v5.3.0's PSA-006 gate-verdict-without-receipts claim class and process-group management
+- `docs/17-failure-patterns.md` — a real capitalized-Delete-bypasses-lowercased-gate
+  instance (kachar136); State rot's multi-loop shared-STATE.md anti-pattern
+  (cobusgreyling); a quantified stopping-target lesson (steipete/OpenClaw); METR's live
+  per-action monitor defeated by self-approval
+- `docs/04-verification.md` — mechanically-enforced per-provider read-only reviewers
+  (navels/neal); plan-stage echo-chamber gating (claudex-loop); a multi-model-refute
+  practitioner quote (kachar136); a continue-on-unverifiable-check design tension flagged
+  (eugenelim); a repair-round dispatch-assertion fix (eugenelim)
+- `docs/19-mcp-security.md` — an eval harness's own-connector leakage case study
+  (edonadei/caliper); MCP tool-selection-at-scale reliability gap (kachar136/Orama)
+- `docs/23-fleet-engineering.md` — a synchronous-SQLite-at-scale lesson (steipete); a named
+  20+-agent coordination threshold (explainx.ai/Paperclip)
+- `docs/28-routines.md`, `docs/29-background-agents.md` — NanoClaw and durable scheduled
+  automations (Untrivial-ai) as Routines comparators; Microsoft Autopilot-on-OpenClaw
+  confirmed (steipete); Copilot Agent 365 identity (The New Stack); checkpoint
+  resumability with an explicit retention rule (the-open-engine/zeroshot)
+- `docs/31-claude-tag.md` — @bcherny's own Tag usage (>50% of PRs) with four concrete
+  loop-spec prompts
+- `docs/21-context-vs-loop-engineering.md` — a late-Sep LinkedIn/X convergence wave incl.
+  a real production loop (Halldor Fannar, NVIDIA) and an independently-arrived-at
+  harness/loop/graph diagnostic split (Steve Nouri)
+- `docs/33-agent-security-hardening.md` — process-vs-path isolation-testing caveat
+  (loopx-project); a Docker-socket bind-mount self-disclosure (daonhan/ralph); a named
+  network-perimeter-bypass incident (The New Stack)
+- `docs/16-memory-patterns.md` — self-reported vs. host-observed subagent activity
+  (loopx-project/loopx)
+- `docs/11-cost-control.md`, `docs/07-subagents.md` — Opus 5.5's forked-subagent cache
+  inheritance and mid-session effort switching (Anthropic, unconfirmed against the
+  cache-invalidation reference page)
+- `docs/25-long-running-agents.md` — an 8-day self-improving research loop (AIDE²)
+- `docs/26-factory-model.md` — Anthropic's own official Code Modernization plugin
+  (PROVEN/PARTLY PROVEN/NOT PROVEN certificates, blast-radius-tiered stopping)
+- `docs/32-reading-list.md` — added "Loop Engineering" (Halldor Fannar) to Loops in
+  Production
+- `SOURCES.md` — 7 new tracked sources (HarnessRouter, mvschwarz/openrig,
+  DrSeedon/orchestra, cocodedk/loop-engineering, ujconsulting/claudex-loop, @its_meseba,
+  Halldor Fannar)
+- `KB_GAPS.md` — two new "tracked but never deep-read" gaps logged (holny's §7/§8
+  content; milosCvetkovicDev's full production book), plus a same-URL metadata
+  discrepancy flagged for `cobusgreyling/loop-engineering`
+
+---
+
 ## [3.7.3] — 20260921 19:59
 
 ### Added

@@ -241,6 +241,46 @@ never uses the phrase "loop engineering," and its authorship metadata does not r
 confirmed Google Cloud DevRel byline — the vendor-terminology claim rests on the tweet and
 video title, not the codelab's own text. ([Google Cloud Indonesia, X post](https://x.com/GoogleCloud_ID/status/2097505270783983647), Sep 2026; codelab at [g.dev/cloud/loop-lab-table](https://g.dev/cloud/loop-lab-table).)
 
+### The convergence continues (late Sep 2026) — a LinkedIn wave, and a real production loop among it
+
+A single sweep this run surfaced roughly a dozen LinkedIn posts and a dozen X posts
+independently converging on the same harness/loop/graph vocabulary this section already
+tracks — evidence of continued diffusion, not a new claim. Two are worth citing directly
+rather than folding into the count. **The strongest single find**: a real, running
+production loop, not just a framing post — Rust `clippy` fixes proposed via GitLab MRs on
+an NVIDIA DGX Spark sandbox, with a `state.json` checkpoint/resume, worktree restoration,
+and a CI regression gate, reporting **27 merges** to a lint-free codebase. Its own framing
+positions Loop Engineering as a subdiscipline of Harness Engineering — consistent with this
+doc's four-discipline consolidation below rather than competing with it.
+([LinkedIn — Halldor Fannar, Sr. Director at NVIDIA, "Loop Engineering"](https://www.linkedin.com/pulse/loop-engineering-halldor-fannar-acgzc/), Jul 2026.) A second post
+states the same three-way harness/loop/graph split this doc already documents almost
+verbatim — "Harness: can it operate (environment). Loop: can it improve (feedback — loop on
+evidence not confidence). Graph: can the process be controlled (flow/branching/approvals)" —
+independently arrived at, with a diagnostic checklist per layer for triaging which one a
+given failure belongs to, the same move as the five-layer framing above.
+([LinkedIn — Steve Nouri, "Harness vs Loop vs Graph engineering"](https://www.linkedin.com/pulse/harness-vs-loop-graph-engineering-your-transformation-steve-nouri-aaqnc/), Aug 2026.)
+
+The rest of the wave corroborates diffusion without adding a new mechanism: a six-step loop
+lifecycle citing Claude Code, Codex CLI, Hermes, OpenClaw and OpenAI Agents as all
+implementing the same core loop ([LinkedIn — Zahiruddin Tavargere](https://www.linkedin.com/pulse/every-ai-agent-runs-loop-most-engineers-dont-know-tavargere-x8cec/), Aug 2026); a
+prompt→context→loop progression framing Claude Code's core as "a simple while-loop that
+calls the model, runs tools, and repeats" ([LinkedIn — Nakul Goyal](https://www.linkedin.com/pulse/prompt-engineering-context-loop-nakul-goyal-znwdc/), Jul 2026); a four-loop
+framework (Do / Check / Run-when-work-arrives / Improve-the-system) explicit that human
+approval can sit inside every stage ([LinkedIn — Maryam Miradi](https://www.linkedin.com/search/results/content/?keywords=%22loop%20engineering%22), Sep 2026); and an
+architecture diagram placing a "Loop Engineering" sub-box at the retry/replan stage of an
+Agent Harness wrapping an Execution Graph ([LinkedIn — Pallavi Singh](https://www.linkedin.com/search/results/content/?keywords=%22loop%20engineering%22), Sep 2026). A
+further ~12-post batch carries quantified practitioner claims (a harness-pairing accuracy
+lift, an enterprise-agent-project failure rate, a no-harness-vs-full-harness cost
+comparison) that are **not** independently verified against a primary source here — treat
+as reported claims from the practitioner cluster, not confirmed figures, before citing any
+specific number from it. On X, a numbered "Harness Engineering" series
+([@its_meseba](https://x.com/its_meseba/status/2104472784218792133), Sep 2026), a Chinese-language
+course lecture titled "Loop Engineering" inside a broader harness-engineering curriculum
+([@Leexiaopa](https://x.com/Leexiaopa/status/2104490517149241841), Sep 2026), and a 2-hour Andrew Ng
+course thread with timestamped "loop engineering" and "graph engineering" chapters
+([@snskritinaruka](https://x.com/snskritinaruka/status/2104479140841767378), Sep 2026) show the same
+vocabulary now stable enough to anchor course curricula, not just single posts.
+
 ### Is "Graph Engineering" a named discipline?
 
 Contested, and younger than the other four. It traces to a joke, not a consolidation piece —

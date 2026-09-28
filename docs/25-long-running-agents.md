@@ -134,6 +134,18 @@ tree-combination aggregation (rather than Prove2Me's DAG-of-dependencies) reache
 TCS-Bench. ([arXiv 2609.15983, "Stellar Colosseum: A Many-Agent Harness for Long-Horizon Research
 in Mathematics and Theoretical CS"](https://arxiv.org/abs/2609.15983), Sep 2026.)
 
+**A third: an 8-day run where the agent improves its own research loop, not just the research
+output.** Rather than executing a fixed research pipeline for days (Stellar Colosseum, AVO),
+this system recursively rewrites its own control loop over an 8-day unattended run,
+discovering 7 successive enhancements (new search policies, new memory mechanisms) that
+generalize to 4 held-out benchmarks and — notably — reduce reward hacking rather than
+introducing more of it, a favorable direction given how often self-modifying loops trend the
+other way (see [Common Failure Patterns' reward hacking entry](17-failure-patterns.md)).
+This is the long-horizon-agent question from a different angle than the rest of this
+section: not "how far can one agent get unattended" but "can the loop itself keep improving
+across that same unattended run without a human retuning it."
+([arXiv 2609.26457, "AIDE²"](https://arxiv.org/abs/2609.26457), Sep 2026.)
+
 **A cross-vendor, computer-use example of the same unattended-persistence pattern applied to
 creative-tool orchestration rather than a code-only environment:** ChatGPT Astra reportedly
 coordinated local desktop tools (Windows, Unreal Engine 5, Blender) unattended overnight to build

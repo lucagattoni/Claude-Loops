@@ -183,6 +183,20 @@ critical systems or complex state management.
   rewrite decomposable into agent-sized units at all. ([Bun, "Bun, in
   Rust"](https://bun.com/blog/bun-in-rust), Jul 2026.)
 
+- **Anthropic's own official Code Modernization plugin**: a first-party, human-gated
+  eight-step workflow spinning up **50–200 concurrent agents per phase** for large legacy
+  migrations, distinguished from the named deployments above by how it verifies: not model
+  opinion, but **evidence-based verification** — side-by-side execution against the legacy
+  system, independent re-derivation of the result, and deterministic
+  **PROVEN / PARTLY PROVEN / NOT PROVEN** verdicts per migrated unit. The accompanying
+  playbook frames stopping conditions the same way this KB's own STOP taxonomy does —
+  tiered by **blast radius and agent confidence**, so a low-risk, high-confidence change
+  clears with less human review than a high-blast-radius one — and structures work as
+  dynamic Claude Code workflows distributing parallel subagent workstreams, with
+  verification via testable "certificates" rather than a human eyeballing a diff.
+  ([Anthropic, "How to prepare for AI-driven code modernization projects"](https://claude.com/blog/how-to-prepare-for-ai-driven-code-modernization-projects), Sep 2026;
+  plugin: [anthropics/claude-plugins-official — code-modernization](https://github.com/anthropics/claude-plugins-official/tree/main/plugins/code-modernization).)
+
 ## "Lit" vs. "Dark" Factories, and Where Judgment Relocates
 
 Addy Osmani's own naming for the [Dark-Factory Ceiling](#the-dark-factory-ceiling-and-its-bottleneck)

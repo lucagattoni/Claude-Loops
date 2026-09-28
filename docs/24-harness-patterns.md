@@ -168,6 +168,21 @@ held fixed, harness-only. ([via explainx.ai, "Agent Harness Engineering: Termina
 Lessons"](https://explainx.ai/blog/agent-harness-engineering-terminal-bench-langchain-2026),
 attributing LangChain's Feb 2026 blog post.)
 
+**A model score is not an agent score — and a benchmark methodology to isolate why.** All
+the measurements above compare a harness's aggregate cost or success rate; a proposed
+methodology goes one level deeper, decomposing "agent score" into 11 harness components
+(tool adapter, retry policy, context policy, orchestration loop, stopping rule, and six
+more) any one of which can fail independent of the model. It proposes running a **"pinned
+control loop"** — a fixed reference harness — against a **"submitted configuration"** to
+isolate what changed. The accompanying benchmark's **HDS6** metric scores Tools, Repair,
+Alternatives, Coherence, Evidence, and Scope independently of final-task success, so a
+harness can be diagnosed on *which* component degraded rather than only that the score
+dropped — a finer-grained instrument than this section's cost/success comparisons, though
+not yet cross-validated against any of them on the same tasks.
+([@akshay_pachaar](https://x.com/akshay_pachaar/status/2104509576888697015); [arXiv
+2608.11341, "Apodex Discovery: Reality Benchmarks and Environments for Evaluating
+Discoverative AI"](https://arxiv.org/abs/2608.11341), Aug 2026.)
+
 ### Two Settings Tripled a Benchmark Score — and the Vendor Didn't Sell the Harness
 
 The sharpest evidence yet for "the harness matters more than the model" came from a vendor
@@ -516,6 +531,37 @@ handful of iterations in a benchmark run — see
 [Long-Running Agents](25-long-running-agents.md) for the session-continuity mechanics a run
 this long depends on. ([arXiv 2609.01481, "Harness-of-Harness"](https://arxiv.org/abs/2609.01481), Sep 2026.)
 
+**Four late-September arXiv additions extend the cluster along three different axes.**
+*Distillation*: **Harness-Zero** treats the agent itself as the harness and distills a
+compact policy out of it via **Agent-as-Harness** — moving the self-improvement loop's
+target from prompts/middleware (AHE, RobustSGPO, PRISM above) to the agent's own weights.
+([arXiv 2609.24974](https://arxiv.org/abs/2609.24974v1), Sep 2026.) *Regularization*:
+**RRSI** adds explicit regularization to the recursive-self-improvement loop itself,
+addressing the snapshot-collapse risk this cluster already tracks via train/eval-disjoint
+held-out gating — a second, independent mechanism for the same failure mode.
+([arXiv 2609.24972](https://arxiv.org/abs/2609.24972v2), Sep 2026.) *Decentralization*:
+**Agensh** removes the central orchestrator entirely — concurrent workers run a shared
+cooperation loop, self-assigning sub-tasks via a shared workspace instead of a controller
+dispatching them — and scaling from 1 to 1,024 agents lifted a pandoc-benchmark score from
+33.89% to 55.06%, evidence the self-improving-harness pattern also scales horizontally, not
+just over time. ([arXiv 2609.26781](https://arxiv.org/abs/2609.26781), Sep 2026.)
+*Compilation*: **Growing Harness** turns repeated agent-control logic into persistent
+executable code instead of having the LLM reconstruct it every task — cutting LLM calls
+76.0–91.8% and inference cost 74.4–98.6% while letting smaller models hold performance, a
+concrete instance of this section's own "mechanized rules beat prose guidance" finding
+applied to the control loop rather than the compliance rule.
+([arXiv 2609.26760](https://arxiv.org/abs/2609.26760), Sep 2026.)
+
+**Distinguishing genuine multi-generation improvement from a lucky single child.** Where
+the ablations above measure *whether* a harness self-improvement mechanism works, one
+metaharness fork adds a verifier for *whether the claim itself is real*: it requires
+lineage continuity across generations, digest integrity, frozen quality/cost thresholds,
+zero safety regressions, and two trusted reviewers per generation before crediting a
+multi-generation gain — explicitly **not** a claim that recursive self-improvement has
+been achieved, only that this specific improvement-claim shape can now be checked.
+Adversarially tested on 10,000 synthetic envelopes with zero false accept/deny.
+([ruvnet/metaharness #358](https://github.com/ruvnet/metaharness/pull/358), Sep 2026.)
+
 **Three practitioner instances from a YC panel, reported secondhand — cite the reporter,
 not an invented primary source.** A widely-repeated framing from the panel: *"the exact
 same model weights scored around 30% on ARC-AGI with a weak harness and roughly 95% with
@@ -814,6 +860,19 @@ needed.* An evaluator only adds value when the task sits beyond what the baselin
 model handles reliably solo. As that boundary moves outward with each model
 generation, periodically simplify your harness and measure whether quality holds.
 
+### Starving the Reviewer of Familiarity on Purpose
+
+A concrete instance of context isolation applied specifically to a code reviewer: a
+production 71-skill/34-hook/31-agent monorepo pins its `edge-case-hunter` agent to a
+fixed model/effort tier (Sonnet, `effort:high`) and sets `omitClaudeMd: true` on its
+`adversarial-reviewer` agent so the project's own `CLAUDE.md` conventions are not
+auto-injected into the reviewer's context. The stated reasoning: a reviewer that already
+knows "why we do it this way" tends to rationalize familiar patterns instead of
+questioning them — deliberately reducing context here is what forces it to actually find
+issues. This KB has only one deep-read of this repo's content on file so far (this
+finding); it is otherwise still a tracked-but-unread source (see `KB_GAPS.md`).
+([milosCvetkovicDev/claude-code-monorepo](https://github.com/milosCvetkovicDev/claude-code-monorepo/commit/d9350cfb055c20caf5380188b6f977a4fbc2407f), Sep 2026.)
+
 ### A Maker/Checker Harness Beyond Software: Lab Equipment
 
 The multi-role split above generalizes past coding. Anthropic's own Model Hardware Standard
@@ -879,6 +938,21 @@ running one model for everything.
   conformance suite (`uhp-conformance --class full`) against a public spec, not just a
   wrapper library — 664 stars.
   ([HarnessRouter/harnessrouter](https://github.com/HarnessRouter/harnessrouter), Sep 2026.)
+- **Three independent large meta-harness/harness-router products converged in the same
+  week** (1,286–10,316★ each), a dominant-theme signal worth naming as its own emerging
+  category rather than three unrelated finds. **openrig** frames the layer explicitly —
+  "a harness wraps a model. A rig wraps your harnesses." — with YAML-defined multi-harness
+  teams (Claude Code + Codex in one "rig"), tmux-backed persistent "seats," and an
+  owner/checker quickstart pairing two Codex seats, one implementing, one verifying.
+  **orchestra** (15★, smaller but conceptually clean) independently arrived at this KB's
+  own worktree-isolation + cross-model-review combination: a goal-driven orchestrator
+  spawns workers each in an isolated git worktree, routes worker output to a *different*
+  model for review, and merges only what passes — workers persist for hours or days
+  rather than one request. Alongside omnigent (above) and HarnessRouter's UHP, this makes
+  four unrelated teams shipping the same "one control layer over many coding-agent CLIs"
+  shape in one sweep — evidence the pattern has moved from novelty to category, not proof
+  any one implementation is the reference.
+  ([mvschwarz/openrig](https://github.com/mvschwarz/openrig); [DrSeedon/orchestra](https://github.com/DrSeedon/orchestra), Sep 2026.)
 - **Official first-party version**: OpenAI's own Claude Code plugin implements the
   same reviewer-executor separation as a supported product, not a community skill —
   a `/codex:adversarial-review` command and an optional gate that **blocks Claude's
@@ -935,6 +1009,14 @@ running one model for everything.
   interim manifest whose artifact IDs the final seal reuses rather than reissuing, so a cycle
   interrupted mid-flight leaves IDs a resumed run can match against rather than orphaning them.
   ([dmlguq456/hearting](https://github.com/dmlguq456/hearting), Sep 2026.)
+
+  A further fix recovers a specific completion-tracking edge case: when a recorded
+  artifact is later moved, Hearting cryptographically re-verifies it at its new location
+  and converts what used to read as an "artifact-missing" failure into a PASS verdict once
+  the completion event, placement record, and file content all reconcile — a stopping-
+  condition fix distinguishing "the work is done but the file moved" from "the work never
+  finished."
+  ([dmlguq456/hearting](https://github.com/dmlguq456/hearting/commit/2f2f2a3a6e509eb7c8389ba9fec16a04c0667521), Sep 2026.)
 
 This is the same underlying idea as [Subagents' "strong eyes, cheap hands"](07-subagents.md)
 cost-asymmetric role allocation, generalized from same-vendor subagents to
@@ -1318,6 +1400,17 @@ engine rather than one more implementation of a fixed pattern, which is the gap 
 the small single-purpose harness repos surfaced alongside it do not fill.
 ([coleam00/archon](https://github.com/coleam00/archon), fetched Sep 2026.)
 
+**v0.11.0 adds distribution and pause/resume primitives on top of the DAG engine**:
+installable **workflow packs** frozen at their starting commit (so a shared process
+definition can't drift under the team using it), **event-triggered workflows** (macOS
+schedule triggers and GitHub webhooks, not just manual/CLI invocation), **forge plugins**
+for reading and commenting on GitHub PRs from inside a node, and **durable waits** that
+pause a run on CI failure until an operator acts rather than failing the whole DAG. A
+breaking change in the same release — `thinking:` config replaced by `effort:`, and loop
+nodes losing the ability to declare their own `output_format` — is a reminder that a
+generalized workflow engine still churns its own schema.
+([coleam00/archon](https://github.com/coleam00/archon/releases/tag/v0.11.0), v0.11.0, Sep 2026.)
+
 ## Organizational Learning Stage
 
 A mature loop has a 4th stage beyond the standard 3 (Plan → Execute → Review):
@@ -1376,6 +1469,16 @@ the leading edge, not the exception:
 Read together: coding agents (Claude Code among them) were already leaning on the LLM to
 decide more, before the rest of the field caught up. That does not exempt this doc from the
 trend it documents — it means the trend arrives here *first*.
+
+**A design rule following from the same asymmetry, framed around forecasting rather than
+scaffolding directly.** Forecasters underestimate benchmark and compute progress but get
+real-world deployment right, because deployment is gated by slow human and physical
+constraints the model-capability curve is not. The practical instruction for a harness
+builder living between those two clocks: **keep the harness thin enough that a stronger
+model drops in without a rewrite.** A thick, model-specific harness bets against the fast
+clock; the thinner discipline above (build it, then find what a stronger model made
+redundant) is what keeps that bet from coming due.
+([ikangai.com, "AI Outruns the Forecast Until It Has to Touch the World"](https://www.ikangai.com/ai-outruns-the-forecast-until-it-has-to-touch-the-world/), Sep 2026.)
 
 **A harness built minimal by design, not by later removal.** Pi applies [the removal
 test](#the-removal-test) below at design time instead of as a later cut: it bills itself as "a

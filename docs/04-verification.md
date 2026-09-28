@@ -337,6 +337,13 @@ the anti-collusion rationale behind the fresh-context critics of the
 council above, stated as a first-class rule rather than a side effect of fresh context.
 ([the-open-engine/zeroshot](https://github.com/the-open-engine/zeroshot), Jul 2026.)
 
+A practitioner statement of pattern 5's own rationale, independently arrived at: "one model
+reviewing its own work agrees with itself — that is not verification, that is fluency."
+The prescribed fix is not just a different model but a different *lens*: ask several
+independent instances to argue the change is wrong, each from a different angle, rather
+than asking one model to confirm it is right.
+([@kachar136](https://x.com/kachar136), Sep 2026.)
+
 These five together — external verifier, mechanical-gate/adjudicator split, frozen tests,
 provenance-bound claims (with isomorphic-perturbation checks), and cross-model independence —
 are the converging community answer to [Verifier Theater](17-failure-patterns.md): the
@@ -358,6 +365,25 @@ only one that can argue for removing something, which is what keeps a run from r
 and making it advisory-only is what stops a skeptic from becoming a second gate that can never
 converge: across eight runs on one drive, the panel went clean zero times when a skeptic's
 findings were allowed to gate. ([douglaz/rb-lite](https://github.com/douglaz/rb-lite), Sep 2026.)
+
+**Enforcing read-only mechanically, per provider, not by prompt.** A second, independent
+instance of "revoke the capability, don't just ask for restraint": a cross-vendor
+planner/coder/reviewer loop enforces the reviewer's read-only status at the tool layer —
+an OS sandbox for Codex, an SDK tool allowlist for Claude Code — rather than only
+instructing it not to write. The harness also qualifies each model for its assigned role
+before trusting it there: a per-provider adapter-qualification script emits a dated
+PASS/FAIL whitelist, and a later release pins the qualification script's own reference
+effort level so a user's global CLI effort setting can't silently fail re-qualification —
+keeping the harness's verification of *itself* deterministic, not just its verification of
+the work. ([navels/neal](https://github.com/navels/neal); [v0.6.10](https://github.com/navels/neal/releases/tag/v0.6.10), Sep 2026.)
+
+**The plan is also a reviewable artifact — echo-chamber framing applied before any code
+exists.** The cross-model patterns above gate the *implementation*; one harness applies the
+same "the model that wrote it can't be trusted to grade it" logic one stage earlier, to the
+*plan*. Claude locks a plan with the human, then Codex attacks the locked plan **read-only**
+across bounded rounds; on the build stage the roles invert for cross-inspection. Producer and
+grader are named as configuration ("orange"/"green"), not tied to a specific vendor, so the
+same harness works with either model in either seat. ([ujconsulting/claudex-loop](https://github.com/ujconsulting/claudex-loop), Sep 2026.)
 
 **Arbitrating disagreement between cross-model reviewers.** Once you pair multiple
 independent models as reviewers (pattern 5), a new question follows: what do you do when
@@ -730,6 +756,25 @@ correction. ([eugenelim/agent-ready-repo](https://github.com/eugenelim/agent-rea
 passing evidence to steps that depended on it.** The fix adds a demotion pass that retroactively
 fails every downstream step resting on a since-failed prerequisite — closing a gap where a chain's
 later "pass" outlived the earlier failure it depended on. ([affaan-m/ecc](https://github.com/affaan-m/ecc), commit 8b951d3, Sep 2026.)
+
+**A design tension worth flagging rather than resolving: continuing on an unverifiable
+check.** A freshness check in the same repo replaced a binary success/failure result with a
+three-state one (**ok / skipped / surface**), so "temporarily unavailable" no longer reads
+as "genuinely wrong." The loop then *continues* on `skipped` rather than failing — the
+opposite of this KB's own rule that a check which cannot tell must fail, never pass (see
+`CLAUDE.md`). The difference may be legitimate: a base-freshness probe that is merely
+*unavailable* is not the same class of failure as a check that ran and found a problem, and
+treating every transient unavailability as a hard stop would make the loop fragile to its
+own infrastructure. But the resolution is not free, either — recorded here as an open
+tension rather than a settled pattern to copy.
+([eugenelim/agent-ready-repo #1449](https://github.com/eugenelim/agent-ready-repo/commit/71b0055), Sep 2026.)
+
+**A repair round can no longer borrow a prior round's dispatch record.** A related fix scopes
+dispatch accounting to the individual repair round that produced it, so a previous round's
+dispatch record can't silently satisfy the current wave's requirement — adding a "loop-cohort
+wave reopen" command with guarded transitions that refuse to proceed while live dispatch
+records remain. A verification-loop/maker-checker pattern for stopping a stale approval from
+carrying a repair cycle forward. ([eugenelim/agent-ready-repo](https://github.com/eugenelim/agent-ready-repo/commit/5d4ce50), Sep 2026.)
 
 ## Oracle Problem in AI-Generated Tests
 

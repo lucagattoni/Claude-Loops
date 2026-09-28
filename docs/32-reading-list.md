@@ -450,6 +450,23 @@ treating each bot's onboarding like hiring a new employee rather than installing
 
 ---
 
+### [Loop Engineering](https://www.linkedin.com/pulse/loop-engineering-halldor-fannar-acgzc/) — Halldor Fannar (Sr. Director, NVIDIA)
+**Added:** 2026-09-28 · **Published:** Jul 2026
+
+**Why here:** The only entry in this group that is a named engineer's own account of a real
+production loop, end to end, with the specific mechanics that made it resumable — not a
+platform-migration story or a vendor blog post. Positions Loop Engineering explicitly as a
+subdiscipline of Harness Engineering, matching this KB's own four-discipline consolidation
+([docs/21](21-context-vs-loop-engineering.md)).
+
+**Summary:** A repeatable production loop fixing Rust `clippy` lints and proposing them as
+GitLab MRs, running on an NVIDIA DGX Spark sandbox. Concrete mechanics: a `state.json`
+checkpoint/resume so an interrupted run picks up where it left off, worktree restoration
+per run, and a CI regression gate before any MR is proposed. Reports 27 merges to a
+lint-free codebase — a modest, real, verifiable result rather than a scale claim.
+
+---
+
 ## Reference Implementations
 
 Open-source projects demonstrating complete loop engineering implementations.

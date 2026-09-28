@@ -361,6 +361,29 @@ working toward second-scale cloud-session starts via repo snapshotting, to repla
 latency of a fresh clone on every detached session start.
 ([@steipete](https://x.com/steipete/status/2096400749869830325), Sep 2026.)
 
+**A background-agent harness now ships as a mainstream vendor product built on top of
+OpenClaw.** Microsoft's newly announced Autopilot — a persistent, proactive personal
+agent — confirmed as built on the OpenClaw codebase, with Steinberger's team working with
+Microsoft since March 2026 to ready it for large-scale deployment
+([@steipete](https://x.com/steipete/status/2103491173927272531), Sep 2026). Separately
+(and consistent with this), Microsoft's Copilot agents were announced with their own Entra
+identity and a governed MCP access layer (**Agent 365 SDK**) into Microsoft 365 workloads —
+i.e. a persistent background agent is now a first-class principal with its own
+credentials and a place in the org chart, not a session borrowing a human's, extending
+this doc's own worktree-isolation and per-session-identity concerns to an
+organization-directory level.
+([The New Stack, "Microsoft's new Copilot agents get their own email, calendar — and a
+place in the org chart"](https://thenewstack.io/copilot-agents-identity-runtime/), Sep 2026.)
+
+**Checkpoint-based resumability with an explicit success/failure retention rule.** A
+maker/checker orchestration product resumes a failed run from a saved node via an
+encrypted, deduplicated backup of the workspace, rather than restarting the whole run —
+and states the boundary explicitly: successful lineages **delete** their checkpoint on
+completion, while failed or lost runs **retain** theirs. That asymmetry is the concrete
+contract this doc's own restart-recovery discussion leaves implicit — a checkpoint is
+kept exactly as long as it might still be needed, not indefinitely and not never.
+([the-open-engine/zeroshot #1142](https://github.com/the-open-engine/zeroshot/commit/22f9d0c0fad95cc065560569d2a59e4c9e981abc), Sep 2026.)
+
 ## Related
 
 - [Fan-Out](10-fan-out.md) — parallelism patterns using background agents

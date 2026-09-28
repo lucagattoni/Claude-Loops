@@ -438,6 +438,12 @@ persistent: when the agent's own recall filter drops a stored item, it now logs 
 human auditing a miss can distinguish "the memory didn't exist" from "the memory existed and was
 filtered." ([huangruiteng/loopx](https://github.com/huangruiteng/loopx), Sep 2026.)
 
+**Self-reported activity is not verified activity.** A further release distinguishes, in the
+status feed, what a subagent *reports* it did from what the host process independently
+observed the child doing — the same self-report/artifact split this KB applies to loop
+completion claims elsewhere, here applied specifically to a subagent's own progress
+narration during a multi-subagent turn. ([loopx-project/loopx](https://github.com/loopx-project/loopx/commit/ea4f4b4ac313afad7bce0adc2634d6be34e96a49), Sep 2026.)
+
 A separate project formalizes the *capture* side of this same durable-objectives idea: a versioned
 work-item-capture contract (spec v2, 46 acceptance criteria, verified by 37 named tests plus an
 independent worker performing a real close in a scratch store) governs how a supervised agent loop

@@ -174,6 +174,14 @@ max-iteration stops.
 
 (Stop-condition categories: Akshay Pachaar, ["Loop Engineering Clearly Explained"](https://x.com/akshay_pachaar/status/2069118430582866051), Jun 2026; bounded N-turn examples: [Sabrina Ramonov](https://x.com/Sabrina_Ramonov/status/2070125608013648082), Jun 2026; three-checkpoint model: [MindStudio](https://www.mindstudio.ai/blog/how-to-build-agentic-loop-claude-code), Jun 2026.)
 
+**Write the done condition, not a better prompt.** The completion check is where the
+design effort belongs, not step-by-step instruction quality: "an agent given a checkable
+definition of finished can find its own way there and can tell you when it did not." A
+loop with a vague or unchecked done condition can't self-correct no matter how carefully
+the rest of the prompt is written — restating this section's own point from the builder's
+side rather than the taxonomy's; the post links to a kachar.dev write-up of the same title,
+not independently fetched here. ([@kachar136](https://x.com/kachar136), Sep 2026.)
+
 ### Reference implementation: the three exit codes
 
 A minimal loop that *provably halts* maps the taxonomy onto three deterministic exit
@@ -537,6 +545,40 @@ production.
   writer (`loop-record.mjs`) enforcing a strict verdict enum — closing a gap where prose history
   could let a genuine two-verifier-REJECT stagnation streak score zero on the circuit breaker.
   ([huvii174/loop-engineering-plugin](https://github.com/huvii174/loop-engineering-plugin), v0.16.0, Sep 2026.)
+
+  The 0.18.2/0.18.3 releases move the *per-item* close out of prose too: `loop-close.mjs`
+  makes closing a single work item a coded step (evidence attached, gate re-checked) rather
+  than an instruction the agent follows on trust, alongside a new convergence rule scoped to
+  specific evidence, a budget policy, a silent run-gate, and an epic-level gate sitting above
+  the per-item one — the same "code the check, don't prompt for it" move `loop-record.mjs`
+  already made for stagnation detection, now applied to closure itself.
+  ([huvii174/loop-engineering-plugin](https://github.com/huvii174/loop-engineering-plugin/commit/bde2b2f52e4c3c199455316fd39c330c78ff3a2a), v0.18.2/0.18.3, Sep 2026.)
+
+- **A three-way closure-eligibility gate, mechanically checked.** Where the huvii174 gates
+  above check *when* to stop working, this checks whether a completed item is safe to
+  *close*: reading the full descendant tree without writing status, it returns **refuse**
+  (a precondition is missing), **not-eligible** (live descendants remain open), or
+  **eligible** (an evidence packet ready for human confirmation) — a concrete three-way
+  STOP/verifier split for the specific "can this be marked done" decision, distinct from
+  "is this done" (the completion check above).
+  ([eugenelim/agent-ready-repo #1456](https://github.com/eugenelim/agent-ready-repo/commit/dea7ef0), Sep 2026.)
+- **A prefilter fixed to stop flagging its own in-progress marker as a collision.** A
+  small but concrete stopping-gate bug: a prefilter ahead of an LLM gate was comparing the
+  current round's own `[IN_PROGRESS]` line against itself and treating the match as a
+  self-collision false positive; the fix ignores the current round's own marker. The same
+  release adds optional pre-checks placed in front of existing LLM gates, off by default —
+  cheap deterministic checks that can short-circuit an expensive verifier call without
+  replacing it.
+  ([InjayTseng/loop-engineering-on-product](https://github.com/InjayTseng/loop-engineering-on-product/commit/307f408489859d5a390919547fb2f1841e43c062), Sep 2026.)
+- **A new completion-assertion claim class for gate verdicts made without receipts.**
+  session-orchestrator's v5.3.0 adds `PSA-006`, flagging a "gate-verdict" completion claim
+  that carries no attached evidence — the same failure this doc's Stop Condition Taxonomy
+  guards against structurally (only a completion check backed by a verifier counts as
+  success), now checked as a named, catchable claim class rather than left to review
+  discretion. The same release adds hierarchical process-group management (SIGTERM→grace→
+  SIGKILL) with an orphan-reaper that re-verifies PID identity before killing, closing a
+  pgid-recycling false-kill risk in long-running supervised loops.
+  ([Kanevry/session-orchestrator](https://github.com/Kanevry/session-orchestrator/releases/tag/v5.3.0), v5.3.0, Sep 2026.)
 
 **Benchmarking the controller, not just the harness.** LoopArena evaluates models
 specifically as *runtime controllers* guiding coding agents through long tasks — the

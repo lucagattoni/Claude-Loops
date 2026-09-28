@@ -54,6 +54,37 @@ targeted GitHub and web searches.
   `parallel review agent cost benchmark`, `"ensemble" vs "chorus" LLM reviewers`, `graph
   vs sequential loop cost comparison agent`.
 
+### Logged by the 2026-09-28 tracker run
+
+- **`holny/Agent-Harness-Develop-Book` is tracked but only ever spot-cited, never
+  deep-read as a whole — the same failure mode as `milosCvetkovicDev/claude-code-monorepo`
+  below.** This run cited one commit's specific factual corrections (Lost-in-the-Middle
+  softening, verbatim-cap formula, A2A/Linux Foundation status) directly from the diff, but
+  its own §8 "Loop Engineering" chapter (inner/outer loop hierarchy, three loop outcomes,
+  L1/L2/L3 phased delegation, 10 kinds of loop termination conditions, a 5-layer
+  context-compaction pipeline) and §7 (Lilian Weng's "Harness Engineering for
+  Self-Improvement" framework: RSI-from-harness, ACE/MCE, Self-Harness/DGM) have never been
+  fetched and extracted — only summarized secondhand across several digest entries. Natural
+  home: docs/24-harness-patterns.md's self-improving-harnesses cluster (§7) and the STOP
+  taxonomy / L1-L3 delegation content already in docs/24 and docs/20 (§8). Search keywords:
+  none needed — this is a deep-read task on an already-tracked repo, not a search gap.
+- **`milosCvetkovicDev/claude-code-monorepo` deep-read remains open**, now with exactly one
+  fact extracted (the edge-case-hunter/adversarial-reviewer context-isolation pattern, added
+  to docs/24 this run) against a 71-skill/34-hook/31-agent production book that has never
+  been read as a whole. Still the KB's own "Review new resources... deep-read and extract"
+  rule going unmet. Search keywords: `milosCvetkovicDev claude-code-monorepo`, `production
+  Claude Code config 71 skills`.
+- **A same-URL GitHub repo returned sharply conflicting metadata in one run's two passes.**
+  `cobusgreyling/loop-engineering` was swept directly (a small anti-pattern-5/MCP docs
+  commit, no star count reported) and separately surfaced via search (11,329★, described as
+  "CLI + 8 named loop patterns," citing an arXiv paper claiming it as "the community
+  reference") — under the same URL, in the same run. Not resolved here: could be a
+  search-index cache lag, a describe-string mismatch in the search tool, or the search
+  result describing a different, similarly-named repo. Before citing the 11,329★ figure or
+  the arXiv-community-reference claim anywhere, verify both directly against the live repo
+  page rather than trusting either pass. Search keywords: none — this needs a direct fetch
+  of `github.com/cobusgreyling/loop-engineering`, not a search.
+
 ### Logged by the 2026-09-21 tracker run
 
 - **MCP-as-a-skill-surface has zero coverage in docs/06.** A single-line X claim ("MCP meets

@@ -69,6 +69,16 @@ Two failure classes have shipped from letting multiple Claude Code instances sha
 
 (Anthropic, [CHANGELOG.md](https://raw.githubusercontent.com/anthropics/claude-code/main/CHANGELOG.md), v2.1.59, v2.1.221, v2.1.259; [Authentication](https://code.claude.com/docs/en/authentication), checked 2026-09-07.)
 
+**6. Storage architecture that was fine at F0/F1 breaks silently at F2+.** A concrete
+production lesson, reported as "the biggest design mistake" in a persistent-agent
+platform's own build: synchronous SQLite storage was fine for one agent reporting to one
+user over Slack/iMessage, but broke down once a single agent instance was fielding **50
+parallel sessions** with a whole team on it. The failure mode is the same shape as the
+config/credential concurrency risk above — a storage choice that is invisible at low
+concurrency and becomes the bottleneck exactly when a fleet crosses from F1 into F2+ scale
+— but at the application's own data layer rather than Claude Code's credential store.
+([@steipete](https://x.com/steipete/status/2103648679169257737), Sep 2026.)
+
 ---
 
 ## Relationship to loop engineering
@@ -258,6 +268,17 @@ scoring), autogenous (runtime canary/rollback, see
 and RuVector+AgentDB (memory) — useful less for its own mechanism than as a worked example
 of documenting fleet-tooling composition explicitly rather than leaving it implicit across
 separate repos. ([ruvnet/ruClip](https://github.com/ruvnet/ruClip), Sep 2026.)
+
+**Naming a concrete scale threshold where coordination becomes the problem.** One
+coordination-layer product frames "roughly twenty-plus agents" as the point organizational
+coordination — not agent capability — becomes the binding constraint, and answers it with
+**atomic task checkout** (preventing two agents from silently duplicating the same work),
+**event-driven "heartbeat execution"** instead of polling (echoing the polling-loop failure
+pattern in [Common Failure Patterns](17-failure-patterns.md)), and hard-stop budget/token
+enforcement as the stopping condition. Consistent with this doc's own framing that fleet
+engineering is an organization-level problem distinct from any single loop's internals, but
+treat the specific "twenty-plus" threshold as one vendor's rule of thumb, not a measured
+inflection point. ([explainx.ai, "Paperclip: Run a Company of AI Agents"](https://explainx.ai/blog/paperclip-ai-agent-orchestration-platform-2026), Sep 2026.)
 
 ## Case Study: Gas Town — 20-30 Parallel Instances via Git-Persisted Work Units
 

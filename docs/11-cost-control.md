@@ -491,6 +491,16 @@ Fable 5.1 with an API key or a Claude subscription also invalidated the cache" �
 release ([v2.1.257](https://github.com/anthropics/claude-code/releases/tag/v2.1.257)) that
 shipped Fable 5.1 itself shipped it with that bug, fixed three versions later.
 
+**A second model may extend the exception — not yet confirmed against the official cache
+docs.** Anthropic's own Opus 5.5 announcement post claims the model supports "effort-level
+switching mid-session without cache resets," alongside forked subagents that start from
+the parent session's cache instead of re-paying for it — framed around longer agentic
+coding sessions (3.3x more model calls per prompt, 2.6x more context, versus Opus 4.6).
+Treated here as an unconfirmed vendor claim, not yet verified against the "Actions that
+invalidate the cache" reference page quoted above the way the Fable 5.1 exception was —
+re-check that page before relying on it for a production loop's cost model.
+([Anthropic, "Claude Opus 5.5 is built for coding sessions that use more context"](https://claude.com/blog/claude-opus-5-5-built-for-coding-sessions-that-use-more-context), Sep 2026.)
+
 ### Setting the cache TTL directly
 
 For API-key and cloud-provider (Bedrock/Vertex/Foundry) users, the cache TTL is also a

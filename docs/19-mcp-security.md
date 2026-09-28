@@ -41,6 +41,16 @@ Everything above assumes the MCP server is already running and connected, and th
 - **Trust approval is per-server, not per-repo.** Before [v2.1.69](https://github.com/anthropics/claude-code/releases/tag/v2.1.69), the trust dialog could silently enable *every* server listed in a cloned repo's `.mcp.json` on first run, instead of asking per server — so cloning a hostile repo could hand its entire MCP config a blanket pass.
 - **A repo cannot self-approve its own servers** — the same pattern as [Permissions & Auto Mode § Repo Settings Cannot Escalate Their Own Privilege](08-permissions.md#repo-settings-cannot-escalate-their-own-privilege), applied to MCP. Before [v2.1.196](https://github.com/anthropics/claude-code/releases/tag/v2.1.196), a repo could list its MCP servers as pre-approved inside a committed `.claude/settings.json`, and `claude mcp list`/`get` would spawn them on that claim alone. As of v2.1.196, a `.mcp.json` server's approval committed to the repo is ignored in a workspace you haven't trusted — it stays `⏸ Pending approval` until you personally accept that workspace's trust dialog ([MCP docs](https://code.claude.com/docs/en/mcp)).
 - **The org-level allow/deny list has needed repeated hardening.** `allowedMcpServers`/`deniedMcpServers` (managed settings) restrict which MCP servers can run at all, but enforcement has shipped with distinct gaps fixed across separate releases — a single bad entry disabling the whole managed policy, the `--mcp-config` flag bypassing it, claude.ai connectors not being covered, and enforcement missing on reconnect and IDE-typed configs, among others. Treat it as a boundary you verify against your specific installed version, not one you configure once and trust indefinitely ([CHANGELOG.md](https://raw.githubusercontent.com/anthropics/claude-code/main/CHANGELOG.md)).
+- **An eval harness leaked the operator's own connectors into its own results.** A concrete case
+  of connector isolation failing silently rather than being attacked: an agent-skill eval harness
+  running against Claude Code/Codex/Pi/Hermes found its own attempts were pulling the *operator's*
+  live claude.ai/ChatGPT MCP connectors into the eval session — meaning "isolation" had been an
+  assumption, not a configured property, and what the eval measured was contaminated by whatever
+  the operator happened to have connected that day. The fix made isolation the default and, once
+  that changed what was actually being measured, made MCP-load-by-default an explicit *recorded*
+  per-run setting rather than an implicit one — the same "assert on the artifact, not the intent"
+  discipline this KB applies to loop completion, applied here to what a benchmark run actually saw.
+  ([edonadei/caliper](https://github.com/edonadei/caliper/releases/tag/v0.15.0), v0.13.0–v0.15.0, Sep 2026.)
 
 ## Mitigations for Loop Engineers
 
@@ -53,6 +63,20 @@ Everything above assumes the MCP server is already running and connected, and th
 | Prompt injection in issue trackers | Sanitize or summarize external content with a lightweight model before passing to the main agent |
 
 *Flags and hook events checked against the Claude Code [CLI reference](https://code.claude.com/docs/en/cli-reference) and [hooks guide](https://code.claude.com/docs/en/hooks-guide); confirmed unchanged from v2.1.185 (current at this doc's June 2026 capture) through v2.1.263 (current 2026-09-07).*
+
+## Tool Selection at Scale Is Not a Security Boundary, But It Fails the Same Way
+
+A different MCP risk than injection or trust: once a loop has real MCP scope, *which* of
+many available tools it calls on a given turn is itself a decision that can silently fail
+to transfer from a clean benchmark to production. A ranked tool-search layer built to pick
+the right tool out of a candidate pool matched the best hand-tuned setup on a clean
+benchmark, then lost by **19 points** against the same code running over **525 real MCP
+tools** — "the defaults are the product; they don't transfer." The lesson generalizes the
+"unconstrained MCP scope" mitigation above: restricting *which* tools are reachable
+(`--tools`) bounds the attack surface, but does not guarantee the loop reliably picks the
+right one among what remains reachable — that is a separate, unsolved reliability problem
+worth budgeting for once a loop's MCP surface grows past a handful of tools.
+([@kachar136](https://x.com/kachar136), Sep 2026.)
 
 ## The Broader Principle
 

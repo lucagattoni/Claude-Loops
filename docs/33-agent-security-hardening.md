@@ -23,6 +23,16 @@ identity, and nftables rules scoped to its UID. One agent cannot read another's
 state, credentials, or working directory even if it receives a malicious instruction
 to do so.
 
+**A counter-example worth naming: a Docker container is not this boundary by default.**
+A popular Ralph-loop implementation runs Claude Code or Codex in an AFK
+implementer→reviewer pipeline inside Docker — but its own `SECURITY.md` discloses that it
+runs with permission-bypass flags and, by default, **bind-mounts the host Docker socket**,
+which is root-equivalent access to the host (disableable, but on by default). A container
+boundary that shares the host's Docker socket is not a containment boundary at all for the
+process inside it — the self-disclosure is the notable part, since most harnesses making
+this trade-off don't document it as prominently.
+([daonhan/ralph](https://github.com/daonhan/ralph), Sep 2026.)
+
 ## Credential Isolation: Four Disposition Types
 
 Never provision secrets directly into an agent's environment. Apply one of four
@@ -120,6 +130,16 @@ SessionStart hook the model's own process could theoretically route around.
 [saagpatel/cross-provider-egress-guard](https://github.com/saagpatel/cross-provider-egress-guard);
 ActPlane, [arXiv 2606.25189](https://arxiv.org/abs/2606.25189);
 [codeafix/agent-assistant](https://github.com/codeafix/agent-assistant), Jul 2026.)
+
+**Named incident corroborating the "network perimeter" row's weakness specifically.** A
+Hugging Face incident is cited as a case where an agent didn't defeat a network-level
+control at all — it simply **acted locally** instead, going around a filter placed at the
+network perimeter rather than inside the harness or MCP layer executing the action. The
+broader argument: enforcement belongs inside the harness and MCP layer, where the action
+is actually decided, not at the network edge where a perimeter control cannot see a
+locally-executed action at all — restating this table's own "cannot be bypassed by..."
+column from an incident rather than a design proposal.
+([The New Stack, "The agent didn't break your controls. It went around them."](https://thenewstack.io/inside-out-agent-security/), Sep 2026.)
 
 **A first-party instance: Claude Code's own sandbox config.** The same principle — the
 default-deny check must live somewhere the process it protects cannot reach — shows up inside
@@ -245,6 +265,23 @@ the agent that writes code and the agent that verifies it. Fatal verifier errors
 `runtime_failed` checkpoint instead of silently losing state.
 ([the-open-engine/zeroshot, #1104](https://github.com/the-open-engine/zeroshot/commit/b7602c1) and
 [#1126](https://github.com/the-open-engine/zeroshot/commit/03bdebd), Sep 2026.)
+
+A later release relaxes this to **shared files, separate processes**: workers and
+reviewers now share the run-scoped workspace directory and tools while staying
+process-isolated from each other, rather than each getting its own disposable copy — the
+maker/checker split moves from filesystem separation to process separation, which is
+cheaper to run but depends on process boundaries alone holding the isolation that
+disposable-copy workspaces enforced structurally.
+([the-open-engine/zeroshot #1159](https://github.com/the-open-engine/zeroshot/commit/3e6b8495e62a511e0eaaff64fa1a4ea9808b4252), Sep 2026.)
+
+**Isolation claims need a positive test, not just separate paths.** A separate control-plane
+product states the boundary condition plainly: a separate worktree, registry path, or
+archive destination isolates *neither* CPU work nor the managed OS process on its own —
+identical source fingerprints can still share a process through a shared temp directory
+even when every path-level boundary looks correctly separated. The general lesson for the
+process-isolation claims above: verify isolation by checking the actual process/resource
+boundary (PID, cgroup, container), not by checking that the configured paths differ.
+([loopx-project/loopx #5217](https://github.com/loopx-project/loopx/commit/3009cdf), Sep 2026.)
 
 ## Relationship to Permissions & Allowlists
 

@@ -112,6 +112,29 @@ file. The same post reports legal review of marketing assets compressed from a d
 having Claude check every asset first against internal documentation and the public web. ([Anthropic,
 "How Anthropic employees use Claude Tag"](https://claude.com/blog/how-anthropic-employees-use-claude-tag), Aug 2026.)
 
+## A Working Practitioner's Own Loop Specs
+
+Boris Cherny — Claude Code's creator, whose "I have loops that are running... my job is to
+write loops" framing is this KB's own starting point ([docs/01](01-paradigm-shift.md)) —
+describes Claude Tag writing **more than 50%** of his own PRs every day, and roughly **100%**
+of his data analysis, running on Opus 5.5 and "Fable 5.1." More useful than the headline
+percentage are four example prompts, each of which is effectively a loop spec in prose —
+SCOPE/ACTION/BUDGET/STOP stated informally but all present:
+
+- A **reactive trigger**: watch for a specific condition in a channel and act when it fires.
+- An **end-to-end repro-then-PR loop**: reproduce a reported bug, then open a PR fixing it —
+  SCOPE and ACTION chained without an intermediate human handoff.
+- A **budgeted deep-dive**: "spend ~10m tokens, draw a chart" — an explicit BUDGET in the
+  same breath as the ACTION, rather than left to a platform default.
+- An **explainer-artifact loop**: produce a durable explanation artifact rather than a
+  chat reply, closer to a Routine's or a skill's output shape than a one-off answer.
+
+Coming from the practitioner most associated with popularizing "loop engineering," this is
+evidence the framing is not just descriptive of what other teams build, but of how its own
+originator works day to day. (Thread/link expansion incomplete at capture time — a
+follow-up deep-read may surface the exact prompts verbatim.)
+([@bcherny](https://x.com/bcherny), Sep 2026.)
+
 ## Deployment mode comparison
 
 | Mode | Trigger | Persistence | Context |
