@@ -830,8 +830,8 @@ not the fix." The same file lists 15 junk-pattern test shapes. The gate rejects 
 that matches one, and audit sweeps hunt for existing ones; among them are "assertion-free
 coverage probes", "self-comparisons and identity copiers" and "mocks that implement the
 asserted behavior". A separate campaign mode applies the same bar to one whole subsystem's
-tests. Steinberger credits the skill for OpenClaw deleting "around 400k LOC of its own
-tests without much change in code coverage"
+tests. Steinberger reports OpenClaw deleted "around 400k LOC of its own tests without
+much change in code coverage" and says the skill helped
 ([@steipete](https://x.com/steipete/status/2103147927313199260), Sep 2026). That is the
 maintainer's own report, not an independent measurement.
 

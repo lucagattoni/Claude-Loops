@@ -506,13 +506,23 @@ shipped Fable 5.1 itself shipped it with that bug, fixed three versions later.
 same reference page, re-fetched 2026-09-28, now reads: "On Opus 5.5 and Fable 5.1 with an API
 key or a Claude subscription, changing effort keeps the cache, and Claude Code applies the new
 level without asking. This doesn't apply on Amazon Bedrock, Google Cloud's Agent Platform, or a
-Claude apps gateway, or when you set CLAUDE_CODE_DISABLE_EXPERIMENTAL_BETAS or your
+Claude apps gateway, or when you set `CLAUDE_CODE_DISABLE_EXPERIMENTAL_BETAS` or your
 organization has a HIPAA configuration." ([Anthropic, Prompt caching → Changing effort
 level](https://code.claude.com/docs/en/prompt-caching#changing-effort-level), fetched
-2026-09-28.) Anthropic's own Opus 5.5 announcement post frames the same mechanism from the
+2026-09-28.) That quote is frozen at its 2026-09-28 fetch date and has since gone stale: re-fetched
+2026-09-29, the same page now reads "On Opus 5.5, Sonnet 5.5, and Fable 5.1 with an API key or a
+Claude subscription, changing effort keeps the cache..." — Sonnet 5.5 has joined the exception. A
+Wayback Machine snapshot from
+[2026-09-25](https://web.archive.org/web/20260925150428/https://code.claude.com/docs/en/prompt-caching#changing-effort-level)
+— the closest capture to 2026-09-28; none exists for 2026-09-28 itself, and none exists between
+2026-09-25 and 2026-09-29 (checked 2026-09-29) — still shows the two-model wording quoted above, so
+the quote was accurate at capture and the source added Sonnet 5.5 sometime in that four-day window.
+Anthropic's own Opus 5.5 announcement post frames the same mechanism from the
 product side: "For newer models like Opus 5.5 and Fable 5.1, you can now change effort levels
-during your sessions without resetting your cache" — alongside forked subagents that start from
-the parent session's cache instead of re-paying for it. The same post's "3.3x"/"2.6x" figures
+during your sessions without resetting your cache" — alongside forked subagents that "start from
+the parent's cache instead of paying for the same context again" (see [Subagents § Cache-Safe
+Forking and Isolated Child State](07-subagents.md#cache-safe-forking-and-isolated-child-state)).
+The same post's "3.3x"/"2.6x" figures
 are aggregate Claude Code usage trends from March to September 2026, not a comparison with Opus
 4.6: "Claude works 3.3x longer on each prompt with more than 40% more model calls per prompt"
 and "Context per request has grown 2.6x."
@@ -603,10 +613,10 @@ calibrated confidence signal (not the maker's self-report of correctness — see
 as a way to cut wasted GPU compute in long-running agent loops.
 (MindStudio, ["Confidence-Scheduled Verification: How DeepSpark Cuts Wasted GPU Compute"](https://www.mindstudio.ai/blog/deepspark-confidence-scheduled-verification-ai-agents/), Jul 2026.)
 
-**A stated intent, not a measured result.** Quote-tweeting
+**A stated intent, not a measured result.** Peter Steinberger quote-tweeted
 [@Altimor](https://x.com/Altimor/status/2104094039805174164)'s "CI has become the top
 bottleneck of every engineering team I talk to (including Lindy). Our CI spend has become
-stratospheric," Peter Steinberger described a plan rather than an outcome: "My plan is to let
+stratospheric." He described a plan rather than an outcome: "My plan is to let
 codex decide which tests actually need to run and drastically nix CI and run tests hourly." No
 cost, coverage, or cadence figures have been published for it. This goes a step further than
 confidence-scheduling *when* to verify — it has the agent choosing *which* checks run at all;

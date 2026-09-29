@@ -928,9 +928,9 @@ running one model for everything.
   ONNX variants" ([@steipete](https://x.com/steipete/status/2102667004557832497), Sep 2026).
   The user keeps a manual override for a wrong call: "You can always press the steer
   button on a queued message" ([@steipete](https://x.com/steipete/status/2102671385311219989)).
-  The same layer already made other small harness decisions before the announcement: "For
-  queue/steer, thinking level, skill search etc"
-  ([@steipete](https://x.com/steipete/status/2102174126987489769), Sep 21 2026). Asked about
+  A separate, earlier reply says it was already done: "For queue/steer, thinking level,
+  skill search etc" ([@steipete](https://x.com/steipete/status/2102174126987489769), Sep 21
+  2026) — not confirmed to be the same model. Asked about
   compaction and tool calls, he confirmed only "tool search and skills"
   ([@steipete](https://x.com/steipete/status/2102843120031617408)). The pattern: a cheap
   model makes the harness's routing decisions, and a human override stays one click away.

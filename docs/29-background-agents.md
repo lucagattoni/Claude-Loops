@@ -361,10 +361,10 @@ working toward second-scale cloud-session starts via repo snapshotting, to repla
 latency of a fresh clone on every detached session start.
 ([@steipete](https://x.com/steipete/status/2096400749869830325), Sep 2026.)
 
-**A background-agent harness now ships as a mainstream vendor product built on top of
-OpenClaw.** Microsoft's newly announced Autopilot — a persistent, proactive personal
-agent — confirmed as built on the OpenClaw codebase, with Steinberger's team working with
-Microsoft since March 2026 to ready it for large-scale deployment
+**A background-agent harness now ships as a mainstream vendor product that, per Peter
+Steinberger, is built on top of OpenClaw.** Microsoft's newly announced Autopilot — a
+persistent, proactive personal agent — is, he says, built on the OpenClaw codebase, with
+his team working with Microsoft since March 2026 to ready it for large-scale deployment
 ([@steipete](https://x.com/steipete/status/2103491173927272531), Sep 2026).
 
 Microsoft's own announcement describes Autopilot, "previously called Scout", as a teammate:

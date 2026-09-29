@@ -85,7 +85,7 @@ auto-merges.
 paraphrases Lulla et al.'s study of 217 autonomous agent loops across 36k repositories,
 putting the finding as "they commit **triggers** (cron / `pull_request` workflows), and
 almost never commit `STATE.md`" — Cobus Greyling's wording, not a quotation from the paper
-itself ([Lulla et al., "Building Blocks, Adoption, and Impact," arXiv 2608.21884](https://arxiv.org/abs/2608.21884), Aug 2026, the underlying study).
+itself ([Lulla et al., "Loop Engineering: Building Blocks, Adoption, and Impact," arXiv 2608.21884](https://arxiv.org/abs/2608.21884), Aug 2026, the underlying study).
 The same paper is cited in [Loop Maturity Model](20-loop-maturity-model.md). With no
 implementer there is no verifier; the check is mechanical: "`gh` succeeded and the summary
 is non-empty." Add `STATE.md` once findings must survive across runs (backlogs, attempt

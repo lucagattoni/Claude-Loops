@@ -94,7 +94,7 @@ doesn't address — a loop that stops running should degrade its own readiness s
 reading as mature because its artifacts are still on disk. A follow-on academic study cites this
 repo (as Greyling, 2026b) as the "community reference repository" from which its loop-detection
 heuristics were drafted (and, at its 2026-07-15 access, as having seven loop patterns).
-([cobusgreyling/loop-engineering](https://github.com/cobusgreyling/loop-engineering), "Loop Ready" score, Sep 2026; [arXiv 2608.21884, Lulla et al., "Building Blocks, Adoption, and Impact"](https://arxiv.org/abs/2608.21884), Aug 2026.)
+([cobusgreyling/loop-engineering](https://github.com/cobusgreyling/loop-engineering), "Loop Ready" score, Sep 2026; [arXiv 2608.21884, Lulla et al., "Loop Engineering: Building Blocks, Adoption, and Impact"](https://arxiv.org/abs/2608.21884), Aug 2026.)
 
 ## Related
 
