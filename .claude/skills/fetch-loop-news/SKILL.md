@@ -24,9 +24,9 @@ refinements) inside the artifact instead.
    already swept — do not sweep it again** (the one exception is the re-run of `partial` browser
    sources before Phase 3, which reads `coverage`). Carry everything banked straight through to
    the final artifact. A browser key in `sources_done` with no coverage record gets
-   `{"status": "partial", "passes": [], "gap": "no coverage record in the resumed artifact"}` —
-   which sends it through the re-run. An artifact with no `expected_keys` was written before
-   `A17` and its `sources_done` names are not keys: ignore it and start clean.
+   `{"source": "<key>", "status": "partial", "passes": [], "gap": "no coverage record in the
+   resumed artifact"}` — which sends it through the re-run. An artifact with no `expected_keys`
+   was written before `A17` and its `sources_done` names are not keys: ignore it and start clean.
    If `complete` is already `true`, there is nothing to do: stop and report that the artifact is
    complete. (The wrapper normally skips this whole session in that case, so reaching here means
    you were invoked directly.)
@@ -65,15 +65,22 @@ and its key, the full keywords list, and `last_run_date`. Two lanes:
   complete. A retry at 3 at a time closed all 8 (backlog `A17`;
   `plans/20260928_1401-retry-of-20260928-run-evidence.md`). Start the next browser subagent only
   when one returns.
-- **Everything else (`rss`, `html`, `github`, `github-search`) runs in parallel**, alongside the
-  browser lane — none of it touches Chrome.
+- **Everything else (`rss`, `html`, `github`, `github-search`) runs at most 15 at a time**,
+  alongside the browser lane — none of it touches Chrome, but the ~70 non-browser rows in
+  `SOURCES.md` would themselves saturate Claude Code's 20-concurrent-subagent cap
+  (`docs/07-subagents.md`) if launched at once, and get refused — the same failure this fix
+  exists to close, just without Chrome in the picture. 15 + 3 stays under the cap. Start the next
+  one when one returns.
 
 (`CLAUDE_CODE_MAX_CONCURRENT_SUBAGENTS` would enforce a cap mechanically, but it caps *every*
-subagent and would serialise the ~70 non-browser sources too; the lane rule is the cap.)
+subagent and would serialise the browser lane behind the rest; the two explicit lane limits are
+the cap.)
 
-**A dispatch that errors or is refused is re-dispatched once** — the 2026-09-28 run had two
-refused at the 20-subagent limit. If the second dispatch fails too, the source gets a "not swept"
-record (*Coverage records*); it is never silently left out.
+**A dispatch that errors or is refused is re-dispatched once, after another subagent in its lane
+has returned** — not immediately, while the same limit is still saturated. The 2026-09-28 run had
+two refused at the 20-subagent limit. If the second dispatch fails too, the source gets a "not
+swept" record (*Coverage records* — for every type, not only browser rows); it is never silently
+left out.
 
 **Checkpoint as results arrive.** This stage costs ~23 minutes and real money, and it can die at
 any point — a session limit, a killed process, a closed laptop. After each batch of subagents
@@ -95,12 +102,15 @@ Rules that make the checkpoint trustworthy:
   it early and a dead run looks finished.
 - **Add a source's key to `sources_done` only after its subagent has returned a result.** An
   errored or refused dispatch has not returned. A source listed but not actually swept is
-  silently dropped from the run, and no error will ever be raised.
+  silently dropped from the run, and no error will ever be raised. **Adding a key removes any
+  "not swept" record for it** — a stale one, from an earlier failed dispatch or an earlier
+  attempt, must not survive alongside a key that is now actually swept; a non-browser subagent
+  produces no record of its own to replace it with, so this has to be done explicitly.
 - **One coverage record per key** — a later record for the same key *replaces* the earlier one,
-  never sits beside it. If a browser subagent returns no record, write `{"status": "partial",
-  "passes": [], "gap": "no coverage record returned"}` for it. **Never write `complete` or
-  `sampled` on a subagent's behalf** — a record nobody earned is the defect this whole mechanism
-  exists to prevent.
+  never sits beside it. If a browser subagent returns no record, write `{"source": "<key>",
+  "status": "partial", "passes": [], "gap": "no coverage record returned"}` for it. **Never write
+  `complete` or `sampled` on a subagent's behalf** — a record nobody earned is the defect this
+  whole mechanism exists to prevent.
 - Write the whole file each time rather than appending — a half-appended JSON file does not parse,
   and the wrapper treats an unparseable artifact as unusable, discarding the very work this is
   meant to protect.
@@ -127,20 +137,27 @@ Each rule below closes a failure measured on the 2026-09-28 run, its retry, or a
   `javascript_tool` to read each `article` — its `time[datetime]`, text, author handle, and the
   `a[href*="/status/"]` that wraps the `time` element. Posts unmount once scrolled past, so read
   after every scroll step.
-- **Pinned posts and reposts do not count as the source's posts in time.** Both carry an older
-  date. On a profile or `from:` page, an article counts toward how far back you have read only if
-  (a) its status link path, compared case-insensitively, starts with `/<handle>/status/` — a
-  repost links to the original author's post — and (b) it is not the pinned post, which sits
-  first on a profile, out of date order with the posts below it. Judge reposts for relevance like
-  any post, but never let one end a scroll or set `timeline_reached`.
+- **Pinned posts and reposts do not count as the source's posts in time.** Both can carry an
+  older date than their position implies. On a profile or `from:` page, read each article's
+  social-context line (`[data-testid="socialContext"]`) for "Pinned" — that post never counts,
+  never ends a scroll, and never sets `timeline_reached`, whatever its own date is. A repost's
+  status link points at the original author, not the handle being swept (compare
+  case-insensitively) — judge it for relevance like any post, but it likewise never ends a scroll
+  or sets `timeline_reached`. **Confirm the end, don't take the first candidate.** When a
+  qualifying article dated before `last_run_date` appears, read the *next* article after it too.
+  If that one is also a qualifying pre-window post — or there is no next article — the timeline
+  has ended. If it is dated on or after `last_run_date`, or is itself pinned or a repost, keep
+  scrolling: the first candidate was a false end, a pin the label check missed sitting ahead of
+  real posts (a quiet or reposting account can otherwise end a scroll on article #1).
 - **A finding that is an X post carries a `/status/<id>` URL read from the DOM** — never a profile
   URL, never a composed ID. The run published 7 findings citing only a profile because the ID was
   not captured. To confirm a post's date or text without the browser,
   `https://api.fxtwitter.com/<handle>/status/<id>` returns its author, `created_at` and full
   text. If the ID truly cannot be read, write `"url": null, "url_unresolved": true`, say so in the
   summary, and name it in the coverage `gap`; if the same post is read later with its ID, drop the
-  null-URL copy (same source, date and title). A link-expansion finding carries the linked page's
-  URL, as before.
+  null-URL copy — match on source, date and the first 60 characters of the post's own text
+  (`title`s are freshly written each time and rarely match verbatim). A link-expansion finding
+  carries the linked page's URL, as before.
 - **Scroll with real wheel events** (the `computer` tool's `scroll` action), not
   `window.scrollBy`, which the retry saw stop loading in a background tab.
 - **A page that stops growing has not proven it ended.** X stops loading in a tab that lost
@@ -171,32 +188,38 @@ written here.
   { "findings": [ ... ],
     "coverage": { "source": "x:@bcherny", "status": "complete",
                   "passes": ["search", "timeline", "expansion"],
-                  "timeline_reached": "YYYY-MM-DD", "gap": "" } }
+                  "timeline_reached": "YYYY-MM-DD", "posts_read": 34, "gap": "" } }
   ```
 - **Fields.** `passes` names what ran (`search`, `timeline`, `day-range`, `expansion`,
   `article`). `timeline_reached` is the oldest date the timeline and day-range passes covered:
   the date of the oldest qualifying post the timeline read, or the `since` date of the earliest
-  day-range page read to its end, whichever is older. Search results, pinned posts and reposts
-  never set it. `gap` says exactly what was not covered and why.
+  day-range page read to its end, whichever is older; for a sample-only type (below) it is
+  instead the oldest date among the posts actually read in the sample, or absent if none were
+  read. Search results, pinned posts and reposts never set it. `posts_read` is the count of
+  posts actually read (a `/pulse/` article counts as 1). `gap` says exactly what was not covered
+  and why.
 - **Statuses by type.**
   - **`x`: `complete` or `partial`.** `complete` requires every one of: `search` in `passes`;
     `timeline` or `day-range` in `passes`; `timeline_reached` strictly before `last_run_date` —
     or on or before it if `day-range` ran, since a day page starts at 00:00; `expansion` in
-    `passes` if the source produced a Tier 1–2 finding; and an empty `gap`. Anything else is
-    `partial`.
+    `passes` if any of this source's own findings (`source_key` matching this key) has tier ≤ 2;
+    and an empty `gap`. Anything else is `partial`.
   - **`x-search`, `linkedin` and `phase-3:x-general-search`: `sampled` or `partial`.** Their
-    procedures read a sample (20+ posts, a first page), so they are never `complete`;
-    `timeline_reached` records how far back the sample went. A `linkedin` row whose URL is a
-    single `/pulse/` article is read once, with `passes: ["article"]`.
+    procedures read a sample, so they are never `complete`. `sampled` requires `posts_read` of at
+    least 20 (the procedure's own minimum) — or, for a `/pulse/`-article `linkedin` row,
+    `posts_read` of 1 with `passes: ["article"]`. Fewer than that — an auth wall, checkpoint
+    page, error, or an evicted tab before the minimum was reached — is `partial`, with the actual
+    count and the reason in `gap`.
   - **Any key: a non-empty `gap` makes the record `partial`** — `complete` or `sampled` with a gap
-    is a contradiction, and the gap would be lost. A quiet source is `complete` (or `sampled`)
-    with no findings and no gap — not a failure.
+    is a contradiction, and the gap would be lost. A quiet source (no findings) is still
+    `complete` or `sampled` as long as its own requirements above are met — finding nothing is not
+    a failure; reading fewer posts than the minimum is.
 - **Check every record when you bank it** against these rules, and downgrade a failing one to
   `partial` with `gap` "record inconsistent: <what is missing>".
 - **Not swept.** Before Phase 4 sets `complete: true`, every key in `expected_keys` is either in
-  `sources_done` or has a record `{"status": "partial", "passes": [], "gap": "not swept:
-  <reason>"}` — for every type, not only browser rows. An unswept source must be visible in the
-  artifact, not merely absent from a list.
+  `sources_done` or has a record `{"source": "<key>", "status": "partial", "passes": [], "gap":
+  "not swept: <reason>"}` — for every type, not only browser rows. An unswept source must be
+  visible in the artifact, not merely absent from a list.
 
 ---
 
@@ -235,12 +258,17 @@ written here.
    condition.**
 
    If the timeline stops before that — stalled or not; X also stops rendering far back on busy
-   accounts — cover the rest of the window with **day-range searches**, one day per query, from
-   the day of the oldest qualifying post read back to `last_run_date`'s day:
+   accounts — cover the rest of the window with **day-range searches**, one day per query,
+   covering every day in the span with none skipped, from the day of the oldest qualifying post
+   read (or, if none was read at all — a stall from the first load — from today's UTC date) back
+   to `last_run_date`'s day:
    `https://x.com/search?q=from%3A<handle>%20since%3A<YYYY-MM-DD>%20until%3A<next-day>&f=live`
-   (this also catches replies). A day page is read to its end when X shows its empty-search
-   message ("No results for …" in an English UI) or when it stops growing with no loading
-   spinner left on it. **Cross-check the overlap:** the day page for the day the timeline
+   (this also catches replies). **A day page ends only on positive evidence.** A page with at
+   least one article that stops growing with no loading spinner left on it has ended. A page with
+   zero articles ends *only* when X shows its own empty-search message ("No results for …" in an
+   English UI) — an error message, a "Try reloading" prompt, a login wall, or any other
+   unexplained blank page with zero articles is a **stall**, not an end, whatever
+   `document.hidden` reads. **Cross-check the overlap:** the day page for the day the timeline
    stopped must contain every qualifying post the timeline already read on that day — a miss
    means search is unreliable for this source right now; name the day in `gap`. A day page that
    stalls is re-opened once; if it stalls again, name that day in `gap`. Add `day-range` to the
@@ -337,6 +365,12 @@ These are live keyword search URLs on X.com. Content is dynamically loaded — a
 
 ### For `type: linkedin` sources
 
+**If the row's URL is itself a `/pulse/` article** (not a search page — e.g. the Halldor Fannar
+row), this is a single-article source, not a sample: WebFetch or Chrome-read that URL, score it
+against the keyword tiers, and set the coverage record to `passes: ["article"]`, `posts_read: 1`
+if it loaded (else `0`, which makes the record `partial`), and `timeline_reached` to the
+article's own publication date if visible. Do not run the scroll procedure below on it.
+
 LinkedIn search results are dynamically loaded. A single page read returns very few posts.
 
 1. Use Chrome to navigate to the search URL from SOURCES.md.
@@ -420,12 +454,18 @@ Score each item against the keyword tiers from `SOURCES.md`:
 - **Tier 3 or 4 match only** → include only if the post substantively discusses loop
   engineering practice, not just a passing mention of a tool name
 
-Each non-browser subagent returns a JSON array (empty if no matches); a browser subagent returns
-the same array as the `findings` of its `{findings, coverage}` object (see *Coverage records*):
+Each non-browser subagent returns a JSON array (empty if no matches — an empty array asserts the
+source *was* read). If it could not read its source at all — a 404, a timeout, a rate limit, an
+empty WebFetch result — as opposed to reading it and finding nothing, it returns
+`{"error": "<what went wrong>"}` instead. The orchestrator treats that the same as a dispatch
+that errored: eligible for one re-dispatch, then a "not swept" record if it fails again. A
+browser subagent returns an array too, as the `findings` of its `{findings, coverage}` object
+(see *Coverage records*):
 ```json
 [
   {
     "source": "Actor name or @handle",
+    "source_key": "the key of the source that found this (see *Coverage records*) — required for a browser source, omitted otherwise",
     "title": "Post or article title / first line",
     "url": "https://...",
     "date": "YYYY-MM-DD",
@@ -436,28 +476,38 @@ the same array as the `findings` of its `{findings, coverage}` object (see *Cove
 ```
 
 The `tier` field is the highest tier matched (1 = most specific). Include it so the
-digest can sort findings by relevance.
+digest can sort findings by relevance. `source_key` is what lets a coverage record's `expansion`
+requirement (*Coverage records*) be checked against this specific finding rather than guessed
+from a display name.
 
 When you bank a browser source, check its coverage record (*Coverage records*) and store it in
 the artifact's `coverage` array under the source's key.
 
-**Before Phase 3, re-run every `partial` record of a browser key that lacks `"rerun": true` — once
-each, one at a time**, with the browser otherwise idle (`sampled` records are not re-run). Keep
-the findings of both attempts — union by `url`; a finding with `url: null` is dropped if the other
-attempt has the same source, date and title with a URL, and otherwise unioned by source + title +
-date — then *replace* that source's record with whichever attempt covered more, with
-`"rerun": true` added, and checkpoint after each one, so a resumed run re-runs only what is left. A source still `partial` after its re-run stays `partial` — the record
-carries the gap to the digest; it is never quietly upgraded or dropped. This is the retry that
-closed the 2026-09-28 gaps, moved inside the run.
+**Before Phase 3, re-run every `partial` record of a Phase-2 `x`, `x-search` or `linkedin` key
+that lacks `"rerun": true` — once each, one at a time** (not `phase-3:x-general-search`, which
+retries itself inside Phase 3), with the browser otherwise idle (`sampled` records are not
+re-run). Keep the findings of both attempts — union by `url`; a finding with `url: null` is
+dropped if the other attempt has the same source, date and the same first 60 characters of text
+with a URL, and otherwise unioned by source + date + that same text prefix — then *replace* that
+source's record with whichever attempt covered more, with `"rerun": true` added; if the key was
+not already in `sources_done`, add it now. Checkpoint after each re-run, so a resumed run re-runs
+only what is left. A source still `partial` after its re-run stays `partial` — the record carries
+the gap to the digest; it is never quietly upgraded or dropped. This is the retry that closed the
+2026-09-28 gaps, moved inside the run.
 
 ## Phase 3 — General search (bonus pass)
 
 After all per-source subagents return, run two additional searches:
 
-**X.com keyword search** — a browser source like any other: follow *Browser rules*, give it the
-key `phase-3:x-general-search`, and when it returns add that key to `sources_done` and its
-record to `coverage` (replacing any earlier one). On a resumed run, skip it if the key
-is already in `sources_done`. Use Chrome to navigate to:
+**X.com keyword search** — a browser source like any other: follow *Browser rules* and give it
+the key `phase-3:x-general-search`. **This key's re-run lives inside this phase, not in the
+pre-Phase-3 pass.** On a resumed run: if the key is in `sources_done` with a `"rerun": true`
+record, or a non-`partial` record, skip it — already settled. If it is in `sources_done` with a
+`partial` record lacking `"rerun": true`, run it once more now and mark the kept record
+`"rerun": true`. Otherwise (first attempt), run it once; if the result is `partial`, run it once
+more immediately and keep whichever attempt covered more, marked `"rerun": true`. When it returns
+for the last time, add the key to `sources_done` and its record to `coverage` (replacing any
+earlier one). Use Chrome to navigate to:
 `https://x.com/search?q=%22loop+engineering%22+OR+%22agent+loop%22+OR+%22Claude+Code%22&src=typed_query&f=live`
 
 Read the first page of live results. Score each post against the keywords.
@@ -497,13 +547,13 @@ If Phase 2 or Phase 3 surfaces a person or company that:
      "run_time": "YYYY-MM-DD HH:MM UTC",
      "last_run_date": "YYYY-MM-DD",
      "findings": [
-       { "source": "@handle", "title": "...", "url": "https://...",
+       { "source": "@handle", "source_key": "x:@handle", "title": "...", "url": "https://...",
          "date": "YYYY-MM-DD", "tier": 1, "summary": "..." }
      ],
      "coverage": [
        { "source": "x:@bcherny", "status": "complete",
          "passes": ["search", "timeline", "expansion"], "timeline_reached": "YYYY-MM-DD",
-         "gap": "" }
+         "posts_read": 34, "gap": "" }
      ],
      "sources_to_consider": [
        { "actor": "...", "type": "x", "handle_or_url": "...", "note": "why worth tracking" }

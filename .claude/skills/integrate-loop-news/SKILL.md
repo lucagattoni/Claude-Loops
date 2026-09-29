@@ -47,11 +47,12 @@ to `main`. It does **no** searching — everything it needs is in `.loop-news/fi
    `fetch-loop-news`).
 2. Deduplicate: remove any item whose `url` already appears in `LOOP_ENGINEERING_NEWS.md`.
    **An unresolved X post has no URL to match** — an item with `"url_unresolved": true`, a
-   `null` URL, or an `x.com`/`twitter.com` URL without `/status/`, flag or no flag. A profile
-   URL is a substring of every status URL of that account already in the digest, so matching on
-   it silently deletes the finding. Dedup such an item by source + title against the digest
-   instead, and publish it with the source's profile link plus
-   `[URL note: status ID unresolved]` in the summary.
+   `null` URL, or a profile-shaped `x.com`/`twitter.com` URL (the path is just `/<handle>`, with
+   or without a query string — not `/i/...`, not a community, list or article path), flag or no
+   flag. A profile URL is a substring of every status URL of that account already in the digest,
+   so matching on it silently deletes the finding. Dedup such an item by source + the post's
+   first 60 characters against the digest instead, and publish it with the source's profile link
+   plus `[URL note: status ID unresolved]` in the summary.
 3. Insert a new section immediately after the initial `---` separator (so the
    newest run always appears at the top). The format:
 
@@ -95,17 +96,23 @@ records happen to exist:
   same way (`<type>:<Handle/URL>`, plus `phase-3:x-general-search`).
 - **Pick each key's record** from `coverage`. If a key has more than one, take the one with
   `"rerun": true`, otherwise the worst status (`partial` < `sampled` < `complete`).
-- **Re-check every record** against the *Coverage records* rules — the per-type statuses, the
-  `x` completeness requirements, and "a non-empty `gap` makes it `partial`". A record failing any
-  of them is treated as `partial` with gap "record inconsistent: <what is missing>".
+- **Re-check every record** against the *Coverage records* rules — the per-type statuses (using
+  each finding's `source_key` to check the `expansion` clause, never a display `source` name),
+  and "a non-empty `gap` makes it `partial`". A record failing any of them is treated as `partial`
+  with gap "record inconsistent: <what is missing>".
 - **One bullet per key that is not fully covered:** each `partial` record (the passes that ran,
-  its `timeline_reached`, and its `gap` verbatim); each expected key of any type that is neither
-  in `sources_done` nor has a record (`<key> — not swept or not recorded this run`); and each
-  record whose key is not in the expected set (`<key> — record for an unexpected key`, with its
-  status and gap), so a mistyped key still shows its gap.
-- **One line for the sampled sources:** `Sampled by design: <key> (back to <timeline_reached>), …`.
-- **Then:** `All other N x sources fully covered.` — N counts only `complete` `x` records that
-  passed the re-check.
+  its `timeline_reached`, its `posts_read`, and its `gap` verbatim); each expected key of type
+  `x`, `x-search` or `linkedin` that has no record at all, whether or not it is in
+  `sources_done` (`<key> — swept but no coverage record` if it is, else `<key> — not swept or not
+  recorded this run`); and each record whose key is not in the expected set
+  (`<key> — record for an unexpected key`, with its status and gap), so a mistyped key still
+  shows its gap.
+- **One line for the sampled sources:** `Sampled by design: <key> (<posts_read> posts, back to
+  <timeline_reached, or "single article" for an "article" record, or "unknown" if absent>), …`.
+- **Then:** `N of M x sources fully covered.` — M is the count of `x` keys in the expected set; N
+  counts only `complete` `x` records that passed the re-check. If N plus the bulleted `x` keys
+  plus any sampled `x` keys does not equal M, the arithmetic itself is wrong — find the missing
+  or double-counted key before publishing.
 - If the artifact has no `coverage` field at all, write exactly:
   `Coverage not recorded by the search stage — treat X and LinkedIn coverage as unverified.`
 - If it carries free-text caveats instead (e.g. a `coverage_caveats` list, as the 2026-09-28
