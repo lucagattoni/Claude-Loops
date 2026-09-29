@@ -515,8 +515,9 @@ Claude subscription, changing effort keeps the cache..." — Sonnet 5.5 has join
 Wayback Machine snapshot from
 [2026-09-25](https://web.archive.org/web/20260925150428/https://code.claude.com/docs/en/prompt-caching#changing-effort-level)
 — the closest capture to 2026-09-28; none exists for 2026-09-28 itself, and none exists between
-2026-09-25 and 2026-09-29 (checked 2026-09-29) — still shows the two-model wording quoted above, so
-the quote was accurate at capture and the source added Sonnet 5.5 sometime in that four-day window.
+2026-09-25 and 2026-09-29 (checked 2026-09-29) — still shows the two-model wording quoted above.
+With this doc's own 2026-09-28 fetch, that puts the change between the 2026-09-28 fetch and the
+2026-09-29 re-fetch; only the Wayback bound (2026-09-25) can be re-checked independently.
 Anthropic's own Opus 5.5 announcement post frames the same mechanism from the
 product side: "For newer models like Opus 5.5 and Fable 5.1, you can now change effort levels
 during your sessions without resetting your cache" — alongside forked subagents that "start from
@@ -618,7 +619,8 @@ as a way to cut wasted GPU compute in long-running agent loops.
 bottleneck of every engineering team I talk to (including Lindy). Our CI spend has become
 stratospheric." He described a plan rather than an outcome: "My plan is to let
 codex decide which tests actually need to run and drastically nix CI and run tests hourly." No
-cost, coverage, or cadence figures have been published for it. This goes a step further than
+cost or coverage figures have been published for it; the only cadence is the stated "run tests
+hourly". This goes a step further than
 confidence-scheduling *when* to verify — it has the agent choosing *which* checks run at all;
 see [Verifier Integrity: Keeping the Check
 Unfakeable](04-verification.md#verifier-integrity-keeping-the-check-unfakeable) for what has to

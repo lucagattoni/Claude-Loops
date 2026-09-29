@@ -82,7 +82,8 @@ auto-merges.
 | Token cost/run | Very low — at L1 the workflow uses `gh` only, with no agent invoked |
 
 **It matches how most loops already look, on purpose.** The pattern's own write-up
-paraphrases Lulla et al.'s study of 217 autonomous agent loops across 36k repositories,
+paraphrases Lulla et al.'s study (autonomous loops confirmed "in 217 of the 256 repositories
+our heuristics matched", out of 36,710 mined),
 putting the finding as "they commit **triggers** (cron / `pull_request` workflows), and
 almost never commit `STATE.md`" — Cobus Greyling's wording, not a quotation from the paper
 itself ([Lulla et al., "Loop Engineering: Building Blocks, Adoption, and Impact," arXiv 2608.21884](https://arxiv.org/abs/2608.21884), Aug 2026, the underlying study).

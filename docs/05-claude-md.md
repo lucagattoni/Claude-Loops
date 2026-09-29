@@ -81,13 +81,17 @@ echo '@AGENTS.md' > CLAUDE.md
 
 A session-level override also works, but only from the second session in that configuration on
 (the first session only fetches the flag): `claude --settings
-'{"env":{"DISABLE_TELEMETRY":"","CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC":""}}'`. Filed as a
-behavior issue — GitHub labels [issue #95690](https://github.com/anthropics/claude-code/issues/95690)
-`enhancement`, not `bug` — with no fix version confirmed and the issue open as of 2026-09-28.
+'{"env":{"DISABLE_TELEMETRY":"","CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC":""}}'`. Tracked as
+[issue #95690](https://github.com/anthropics/claude-code/issues/95690), labelled `enhancement` by
+github-actions[bot] 72 seconds after filing (an automatic label, not a maintainer's triage), with
+no fix version confirmed and the issue open as of 2026-09-28.
 Przemysław Szypowicz measured this (blog.szypowi.cz; the same measurements are also posted as [a
 comment on the GitHub
 issue](https://github.com/anthropics/claude-code/issues/95690#issuecomment-5791716755) — one
-author's single measurement, not a second independent source); Peter Steinberger flagged it on X
+author's measurement, not a second independent source). The issue thread does add one: another
+user reported "Confirmed on 2.1.278 with fresh isolated homes"
+([mmailhos](https://github.com/anthropics/claude-code/issues/95690#issuecomment-5795184619),
+Sep 2026). Peter Steinberger flagged it on X
 and later relayed secondhand: "Was a bug, they followed up. Dev mistake, not malice." — his
 account of Anthropic's response, not an Anthropic statement, and not his own measurement.
 ([blog.szypowi.cz, "Claude Code reads AGENTS.md only when telemetry is on"](https://blog.szypowi.cz/p/claude-code-reads-agents.md-only-when-telemetry-is-on/), Sep 2026;

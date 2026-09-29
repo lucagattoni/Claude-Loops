@@ -114,6 +114,13 @@ targeted GitHub and web searches.
   not put "low catches more bugs" into docs/ as guidance until a source with actual numbers
   settles the tension. Search keywords: `/code-review effort level bug count`, `claude code
   review low vs high accuracy`.
+- **The replies to @bcherny's "Tag writes >50% of my PRs every day" post are only partly
+  read.** [The post](https://x.com/bcherny/status/2103538666597691552) had 199 replies on
+  2026-09-29; the retry pass read roughly 85 and found three by the author (two operational
+  details, one opinion — see docs/31). Only author-written replies matter for docs/31, so the
+  follow-up is to list the post's replies filtered to @bcherny (X search:
+  `from:bcherny conversation_id:2103538666597691552`, or read the thread logged in) and score
+  any not yet cited. Search keywords: none needed — a read of an already-cited thread.
 
 ### Logged by the 2026-09-21 tracker run
 

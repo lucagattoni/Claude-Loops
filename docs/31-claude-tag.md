@@ -140,16 +140,17 @@ SCOPE/ACTION/BUDGET/STOP stated informally but all present:
 
 Coming from the practitioner most associated with popularizing "loop engineering," this is
 evidence the framing is not just descriptive of what other teams build, but of how its own
-originator works day to day — and at volume: "I usually have at least 10 Tag/Projects
-sessions running at a time. While the agent works, I start another session or unblock one
-that is running" ([@bcherny](https://x.com/bcherny/status/2102571446681878605), Sep 2026).
-Reading roughly 85 of the post's ~190 replies (count as of 2026-09-28) (not the full thread) surfaced three more
-operational details, each its own reply: "Environment runs in the Cloud"
-([@bcherny](https://x.com/bcherny/status/2103550751985525170), Sep 2026); "Team has a
-2-seat minimum" ([@bcherny](https://x.com/bcherny/status/2103550536536793498), Sep 2026);
-and "It's surprising, but it feels awesome to have Claude in the same place where we
-already talk to each other" ([@bcherny](https://x.com/bcherny/status/2103550885796385218),
-Sep 2026).
+originator works day to day — and at volume. In a Sep 23 reply on a different post (his
+Lean/Agent SDK thread), asked what he does while agents work: "I usually have at least 10
+Tag/Projects sessions running at a time. While the agent works, I start another session or
+unblock one that is running" ([@bcherny](https://x.com/bcherny/status/2102571446681878605),
+Sep 2026). Reading roughly 85 of the Tag post's ~190 replies (as of 2026-09-28; not the
+full thread) surfaced two operational details, each its own reply — "Environment runs in
+the Cloud" ([@bcherny](https://x.com/bcherny/status/2103550751985525170), Sep 2026) and
+"Team has a 2-seat minimum" ([@bcherny](https://x.com/bcherny/status/2103550536536793498),
+Sep 2026) — and one opinion, answering whether they really use it in Slack: "It's
+surprising, but it feels awesome to have Claude in the same place where we already talk to
+each other" ([@bcherny](https://x.com/bcherny/status/2103550885796385218), Sep 2026).
 
 ## First-Party Case Study: A Performance Loop Run in Tag
 

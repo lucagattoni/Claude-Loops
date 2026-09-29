@@ -826,7 +826,7 @@ questions, and "a missing answer means do not add it yet":
 For bug fixes the gate adds a rule a reviewer or agent can check mechanically: "Bug
 regression tests must fail on the pre-fix code for the intended reason and pass after the
 owner-boundary repair. A regression test that never demonstrably failed proves the mock,
-not the fix." The same file lists 15 junk-pattern test shapes. The gate rejects a new test
+not the fix." The same file lists 15 junk patterns — test shapes plus test-only production seams. The gate rejects a new test
 that matches one, and audit sweeps hunt for existing ones; among them are "assertion-free
 coverage probes", "self-comparisons and identity copiers" and "mocks that implement the
 asserted behavior". A separate campaign mode applies the same bar to one whole subsystem's

@@ -170,7 +170,7 @@ survives review and reaches the lab, human scientists design and run the confirm
 experiments, with Claude "helping to interpret" the resulting data. Feng Zhang, a CRISPR pioneer
 at MIT and the Broad Institute, called the finding "genuinely intriguing" after reviewing the
 preprint. Nature News supplies the outside caveat the campaign's own framing omits: "there is
-scant evidence that the repeats found by Anthropic's team of AI agents carry out similar
+scant evidence that the repeats found by Anthropic's team of AI agents have similar
 functions, and there is no known DNA-slicing enzyme partnered with them."
 (Anthropic, ["Claude discovers a novel enzyme system with CRISPR-like
 repeats"](https://www.anthropic.com/news/claude-discovers-novel-enzyme-system), Sep 2026; Yoon et

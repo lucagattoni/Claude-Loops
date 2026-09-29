@@ -928,15 +928,17 @@ running one model for everything.
   ONNX variants" ([@steipete](https://x.com/steipete/status/2102667004557832497), Sep 2026).
   The user keeps a manual override for a wrong call: "You can always press the steer
   button on a queued message" ([@steipete](https://x.com/steipete/status/2102671385311219989)).
-  A separate, earlier reply says it was already done: "For queue/steer, thinking level,
-  skill search etc" ([@steipete](https://x.com/steipete/status/2102174126987489769), Sep 21
-  2026) — not confirmed to be the same model. Asked about
-  compaction and tool calls, he confirmed only "tool search and skills"
-  ([@steipete](https://x.com/steipete/status/2102843120031617408)). The pattern: a cheap
-  model makes the harness's routing decisions, and a human override stays one click away.
-  Possibly the same decision model [MCP Security](19-mcp-security.md) benchmarks as Jev —
-  Steinberger spells his variants "Jef"/"Kef", so the identity is plausible, not
-  established.
+  Earlier, asked whether he would "intagrate natively jev to openclaw", he replied
+  "We already did! For queue/steer, thinking level, skill search etc"
+  ([@steipete](https://x.com/steipete/status/2102174126987489769), Sep 21 2026). Asked "Any
+  plans to leverage decision models for compaction and tool calls as well?", he replied
+  "defo for tool search and skills!"
+  ([@steipete](https://x.com/steipete/status/2102843120031617408)) — a plan, not a shipped
+  feature, and compaction is not addressed. The pattern: a cheap model makes the harness's
+  routing decisions, and a human override stays one click away. The decision model is
+  plausibly the Jev that [MCP Security](19-mcp-security.md) benchmarks — Steinberger's own
+  Sep 21 answer says Jev is integrated for queue/steer — but whether it is the model behind
+  the Sep 23 steer-or-queue feature is not stated.
 - **codex-first SKILL.md**: a Claude Code skill formalizing this as a hard rule —
   Claude keeps design, review, and destructive operations; implementation is
   delegated to `codex exec --yolo` via temp-file specs, with escalation back to

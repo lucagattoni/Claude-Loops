@@ -83,7 +83,7 @@ search rather than trust the top hit.
 for an LLM is a decision. Jev
 makes it."](https://kachar.dev/blog/jev-picks-the-right-tool-for-an-llm), Sep 2026.)
 
-A follow-up rebuilt that search as a packaged library and found the defaults do not carry
+A follow-up rebuilt that search as a prototype and found the defaults do not carry
 over between catalogs: a ranked tool-search layer built to pick the right tool out of a
 candidate pool matched the best hand-tuned setup on a clean benchmark, then lost by **19
 points** against the same code running over **525 real MCP tools** — "The defaults are the
