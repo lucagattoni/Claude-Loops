@@ -18,6 +18,37 @@ Versioning follows [Semantic Versioning](https://semver.org/):
 
 ---
 
+## [3.7.6] — 20260929 19:00
+
+Backlog `A17`: closes the root cause behind the 2026-09-28 run's 7 partial X sweeps —
+`fetch-loop-news` ran every browser-bound sweep at once against one shared Chrome, and its
+Pass-2 stop rule could not tell a stalled tab from the end of a timeline. Shipped after three
+rounds of adversarial review by fresh subagents (35 findings total, all applied or fixed); not
+yet exercised by a real tracker run.
+
+### Changed
+- `fetch-loop-news`: browser-bound sources (`x`, `x-search`, `linkedin`) run at most 3 at a
+  time; everything else at most 15 — unbounded, the non-browser lane alone would saturate
+  Claude Code's 20-concurrent-subagent cap, the same failure one lane over.
+- A page counts as stalled, not ended, unless it stops growing with no loading spinner and
+  (for a zero-post page) shows X's own empty-search message; day-range searches cover the rest
+  of the window after a stall.
+- Pinned posts are detected by their own DOM label plus a second confirming post, not by date
+  order alone, so one out-of-order pin can no longer end a scroll early.
+- Every source (`x`, `x-search`, `linkedin`, `phase-3:x-general-search`) gets a keyed coverage
+  record (`complete` / `partial` / `sampled`, keyed on the unique `<type>:<Handle/URL>` — Actor
+  names repeat), re-checked when banked and again by `integrate-loop-news`; `x-search`,
+  `linkedin` and the Phase 3 search must read a minimum post count to count as `sampled`.
+  Partial browser sources are re-run once, resumably; every source of every type that never
+  returned gets a "not swept" record.
+- `integrate-loop-news` publishes a `### Coverage` digest section built from the expected set
+  of sources, not from whichever records happen to exist, so a partial, missing or unrecorded
+  sweep stays visible instead of reading as a complete run.
+- `plans/20260904_2053-open-work-backlog.md`, `RESUME.md`: `A17` marked shipped; `CLAUDE.md`'s
+  "Open work" pointer back to two open items (approved by the maintainer).
+
+---
+
 ## [3.7.5] — 20260929 16:05
 
 A hand-run retry of everything the `3.7.4` tracker run (2026-09-28 09:52 UTC) left

@@ -14,12 +14,17 @@ to `main`. It does **no** searching — everything it needs is in `.loop-news/fi
 
 1. Read `.loop-news/findings.json`.
 2. **Abort with a clear error** if the file is absent, is not valid JSON, its `schema`
-   field is not `1`, or its `today` field does not equal the current UTC date
-   (`TZ=UTC date '+%Y-%m-%d'`). A stale, missing, or schema-mismatched artifact means the
-   search half did not complete this run (or wrote a format this skill predates) — do not
-   proceed, and do not commit anything. Print what was wrong so the wrapper's logs show it.
-3. Extract `today`, `run_time`, `last_run_date`, `findings`, `sources_to_consider`, and
-   `source_updates`. Use these throughout — never re-derive the time or re-search.
+   field is not `1`, its `today` field does not equal the current UTC date
+   (`TZ=UTC date '+%Y-%m-%d'`), or its `complete` field is `false`. A stale, missing,
+   schema-mismatched or unfinished artifact means the search half did not complete this run (or
+   wrote a format this skill predates) — do not proceed, and do not commit anything. Print what
+   was wrong so the wrapper's logs show it. (An absent `complete` counts as finished, as
+   `run-loop-news.sh`'s `artifact_state` treats it; the wrapper never starts this stage on a
+   `false`, so this guards the by-hand `/integrate-loop-news` after a dead Stage A.)
+3. Extract `today`, `run_time`, `last_run_date`, `findings`, `expected_keys`, `sources_done`,
+   `coverage`, `sources_to_consider`, and `source_updates`. Use these throughout — never re-derive the time
+   or re-search. `coverage` may be absent (an artifact written before `A17`); that is not an
+   abort — Phase 4 publishes it as unrecorded.
 4. **Already-published check — do this before reading any docs or reasoning about the
    KB.** Run `git fetch origin main`, then
    `git log --oneline --grep="loop news run ${run_time}" origin/main` (the `run_time`
@@ -41,6 +46,13 @@ to `main`. It does **no** searching — everything it needs is in `.loop-news/fi
 1. Take the `findings` array from the artifact (already merged and scored by
    `fetch-loop-news`).
 2. Deduplicate: remove any item whose `url` already appears in `LOOP_ENGINEERING_NEWS.md`.
+   **An unresolved X post has no URL to match** — an item with `"url_unresolved": true`, a
+   `null` URL, or a profile-shaped `x.com`/`twitter.com` URL (the path is just `/<handle>`, with
+   or without a query string — not `/i/...`, not a community, list or article path), flag or no
+   flag. A profile URL is a substring of every status URL of that account already in the digest,
+   so matching on it silently deletes the finding. Dedup such an item by source + the post's
+   first 60 characters against the digest instead, and publish it with the source's profile link
+   plus `[URL note: status ID unresolved]` in the summary.
 3. Insert a new section immediately after the initial `---` separator (so the
    newest run always appears at the top). The format:
 
@@ -56,6 +68,9 @@ to `main`. It does **no** searching — everything it needs is in `.loop-news/fi
 ### No new content
 - Actor — reason (e.g. no keyword matches found in their posts)
 
+### Coverage
+- (which sources were not fully covered and why; the sampled ones; how many x sources were complete)
+
 ### Docs updated this run
 - (list any docs/ changes made below)
 
@@ -70,6 +85,43 @@ Use `run_time` from the artifact for the `YYYY-MM-DD HH:MM UTC` header.
 If zero new findings after deduplication, write the section with an empty findings
 table and list all sources under "No new content". Never skip the section — and it is
 **committed**, not discarded: see Phase 5a's **None** tier and the instruction under it in 5b.
+
+**The Coverage subsection is never omitted — it is how a partial sweep stays visible.** The rules
+for keys, record fields, statuses and the completeness check have **one home: the *Coverage
+records* section of `.claude/skills/fetch-loop-news/SKILL.md`** — read it and apply it exactly as
+written; do not re-derive it. Build the subsection from the *expected* set, not from whatever
+records happen to exist:
+- **Expected keys:** the artifact's `expected_keys` (fixed by Stage A before any row this run
+  adds). If it is absent, derive them from `SOURCES.md` as it stands when this skill starts, the
+  same way (`<type>:<Handle/URL>`, plus `phase-3:x-general-search`).
+- **Pick each key's record** from `coverage`. If a key has more than one, take the one with
+  `"rerun": true`, otherwise the worst status (`partial` < `sampled` < `complete`).
+- **Re-check every record** against the *Coverage records* rules — the per-type statuses (using
+  each finding's `source_key` to check the `expansion` clause, never a display `source` name),
+  and "a non-empty `gap` makes it `partial`". A record failing any of them is treated as `partial`
+  with gap "record inconsistent: <what is missing>".
+- **One bullet per key that is not fully covered:** each `partial` record (the passes that ran,
+  its `timeline_reached`, its `posts_read`, and its `gap` verbatim); each expected key of type
+  `x`, `x-search` or `linkedin` that has no record at all, whether or not it is in
+  `sources_done` (`<key> — swept but no coverage record` if it is, else `<key> — not swept or not
+  recorded this run`); and each record whose key is not in the expected set
+  (`<key> — record for an unexpected key`, with its status and gap), so a mistyped key still
+  shows its gap.
+- **One line for the sampled sources:** `Sampled by design: <key> (<posts_read> posts, back to
+  <timeline_reached, or "single article" for an "article" record, or "unknown" if absent>), …`.
+- **Then:** `N of M x sources fully covered.` — M is the count of `x` keys in the expected set; N
+  counts only `complete` `x` records that passed the re-check. If N plus the bulleted `x` keys
+  plus any sampled `x` keys does not equal M, the arithmetic itself is wrong — find the missing
+  or double-counted key before publishing.
+- If the artifact has no `coverage` field at all, write exactly:
+  `Coverage not recorded by the search stage — treat X and LinkedIn coverage as unverified.`
+- If it carries free-text caveats instead (e.g. a `coverage_caveats` list, as the 2026-09-28
+  artifact improvised), publish each one as its own bullet as well — never drop a caveat the
+  search stage wrote because it is not in the expected shape.
+A source listed under "No new content" whose coverage was partial, missing or unrecorded is
+**not** a quiet source; say so in its "No new content" line too. Added 20260929 (backlog `A17`):
+the 2026-09-28 run's artifact carried six coverage caveats and none reached its digest, which read
+as a complete sweep.
 
 4. For each item in "New findings", assess whether it introduces a **new concept,
    technique, or tool** not yet present in any `docs/*.md` file:

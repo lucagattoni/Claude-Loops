@@ -1,15 +1,21 @@
-# RESUME — handover 20260928 · **the 2026-09-28 run's incomplete calls retried; `A17` opened**
+# RESUME — handover 20260929 · **`A17` shipped — browser sweeps capped, coverage reaches the digest**
 
-**Repo state:** check `git log origin/main` — this header was written on the retry branch, before
-its PR merged. **Tags/releases:** check `git tag | wc -l` against `gh release list`; the retry's
-version is tagged and released in the same turn as its merge.
-**Backlog tiers:** `D1`–`D4` are all decided, so §2 is closed; §3 and §4 are empty. **§5 has three
-open items:** `A15` (`--status` should check the threshold against the live mode), `A16` (no
-off-machine signal separates "no sweep ran" from "a sweep ran and published nothing") and `A17`
-(`fetch-loop-news` runs every browser sweep at once, and its X Pass-2 stop rule cannot tell a
-stalled tab from the end of the timeline — opened 20260928, needs a yes because it edits
-`SKILL.md`). Open **content** work is in `KB_GAPS.md` § *Active Gaps*.
-**Last session (20260928):** ran the tracker on demand (`v3.7.4`, tag + release backfilled); then
+**Repo state:** check `git log origin/main` — this header was written on the `A17` branch, before
+its PR merged. **Tags/releases:** check `git tag | wc -l` against `gh release list`; each version
+here is tagged and released in the same turn as its merge.
+**Backlog tiers:** `D1`–`D4` are all decided, so §2 is closed; §3 and §4 are empty. **§5 has two
+open items:** `A15` (`--status` should check the threshold against the live mode) and `A16` (no
+off-machine signal separates "no sweep ran" from "a sweep ran and published nothing"). Open
+**content** work is in `KB_GAPS.md` § *Active Gaps*.
+**`A17` (20260929):** `fetch-loop-news` now runs browser sweeps 3 at a time and non-browser sweeps
+15 at a time (both lanes were unboundedly parallel before, and either alone can saturate Claude
+Code's 20-subagent cap), tells a stalled tab from the end of a timeline on positive evidence (not
+`document.hidden`, which a real test showed does not distinguish them), and writes a keyed
+`coverage` record per source of every type; `integrate-loop-news` publishes a Coverage section.
+**Not yet exercised by a real run** — it is prose in two skills, reviewed three times; the next
+tracker run is its first test. Check that run's digest has a `### Coverage` section, and its
+Stage A log for at most 3 browser + 15 non-browser subagents running at once.
+**Previous session (20260928):** ran the tracker on demand (`v3.7.4`, tag + release backfilled); then
 retried everything that run left incomplete — 7 partial X sweeps, 7 profile-only citations, three
 open verifications — in three verified rounds, and integrated the results. What failed, what was
 retried, the corrections found and what the evidence could not settle:
