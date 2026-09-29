@@ -21,8 +21,8 @@ to `main`. It does **no** searching — everything it needs is in `.loop-news/fi
    was wrong so the wrapper's logs show it. (An absent `complete` counts as finished, as
    `run-loop-news.sh`'s `artifact_state` treats it; the wrapper never starts this stage on a
    `false`, so this guards the by-hand `/integrate-loop-news` after a dead Stage A.)
-3. Extract `today`, `run_time`, `last_run_date`, `findings`, `sources_done`, `coverage`,
-   `sources_to_consider`, and `source_updates`. Use these throughout — never re-derive the time
+3. Extract `today`, `run_time`, `last_run_date`, `findings`, `expected_keys`, `sources_done`,
+   `coverage`, `sources_to_consider`, and `source_updates`. Use these throughout — never re-derive the time
    or re-search. `coverage` may be absent (an artifact written before `A17`); that is not an
    abort — Phase 4 publishes it as unrecorded.
 4. **Already-published check — do this before reading any docs or reasoning about the
@@ -46,9 +46,11 @@ to `main`. It does **no** searching — everything it needs is in `.loop-news/fi
 1. Take the `findings` array from the artifact (already merged and scored by
    `fetch-loop-news`).
 2. Deduplicate: remove any item whose `url` already appears in `LOOP_ENGINEERING_NEWS.md`.
-   An item with `"url_unresolved": true` (an X post whose status ID could not be read) has no
-   URL to match: dedup it by source + title against the digest instead — never by a profile
-   URL, which earlier rows share — and publish it with the source's profile link plus
+   **An unresolved X post has no URL to match** — an item with `"url_unresolved": true`, a
+   `null` URL, or an `x.com`/`twitter.com` URL without `/status/`, flag or no flag. A profile
+   URL is a substring of every status URL of that account already in the digest, so matching on
+   it silently deletes the finding. Dedup such an item by source + title against the digest
+   instead, and publish it with the source's profile link plus
    `[URL note: status ID unresolved]` in the summary.
 3. Insert a new section immediately after the initial `---` separator (so the
    newest run always appears at the top). The format:
@@ -66,7 +68,7 @@ to `main`. It does **no** searching — everything it needs is in `.loop-news/fi
 - Actor — reason (e.g. no keyword matches found in their posts)
 
 ### Coverage
-- (browser-swept sources: which were fully covered, which were partial and what was missed)
+- (which sources were not fully covered and why; the sampled ones; how many x sources were complete)
 
 ### Docs updated this run
 - (list any docs/ changes made below)
@@ -83,22 +85,25 @@ If zero new findings after deduplication, write the section with an empty findin
 table and list all sources under "No new content". Never skip the section — and it is
 **committed**, not discarded: see Phase 5a's **None** tier and the instruction under it in 5b.
 
-**The Coverage subsection is never omitted — it is how a partial sweep stays visible.** Build it
-from the *expected* set, not from whatever records happen to exist:
-- **Expected keys:** every `x`, `x-search` and `linkedin` row of `SOURCES.md` as it stands when
-  this skill starts (before any row this run adds), written `<Actor> [<type>]` exactly as
-  `fetch-loop-news` keys them, plus `X general search [phase-3]`.
+**The Coverage subsection is never omitted — it is how a partial sweep stays visible.** The rules
+for keys, record fields, statuses and the completeness check have **one home: the *Coverage
+records* section of `.claude/skills/fetch-loop-news/SKILL.md`** — read it and apply it exactly as
+written; do not re-derive it. Build the subsection from the *expected* set, not from whatever
+records happen to exist:
+- **Expected keys:** the artifact's `expected_keys` (fixed by Stage A before any row this run
+  adds). If it is absent, derive them from `SOURCES.md` as it stands when this skill starts, the
+  same way (`<type>:<Handle/URL>`, plus `phase-3:x-general-search`).
 - **Pick each key's record** from `coverage`. If a key has more than one, take the one with
   `"rerun": true`, otherwise the worst status (`partial` < `sampled` < `complete`).
-- **Re-check every `complete` record** against `fetch-loop-news`'s rule — an `x` record is
-  `complete` only if `search` is in `passes`; `timeline` reached a date on or before
-  `last_run_date`, or `day-range` ran; `expansion` ran if the source produced a Tier 1–2
-  finding; and `gap` is empty. A record failing it is treated as `partial` ("record
-  inconsistent: <what is missing>").
+- **Re-check every record** against the *Coverage records* rules — the per-type statuses, the
+  `x` completeness requirements, and "a non-empty `gap` makes it `partial`". A record failing any
+  of them is treated as `partial` with gap "record inconsistent: <what is missing>".
 - **One bullet per key that is not fully covered:** each `partial` record (the passes that ran,
-  how far back it `reached`, and its `gap` verbatim), and each expected key with no record at all
-  (`<key> — not swept or not recorded this run`).
-- **One line for the sampled sources:** `Sampled by design: <key> (back to <reached>), …`.
+  its `timeline_reached`, and its `gap` verbatim); each expected key of any type that is neither
+  in `sources_done` nor has a record (`<key> — not swept or not recorded this run`); and each
+  record whose key is not in the expected set (`<key> — record for an unexpected key`, with its
+  status and gap), so a mistyped key still shows its gap.
+- **One line for the sampled sources:** `Sampled by design: <key> (back to <timeline_reached>), …`.
 - **Then:** `All other N x sources fully covered.` — N counts only `complete` `x` records that
   passed the re-check.
 - If the artifact has no `coverage` field at all, write exactly:
