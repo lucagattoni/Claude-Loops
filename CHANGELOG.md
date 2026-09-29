@@ -44,7 +44,8 @@ yet exercised by a real tracker run.
 - `integrate-loop-news` publishes a `### Coverage` digest section built from the expected set
   of sources, not from whichever records happen to exist, so a partial, missing or unrecorded
   sweep stays visible instead of reading as a complete run.
-- `plans/20260904_2053-open-work-backlog.md`, `RESUME.md`: `A17` marked shipped.
+- `plans/20260904_2053-open-work-backlog.md`, `RESUME.md`: `A17` marked shipped; `CLAUDE.md`'s
+  "Open work" pointer back to two open items (approved by the maintainer).
 
 ---
 
