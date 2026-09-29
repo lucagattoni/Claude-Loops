@@ -337,12 +337,18 @@ the anti-collusion rationale behind the fresh-context critics of the
 council above, stated as a first-class rule rather than a side effect of fresh context.
 ([the-open-engine/zeroshot](https://github.com/the-open-engine/zeroshot), Jul 2026.)
 
-A practitioner statement of pattern 5's own rationale, independently arrived at: "one model
-reviewing its own work agrees with itself — that is not verification, that is fluency."
+A practitioner statement of pattern 5's own rationale, independently arrived at: "One model
+reviewing its own work agrees with itself. That is not verification, that is fluency."
 The prescribed fix is not just a different model but a different *lens*: ask several
 independent instances to argue the change is wrong, each from a different angle, rather
-than asking one model to confirm it is right.
-([@kachar136](https://x.com/kachar136), Sep 2026.)
+than asking one model to confirm it is right. The same thread names what to trust in that
+setup: "Then the signal is convergence, not the verdict. What every lens flags independently
+is real. What they split on is where my judgement goes." It gives one instance: "Last month
+six lenses plus a cross-model pass all landed on the same finding, separately. That one was
+real." This is one practitioner's report, not a measured rate.
+([@kachar136](https://x.com/kachar136/status/2102410602983596137);
+[@kachar136](https://x.com/kachar136/status/2102410614991884720);
+[@kachar136](https://x.com/kachar136/status/2102410626836648348), Sep 2026.)
 
 These five together — external verifier, mechanical-gate/adjudicator split, frozen tests,
 provenance-bound claims (with isomorphic-perturbation checks), and cross-model independence —
@@ -677,6 +683,21 @@ Model](26-factory-model.md#named-factory-deployments) — coincidentally similar
 companies.) ([The New Stack, "One engineer shipped 2,000 PRs a month to production. Verification is
 the key."](https://thenewstack.io/agentic-verification-distributed-systems/), Sep 2026.)
 
+**A single-contributor instance of the same discipline.** Peter Steinberger reports that
+OpenAI's Astra "found a ~14 year old bug in libuv" while he chased ChatGPT crashes on macOS
+27 ([@steipete](https://x.com/steipete/status/2102501642176528743), Sep 2026). The age is
+his own claim; no PR states it. The fix PR is the useful part. It discloses the method,
+from an author who notes he works at OpenAI: "I did use GPT 6 Astra Ultra for the review,
+with many verification and adversarial subagent rounds". Its regression test comes with
+negative controls ("the original runtime starts native streams successfully but fails with
+17 outstanding allocations"). It also scopes its causal claim: the leak is "a plausible
+mechanism" for the reported crashes, and the reproduction "does not establish that this
+leak is the sole cause of those crashes"
+([libuv/libuv#5283](https://github.com/libuv/libuv/pull/5283), Sep 2026). A follow-up
+pass with Daybreak "found 8 more long-standing leaks"
+([@steipete](https://x.com/steipete/status/2103200311641076100), Sep 2026). As of
+2026-09-28, one of his nine libuv PRs (#5283-#5291) was merged and eight were open.
+
 ## "Surface" — the Canonical Stopping Verb
 
 When a loop reaches a point requiring human judgment, the agent's action has a precise name:
@@ -791,6 +812,62 @@ checking that tests would still fail if the implementation returned a semantical
 result, not just a different bit pattern.
 
 ([JeiKeiLim/tenet](https://github.com/JeiKeiLim/tenet), Jun 2026.)
+
+**A concrete authoring gate against oracle leakage, from a live production skill.**
+OpenClaw's `test-audit` skill gates every new or changed test at write time with four
+questions, and "a missing answer means do not add it yet":
+
+1. "What observable behavior, invariant, or independent contract does it protect?"
+2. "What credible regression makes it fail?"
+3. "Why does existing coverage not already catch that failure?"
+4. "Does it need a production seam (export, flag, wrapper, injection hook) that no
+   production caller needs?"
+
+For bug fixes the gate adds a rule a reviewer or agent can check mechanically: "Bug
+regression tests must fail on the pre-fix code for the intended reason and pass after the
+owner-boundary repair. A regression test that never demonstrably failed proves the mock,
+not the fix." The same file lists 15 junk patterns — test shapes plus test-only production seams. The gate rejects a new test
+that matches one, and audit sweeps hunt for existing ones; among them are "assertion-free
+coverage probes", "self-comparisons and identity copiers" and "mocks that implement the
+asserted behavior". A separate campaign mode applies the same bar to one whole subsystem's
+tests. Steinberger reports OpenClaw deleted "around 400k LOC of its own tests without
+much change in code coverage" and says the skill helped
+([@steipete](https://x.com/steipete/status/2103147927313199260), Sep 2026). That is the
+maintainer's own report, not an independent measurement.
+
+([openclaw/openclaw, `test-audit/SKILL.md` at commit `80930af`](https://github.com/openclaw/openclaw/blob/80930af448ebabc84174146b56bc106d37fab3b4/.agents/skills/test-audit/SKILL.md), Sep 2026.)
+
+## Formal Models as a Bug-Finding Loop
+
+Boris Cherny, a Claude Code engineer at Anthropic, opened with a concession on the word
+itself: "'Verify' is a little loose yeah."
+([@bcherny](https://x.com/bcherny/status/2102803868837126172), Sep 2026.) He restated the
+same method six hours later, again short of claiming full verification: "It's not that the
+whole codebase is formally verified (yet!..), more that the hairiest parts of the code are
+modeled, checked for counter-examples, and fixed."
+([@bcherny](https://x.com/bcherny/status/2102898067133595992), Sep 2026.) The method itself,
+in his words:
+
+1. "Building a model of the program, targeting a tricky state machine or race-prone part of the code"
+2. "Finding counter-examples in the model. These are suspected bugs"
+3. "Reproducing the bugs"
+4. "Fixing the bugs in the code"
+
+He reports applying it to the Claude Agent SDK: "I used Opus 5.5 to formally verify the
+Claude Agent SDK using Lean. A couple short prompts = 16 PRs fixing various bugs and race
+conditions." TLA+ is a second tool in the same loop, "to look for issues around data flow,
+concurrency, and state mgmt," and he adds: "I don't know either language well, but Claude is
+excellent at both."
+([@bcherny](https://x.com/bcherny/status/2102543349102338309), Sep 2026.) A reply to that
+post attaches a model-produced infographic (captioned only "Opus made an infographic") whose
+figures appear nowhere in text: 16 pull requests (5 merged, 11 open); 24 bugs fixed (19 found
+by the proofs, 5 more in review, plus 6 gaps in the first fixes caught in review); 6 Lean
+models; 1,529 theorems; 0 `sorry`.
+([@bcherny](https://x.com/bcherny/status/2102543350436180277), Sep 2026.)
+
+This is a first-party self-report by an Anthropic Claude Code engineer about Anthropic's own
+SDK, not an independent result, and the infographic's tallies are a model-generated summary
+at post time (Opus produced the image), not an independently counted one.
 
 ## Structured Critic Finding Taxonomy
 

@@ -362,11 +362,32 @@ latency of a fresh clone on every detached session start.
 ([@steipete](https://x.com/steipete/status/2096400749869830325), Sep 2026.)
 
 **A background-agent harness now ships as a mainstream vendor product built on top of
-OpenClaw.** Microsoft's newly announced Autopilot — a persistent, proactive personal
-agent — confirmed as built on the OpenClaw codebase, with Steinberger's team working with
-Microsoft since March 2026 to ready it for large-scale deployment
-([@steipete](https://x.com/steipete/status/2103491173927272531), Sep 2026). Separately
-(and consistent with this), Microsoft's Copilot agents were announced with their own Entra
+OpenClaw.** Microsoft's newly announced Autopilot — a persistent, proactive personal agent —
+is built on it, first-party: Omar Shahine, whose X profile names him Corporate Vice
+President for Microsoft Autopilot, posted "We are building Autopilot on @openclaw, working
+with @steipete and the OpenClaw Foundation to make it a fantastic enterprise grade runtime"
+([@OmarShahine](https://x.com/OmarShahine/status/2103480227561079264), Sep 2026).
+Steinberger's post quote-tweets it: his team "worked with them since March to make the
+codebase ready for large-scale deployments"
+([@steipete](https://x.com/steipete/status/2103491173927272531), Sep 2026).
+
+Microsoft's own announcement describes Autopilot, "previously called Scout", as a teammate:
+"Give it a name, a role and a goal, and it goes to work — watching channels, following up
+on threads, running recurring work and picking a project back up days later, without
+waiting for a prompt." It is cloud-hosted, "so it keeps working while you sleep", and
+"lives in your tenant with its own identity, memory, computer and workspace"
+([Microsoft, "Introducing the new Copilot with Home, Code and Autopilot"](https://blogs.microsoft.com/blog/2026/09/25/introducing-the-new-copilot-with-home-code-and-autopilot/),
+Jared Spataro, Sep 2026). The blog announcement itself does not name OpenClaw; Shahine's
+post does, and says "First Scout is now Autopilot". Steinberger confirmed "That is Scout."
+([@steipete](https://x.com/steipete/status/2103579821578326106), Sep 2026) and said
+Microsoft is "on ~the extended-stable version"
+([@steipete](https://x.com/steipete/status/2103505275932328265), Sep 2026). He also
+credited "Omar's team" at Microsoft with features contributed to OpenClaw, among them
+"Local inference, file transfer and code mode on any machine connected to the OC gateway"
+and "CLAW profiles to bootstrap new agents faster"
+([@steipete](https://x.com/steipete/status/2103491221515907087), Sep 2026).
+
+Separately (and consistent with this), Microsoft's Copilot agents were announced with their own Entra
 identity and a governed MCP access layer (**Agent 365 SDK**) into Microsoft 365 workloads —
 i.e. a persistent background agent is now a first-class principal with its own
 credentials and a place in the org chart, not a session borrowing a human's, extending

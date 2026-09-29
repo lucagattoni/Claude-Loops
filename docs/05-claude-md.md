@@ -67,6 +67,38 @@ not change the load hierarchy above when a `CLAUDE.md` is present — `AGENTS.md
 an additional layer. ([Claude Code
 changelog](https://code.claude.com/docs/en/changelog), v2.1.277, Sep 2026.)
 
+**Gated behind a remote flag, silently.** A 2026-09-23 measurement found the loader ships as a
+built-in plugin whose availability asks a remote feature flag, `tengu_agents_md_mod` — both the
+plugin's own default and the fallback used when the flag can't be fetched are `false`, read
+directly from the Claude Code v2.1.280 bundle. With either `DISABLE_TELEMETRY=1` or
+`CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC=1` set, the flag is never fetched, so `AGENTS.md` is
+skipped — and nothing warns that it happened. The workaround, since `@path` imports don't depend
+on the flag:
+
+```bash
+echo '@AGENTS.md' > CLAUDE.md
+```
+
+A session-level override also works, but only from the second session in that configuration on
+(the first session only fetches the flag): `claude --settings
+'{"env":{"DISABLE_TELEMETRY":"","CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC":""}}'`. Tracked as
+[issue #95690](https://github.com/anthropics/claude-code/issues/95690), labelled `enhancement` by
+github-actions[bot] 72 seconds after filing (an automatic label, not a maintainer's triage), with
+no fix version confirmed and the issue open as of 2026-09-28.
+Przemysław Szypowicz measured this (blog.szypowi.cz; the same measurements are also posted as [a
+comment on the GitHub
+issue](https://github.com/anthropics/claude-code/issues/95690#issuecomment-5791716755) — one
+author's measurement, not a second independent source). The issue thread does add one: another
+user reported "Confirmed on 2.1.278 with fresh isolated homes"
+([mmailhos](https://github.com/anthropics/claude-code/issues/95690#issuecomment-5795184619),
+Sep 2026). Peter Steinberger flagged it on X
+and later relayed secondhand: "Was a bug, they followed up. Dev mistake, not malice." — his
+account of Anthropic's response, not an Anthropic statement, and not his own measurement.
+([blog.szypowi.cz, "Claude Code reads AGENTS.md only when telemetry is on"](https://blog.szypowi.cz/p/claude-code-reads-agents.md-only-when-telemetry-is-on/), Sep 2026;
+[anthropics/claude-code#95690](https://github.com/anthropics/claude-code/issues/95690), Sep 2026;
+[@steipete](https://x.com/steipete/status/2102889319849713698), Sep 2026;
+[@steipete follow-up](https://x.com/steipete/status/2102989175649956199), Sep 2026.)
+
 ## Path-scoped rules (`.claude/rules/`, v2.0.64+)
 
 Rules that only apply to specific file patterns — reduce context noise for

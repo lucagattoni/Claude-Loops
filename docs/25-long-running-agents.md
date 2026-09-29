@@ -152,6 +152,33 @@ coordinated local desktop tools (Windows, Unreal Engine 5, Blender) unattended o
 a game trailer. ([@Sabrina_Ramonov](https://x.com/Sabrina_Ramonov/status/2099566351769567270), Sep
 2026 — single-source practitioner report, unconfirmed by OpenAI.)
 
+**A first result from Anthropic's own life-sciences lab, with a published skeptical read
+attached.** Anthropic set 949 Claude agent sessions — a single launch session plus 414 worker, 375
+supervisor, 107 curator, and 52 editor sessions, running on Claude Mythos 5 — to survey
+reverse-transcriptase loci across 1.9 billion metagenomic protein clusters, with only high-level
+direction from the team's scientists. The campaign ran 119 tasks over 21.5 hours of wall-clock
+time, "without human intervention," using 77 agent-hours and 215.6 million tokens (11.3M uncached
+input, 14.9M output, 189.5M written to the prompt cache). Reading raw DNA sequence directly into
+its context, one worker agent wrote: "I can see by eye a tandem repeat array … that's a
+CRISPR-like or msDNA-like repeat array?!" — then confirmed in its own literature search that the
+pattern matched no system already described in the literature before filing a report. What it had
+flagged, since named array-associated reverse transcriptase (ART), "consists of three parts: the
+RT, a partner gene beside it, and a long array of evenly spaced DNA repeat sequences" (the array
+itself is non-coding) — an architecture that resembles a CRISPR array without a demonstrated
+CRISPR-like function. On process: each candidate report only "proposes a function"; when one
+survives review and reaches the lab, human scientists design and run the confirmatory
+experiments, with Claude "helping to interpret" the resulting data. Feng Zhang, a CRISPR pioneer
+at MIT and the Broad Institute, called the finding "genuinely intriguing" after reviewing the
+preprint. Nature News supplies the outside caveat the campaign's own framing omits: "there is
+scant evidence that the repeats found by Anthropic's team of AI agents have similar
+functions, and there is no known DNA-slicing enzyme partnered with them."
+(Anthropic, ["Claude discovers a novel enzyme system with CRISPR-like
+repeats"](https://www.anthropic.com/news/claude-discovers-novel-enzyme-system), Sep 2026; Yoon et
+al., ["Autonomous AI agents discover reverse transcriptases with tandem repeat arrays"
+(preprint)](https://www-cdn.anthropic.com/22573675ada52a8ca8a97a1a4b4326b2f208a071.pdf), Sep 2026;
+Heidi Ledford, ["Anthropic's AI biolab finds 'CRISPR-like' DNA in viruses. What's
+next?"](https://www.nature.com/articles/d41586-026-03039-6), Nature News, Sep 2026.)
+
 ## Detaching from the terminal
 
 Long-running agents often need to run after you close your IDE. Two shapes, illustrated with

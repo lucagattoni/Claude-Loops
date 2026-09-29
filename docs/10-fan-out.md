@@ -101,8 +101,8 @@ Sweeper, etc.), fan-out coordination extends to cross-loop ownership:
 3. Priority ordering determines who acts first when two loops find the same work
 4. Cross-loop conflicts that cannot be auto-resolved go to a human inbox in STATE.md
 
-See [Loop Patterns](34-loop-patterns.md) for the full priority ordering and seven
-named loop patterns with defined STATE.md coordination.
+See [Loop Patterns](34-loop-patterns.md) for the full priority ordering and eight
+named loop patterns, most with defined STATE.md coordination (Thin Loop keeps none).
 
 ## Agentic MapReduce
 

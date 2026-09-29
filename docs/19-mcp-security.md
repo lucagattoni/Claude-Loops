@@ -68,15 +68,34 @@ Everything above assumes the MCP server is already running and connected, and th
 
 A different MCP risk than injection or trust: once a loop has real MCP scope, *which* of
 many available tools it calls on a given turn is itself a decision that can silently fail
-to transfer from a clean benchmark to production. A ranked tool-search layer built to pick
-the right tool out of a candidate pool matched the best hand-tuned setup on a clean
-benchmark, then lost by **19 points** against the same code running over **525 real MCP
-tools** — "the defaults are the product; they don't transfer." The lesson generalizes the
+to transfer from a clean benchmark to production.
+
+On 525 real MCP tools, a decision-model tool search (Jev, TypeSafe AI's model) put the
+right tool first **56%** of the time against BM25's **32%**, at 2.5 s and $1.03 per 1,000
+searches, and, in the author's words, was the only method tested that could say "none of
+these tools fit." The author states "Claude's tool search ranks with BM25" — the post's own
+claim, not confirmed here against any Anthropic source. The same post caveats its own
+headline gap: "With Claude in the loop, accuracy evens out, but Jev cuts the bill by about
+60%. Claude makes up for a bad search by searching again, and every extra search costs
+tokens." — so the 24-point top-1 gap overstates the effect once an agent can retry a bad
+search rather than trust the top hit.
+([@kachar136](https://x.com/kachar136/status/2103752618111873163), ["Picking the right tool
+for an LLM is a decision. Jev
+makes it."](https://kachar.dev/blog/jev-picks-the-right-tool-for-an-llm), Sep 2026.)
+
+A follow-up rebuilt that search as a prototype and found the defaults do not carry
+over between catalogs: a ranked tool-search layer built to pick the right tool out of a
+candidate pool matched the best hand-tuned setup on a clean benchmark, then lost by **19
+points** against the same code running over **525 real MCP tools** — "The defaults are the
+product. They don't transfer." The search is also not deterministic: across repeat runs its
+top pick changed on about 2 of every 100 searches, a direct reliability cost for a loop that
+expects a given request to route to the same tool every time. The lesson generalizes the
 "unconstrained MCP scope" mitigation above: restricting *which* tools are reachable
 (`--tools`) bounds the attack surface, but does not guarantee the loop reliably picks the
 right one among what remains reachable — that is a separate, unsolved reliability problem
 worth budgeting for once a loop's MCP surface grows past a handful of tools.
-([@kachar136](https://x.com/kachar136), Sep 2026.)
+([@kachar136](https://x.com/kachar136/status/2103941428007284893), ["BM25 got Orama. Jev
+still needs one."](https://kachar.dev/blog/an-orama-for-jev), Sep 2026.)
 
 ## The Broader Principle
 

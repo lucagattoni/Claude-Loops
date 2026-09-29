@@ -18,6 +18,49 @@ Versioning follows [Semantic Versioning](https://semver.org/):
 
 ---
 
+## [3.7.5] — 20260929 16:05
+
+A hand-run retry of everything the `3.7.4` tracker run (2026-09-28 09:52 UTC) left
+incomplete — 7 X sweeps partial on a contended shared browser, `@kachar136` thread
+expansion, 7 findings cited by profile URL instead of post URL, and three open verifications —
+in three verified rounds, then integrated, reviewed and critic-checked. Digest:
+`## Retry pass — 2026-09-28 13:23 UTC (hand-authored, not a tracker run)`. Evidence pack:
+`plans/20260928_1401-retry-of-20260928-run-evidence.md`.
+
+### Added
+- `docs/34-loop-patterns.md` — **Thin Loop**, an eighth named pattern (deep-read from
+  [cobusgreyling/loop-engineering](https://github.com/cobusgreyling/loop-engineering)); the
+  pattern count moves seven → eight in `docs/10`, `docs/11`, `docs/20` and `LOOP_ENGINEERING.md`
+- `docs/04-verification.md` — "Formal Models as a Bug-Finding Loop" (bcherny's Lean/TLA+
+  verification of the Claude Agent SDK, self-reported); OpenClaw's test-audit authoring gate;
+  the libuv fix series; kachar136's convergence signal
+- `docs/31-claude-tag.md` — first-party case study: claude.ai's performance sprint run in Tag
+- `docs/25-long-running-agents.md` — Anthropic's ART genome-mining campaign from its primary
+  sources (post, preprint), with *Nature* News's outside caveat
+- New material in `docs/05` (the AGENTS.md-only-with-telemetry gate), `docs/11`, `docs/17`,
+  `docs/19`, `docs/23`, `docs/24`, `docs/27` and `docs/29`
+- `SOURCES.md` — `www.anthropic.com/news` tracked (a first-party post reached the digest only
+  secondhand); `README.md` source counts follow
+- Backlog `A17` — `fetch-loop-news` runs every browser sweep at once, and its X Pass-2 stop rule
+  cannot tell a stalled tab from the end of the timeline (the root cause of the partial sweeps)
+
+### Changed
+- `docs/07`, `docs/11` — Opus 5.5 blog quotes made verbatim; "3.3x / 2.6x" is aggregate
+  Claude Code usage March–September 2026, not a comparison with Opus 4.6; `docs/11` cites the
+  prompt-caching page that confirms effort switching keeps the cache (with its exclusions)
+- `docs/17` — the Delete gate "lowercased after matching" (was "before"); the 20% quote moved
+  to its real source post
+- `docs/29` — Autopilot-on-OpenClaw cited first-party (Microsoft's Autopilot CVP)
+- `docs/04`, `docs/17`, `docs/19`, `docs/27`, `docs/31` — 7 X citations point at the exact post
+- `LOOP_ENGINEERING_NEWS.md` — the 3.7.4 run's rows corrected in place by appended notes
+  (kirillk primary source, cobus "conflict", Opus 5.5 figures, Autopilot, SQLite `/goal`,
+  400k/20%, Tag expansion); seven link cells now point at the resolved post (disclosed there)
+- `KB_GAPS.md` — cobus "conflicting metadata" filled (there was no conflict); four gaps logged
+- `RESUME.md` — handover header for 20260928
+- `CLAUDE.md` — "Open work" now names three §5 items (`A17` added); approved by the maintainer
+
+---
+
 ## [3.7.4] — 20260928 10:27
 
 ### Added

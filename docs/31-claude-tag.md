@@ -121,19 +121,70 @@ of his data analysis, running on Opus 5.5 and "Fable 5.1." More useful than the 
 percentage are four example prompts, each of which is effectively a loop spec in prose —
 SCOPE/ACTION/BUDGET/STOP stated informally but all present:
 
-- A **reactive trigger**: watch for a specific condition in a channel and act when it fires.
-- An **end-to-end repro-then-PR loop**: reproduce a reported bug, then open a PR fixing it —
-  SCOPE and ACTION chained without an intermediate human handoff.
-- A **budgeted deep-dive**: "spend ~10m tokens, draw a chart" — an explicit BUDGET in the
-  same breath as the ACTION, rather than left to a platform default.
-- An **explainer-artifact loop**: produce a durable explanation artifact rather than a
-  chat reply, closer to a Routine's or a skill's output shape than a one-off answer.
+- A **reactive trigger**: "react to threads in this channel with ✅ when resolved" — watch
+  for a specific condition in a channel and act when it fires.
+- An **end-to-end repro-then-PR loop**: "from now on, attempt to repro every bug in this
+  channel end to end, running the full app. once you reproduce the bug, put up a pr to fix
+  it and tag the right team for code review" — SCOPE and ACTION chained straight through,
+  with the human handoff coming after the PR is up, at code review.
+- A **budgeted deep-dive**: "brainstorm ~100 hypotheses for what could explain this weird
+  data, use a workflow to in/validate. spend 10m tokens or so digging very deep. draw a
+  chart with the result." — an explicit BUDGET in the same breath as the ACTION, rather
+  than left to a platform default.
+- An **explainer-artifact loop**: "make me an interactive game explaining how this part of
+  the code works, then make a slide deck explaining it for others on the team" — a durable
+  explanation artifact rather than a chat reply, closer to a Routine's or a skill's output
+  shape than a one-off answer.
+
+(Prompts: [@bcherny](https://x.com/bcherny/status/2103538666597691552), Sep 2026.)
 
 Coming from the practitioner most associated with popularizing "loop engineering," this is
 evidence the framing is not just descriptive of what other teams build, but of how its own
-originator works day to day. (Thread/link expansion incomplete at capture time — a
-follow-up deep-read may surface the exact prompts verbatim.)
-([@bcherny](https://x.com/bcherny), Sep 2026.)
+originator works day to day — and at volume. In a Sep 23 reply on a different post (his
+Lean/Agent SDK thread), asked what he does while agents work: "I usually have at least 10
+Tag/Projects sessions running at a time. While the agent works, I start another session or
+unblock one that is running" ([@bcherny](https://x.com/bcherny/status/2102571446681878605),
+Sep 2026). Reading roughly 85 of the Tag post's ~190 replies (as of 2026-09-28; not the
+full thread) surfaced two operational details, each its own reply — "Environment runs in
+the Cloud" ([@bcherny](https://x.com/bcherny/status/2103550751985525170), Sep 2026) and
+"Team has a 2-seat minimum" ([@bcherny](https://x.com/bcherny/status/2103550536536793498),
+Sep 2026) — and one opinion, answering whether they really use it in Slack: "It's
+surprising, but it feels awesome to have Claude in the same place where we already talk to
+each other" ([@bcherny](https://x.com/bcherny/status/2103550885796385218), Sep 2026).
+
+## First-Party Case Study: A Performance Loop Run in Tag
+
+Anthropic's claude.ai team ran a two-week performance sprint in August 2026 through Claude
+Tag (beta), "running an internal research model roughly comparable to Opus 5.5", from one
+Slack channel with standing instructions that began "Your job is to facilitate all things
+related to the performance of the claude.ai website and desktop app." The write-up is a
+worked loop contract:
+
+- **Scope.** Claude used the Datadog MCP server to find "the four highest-impact user
+  journeys", and each thread was kept "deliberately narrow, focused on one benchmark or
+  journey".
+- **Verifier.** Every benchmark had two jobs: "a metric Claude could move in the lab" and
+  "a guardrail in CI with a number that could only ratchet down". Flaky benchmarks, and
+  ones that did not track user latency, were thrown out.
+- **Gates.** "Every PR went through automated review with at least one human approval".
+  User-visible changes shipped behind short-lived flags ("nearly two hundred flags, more
+  than half of which were already cleaned up by the end"). High-risk changes rolled out to
+  employees first, then to one percent of users, then to everyone.
+- **Scale.** "During the sprint, we ran more than a hundred and fifty at a time" (threads),
+  and more than two hundred changes landed on the busiest days.
+- **Stop.** Humans overrode the model's own instinct to stop: "Let's keep driving this
+  down, the targets are not the stopping point."
+
+Reported result: "more than three thousand changes without a single customer-facing
+incident or rollback", and "3.1x faster on average (geometric mean)" across thirteen p75
+measurements over four journeys. The team's own caveat is the useful counterweight: "The
+loop was productive, but it wasn't autonomous." Humans supplied ambition, taste and
+direction. This is Anthropic engineers reporting on Anthropic's own product, not an
+independent result.
+([claude.dev, "How we made claude.ai 3x faster in two weeks"](https://claude.dev/blog/how-we-made-claude-ai-faster/),
+Raymond Wang, Sam Attard and Issac G., Sep 2026; announced by
+[@ClaudeDevs](https://x.com/ClaudeDevs/status/2102839691154427983) and quote-tweeted by
+[@bcherny](https://x.com/bcherny/status/2102854267782705648).)
 
 ## Deployment mode comparison
 

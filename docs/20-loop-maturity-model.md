@@ -82,7 +82,7 @@ classification based on its operational behaviour, not the engineer's experience
 A loop engineer at step 14 still runs a new loop's first week in report-only mode.
 Operational trust is earned by each loop individually.
 
-For the seven named loop patterns with their default levels, token costs, and
+For the eight named loop patterns with their default levels, token costs, and
 coordination rules, see [Loop Patterns](34-loop-patterns.md).
 
 (Cobus Greyling, [cobusgreyling/loop-engineering](https://github.com/cobusgreyling/loop-engineering), Jun 2026.)
@@ -92,7 +92,9 @@ recent runs harder than artifact presence on disk: *"Loop Ready now weights rece
 than files on disk. A 30-day-old STATE.md is not L3."* Closes an anti-gaming gap the table above
 doesn't address — a loop that stops running should degrade its own readiness score, not keep
 reading as mature because its artifacts are still on disk. A follow-on academic study cites this
-repo as the community reference it reviewed. ([cobusgreyling/loop-engineering](https://github.com/cobusgreyling/loop-engineering), "Loop Ready" score, Sep 2026; [arXiv 2608.21884, Lulla et al., "Building Blocks, Adoption, and Impact"](https://arxiv.org/abs/2608.21884), Aug 2026.)
+repo (as Greyling, 2026b) as the "community reference repository" from which its loop-detection
+heuristics were drafted (and, at its 2026-07-15 access, as having seven loop patterns).
+([cobusgreyling/loop-engineering](https://github.com/cobusgreyling/loop-engineering), "Loop Ready" score, Sep 2026; [arXiv 2608.21884, Lulla et al., "Loop Engineering: Building Blocks, Adoption, and Impact"](https://arxiv.org/abs/2608.21884), Aug 2026.)
 
 ## Related
 

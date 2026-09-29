@@ -102,6 +102,14 @@ A table alone tells nobody what to do. Three levers actually decide the model bi
 which role gets which tier, how effort is set on top of it, and whether a mid-session switch
 busts the prompt cache you were relying on.
 
+**One measured data point, for calibration only.** An Anthropic employee had Opus 5.5 and
+Fable 5.1 each port HAProxy from C to Rust: "We had Opus 5.5 and Fable 5.1 each port HAProxy
+from C to Rust. Both passed nearly all of HAProxy's tests, but Opus 5.5 finished in 9.5 hours
+compared to Fable 5.1's 12 hours, and for 51% less cost." This is one run reported by the
+person who ran it — no harness, configuration, or test counts are published, and "nearly all"
+is not quantified, so no per-hour or per-test cost figure should be derived from it.
+([@bcherny](https://x.com/bcherny/status/2102439069053747549), Sep 2026.)
+
 ### Main loop, subagents, and a judge pass are not the same purchase
 
 [Subagents](07-subagents.md#strong-eyes-cheap-hands-cost-asymmetric-role-allocation)
@@ -314,7 +322,7 @@ Without early exit, a CI Sweeper running every 15 minutes against a green repo b
 ~5M tokens per day on no-ops. The early exit rule converts it to ~3k tokens per pass.
 This is not an optimisation — it is a correctness requirement for always-on loops.
 
-See [Loop Patterns](34-loop-patterns.md) for the seven named loop patterns and their
+See [Loop Patterns](34-loop-patterns.md) for the eight named loop patterns and their
 typical token envelopes.
 
 ## Cost Per Loop, Now First-Party
@@ -486,20 +494,40 @@ fetched 2026-09-04):
 > cache, so changing effort mid-session recomputes the entire request. On Fable 5.1 with an
 > API key or a Claude subscription, the cache stays intact by default."
 
+That quote is frozen at its 2026-09-04 fetch date. The same page, re-fetched 2026-09-28 for the
+paragraph below, now names Opus 5.5 in this section too, not just Fable 5.1.
+
 That Fable 5.1 exception is new, and it shipped broken: "Before v2.1.260, changing effort on
 Fable 5.1 with an API key or a Claude subscription also invalidated the cache" — the same
 release ([v2.1.257](https://github.com/anthropics/claude-code/releases/tag/v2.1.257)) that
 shipped Fable 5.1 itself shipped it with that bug, fixed three versions later.
 
-**A second model may extend the exception — not yet confirmed against the official cache
-docs.** Anthropic's own Opus 5.5 announcement post claims the model supports "effort-level
-switching mid-session without cache resets," alongside forked subagents that start from
-the parent session's cache instead of re-paying for it — framed around longer agentic
-coding sessions (3.3x more model calls per prompt, 2.6x more context, versus Opus 4.6).
-Treated here as an unconfirmed vendor claim, not yet verified against the "Actions that
-invalidate the cache" reference page quoted above the way the Fable 5.1 exception was —
-re-check that page before relying on it for a production loop's cost model.
-([Anthropic, "Claude Opus 5.5 is built for coding sessions that use more context"](https://claude.com/blog/claude-opus-5-5-built-for-coding-sessions-that-use-more-context), Sep 2026.)
+**A second model extends the exception — now confirmed against the official cache docs.** The
+same reference page, re-fetched 2026-09-28, now reads: "On Opus 5.5 and Fable 5.1 with an API
+key or a Claude subscription, changing effort keeps the cache, and Claude Code applies the new
+level without asking. This doesn't apply on Amazon Bedrock, Google Cloud's Agent Platform, or a
+Claude apps gateway, or when you set `CLAUDE_CODE_DISABLE_EXPERIMENTAL_BETAS` or your
+organization has a HIPAA configuration." ([Anthropic, Prompt caching → Changing effort
+level](https://code.claude.com/docs/en/prompt-caching#changing-effort-level), fetched
+2026-09-28.) That quote is frozen at its 2026-09-28 fetch date and has since gone stale: re-fetched
+2026-09-29, the same page now reads "On Opus 5.5, Sonnet 5.5, and Fable 5.1 with an API key or a
+Claude subscription, changing effort keeps the cache..." — Sonnet 5.5 has joined the exception. A
+Wayback Machine snapshot from
+[2026-09-25](https://web.archive.org/web/20260925150428/https://code.claude.com/docs/en/prompt-caching#changing-effort-level)
+— the closest capture to 2026-09-28; none exists for 2026-09-28 itself, and none exists between
+2026-09-25 and 2026-09-29 (checked 2026-09-29) — still shows the two-model wording quoted above.
+With this doc's own 2026-09-28 fetch, that puts the change between the 2026-09-28 fetch and the
+2026-09-29 re-fetch; only the Wayback bound (2026-09-25) can be re-checked independently.
+Anthropic's own Opus 5.5 announcement post frames the same mechanism from the
+product side: "For newer models like Opus 5.5 and Fable 5.1, you can now change effort levels
+during your sessions without resetting your cache" — alongside forked subagents that "start from
+the parent's cache instead of paying for the same context again" (see [Subagents § Cache-Safe
+Forking and Isolated Child State](07-subagents.md#cache-safe-forking-and-isolated-child-state)).
+The same post's "3.3x"/"2.6x" figures
+are aggregate Claude Code usage trends from March to September 2026, not a comparison with Opus
+4.6: "Claude works 3.3x longer on each prompt with more than 40% more model calls per prompt"
+and "Context per request has grown 2.6x."
+(Michael Segner, [Anthropic, "Claude Opus 5.5 is built for coding sessions that use more context"](https://claude.com/blog/claude-opus-5-5-built-for-coding-sessions-that-use-more-context), Sep 24, 2026.)
 
 ### Setting the cache TTL directly
 
@@ -585,6 +613,20 @@ calibrated confidence signal (not the maker's self-report of correctness — see
 [Verifier Theater](17-failure-patterns.md)) crosses a threshold. Framed by the source
 as a way to cut wasted GPU compute in long-running agent loops.
 (MindStudio, ["Confidence-Scheduled Verification: How DeepSpark Cuts Wasted GPU Compute"](https://www.mindstudio.ai/blog/deepspark-confidence-scheduled-verification-ai-agents/), Jul 2026.)
+
+**A stated intent, not a measured result.** Peter Steinberger quote-tweeted
+[@Altimor](https://x.com/Altimor/status/2104094039805174164)'s "CI has become the top
+bottleneck of every engineering team I talk to (including Lindy). Our CI spend has become
+stratospheric." He described a plan rather than an outcome: "My plan is to let
+codex decide which tests actually need to run and drastically nix CI and run tests hourly." No
+cost or coverage figures have been published for it; the only cadence is the stated "run tests
+hourly". This goes a step further than
+confidence-scheduling *when* to verify — it has the agent choosing *which* checks run at all;
+see [Verifier Integrity: Keeping the Check
+Unfakeable](04-verification.md#verifier-integrity-keeping-the-check-unfakeable) for what has to
+hold for a self-selected check to stay trustworthy.
+([@steipete](https://x.com/steipete/status/2104305554760114488),
+[@Altimor](https://x.com/Altimor/status/2104094039805174164), Sep 2026.)
 
 ## Multi-Dimensional Budget Pressure
 

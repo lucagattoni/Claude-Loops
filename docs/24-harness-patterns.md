@@ -921,6 +921,24 @@ running one model for everything.
 - **Advisor loop**: an executor session calls a stronger model only *on demand* for
   guidance, while a cheaper model does the bulk implementation work — the stronger
   model is consulted, not driving. ([@steipete](https://x.com/steipete/status/2074638582418231495), Jul 2026.)
+- **Decision-model routing inside the harness**: OpenClaw's next version "uses a decision
+  model to automatically decide between steer or queue", that is, whether a new user
+  message interrupts the running agent or waits behind it. It is a lab feature, and the
+  supported variants are listed as "Jef* and API-compat (e.g. local models like Kef...) and
+  ONNX variants" ([@steipete](https://x.com/steipete/status/2102667004557832497), Sep 2026).
+  The user keeps a manual override for a wrong call: "You can always press the steer
+  button on a queued message" ([@steipete](https://x.com/steipete/status/2102671385311219989)).
+  Earlier, asked whether he would "intagrate natively jev to openclaw", he replied
+  "We already did! For queue/steer, thinking level, skill search etc"
+  ([@steipete](https://x.com/steipete/status/2102174126987489769), Sep 21 2026). Asked "Any
+  plans to leverage decision models for compaction and tool calls as well?", he replied
+  "defo for tool search and skills!"
+  ([@steipete](https://x.com/steipete/status/2102843120031617408)) — a plan, not a shipped
+  feature, and compaction is not addressed. The pattern: a cheap model makes the harness's
+  routing decisions, and a human override stays one click away. The decision model is
+  plausibly the Jev that [MCP Security](19-mcp-security.md) benchmarks — Steinberger's own
+  Sep 21 answer says Jev is integrated for queue/steer — but whether it is the model behind
+  the Sep 23 steer-or-queue feature is not stated.
 - **codex-first SKILL.md**: a Claude Code skill formalizing this as a hard rule —
   Claude keeps design, review, and destructive operations; implementation is
   delegated to `codex exec --yolo` via temp-file specs, with escalation back to

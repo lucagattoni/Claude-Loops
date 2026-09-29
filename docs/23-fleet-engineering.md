@@ -79,6 +79,18 @@ concurrency and becomes the bottleneck exactly when a fleet crosses from F1 into
 — but at the application's own data layer rather than Claude Code's credential store.
 ([@steipete](https://x.com/steipete/status/2103648679169257737), Sep 2026.)
 
+The fix is running as one long-lived agent goal rather than a rewrite: "I have a /goal with
+Astra that so far landed 575 PRs to move everything to to [sic] async workers. We ship
+these improvements as we make progress." By Sep 26 it had run "15 days so far"
+([@steipete](https://x.com/steipete/status/2103664941463228836)). Asked whether a rewrite
+had crossed his mind: "Yeah but we just refactor in place. Less chance for things to break.
+Base architecture is good." ([@steipete](https://x.com/steipete/status/2103991587793764472)).
+Asked how to test a refactor that size: "We shipped 3 releases while it slowly refactors
+the codebase." ([@steipete](https://x.com/steipete/status/2103665047532958095)). The
+remediation for a fleet-scale storage mistake was an incremental, continuously shipped
+refactor under one goal, not a stop-the-world migration.
+([@steipete](https://x.com/steipete/status/2103648679169257737), Sep 2026.)
+
 ---
 
 ## Relationship to loop engineering

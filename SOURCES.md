@@ -80,6 +80,7 @@ substantively relevant to loop engineering practice (not just a passing mention)
 | Actor | Type | Handle / URL | Notes |
 |---|---|---|---|
 | Anthropic | html | https://claude.com/blog | Primary source for Claude Code updates. No RSS feed exists (confirmed Jul 2026 — `/rss.xml`, `/news`, `/blog/rss.xml` all 404, no `<link rel=alternate>` in page head); official blog moved to claude.com/blog, scrape the index page directly |
+| Anthropic | html | https://www.anthropic.com/news | Distinct from the claude.com/blog row above — a different domain (anthropic.com vs claude.com), not tracked until now. Added 2026-09-28 after a first-party Anthropic post, the Sep 23, 2026 [novel-enzyme-discovery announcement](https://www.anthropic.com/news/claude-discovers-novel-enzyme-system), reached the digest only secondhand: it is not on claude.com/blog (confirmed — no mention on that page), so this dedicated newsroom URL went unswept. www.anthropic.com/news itself returns 200 (checked 2026-09-28); the `/news` 404 noted in the row above was checked against the claude.com domain, not this one |
 | Boris Cherny | x | @bcherny | Creator of Claude Code; coined "write loops" |
 | Andrej Karpathy | x | @karpathy | Influential ML researcher |
 | Andrew Ng | x | @AndrewYNg | Agentic AI education |

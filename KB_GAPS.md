@@ -74,16 +74,53 @@ targeted GitHub and web searches.
   been read as a whole. Still the KB's own "Review new resources... deep-read and extract"
   rule going unmet. Search keywords: `milosCvetkovicDev claude-code-monorepo`, `production
   Claude Code config 71 skills`.
-- **A same-URL GitHub repo returned sharply conflicting metadata in one run's two passes.**
-  `cobusgreyling/loop-engineering` was swept directly (a small anti-pattern-5/MCP docs
-  commit, no star count reported) and separately surfaced via search (11,329★, described as
-  "CLI + 8 named loop patterns," citing an arXiv paper claiming it as "the community
-  reference") — under the same URL, in the same run. Not resolved here: could be a
-  search-index cache lag, a describe-string mismatch in the search tool, or the search
-  result describing a different, similarly-named repo. Before citing the 11,329★ figure or
-  the arXiv-community-reference claim anywhere, verify both directly against the live repo
-  page rather than trusting either pass. Search keywords: none — this needs a direct fetch
-  of `github.com/cobusgreyling/loop-engineering`, not a search.
+
+### Logged by the 2026-09-28 retry pass (hand-authored, not a tracker run)
+
+- **docs/17 has no hallucinated-dependency (package hallucination / "slopsquatting")
+  failure-pattern row.** [@kachar136](https://x.com/kachar136/status/2102438021874544739)
+  (Sep 22, 2026): "Asked my agent for a library. It invented one, gave it a version number,
+  and wrote its changelog. I almost installed it." A single anecdote is not enough to source
+  a Failure Patterns table row on its own — find a primary study (frequency, which package
+  ecosystems, what the fix looks like) before adding one. Search keywords: `package
+  hallucination LLM coding agent`, `slopsquatting`, `hallucinated dependency AI agent study`.
+- **`/retro`, a Claude Code skill by Matt Pocock, is a candidate for docs/24's
+  Self-Improving Harnesses cluster — once it graduates.** Announced at AI Engineer Paris
+  ([@mattpocockuk](https://x.com/mattpocockuk/status/2103501498361798983), Sep 25, 2026);
+  lives at [mattpocock/skills](https://github.com/mattpocock/skills/tree/main/skills/in-progress/retro),
+  still under `skills/in-progress/`, graduation tracked in
+  [PR #1120](https://github.com/mattpocock/skills/pull/1120) (open, not merged, as of
+  2026-09-28). Frontmatter description: "Conduct a retrospective on a coding session." It
+  reads session logs and proposes environment improvements across seven categories
+  (navigation, automated checks, coding standards, global AGENTS.md, tool economy, no-ops,
+  information access), with a concrete routing rule: a mechanical violation gets a
+  deterministic check (linter rule, pre-commit hook, CI job) "full stop"; only genuine
+  judgement calls go into `CODING_STANDARDS.md`. Scored per the KB's resource-review rule:
+  unique contribution 4/5 (the mechanical-vs-judgement routing rule and the seven-category
+  checklist aren't duplicated elsewhere in docs/24), precision 4/5 (concrete, actionable
+  steps), durability 2/5 (still in-progress, ungraduated, single maintainer) — **avg 3.3,
+  clears the ≥3.0 deep-read bar** — but do not deep-read/extract until PR #1120 merges; an
+  ungraduated skill file is one force-push from changing under the citation. Search
+  keywords: none needed — re-check `mattpocock/skills` PR #1120 for graduation.
+- **Tension: does `/code-review low` catch *more* bugs than higher effort levels, or fewer
+  with higher confidence?** [@bcherny](https://x.com/bcherny/status/2102897435614060829)
+  (Sep 23, 2026), replying to a report that Codex-as-peer-reviewer finds P1-P3 issues "even
+  after claude's own adversarial agents reviews with no findings": "Try /code-review low --
+  catches more bugs, and cheaper". The comparator ("more bugs" than what) is unstated. The
+  official [code-review docs](https://code.claude.com/docs/en/code-review) (fetched
+  2026-09-28) describe the effort levels the opposite way: "At low and medium, the review
+  reports only the findings it's most confident in, so you see fewer false positives; high
+  through max broaden coverage and may include findings the review is less sure about." Do
+  not put "low catches more bugs" into docs/ as guidance until a source with actual numbers
+  settles the tension. Search keywords: `/code-review effort level bug count`, `claude code
+  review low vs high accuracy`.
+- **The replies to @bcherny's "Tag writes >50% of my PRs every day" post are only partly
+  read.** [The post](https://x.com/bcherny/status/2103538666597691552) had 199 replies on
+  2026-09-29; the retry pass read roughly 85 and found three by the author (two operational
+  details, one opinion — see docs/31). Only author-written replies matter for docs/31, so the
+  follow-up is to list the post's replies filtered to @bcherny (X search:
+  `from:bcherny conversation_id:2103538666597691552`, or read the thread logged in) and score
+  any not yet cited. Search keywords: none needed — a read of an already-cited thread.
 
 ### Logged by the 2026-09-21 tracker run
 
@@ -301,6 +338,22 @@ Evidence pack: [`plans/20260907_0100-c7-doc-sweep-evidence.md`](plans/20260907_0
 
 ## Recently Filled (archive — keep last 2 entries; remove older ones)
 
+- ~~**A same-URL GitHub repo returned sharply conflicting metadata in one run's two
+  passes**~~ — filled 2026-09-28 by the retry pass: no real conflict. `cobusgreyling/loop-engineering`'s
+  direct sweep reported one commit (`d6a0f3d`, 2026-09-24, "examples/mcp: add a shared-state
+  config for the anti-pattern 5 case") and its search pass reported the full repo profile;
+  both describe the same repo accurately. Live-checked 2026-09-28: **~11,330 stars** (11,329
+  at run time, 11,330–11,331 on later same-day checks — drift, not a discrepancy); CLI `npx @cobusgreyling/loop`
+  (`init`/`doctor`/`status`/`audit`/`cost`); the README's `## Patterns` table has **8 rows**,
+  including "Thin loop". [arXiv 2608.21884v2](https://arxiv.org/abs/2608.21884v2) cites it as
+  bib "Greyling (2026b)" (the paper's own bib note for that entry: "GitHub repository Accessed
+  2026-07-15" — when the paper's authors checked the repo, not when this KB checked the paper),
+  "Cited by: §2.2, §3, §3, §3, Table 2", and its own §4.1 prose calls it "the community
+  reference repository" — a phrase with no inline
+  citation marker of its own. `cocodedk/loop-engineering` (35 stars, no CLI, no pattern
+  catalog, not cited by the paper) was never a candidate for either pass — it just shares a
+  keyword.
+
 - ~~**Three gaps closed in one targeted pass**~~ — filled 2026-09-06 by the backlog's **C9**. Kept
   as a single entry because they were one dated pass; the durable record is the doc section each
   landed in.
@@ -326,12 +379,6 @@ Evidence pack: [`plans/20260907_0100-c7-doc-sweep-evidence.md`](plans/20260907_0
        counterintuitive one — **clarification timing decays**
        ([2605.07937](https://arxiv.org/abs/2605.07937)): goal clarification loses nearly all value
        after 10% of execution, and asking past mid-trajectory is *worse than never asking*.
-
-- ~~**`claude --worktree <name>` standalone semantics**~~ — filled 2026-09-05 by docs/03
-  (`### The built-in flag: claude --worktree`): path/branch naming, PR/MR branching and
-  its per-host ref resolution, `.worktreeinclude`, the resume/cleanup lifecycle, and the
-  four hard-enforced isolation checks — the point being that these are *enforced by the
-  runtime*, where a CLAUDE.md worktree rule is only advisory prose)
 
 ## Claims Awaiting Verification — not search targets
 
