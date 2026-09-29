@@ -94,6 +94,7 @@ still shows the two-model wording (see docs/11).
   (two operational details, one opinion on Slack); a new first-party case study (claude.ai's
   own August 2026 performance sprint run through Tag)
 - `docs/34-loop-patterns.md` — a new eighth loop pattern, Thin Loop (cobusgreyling/loop-engineering)
+- `CLAUDE.md` — the "Open work" pointer: backlog §5 now holds three open items (`A17` added)
 - `KB_GAPS.md` — four new Active Gaps entries logged by this retry pass (including the Tag
   post's unread replies); the `cobusgreyling/loop-engineering` "conflicting metadata" gap
   closed and moved to Recently Filled, pruning its oldest entry to the file's 2-entry cap

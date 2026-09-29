@@ -13,9 +13,11 @@ Claude-Loops is a living knowledge base and automated daily tracker for **loop e
 > mask the failure class that once cost this repo eight weeks.
 > Tags and releases are in step — nothing is awaiting a backfill.
 >
-> **Open work.** `plans/20260904_2053-open-work-backlog.md` §3 and §4 are empty; **§5 holds two
-> open items** — `A15` (`--status` should check `MAX_AGE_HOURS` against the live mode) and `A16`
-> (nothing off-machine separates "no sweep ran" from "a sweep ran and published nothing"). Its §1
+> **Open work.** `plans/20260904_2053-open-work-backlog.md` §3 and §4 are empty; **§5 holds three
+> open items** — `A15` (`--status` should check `MAX_AGE_HOURS` against the live mode), `A16`
+> (nothing off-machine separates "no sweep ran" from "a sweep ran and published nothing") and
+> `A17` (`fetch-loop-news` runs every browser sweep at once, and its X Pass-2 stop rule cannot
+> tell a stalled tab from the end of the timeline). Its §1
 > *"Do not re-spend budget on"* list names work already paid for. Open **content** work lives in
 > `KB_GAPS.md` § *Active Gaps*: `docs/24` is under-sampled and 47 UNVERIFIABLE claims need triage
 > (the numbered list is in `plans/20260907_0645-c7-unverifiable-and-coverage-appendix.md`).

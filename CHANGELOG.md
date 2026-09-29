@@ -57,6 +57,7 @@ in three verified rounds, then integrated, reviewed and critic-checked. Digest:
   400k/20%, Tag expansion); seven link cells now point at the resolved post (disclosed there)
 - `KB_GAPS.md` — cobus "conflicting metadata" filled (there was no conflict); four gaps logged
 - `RESUME.md` — handover header for 20260928
+- `CLAUDE.md` — "Open work" now names three §5 items (`A17` added); approved by the maintainer
 
 ---
 
