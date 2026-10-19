@@ -1195,7 +1195,7 @@ conversation is an open design choice, not a settled one.
 replay, whole-loop A/B) starts from a limit: git labels cannot rank gates when the human merges the
 whole branch (39 of 39 decided changes merged on the first adopter), so a bench script runs the real
 value-critic and validator on cases with fixed answers. Self-reported results include Sonnet-to-Haiku
-gates costing more ($1.27 to $2.37) and catching less, and a prefilter rejecting 18 of 32 bad ideas
+gates costing more ($1.27 to $2.37), with quality differences the author's own intervals show as overlapping, and a prefilter rejecting 18 of 32 bad ideas
 and 0 of 12 good ones. A [later commit](https://github.com/InjayTseng/loop-engineering-on-product/commit/396c925204dde498659fe6c74426641daa477592)
 prints 95% Wilson intervals beside every rate and flags deltas inside overlapping intervals; a
 Sonnet validator failed 9 of 9 changes that keep their CLAIM but break the next flow (and passed the

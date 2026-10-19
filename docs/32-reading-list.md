@@ -90,6 +90,24 @@ Essential reading before deploying loops in production systems.
 
 ---
 
+### [Harness Engineering and Loop Engineering: The Fundamentals Are What Matter](https://jnaapti.com/blog/2026/10/18/harness-engineering-loop-engineering-fundamentals) — Gautham Pai (jnaapti)
+**Added:** 2026-10-19 · **Published:** 2026-10-18
+
+**Why here:** A calmer second counterpoint than the "is it over?" posts: it neither sells
+the label nor dismisses the practice, and it separates the loop that does the work from
+the loop that improves how the work is done. Read in full on 2026-10-19.
+
+**Summary:** Defines an agent execution loop (act, observe, repeat until done, needs help
+or a limit) and a self-improvement loop (evaluate, find a weakness, propose a change,
+test, keep or discard), and argues both need tools, context, state, permissions and checks
+whatever the work is called. Includes a Google Trends capture (2026-10-18) where "loop
+engineering" interest spikes around June, then declines, read by the author as attention,
+not usefulness. Transferable rule: an agent that proposes changes to its own workflow
+needs a baseline comparison, test cases and a rollback, because "Producing a revised
+workflow is not evidence that the workflow improved."
+
+---
+
 ## Getting Started: Practical How-Tos
 
 Tutorials, walkthroughs, and frameworks for writing your first loops.
@@ -175,6 +193,27 @@ works, and in doing so catalogs the loop types now available in Claude Code — 
 prompts, `/goal`, `/loop`, `/schedule`, and proactive routines — evaluating each against
 his own workflow rather than in the abstract. Useful as a worked example of applying the
 Goals vs. Loops decision framework to a real, non-engineering task.
+
+---
+
+### [Loop Engineering, beyond prompt, context, and harness engineering](https://speakerdeck.com/glaforge/loop-engineering-beyond-prompt-context-and-harness-engineering) — Guillaume Laforge & Wietse Venema (Google Cloud)
+**Added:** 2026-10-19 · **Published:** 2026-10-06 (deck posted; talk given at Devoxx)
+
+**Why here:** The most complete public slide set on the term: five-layer definitions
+(prompt, context, harness, loop, graph), a six-part loop anatomy, worked maker/checker
+shapes and six named failure modes in one place. A practitioner synthesis, not research:
+its primitives are Osmani's (slide 19 cites his essay), so read it after the founding
+documents above. The PDF's text layer (68 pages) was read in full; slide images were
+only spot-checked and no demo was run.
+
+**Summary:** Billed as a "3-hour deep dive". Anatomy: trigger, contract/goal,
+action/maker, verifier/checker, state/memory, stopping gate. Demo loops: maker/checker,
+planner/maker/checker, red/green/refactor, maker/dreamer with persistent memory; case
+studies are Huntley's [Ralph loop](https://ghuntley.com/ralph/) and Karpathy's [autoresearch](https://github.com/karpathy/autoresearch). Failure modes: runaway
+token burn, unverified autonomy, uncheckable goals, impossible goals, complexity ceiling,
+context saturation. Graph engineering is the deterministic network routing between
+loops, as in [docs/21](21-context-vs-loop-engineering.md#discourse-snapshot-2026-10-19);
+its trigger/exit quadrant is in [docs/20](20-loop-maturity-model.md#four-loop-structures-by-trigger-and-exit).
 
 ---
 

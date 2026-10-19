@@ -555,6 +555,45 @@ freely update only low-risk layers such as indexes and research notes.
 
 ---
 
+## Pattern L: A Lessons File With a Count-Based Promotion Rule
+
+[yetone/magpie](https://github.com/yetone/magpie) (repo description begins "Every agent's model. One place.")
+opens its `LESSONS.md` with "magpie's code is written, reviewed, merged and released by agents." The file
+is its memory design, read from the repo on 2026-10-19 (`LESSONS.md`, `AGENTS.md`, `docs/code-standards.md`,
+via `gh api`), not from the posts about it:
+
+- **A nightly review is described as writing it.** Per the file, each night the day's commits are reviewed "for what had to
+  be fixed again, what shouldn't have merged and what was verified too thinly". An entry is a rule, then
+  why, then evidence (commit and issue numbers), then `Seen N×` with the dates. It also logs what went
+  right ("Done right on 10-07: …").
+- **It is loaded, not hoped for.** magpie's `CLAUDE.md` is two lines, `@AGENTS.md` and `@LESSONS.md`, and
+  `AGENTS.md` points agents at the lessons for "what recent merged work got wrong and the rule that would
+  have caught it".
+- **Promotion is a count.** "A lesson seen on 3 or more separate days moves into" `docs/code-standards.md`,
+  where "A reviewer checks each one" and the acceptance criteria say "A check that wasn't run is listed as
+  not run, never left out." Same shape as [Pattern G's blind-spot ledger](#pattern-g-repo-owned-durable-ledger)
+  and the weight-threshold promotion into a hook in [Harness Patterns](24-harness-patterns.md), but with a
+  visible threshold and a reviewer in place of a hook.
+
+**What the file shows about its own loop (its tallies, not independently checked).** 2026-10-05 had "220
+commits and ~170 releases", about 40 of which fixed something released the same or the previous day; later
+days in the file read 18 releases (10-08) and 16 and 7 tags (the days to 10-17 and 10-18). The file does not
+say the lessons caused the slowdown; an [X article by @wquguru](https://x.com/wquguru/status/2109650264601117141)
+infers it. Promotion did not end recurrence: the "Moved to the code standards" section keeps adding "criteria
+still missed" entries for already-promoted rules (10-09/10 through 10-17). Separately, the file records a change no user could undo
+shipping in v0.1.1276 with the open questions on it unanswered (a single occurrence, `Seen 1×`, not a promoted rule).
+
+**What the repo does not show.** None of the four workflows in `.github/workflows` has a `schedule`
+trigger (checked 2026-10-19), so what starts the nightly review is unstated. [yetone's post](https://x.com/yetone/status/2109855710444237018)
+shows three `/loop` prompts with no interval; on my reading of its screenshot (Chinese), the third asks for
+periodic clean-up of bad and malicious code, lessons written down for later agents, and a blocklist for
+repeat low-quality contributors. Whether it is the nightly review is not stated. The `reviewed-through`
+marker on the file's first line still reads `e297a8ab2 (2026-10-13 23:30 +0800)` at its last commit
+(2026-10-17 UTC) though the body covers reviews to 10-18: an agent-kept cursor drifted. Whether the
+lessons reduced defects is unmeasured here.
+
+---
+
 See [Long-Running Agents](25-long-running-agents.md) for the architectural pattern
 (Ralph loop / planner-worker-judge) that uses these memory strategies to coordinate
 work across multiple context windows.

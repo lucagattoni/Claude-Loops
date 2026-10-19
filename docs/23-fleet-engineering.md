@@ -315,7 +315,7 @@ platform owns hosting, identity, permissions, audit and execution.
 | Source | The split it proposes | Maturity stated by the source |
 |---|---|---|
 | [CNCF blog, "The case for a cloud native agent harness"](https://www.cncf.io/blog/2026/09/28/the-case-for-a-cloud-native-agent-harness/) (Stacklok, Sep 28 2026; summarised in [The New Stack](https://thenewstack.io/kubecon-agent-harness-koordinator/)) | Desktop harnesses fuse UI, agent loop, sandbox, credentials, tools and session DB in one process; "a monolith in a container is still a monolith". Separate the agent loop from clients, execution environments, tool catalog and supporting services | Open-sourced Mecatl; identity (a SPIFFE trust domain with the delegation chain in a JWT), scoped resource grants and signed context are listed as design drafts, not shipped |
-| [OpenClaw Enterprise](https://thenewstack.io/openclaw-enterprise-kubernetes-agents/) (OpenClaw blog, 2026-09-29) | A control plane with isolated namespaces, credentials, permissions and audit over persistent agents, with a swappable harness, model and sandbox | Pre-1.0, pilot only; the post states IT's default stance is to ban such agents |
+| [OpenClaw Enterprise](https://openclaw.ai/blog/openclaw-enterprise) (OpenClaw blog, 2026-09-29; also covered by [The New Stack](https://thenewstack.io/openclaw-enterprise-kubernetes-agents/)) | A control plane with isolated namespaces, credentials, permissions and audit over persistent agents, with a swappable harness, model and sandbox | Pre-1.0, pilot only; the post states IT's default stance is to ban such agents |
 | [kagent and Karpenter, per The New Stack](https://thenewstack.io/ai-agents-kubernetes-control/) | A loop of observe, diagnose, propose, approve, reconcile, verify, with agents reasoning and deterministic operators executing | An article's worked example on a CNCF Sandbox project |
 
 The one concrete durability claim is worth keeping exact: Mecatl keeps session state and event history in
@@ -326,6 +326,45 @@ between a pod eviction ending a conversation and ending a unit of work, and it i
 sibling of [Long-Running Agents](25-long-running-agents.md) checkpointing. The post also argues a hosted
 agent should start from a catalog of allowed tools rather than an unrestricted shell, which lines up with
 the Approve pillar above and with [Permissions](08-permissions.md).
+
+## Shared Gateway for a Team: One Trust Domain, Routed Humans
+
+The control-plane rows above put many agents behind one platform. [OpenClaw](https://github.com/openclaw/openclaw)'s
+[Team setup](https://docs.openclaw.ai/start/teams) guide describes the opposite shape: many humans
+around one agent host. It sets up "one OpenClaw gateway that a whole team uses" and says "team
+operation is configuration, not a separate edition". (Vendor documentation, read in full
+2026-10-19; the configuration was not run here.)
+
+| Concern | What the page says |
+|---|---|
+| Trust | "A gateway is one trust domain." Everyone who can message a tool-enabled agent shares its delegated tool authority. Ownership, presence and roles are "collaboration guardrails inside the boundary, not isolation between adversaries"; mutually untrusted users or organisations get separate gateways |
+| Access | Loopback bind by default. Teammates come in through [Tailscale Serve](https://tailscale.com/docs/features/tailscale-serve) (listed as recommended), an identity-aware proxy such as [Cloudflare Access](https://developers.cloudflare.com/cloudflare-one/access-controls/policies/), or a shared token or password, which gives everyone one owner profile instead of per-person identity |
+| Attribution | Each shared session has "an immutable creator, an assignable owner, and the history of people who actually prompted"; sessions are assigned "like GitHub issues". With Git co-author credit enabled, commits carry `Co-authored-by` trailers and generated pull requests link back to the session |
+| Bounds | `gateway.roles` bind a profile to the sessions it can touch, the agents it can use, a ceiling of operator scopes and whether its new sessions must be sandboxed. The example gives guests view-only access to others' sessions and notes this still lets them read every shared session, "including tool output" |
+
+The fleet lesson is the line the page draws: collaboration controls are not tenant isolation. The
+nearest row above for the untrusted case is OpenClaw Enterprise (isolated namespaces, pilot only); the
+Team page does not mention it, so that pairing is this KB's. One public example of the attribution
+layer: all 13 commits of OpenClaw [PR #161656](https://github.com/openclaw/openclaw/pull/161656)
+(merged 2026-09-30; the change is in
+[Session Architecture](37-session-architecture.md#what-inter-session-messages-cost-the-reader)) are
+authored by [`roboclaw-bot`](https://github.com/roboclaw-bot) with a `Co-authored-by` trailer naming [`steipete`](https://github.com/steipete), and the body lists
+"@steipete" under "Worked on by" and links a "Work sessions" page (checked with `gh api` 2026-10-19;
+the session was not opened). Consistent with the page; it does not show the configuration behind it.
+
+**Routing work between people and a shared agent.** Two informal posts from
+[@steipete](https://x.com/steipete), who built OpenClaw with the community (per its [README](https://github.com/openclaw/openclaw)), add the routing side; they are his own
+description, not documentation. On 2026-10-03 he explained a slide as "a joke around being the meat
+proxy": the team "moved to one agent, building together, everyone can see or prompt each others'
+sessions. Eliminating meatproxyism", linking the Team page
+([post](https://x.com/steipete/status/2106446572330631663)). On 2026-10-07: "I hooked up our team claw
+to X to trigger work faster. Unassigned sessions are for anyone to grab. Our agent looks who worked
+on the related code last and pings people on the server. Whole thing was a prompt and team server
+extended itself since plugins are now hot reloadable."
+([post](https://x.com/steipete/status/2107697554448421160).) The Team page, read in full, covers
+ownership and assignment but not the X trigger, the last-toucher ping or hot-reloadable plugins, so
+those three rest on the post alone, which reports no result for any of them (event trigger:
+[Background Agents](29-background-agents.md#event-triggered-sessions-left-for-a-person-to-claim-openclaw)).
 
 ## Unattended Fleet Mechanics: Wake, Recovery and Human-Wait
 
@@ -340,9 +379,9 @@ title level only, so treat them as design signals, not verified behaviour.
 | **Never let an automated trigger answer a human question** | [OpenRig 0.6.7](https://github.com/mvschwarz/openrig/releases/tag/v0.6.7): a send or watchdog wake is refused while the seat's latest hook says it is waiting on the human, and the wake goes up the escalation path. [session-orchestrator ADR-0016](https://github.com/Kanevry/session-orchestrator/blob/main/docs/adr/0016-cross-session-messaging.md) (rules CSM-001..005, [v5.8.0](https://github.com/Kanevry/session-orchestrator/releases/tag/v5.8.0)): an incoming peer message is a claim to re-verify, no permission laundering, delivery never guaranteed |
 | **Make the human pause a queue, not an ending** | [Archon v0.12.0](https://github.com/coleam00/Archon/releases/tag/v0.12.0): one "attention queue" routes every human-in-the-loop pause, and public stages pause as an attention item instead of ending. OpenRig 0.6.11: restore stops for a decision rather than starting a seat fresh |
 | **Durable, resumable state** | Archon v0.12.0: workflows can run without a database (`store: files`) and keep revisioned durable state; a run that hits a provider usage limit with a known reset pauses and auto-resumes without holding a resource slot. [session-orchestrator v5.11.0](https://github.com/Kanevry/session-orchestrator/releases/tag/v5.11.0): release verification resumable from a persisted receipt. [Orchestra v2.46.0](https://github.com/DrSeedon/orchestra/releases/tag/v2.46.0): per-worker durable checklists. [agent-orchestrator v0.13.2](https://github.com/OrchestratorInc/agent-orchestrator/releases/tag/v0.13.2): durable scheduled automations |
-| **Stop on stalls, not on wall-clock** | [hearting v3.35.0](https://github.com/dmlguq456/hearting/releases/tag/v3.35.0): dispatched foreground workers stop only when they show no activity, replacing blanket timeouts (release title read; the diff was not) |
+| **Stop on stalls as well as on wall-clock** | [hearting v3.35.0](https://github.com/dmlguq456/hearting/releases/tag/v3.35.0): dispatched foreground workers get a second, earlier stop when they show no activity, with the hard timeout kept as the final backstop ([PR #577](https://github.com/dmlguq456/hearting/pull/577); the release title alone reads as if it replaced blanket timeouts) |
 | **Unknown is not zero** | [session-orchestrator v5.11.0](https://github.com/Kanevry/session-orchestrator/releases/tag/v5.11.0): absent usage is reported as NO-USAGE, a missing population as "not measurable", and overflow write failures are reported rather than swallowed. Same defect class as the one named in [Failure Patterns](17-failure-patterns.md) |
-| **Enforce by mechanism, not prompt** | [hearting v3.12.0](https://github.com/dmlguq456/hearting/releases/tag/v3.12.0): workers marked no-commit are refused `git commit` by the runtime. Orchestra v2.46.0: a shell guard, described as "a narrow policy, not a sandbox". [session-orchestrator v5.6.0](https://github.com/Kanevry/session-orchestrator/releases/tag/v5.6.0): a fail-closed wave-scope gate for parallel agent waves |
+| **Enforce by mechanism, not prompt** | [hearting v3.12.0](https://github.com/dmlguq456/hearting/releases/tag/v3.12.0): OpenCode workers marked no-commit are refused `git commit` by the runtime (the release's fix is scoped to opencode). Orchestra v2.46.0: a shell guard, described as "a narrow policy, not a sandbox". [session-orchestrator v5.6.0](https://github.com/Kanevry/session-orchestrator/releases/tag/v5.6.0): a fail-closed wave-scope gate for parallel agent waves |
 | **Reject an unfinishable loop before it runs** | [OpenRig 0.6.8](https://github.com/mvschwarz/openrig/releases/tag/v0.6.8): validate refuses a step with no allowed exit that can finish it or route onward (`step_cannot_finish`). Archon v0.12.0: a `when:` that can never be evaluated now fails at load |
 
 Two limits the rows share. First, a concurrency cap is a fleet control in its own right:
@@ -350,8 +389,8 @@ agent-orchestrator v0.13.2 lists project agents capped at 6 (one line in the not
 is not verified). Second, the ADR-0016 measurements bound what a fleet can assume about coordination
 inside Claude Code: peer sessions on the same host are discoverable and messageable via
 `ListAgents`/`SendMessage`, sub-agents can send upward but not discover sideways, headless `-p`
-workers can accept messages, and cross-host Remote Control delivery was unreliable (a research preview) on
-the version measured. See [Harness Patterns](24-harness-patterns.md) for the same projects' dispatch
+workers can accept messages, and cross-host Remote Control was asymmetric on the version measured (the Mac saw the server, the server
+saw nothing; delivery was measured in one direction only; a research preview). See [Harness Patterns](24-harness-patterns.md) for the same projects' dispatch
 and receipt designs, and [Common Failure Patterns](17-failure-patterns.md) for the polling and false-success
 classes several of these fixes answer.
 

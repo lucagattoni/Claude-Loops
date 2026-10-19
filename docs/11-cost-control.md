@@ -458,6 +458,23 @@ Two adjacent cost drivers that are not tokens read per turn:
   loop's budget needs a tool-call or wall-time dimension, not only dollars; see
   [Multi-Dimensional Budget Pressure](#multi-dimensional-budget-pressure).
 
+**A harness-level lever found by an auto-research loop: SoL-Pi.** [SoL-Pi](https://github.com/NVlabs/SoL-Pi)
+(NVIDIA/MIT; [paper](https://arxiv.org/abs/2609.20519), 17 Sep 2026; MIT-licensed, an extension for the
+[Pi](https://github.com/earendil-works/pi) harness) packages four mechanisms an automated search kept, each aimed
+at a cost driver above: fuse an edit with its follow-up command into one tool call; replace a large tool result
+with a handle and excerpt after two requests; replace long build/test logs with a cheap-model receipt checked
+against the archived log; compact at finished plan steps (or near the window limit) when projected savings beat
+the cost of rewriting the prompt cache. The authors' numbers on the 51 public
+[EdgeBench](https://github.com/ByteDance-Seed/EdgeBench) tasks, unreplicated: against
+Pi the full stack used 44.7-49.0% fewer tokens and about a third less API cost (33.2% and 33.5% on the two models)
+while keeping 93.7-94.3% of Pi's average score (42.0 vs 44.8 on GPT-5.6 Sol); against the native Codex and Claude
+Code harnesses the cost cut was 50.0% and 54.3%. The trade shows in their cache numbers: cache reads halved, cache
+writes more than doubled (0.0141 B to 0.0316 B tokens), and total cost still fell ($1,339 to $894). On
+[Terminal-Bench 4](https://www.tbench.ai/news/terminal-bench-4-0) (63 CPU-only tasks) it solved 15 tasks against 18 for Pi and Codex, at 26.3% lower cost than Pi. All four mechanisms are
+opt-in and off by default, and the log reducer sends log content to a second model, so the project's
+[SECURITY.md](https://github.com/NVlabs/SoL-Pi/blob/main/SECURITY.md) says not to enable it for logs that must stay
+local. How the search was gated: [Harness Patterns](24-harness-patterns.md#self-improving-harnesses).
+
 ## Routing and Decision Models: Strong Model Only Where It Decides
 
 The role table in [Choosing a Model for the Job](#choosing-a-model-for-the-job) allocates models by
@@ -554,6 +571,12 @@ the real check is slow or costly, the loop needs a ladder of cheaper proxies (it
 runs unit tests, integration tests, code review, then customers) and the proxy must be watched for
 Goodhart drift, which connects to [Verifier Theater](17-failure-patterns.md). A loop whose only
 verifier is expensive should say so in its BUDGET.
+
+**An ambient agent has a standing cost, not only a per-run cost.** swyx
+[says](https://x.com/swyx/status/2108180514121142677) (8 Oct 2026) his team "stopped using Tags after finding
+out they cost ~$3k/mo minimum passive ingestion". It is a third-party user's own estimate with no method or
+breakdown, and the post is the only source read, so take it as a prompt to price an always-on or
+ingest-everything loop before enabling it (see [Claude Tag](31-claude-tag.md)), not as a Claude Tag price.
 
 ## Effort levels
 

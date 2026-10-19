@@ -305,7 +305,7 @@ verified beyond what is noted.
   discourse prescribes — see [Loop Maturity Model](20-loop-maturity-model.md).
 - **Spread beyond code, and its first pushback.** A go-to-market post applies the pattern to
   sales/marketing agents (trigger, context enrichment, action, grader evaluation, feedback that
-  updates prompts and scoring) ([LinkedIn — Alex Lindahl](https://www.linkedin.com/in/alexlindahl/));
+  updates prompts and scoring) ([LinkedIn — Alex Lindahl](https://www.linkedin.com/in/alexlindahl/), a profile page rather than a post; on 2026-10-19 the post could not be re-found there, so this description is the search stage's summary and is unconfirmed);
   a counterpoint post says GTM teams keep adding context, connected systems and feedback loops
   but things break once agents are given real autonomy (only the opening was read, so the failure
   argument itself is not captured). Treat the pair as evidence of use outside coding and of an
@@ -315,7 +315,7 @@ verified beyond what is noted.
   sources used any benchmark, and 2 of 114 used a security benchmark) says practitioners now
   call the surrounding discipline harness engineering and loop engineering — the vocabulary
   here is practitioner-led and mostly unmeasured ([LinkedIn — a Tampere professor relaying Rasheed et al.](https://www.linkedin.com/in/profabrahamsson/);
-  the figures are the post's summary of the review, which was not opened).
+  the figures are the post's summary of the review; the 15 percent figure could not be traced in the review itself on 2026-10-19, so treat it as unverified).
 - **Terminology critique.** One essay applies a replace-the-new-word-with-the-old-one test and
   argues "harness" is partly a rename of the older test and benchmarking harness while the core
   idea — a designed environment around the model — is genuinely new ([LinkedIn — Trivedi, "Harness Is Not Everything Minus the Model"](https://www.linkedin.com/pulse/harness-everything-minus-model-hasit-trivedi-cjthf/); opening only). Another defines the harness
@@ -340,6 +340,58 @@ One counter-thesis is worth recording at low confidence: the episode outline for
 Newsletter interview with OpenAI's head of ChatGPT and Codex lists "Why loops, graphs, and
 fine-tuning agent workflows are a passing phase" as a topic ([Lenny's Newsletter](https://www.lennysnewsletter.com/p/openais-head-of-chatgpt-were-entering)).
 The post is paywalled and only that outline was readable, so the argument itself is unverified.
+
+### Discourse snapshot, 2026-10-19
+
+Dated posts and talks from the three weeks to 2026-10-19, each opened at its source (translations from Chinese
+are mine). They date and test the vocabulary; none is evidence that loops work.
+
+- **Is it over? And a measured counterpoint.** [@jun_song](https://x.com/jun_song/status/2110345547764969915) (2026-10-14)
+  lists loop engineering and "Graph" among things that "disappeared" this year, quoting his own 2026-07-18 post "Loop
+  engineering will be gone in few months" (94,738 views at the 2026-10-19 fetch; replies not read). Gautham Pai
+  ([blog, read in full](https://jnaapti.com/blog/2026/10/18/harness-engineering-loop-engineering-fundamentals), 2026-10-18)
+  writing independently four days later, offers data: Google Trends shows "loop engineering" interest spiking "around June" then declining, but "That
+  measures attention, not usefulness." The June wave and the token-spend objection are dated in
+  [The Paradigm Shift](01-paradigm-shift.md).
+- **The "Cron Engineering" critique.** [@uudonX](https://x.com/uudonX/status/2106875762351743129) (2026-10-04) calls loops and
+  graphs orchestration repackaged because models are not yet capable enough, and notes Linux never hyped writing cron
+  jobs as "Cron Engineering"; he quotes a [Lenny Rachitsky post](https://x.com/lennysan/status/2106772428861149683) listing
+  "Why loops and graphs are a passing phase" — the counter-thesis above (episode not heard).
+  [@guoda2066](https://x.com/guoda2066/status/2106435847738560846) (2026-10-03) says loop engineering is a best practice on
+  top of the harness, not part of it. One reading each, not independently checked.
+- **A conference deck.** Guillaume Laforge and Wietse Venema (Google Cloud developer advocates, per slide 1) posted their
+  Devoxx talk ([post](https://x.com/glaforge/status/2107467103070474729), 2026-10-06) as
+  [Loop Engineering, beyond prompt, context, and harness engineering](https://speakerdeck.com/glaforge/loop-engineering-beyond-prompt-context-and-harness-engineering),
+  a "3-hour deep dive" (68-page PDF text layer read; one slide image checked). It defines loop engineering as how
+  "we make the model iterate autonomously until a verifiable goal is met" and graph engineering as "designing the
+  deterministic network (the graph)" and, in the next bullet, "that connects, routes, and orchestrates (the edges)
+  individual loops (the nodes)"; for the complexity-ceiling failure mode it prescribes "Transition from basic loop
+  structures to structured graph workflows" — this doc's composition rule, stated rather than argued. Its four loop
+  structures are in the [Maturity Model](20-loop-maturity-model.md#four-loop-structures-by-trigger-and-exit).
+- **Two more sessions.** [@omarsar0](https://x.com/omarsar0/status/2104999107131797638) live-tweeted a talk he opened with "What
+  comes after loops?" (2026-09-29; speaker and event not named; second-hand); a
+  [later tweet in the thread](https://x.com/omarsar0/status/2105000667463237801) says: "Problem was informing the agent when to
+  stop. Then came loop engineering." IBM Technology's
+  [What Is Loop Engineering? Building Better AI Agents](https://www.youtube.com/watch?v=DQBqh6gcx7U) (2026-10-19, 10:48)
+  is described as "Martin Keen explains loop engineering and how AI agents act, observe, adjust, and repeat toward measurable
+  goals"; only the description and chapter list were read, so the video's own claims are unchecked.
+- **Attribution is unsettled.** [@GeoffreyHuntley](https://x.com/GeoffreyHuntley/status/2105213624105259504) (2026-09-30)
+  posted "out: loop engineering" and "in: petrinet engineering" with no definition. Josh Wulf's
+  [video with him](https://www.youtube.com/watch?v=ziXOV0b134s) is described on its YouTube page as featuring "the creator of the 'Ralph Wiggum' loop and the person behind loop engineering" (the
+  description's wording; the video was not watched); [The Register](https://www.theregister.com/ai-and-ml/2026/06/24/loop-engineering-latest-ai-buzzword-still-needs-humans-in-the-loop/5261735)
+  credits the recent focus "in part" to [Steinberger](https://x.com/steipete/status/2063697162748260627)'s post. Huntley's
+  Ralph loop is the earlier technique ([Long-Running Agents](25-long-running-agents.md)).
+- **Another decision rule.** [@its_meseba](https://x.com/its_meseba/status/2104472784218792133) ("Loops, graphs, or both",
+  2026-09-28, read in full) asks whether one agent can do the whole job *and* a cheap, real check can confirm it (if not,
+  a team of agents, his "graph"), and whether the job comes back or its size is unknown (if so, wrap it in a loop). Its
+  product-behaviour claims are the author's, unverified.
+- **Promotion to discount.** Two Jev pitches drew the largest view counts among the posts read for this pass:
+  [@Mr_Buzzoni](https://x.com/Mr_Buzzoni/status/2103689373774483815) (2026-09-26, 876,588 views at the 2026-10-19 fetch, an article
+  post) and [@beamnxw](https://x.com/beamnxw/status/2108101310515925217) (2026-10-08, 799,928 views at the first fetch), which pitches Jev, which its article
+  calls "TypeSafe AI's decision model" (no product page was found on 2026-10-19; the promoting posts are the only sources); [@kirillk_web3](https://x.com/kirillk_web3/status/2108679649006129271) amplifies a
+  piece titled "Loop Engineering Meets Jev Engineering: How to Cut Your Claude Bill From $765 to $3 a Month". The saving
+  is the promoter's arithmetic, not measured here, and `SOURCES.md` already flags cross-promotion of Jev by other
+  accounts as one coordinated push.
 
 ### Is "Graph Engineering" a named discipline?
 

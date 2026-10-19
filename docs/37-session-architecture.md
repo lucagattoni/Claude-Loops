@@ -380,6 +380,30 @@ platform ships that primitive directly. `notify_when_idle` doesn't replace the m
 pattern's git-tracked audit trail or its reach across non-Claude-Code tools — but for two Claude
 Code sessions on one machine, it removes the need to build the wake-up mechanism at all.
 
+### What inter-session messages cost the reader
+
+The cost of messaging between sessions is not only tokens: in a chat UI each receipt is also a
+bubble in the human's reading path. [OpenClaw](https://github.com/openclaw/openclaw)'s
+[PR #161656](https://github.com/openclaw/openclaw/pull/161656) ("collapse inter-session receipts
+into activity rows", merged 2026-09-30) names the problem: "Inter-session receipts crowd the
+conversation with machine-oriented text, repeated source labels, and avatars." The Control UI now
+shows consecutive updates from the same source as one "updates from" row. One click or keyboard
+activation reveals the original messages with timestamps, and the expanded view links to the source
+session. A human message, a local answer, a different source or a conversation marker ends a group,
+and search and reply navigation still reach the originals.
+
+Two details worth keeping. It is a presentation change: the PR states "Stored messages, transport,
+run ownership, configuration, and permissions are unchanged", so on this KB's reading it relieves
+human attention, not token spend. And the linked issue
+([#161651](https://github.com/openclaw/openclaw/issues/161651)) records what was rejected: "A separate
+activity inspector makes coordination easier to miss. Generated outcome summaries would need
+trustworthy structured metadata and can repeat the assistant's own explanation." The raw receipts stay
+available instead of being replaced by a generated summary. [@steipete](https://x.com/steipete/status/2105362785534361996) (2026-09-30), who built OpenClaw with the community
+(per its [README](https://github.com/openclaw/openclaw)), gives his motive:
+"I'm finding inter-agent communication in the chat stream increasingly irritating. Changed the
+visibility in the OC harness to just a single line that can be expanded." His "Pretty sure others will
+follow" is a prediction, not a result. The PR's test report is its own and was not re-run here.
+
 ## When agents are not told about each other
 
 Anthropic's [multiagent systems study](https://www.anthropic.com/research/multiagent-systems)

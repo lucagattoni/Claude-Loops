@@ -27,6 +27,14 @@ source-code-level anatomy/architecture/evolution comparison rather than the defi
 above. ([arXiv 2609.00006, "Harness Engineering: Anatomy, Architecture, and Evolution of Coding
 Agents"](https://arxiv.org/abs/2609.00006), Sep 2026.)
 
+Its headline finding bears on who owns the loop: across roughly four million lines "no agent runtime
+imports a general-purpose agentic framework" ([LangChain](https://github.com/langchain-ai/langchain), [LangGraph](https://github.com/langchain-ai/langgraph), [AutoGen](https://github.com/microsoft/autogen), [CrewAI](https://github.com/crewAIInc/crewAI) and a dozen others
+were checked) and none retrieves code with vector embeddings; every loop is hand-rolled, which the authors
+put down to "debuggability and prompt transparency" outweighing framework reuse when the agent mutates real
+code. It is a source study of coding harnesses, with Claude Code read from "a circulated source snapshot".
+A practitioner write-up ([@wasowskijarek](https://x.com/wasowskijarek/status/2112148246793495003), 19 Oct
+2026) reframes the choice as who owns the loop and where state must survive a crash: its framing, not the paper's.
+
 **The commercial stakes are not abstract.** Reporting on Cursor's SDK launch and its compute deal
 with xAI, The New Stack frames the shift as: "models are becoming commodities, and the harness is
 becoming the product." The article's own headline claim — "Cursor's $60 billion bet" — is not
@@ -182,6 +190,19 @@ not yet cross-validated against any of them on the same tasks.
 ([@akshay_pachaar](https://x.com/akshay_pachaar/status/2104509576888697015); [arXiv
 2608.11341, "Apodex Discovery: Reality Benchmarks and Environments for Evaluating
 Discoverative AI"](https://arxiv.org/abs/2608.11341), Aug 2026.)
+
+**The ranking does not carry across models.** In the Apodex paper's own table (seven diagnostic
+environments, mean score) the same four model-agnostic harnesses reorder: on Opus-4.8 ApodexHarness
+leads (0.611) and A-Evolve is third (0.569); on GPT-5.6-sol A-Evolve leads (0.648) and ApodexHarness
+is second (0.592). The authors conclude "No single harness is universally optimal"; they also built
+ApodexHarness, and the post above was written with Apodex. The Hugging Face / [Liquid AI](https://www.liquid.ai/)
+[multi-harness RL guide](https://huggingface.co/spaces/FineEnvs/multi-harness-rl) (Sep 2026) cites Joel
+Niklaus's SWE-bench Pro runs of GLM-5.2 at 23% in one harness and 52% in another, then trains a 2.6B model
+with RL inside four unmodified harnesses ([Claude Code](https://code.claude.com/docs/en/overview), [Codex](https://github.com/openai/codex), [OpenCode](https://opencode.ai), [Mini-SWE-Agent](https://github.com/SWE-agent/mini-swe-agent)): held-out pass@1
+rose from 42% to 54% averaged over the four, while OpenCode-only training reached 52.3% ("within the noise")
+but kept its gain mostly in OpenCode (34% to 58%). One seed per run and unequal data exposure, so the guide
+calls the comparison "observational". For a loop that can swap model or harness, a score belongs to the
+pair; re-measure after either changes.
 
 ### Two Settings Tripled a Benchmark Score — and the Vendor Didn't Sell the Harness
 
@@ -434,6 +455,17 @@ model router learns, from fleet-wide eval logs, the *cheapest sufficient* model 
 rather than always routing to the strongest — a fleet-maturity-relevant detail alongside the
 harness-evolution one. ([ruvnet/metaharness](https://github.com/ruvnet/metaharness), Jul 2026.)
 
+**SoL-Pi — an auto-research loop aimed at efficiency, with the gates fixed in advance.** In NVIDIA/MIT's
+[SoL-Pi](https://arxiv.org/abs/2609.20519) (17 Sep 2026; code: [NVlabs/SoL-Pi](https://github.com/NVlabs/SoL-Pi))
+an AI researcher reads the base harness's own traces and proposes changes; one survives only if every
+capability metric stays inside a predeclared tolerance and an efficiency metric improves. The paper keeps these
+"strictly isolated from the optimizing agent" and says "a failed validation rejects the candidate without
+triggering further optimization"; of the 51 public [EdgeBench](https://github.com/ByteDance-Seed/EdgeBench)
+tasks, 11 gate acceptance and 40 are the final test. 152 proposed directions over 535 environments left four
+mechanisms ([costs](11-cost-control.md#where-the-money-goes-turns-not-observations),
+[context](13-context-management.md)). Authors' results, unreplicated; transfer to a second model is called
+"preliminary evidence". Reusable rule: the optimizer cannot edit the acceptance criteria.
+
 **Mechanized rules beat prose guidance, quantified.** A self-improving harness that
 converts confirmed tool-call failures into durable, vote-weighted lessons (promoted into
 an enforced hook once repeat evidence crosses a weight threshold) cites — as an unsourced
@@ -607,7 +639,7 @@ above. A paragraph each would bury the pattern, so the tables below group them b
 each one answers. The one-line contributions come from the papers' abstracts or listings, not
 from a paper-by-paper read, and every figure is the authors' own and unreplicated. For further
 candidates, [Awesome-Agent-Harnesses](https://github.com/NeuraLiying/Awesome-Agent-Harnesses) is a
-small curated index (its title counts 208 papers and 67 production harnesses; updated 2026-10-14)
+small curated index (its title counts 208 papers and 67 production harnesses, essays and talks; updated 2026-10-14)
 organised by component (agent loop, tools, memory/context, multi-agent, evaluation,
 self-improvement loops) and framing the loop as one component of the harness. Treat it as a
 candidate list, not as evidence: its entries have not been reviewed here.
@@ -684,7 +716,7 @@ against the model rather than optimising it, and the same conclusion keeps appea
 | [Legislative document-to-XML](https://arxiv.org/abs/2610.19999) | Three harnesses by three Claude models on 153 bills: the weakest model in the full pipeline scored 0.948, the strongest model alone 0.806 |
 | [MedicalHarness](https://arxiv.org/abs/2610.05778) | Controlled model-by-harness study on a 107-task benchmark that isolates individual harness mechanisms; argues an agent score belongs to the model-harness pair |
 | [Mingbird](https://arxiv.org/abs/2610.02001) | Attributes small-model agent failures to the harness and adds a prefill budget, a finish gate that re-reads the task before accepting completion, and signature-level loop detection |
-| [Box²-Bench](https://arxiv.org/abs/2609.39578) | Varies workflow reliability to test whether models can override misleading harness guidance; frontier models stay vulnerable, and counterfactual SFT or RL improves robustness |
+| [Box²-Bench](https://arxiv.org/abs/2609.39578) | Varies workflow reliability to test whether models can override misleading harness guidance; frontier models stay vulnerable, counterfactual SFT improves robustness, and outcome-based RL shifts models toward using helpful workflows |
 | [Corporate and investment banking](https://arxiv.org/abs/2609.39958) | Industrial case where LLM judges guided harness changes; tests whether the gain over direct generation is real or a grading artifact |
 
 Two cautions apply. The Box²-Bench result cuts against "more harness guidance is always better":
@@ -1221,6 +1253,18 @@ workstream affinity preserved under budget/breaker/lease fencing, and an abandon
 attempt is treated as cancelled work rather than silently blocking the whole goal from completing.
 ([Sungmin-Cho/claude-deep-loop](https://github.com/Sungmin-Cho/claude-deep-loop), v1.24.1, Sep 2026.)
 
+### Brain, hands and session as separate interfaces (Anthropic, Apr 2026)
+
+Anthropic's Managed Agents post splits an agent into a **session** (an append-only event log kept outside the
+harness), a **harness** (the loop that calls Claude and routes its tool calls) and a **sandbox**. The harness
+calls a sandbox like any tool, `execute(name, input) -> string`, so a dead container is a tool-call error, and
+a crashed harness restarts with `wake(sessionId)` from the last logged event: state survives a crash because it
+was moved out of the harness. Credentials moved too: tokens are kept "never reachable from the sandbox" (see
+[Agent Security Hardening](33-agent-security-hardening.md#credential-isolation-four-disposition-types)).
+Anthropic reports p50 time-to-first-token down roughly 60% and p95 over 90% from provisioning containers only
+when needed (its own measurement, no method given).
+([Anthropic Engineering, "Scaling Managed Agents: Decoupling the brain from the hands"](https://www.anthropic.com/engineering/managed-agents), 8 Apr 2026; read in full 2026-10-19.)
+
 ## The Query Loop as System Heartbeat
 
 A book-length treatment of Claude Code's own runtime argues the query loop — not the
@@ -1334,6 +1378,14 @@ and as a standalone CLI, with long-running MCP calls returning a `run_id` immedi
 and polling a cursor-based tail rather than blocking a request past its timeout.
 ([luckeyfaraday/athena-loops](https://github.com/luckeyfaraday/athena-loops), Jul 2026.)
 
+**The cost of neutrality: a counter-argument, not a measurement.** Harrison Chase's case, as quoted by
+[Harry Stebbings](https://x.com/HarryStebbings/status/2111535701682458961) (17 Oct 2026), is that a harness
+"can be very tied to the model, or it can be neutral" and that tying memory to the harness and the harness to
+the model leaves you "kind of stuck". [swyx replies](https://x.com/swyx/status/2111559986249859559) that "kv
+cache and dreaming optimizations" are what "only harness-model colocation can achieve"; no data is given. The
+measured piece nearby: each model keeps its own prompt cache, so a mid-session switch recomputes the request
+([Cost Control](11-cost-control.md#the-cache-cost-of-switching-model-or-effort-mid-session)).
+
 **Security review at specification stage:** In a harness-agnostic design, a dedicated security agent
 reviews the compiled harness specification *before* any implementation begins — not after.
 Fixing a security gap at specification costs 1×; fixing it post-implementation costs 10×+.
@@ -1380,16 +1432,19 @@ supervisor-layer design. All are the project's own records:
   gemini, cline, opencode and kilo) had no step limit of their own, so a bounded task ran to the
   wall-clock cap. The [fix](https://github.com/HarnessRouter/harnessrouter/commit/871640d044)
   counts tool calls by id, stops the process as if cancelled once past the budget, and ends the
-  turn `error_max_turns`, reported as incomplete rather than failed, with the limit named. A
+  turn `error_max_turns`, which reports the task as incomplete and says where to raise the limit. A
   BUDGET/STOP control from [the Loop Contract](27-loop-contract.md) implemented by the router, not
   by trusting each harness.
 - **A reasoning-effort knob in the contract.** [v0.30.0](https://github.com/HarnessRouter/harnessrouter/releases/tag/v0.30.0)
   adds a per-task `reasoning.effort` (none to xhigh) that works across 19 of 20 harness bases,
   clamps to the nearest level the model really has, and reports requested versus applied effort
   and `reasoning_tokens` in usage.
-- **Stall limits tuned from measurement.** [v0.31.0](https://github.com/HarnessRouter/harnessrouter/releases/tag/v0.31.0)
-  cuts the silence timeout on a provider call from 10 to 3 minutes, having measured some models
-  sending nothing for 201-211 s at the highest thinking level.
+- **Stall limits tuned from measurement, and one tuning reverted.** [v0.31.0](https://github.com/HarnessRouter/harnessrouter/releases/tag/v0.31.0)
+  cut the silence timeout on a provider call from 10 to 3 minutes, having measured some models
+  sending nothing for 201-211 s at the highest thinking level, but
+  [v0.31.1](https://github.com/HarnessRouter/harnessrouter/releases/tag/v0.31.1) took it back about
+  two hours later (10 minutes again) because a wider measurement showed the silence was not limited
+  to those routes.
 - **Verify before offering.** [v0.29.0 and v0.33.0](https://github.com/HarnessRouter/harnessrouter/releases/tag/v0.33.0)
   add nine more harness bases (including Qoder Cloud Agent as the first remote runtime), publish
   per-harness pass rates on five console scenarios (e.g. Kilo 291 of 295 runs), and withhold any

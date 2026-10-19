@@ -345,6 +345,18 @@ verified against `claude` **2.1.263**, 2026-09-07.*
 The loop stops only when tests pass. Failures automatically re-enter the loop
 with the test output as context.
 
+**What a production "done" check contains (one codebase).** The maintainer of the open-source
+[blade-code](https://github.com/echoVic/blade-code) CLI agent says in a Chinese
+[reply](https://x.com/echo_vic/status/2112204532562448386) to a relay of a
+[565-line teaching agent](https://dev.to/tobiaschc/i-built-a-coding-agent-from-scratch-to-see-whats-inside-1e4f)
+that its `agent/loop` directory is 17 files and 8,387 lines (re-counted on `main`, 2026-10-19: they match), most
+of it beyond the bare loop being, in his list, when work counts as done, independent verification, error recovery and context compaction. `completionPolicy.ts` (644 lines)
+holds recovery when output is cut off at the length limit, up to 2 retries when a turn ends like an announced
+action ("Let me check", a trailing colon) or emits a long code block with no tool call, and a stop hook run under
+a timeout; `independentVerification.ts` (320) tracks modified files and a PASS/FAIL/PARTIAL verdict with a retry
+cap of 3. The 4,882-line `executeLoopGenerator.ts` was not broken down, so how much of the total is "done" logic
+is the maintainer's reading. See the [Stop Condition Taxonomy](27-loop-contract.md#stop-condition-taxonomy).
+
 **Block destructive commands in unattended runs:**
 ```json
 { "event": "PreToolUse", "matcher": "Bash", "if": "Bash(rm -rf *)",
@@ -369,6 +381,18 @@ ungatable by a hook — the loop had no deterministic control point to stop, log
 event rather than a silent one, and `PostModelSwitch` gives an audit trail of every switch a
 loop actually made — the same "always runs, cannot be skipped" property this doc opens with,
 now applied to model choice instead of only tool calls.
+
+**Ordering guarantees belong outside the loop.** A [post](https://x.com/sunsetsyntax/status/2112079332973903894)
+(19 Oct 2026) reports an agent running `git commit` before its tests had finished; a
+[reply](https://x.com/KissonL/status/2112176114588434809) says "ordering guarantees belong outside the agent loop,
+not in the prompt". The tool in the thread, [Strands Box](https://github.com/strands-agents/box) (Apache-2.0,
+preview, macOS on Apple silicon only as of 2026-10-19), enforces default-deny policy outside the agent process,
+and its rules can read earlier actions and elapsed time. Its
+[documented example](https://github.com/strands-agents/box/blob/main/docs/user/policy.md) refuses `git commit`
+unless a `cargo test` exited 0 within the last hour, keyed on the recorded result of that run because a request
+event also exists for a refused attempt, so a rule keyed on it "would pass after a refused `cargo test`". For a
+hook gate the transferable point is to check a persisted outcome, not that the command was issued; with hooks
+that means storing the result where the agent cannot edit it (inference, untested here).
 
 **Chain background agents via SubagentStop:**
 ```json
@@ -412,6 +436,17 @@ Three things matter for an unattended loop, all from the announcement and the ch
   turn keeping a headless run going past `--max-turns`, `--max-budget-usd`, an interrupt, or the end
   of the host's conversation. A mod is code in the loop's control path: audit it like a hook that can
   veto your STOP.
+
+**What Anthropic's Thariq Shihipar says he is building with mods.** In the
+[Latent Space interview](https://www.latent.space/p/thariq) (29 Sep 2026; transcript read) he says a mod runs
+in-process with turn count, token use and the messages in scope, can spawn sub-agents and parse their structured
+output, and can change the UI, which hooks cannot. His example forks an agent at the end of each turn to ask
+whether the task is complete and, if so, generate a quiz; a fork keeps the prompt cache, so it is cheap, though he
+calls the pattern "slightly token-intensive" because it runs every turn. A mod that fires every turn is where the
+v2.1.299 stop-condition bug above lived, so give it its own cap (inference). He is also building a model-router
+mod and says, hedging with "I want to say", that routing is not on by default because it is a hard problem, and that a good router is one that "doesn't break prompt cache all the time" (the caching concern was the host's;
+see [Cost Control](11-cost-control.md#the-cache-cost-of-switching-model-or-effort-mid-session)). One interviewee's
+account of work in progress, not documented behaviour.
 
 Later changelog entries: `agent.spawn` for teammates (v2.1.289, 3 Oct 2026), and (v2.1.300, 14 Oct
 2026) the `agent.spawn` mod hook can rewrite a workflow agent's `prompt` and `model`, where before it

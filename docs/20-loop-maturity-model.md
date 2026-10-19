@@ -106,6 +106,31 @@ table above, an L3 claim built on artifacts alone is the failure this fixes: the
 should ask for evidence that the gate was exercised, not for the files that describe it. See also
 [Loop Contract → guards that failed open](27-loop-contract.md#guards-that-failed-open).
 
+## Four loop structures by trigger and exit
+
+A Devoxx deck by Guillaume Laforge and Wietse Venema
+([Speaker Deck](https://speakerdeck.com/glaforge/loop-engineering-beyond-prompt-context-and-harness-engineering),
+2026-10-06; PDF text read, the slide checked as an image; see [Context vs. Loop Engineering](21-context-vs-loop-engineering.md#discourse-snapshot-2026-10-19))
+sorts loops by who starts them and who ends them. The slide cites
+[Macedo, arXiv 2607.00038](https://arxiv.org/abs/2607.00038); only that paper's abstract was read, so the quadrant
+below is the deck's, not necessarily the paper's.
+
+| Structure (slide label) | Trigger | Exit | Trigger / exit, as placed on the slide |
+|---|---|---|---|
+| Turn-based (exploratory) | user prompt | human review | manual / manual |
+| Goal-based (measurable) | `/goal` command | evaluator model confirms criteria met | manual / autonomous |
+| Time-based (recurring) | clock / cron interval | fixed routine completion | autonomous / manual |
+| Proactive (standing resp.) | external event (webhook, Slack) | adversarial verifier agent signs off | autonomous / autonomous |
+
+My reading, not the deck's: only the goal-based and proactive rows have an autonomous exit, so those are the rows where
+the L2-to-L3 question above (has the verifier been shown to work, not merely exist) has to be answered.
+
+**A second corpus count (abstract only).** Macedo's abstract reports a hand-coded corpus of fifty public loops (the "Loop
+Library"): 70% verify in the "autonomous zone" of its five-level verification ladder and 74% name their terminal states,
+while "automated triggering and durable memory remain comparatively underdeveloped". The weak dimension matches the
+Lulla et al. finding in [docs/21](21-context-vs-loop-engineering.md) that almost none commit state files, though the
+corpora and methods differ, and neither was replicated here.
+
 ## Related
 
 - [The Paradigm Shift](01-paradigm-shift.md)

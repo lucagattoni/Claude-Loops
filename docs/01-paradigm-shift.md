@@ -45,6 +45,19 @@ happening one level up — "how every job function becomes a loop" — framing l
 *company-building* skill, not just a coding-agent one.
 ([Anish Acharya, Lenny's Newsletter, "Why companies are becoming a series of loops"](https://www.lennysnewsletter.com/p/why-companies-are-becoming-a-series), Sep 2026.)
 
+**The June wave, dated — and the objection to it.** Peter Steinberger's
+[post](https://x.com/steipete/status/2063697162748260627) went up on 2026-06-07 (18:58 UTC): "You should be designing loops
+that prompt your agents." [The Register](https://www.theregister.com/ai-and-ml/2026/06/24/loop-engineering-latest-ai-buzzword-still-needs-humans-in-the-loop/5261735)
+(Thomas Claburn, 2026-06-24, read in full) says the recent focus on loops "can be attributed in part to Peter Steinberger",
+even though "the likes of Andrej Karpathy were writing about and implementing AI loops months earlier" (Karpathy's
+[autoresearch post](https://x.com/karpathy/status/2030371219518931079) is dated 2026-03-07). It carries the cost-incentive
+objection: Ed Zitron's [reply](https://x.com/edzitron/status/2063764532385001609), "Does OpenAI bill itself for its
+token spend?", and Claburn's own charge that the push is "celebrating and evangelizing autonomous token consumption" (see
+[Cost Control](11-cost-control.md)). Gautham Pai's [joke](https://x.com/gauthampai/status/2063705882161242566) that LinkedIn would start a "Loop Engineering" fad drew Steinberger's
+[reply](https://x.com/steipete/status/2063706136100933750) the same day, "Don’t worry it’ll take 3 months until it’s there. We’ll
+be talking about fleets that design your loops then." The October exchange on whether it is over is in
+[Context vs. Loop Engineering](21-context-vs-loop-engineering.md#discourse-snapshot-2026-10-19).
+
 ## AI Leverage Formula
 
 > AI Leverage = Your Skill × Your Clarity
@@ -140,7 +153,8 @@ and git worktrees for isolated rebuilds — the same primitives this KB document
 Anthropic's own recommended startup playbook rather than a community pattern.
 ([Anthropic, "The Claude Code guide for startups"](https://claude.com/blog/claude-code-guide-for-startups), Sep 2026.)
 
-A first-party worked example of the evaluator-optimizer shape with no human between rounds:
+A first-party worked example of the evaluator-optimizer shape with minimal human input between rounds
+(limited to the initial brief and occasional prompts to think more broadly):
 in Anthropic's account of designing quantum circuits with Claude, Claude proposes a circuit, a
 programmatic evaluator checks correctness and scores it, and the score feeds the next attempt;
 one run worked for 53 hours from a one-paragraph brief, told to explore several approaches in
