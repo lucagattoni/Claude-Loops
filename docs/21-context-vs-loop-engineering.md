@@ -281,6 +281,66 @@ course thread with timestamped "loop engineering" and "graph engineering" chapte
 ([@snskritinaruka](https://x.com/snskritinaruka/status/2104479140841767378), Sep 2026) show the same
 vocabulary now stable enough to anchor course curricula, not just single posts.
 
+### The vocabulary is now being formalised and contested (Oct 2026)
+
+A mid-October LinkedIn sweep shows the terms moving from slogans to attempts at definition,
+and being pushed back on. All items below are practitioner posts; none is independently
+verified beyond what is noted.
+
+- **A shared anatomy.** One synthesis gives a loop six parts — trigger, stop condition, state,
+  verifier, limits, escalation — and argues the verifier should be designed first because a loop
+  satisfies the written gate, not the goal ([LinkedIn — Desai, "Loop Engineering: The 6-Part System…"](https://www.linkedin.com/pulse/loop-engineering-6-part-system-behind-ai-agents-work-while-desai-2gaaf/)).
+  It maps onto the [Loop Contract](27-loop-contract.md) (TRIGGER / STOP / BUDGET plus verifier)
+  with state and escalation made explicit. A second essay defines the loop as running until a
+  verifier, not the agent itself, says the goal is met, and adds that the costly failure is an
+  agent forgetting what the previous lap learned, so carry-over memory is a loop-design question
+  ([LinkedIn — Padmanabhan, "Recursive Self-Improvement Starts in Context"](https://www.linkedin.com/pulse/recursive-self-improvement-starts-context-padmanabhan-v-lylrf/), 2026-09-25).
+- **A formalisation.** Another post writes the loop as Action(t) → Observation(t) → Evaluation(t) →
+  Action(t+1) with an evaluator V and a target score q* ([LinkedIn — Chakraborty, "From Prompt
+  Engineering to Loop Engineering: A Mathematical Framework…"](https://www.linkedin.com/pulse/from-prompt-engineering-loop-mathematical-framework-ai-chakraborty-fvnhe/)).
+  This post and the six-part synthesis both cite an empirical study; the primary source is
+  [Lulla et al., arXiv 2608.21884](https://arxiv.org/abs/2608.21884) (Aug 2026, under review),
+  whose abstract reports confirming autonomous agent loops in 217 of the 256 repositories its
+  heuristics matched out of 36,710 mined, with almost none committing the state files the
+  discourse prescribes — see [Loop Maturity Model](20-loop-maturity-model.md).
+- **Spread beyond code, and its first pushback.** A go-to-market post applies the pattern to
+  sales/marketing agents (trigger, context enrichment, action, grader evaluation, feedback that
+  updates prompts and scoring) ([LinkedIn — Alex Lindahl](https://www.linkedin.com/in/alexlindahl/));
+  a counterpoint post says GTM teams keep adding context, connected systems and feedback loops
+  but things break once agents are given real autonomy (only the opening was read, so the failure
+  argument itself is not captured). Treat the pair as evidence of use outside coding and of an
+  unresolved autonomy question, not as a result.
+- **Academia versus practice.** A Tampere professor's summary of a review of 114 sources on LLM
+  multi-agent code generation (74 peer-reviewed, 40 industry; only 15 percent of the industry
+  sources used any benchmark, and 2 of 114 used a security benchmark) says practitioners now
+  call the surrounding discipline harness engineering and loop engineering — the vocabulary
+  here is practitioner-led and mostly unmeasured ([LinkedIn — a Tampere professor relaying Rasheed et al.](https://www.linkedin.com/in/profabrahamsson/);
+  the figures are the post's summary of the review, which was not opened).
+- **Terminology critique.** One essay applies a replace-the-new-word-with-the-old-one test and
+  argues "harness" is partly a rename of the older test and benchmarking harness while the core
+  idea — a designed environment around the model — is genuinely new ([LinkedIn — Trivedi, "Harness Is Not Everything Minus the Model"](https://www.linkedin.com/pulse/harness-everything-minus-model-hasit-trivedi-cjthf/); opening only). Another defines the harness
+  as the software that calls the model, exposes tools, manages task state and decides when work may
+  continue or must stop, illustrating it with a retry after a dropped connection in which an agent
+  re-creates a workspace and repeats assignments — an idempotency and resumable-state point
+  ([LinkedIn — Tadros](https://www.linkedin.com/pulse/harness-engineering-reliable-ai-agents-hany-tadros-acn6c/); opening only).
+- **Verifier independence.** One essay argues the bottleneck moves to the outer loop (verify, ship,
+  operate, learn) and that automating it unchanged fails because the independence between author,
+  test-writer and reviewer disappears when one model interprets the ticket, writes the code and
+  writes the tests ([LinkedIn — Puneet Singh, "The Great Compression of Software Engineering"](https://www.linkedin.com/pulse/great-compression-software-engineering-puneet-singh-cfpme/);
+  opening only) — the same argument as [Verification](04-verification.md)'s fresh-reviewer rule.
+- **Curricula.** The Daily Dose of DS AI-agents course defines harness engineering as engineering
+  the execution environment and policies around an agent loop, implemented as LangChain middleware
+  ([Part 3](https://www.dailydoseofds.com/ai-agents-with-langgraph-course-part-3-with-implementation/)),
+  and its Part 4 argues the default loop hands the stop decision to the model so "done" is claimed,
+  not established ([Part 4](https://www.dailydoseofds.com/ai-agents-with-langgraph-course-part-4-with-implementation/)). Both are paywalled beyond
+  the introduction, and the series features a product (Jev) that this KB's tracker flags as a likely sponsor push,
+  so read the framing as vendor-adjacent.
+
+One counter-thesis is worth recording at low confidence: the episode outline for a Lenny's
+Newsletter interview with OpenAI's head of ChatGPT and Codex lists "Why loops, graphs, and
+fine-tuning agent workflows are a passing phase" as a topic ([Lenny's Newsletter](https://www.lennysnewsletter.com/p/openais-head-of-chatgpt-were-entering)).
+The post is paywalled and only that outline was readable, so the argument itself is unverified.
+
 ### Is "Graph Engineering" a named discipline?
 
 Contested, and younger than the other four. It traces to a joke, not a consolidation piece —

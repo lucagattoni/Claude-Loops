@@ -450,6 +450,19 @@ independent worker performing a real close in a scratch store) governs how a sup
 persists unfinished work — admission requires a reasoning verdict plus a sandboxed-command
 allowlist, not just a write. ([eugenelim/agent-ready-repo](https://github.com/eugenelim/agent-ready-repo), commit 4aff045, Sep 2026.)
 
+**Goals, Todos and review cadence are separate things to stop on.** LoopX's own
+[interim research note](https://loopx-project.github.io/loopx/blog/edgebench-feedback-and-memory/)
+(published 7 Oct 2026, revised through 17 Oct) keeps two histories: the conversation, and the task and
+evidence state. Its position is that resuming a conversation does not make an old conclusion
+applicable, and completing a Todo does not establish the original goal is met, so after each work item
+the agent must compare the result with the original acceptance condition and choose between
+satisfied, a next step within authorization, an external dependency, or no useful continuation. It
+should not invent tasks to keep a loop moving. Review cadence counts *settled* work turns (the current
+study setting is every six), not messages or tool calls: duplicates, retries and monitor-only polls do
+not count, and a due review asks for reconsideration, not a route change or new budget. The note is
+candid that its evidence is confounded (prompts, runners and contracts changed together; single runs;
+versions and dates differ), so these are design claims from one project, not measured effects.
+
 ---
 
 ## Pattern J: Learned Memory Substrates
@@ -485,6 +498,60 @@ a default. The lesson isn't "vector memory doesn't work," it's that a memory sub
 itself a claim that should clear the same bar as any other harness component: measured
 against the boring alternative, on your own tasks, before it becomes infrastructure other
 agents depend on. ([DrSeedon/orchestra](https://github.com/DrSeedon/orchestra), Sep 2026.)
+
+---
+
+## Pattern K: Git-Backed Memory with a Consolidation ("Dreaming") Pass
+
+Two Cognition (Devin) releases of Oct 2026 put the repo-owned idea of Patterns G and H behind a
+vendor product and an open spec, and add the one thing those patterns leave to the human: a scheduled
+job that **curates** the notes.
+
+- **A memory drive that is a git repo.** Devin's Memory
+  ([Cognition, 5 Oct 2026](https://devin.ai/blog/memory-and-dreaming)) stores lessons learned while
+  working with a user in a persistent Git repository of markdown files. A short `MEMORY.md` holds
+  general preferences plus an index and is the only file loaded at session start; the agent finds the
+  rest with the same search and read tools it uses on code. Memories are *not* session summaries:
+  they are short notes, each linking back to the session where it was learned. Each session works in
+  its own checkout, commits, merges other sessions' updates, and saves; a revision check rejects a
+  stale write so the session retries against the newer version, and conflicting edits are surfaced
+  rather than silently overwritten. Cognition's stated contrast with skills: a skill packages a
+  repeatable procedure, while memory is accumulated through sessions and revisited.
+- **Dreaming.** A daily background session reviews past conversations alongside existing memory to
+  improve the index: it consolidates overlapping notes, removes transient details, looks for lessons
+  the original work did not capture, and removes stale records that no session used.
+- **An open spec.** [Agent Memory Repo](https://cognition.com/agent-memory-repo) (linked from the Devin
+  post; the page carries no date) specifies the format: a per-session loop of clone, search, update and
+  push after every edit; one-line bullet entries with optional `[source: …; added: YYYY-MM-DD]`
+  metadata; `[[path]]` cross-links ("keep information in one place and link to it elsewhere"); and a
+  periodic Dreaming agent that adds cross-session patterns and merges duplicates, removes outdated
+  entries and checks sources to resolve contradictions. Several memory repos can be cloned into one
+  session, each keeping its own ownership and history. Its swarm example uses one folder as a message
+  board (`README.md` with the rules, `findings.md`, `questions.md`, per-agent notes): git merges most
+  commits and rejects the second push on a same-line conflict, so that agent reads both versions
+  before writing.
+
+**What to take from it, and what not to.** The transferable design is the *source link on every
+entry* plus a scheduled consolidation pass: the pass is an automatic counterpart to Pattern H's *lint*
+workflow, and a candidate answer to the accumulation nobody reads described under
+[auto memory](#so-use-it-for-what-it-is). Unlike the
+undocumented Claude Code "Auto Dream" behaviour above, this pass has a published contract (what it
+does, what it keeps, a browsable drive) — but a consolidation job that **removes** entries is still a
+deletion, so keep the drive in git where each removal is a revertable commit. Both pages are vendor
+descriptions: neither reports a retrieval-quality or task-success measurement, so treat the benefit as
+unmeasured, and the [orchestra result above](#pattern-j-learned-memory-substrates) (a memory layer that
+scored 0 of 6 against `rg`) as the bar to clear on your own tasks.
+
+**The counter-position: documentation, not memory.** An essay of 3 Oct 2026, summarised by
+[explainx.ai](https://explainx.ai/blog/agents-dont-need-memory-they-need-documentation-operator-memory-2026)
+(a secondary write-up; the essay itself was not read), argues that memory plugins are retrieval over
+transcript snippets and that agents instead need a curated markdown workspace, with an index read
+before work and stale documents updated afterwards while the agent still has the full picture. That
+is Pattern H by another name. The HN objections it reports are the useful part: agent-written
+decision records can carry speculated details nobody asked for, and agents cannot tell a general
+principle from a one-off review comment, so unreviewed automated updates bloat. The fix it suggests
+is process: review documentation changes in the same pull request as the code and let the agent
+freely update only low-risk layers such as indexes and research notes.
 
 ---
 

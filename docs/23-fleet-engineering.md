@@ -292,6 +292,69 @@ engineering is an organization-level problem distinct from any single loop's int
 treat the specific "twenty-plus" threshold as one vendor's rule of thumb, not a measured
 inflection point. ([explainx.ai, "Paperclip: Run a Company of AI Agents"](https://explainx.ai/blog/paperclip-ai-agent-orchestration-platform-2026), Sep 2026.)
 
+**A fifth: let the model organize the group.** Every topology above is hand-designed. Ethan Mollick
+argues he got the management model wrong: applying the Bitter Lesson to the org chart means models
+organize agent groups themselves. His evidence is an OpenAI swarm of thousands of agents that exchanged
+about 2.7 million messages over 88 hours with thin human coordination, and a Codex "Ultra" mode that
+spun up 3 sub-agents on its own, and 13 when he had sketched three teams
+([Mollick, "The Dot and the Swarm"](https://www.oneusefulthing.org/p/the-dot-and-the-swarm), Oct 2026).
+A response, ["Beekeepers, not managers"](https://www.ikangai.com/beekeepers-not-managers/), accepts the
+premise and moves the human's job to boundary conditions, with four loop-design habits: mix models to
+avoid correlated-error monocultures, build an aggregate observation window, fence permissions, budgets
+and irreversible actions up front, and inspect at checkpoints while treating an agent's account of its
+own work as a claim to verify. A customer story on running 10,000 agents for 36+ hours
+([OpenAI, Third Moment Research](https://openai.com/index/third-moment-research)) is a similar scale
+data point, but only its RSS title and description were readable (the page returned HTTP 403), so no
+mechanism is recorded here. Treat the swarm numbers as single-source and vendor-adjacent.
+
+## Control Plane Framing: Kubernetes for Agents
+
+Several Oct 2026 pieces from the cloud-native world converge on one split: the agent reasons, and a
+platform owns hosting, identity, permissions, audit and execution.
+
+| Source | The split it proposes | Maturity stated by the source |
+|---|---|---|
+| [CNCF blog, "The case for a cloud native agent harness"](https://www.cncf.io/blog/2026/09/28/the-case-for-a-cloud-native-agent-harness/) (Stacklok, Sep 28 2026; summarised in [The New Stack](https://thenewstack.io/kubecon-agent-harness-koordinator/)) | Desktop harnesses fuse UI, agent loop, sandbox, credentials, tools and session DB in one process; "a monolith in a container is still a monolith". Separate the agent loop from clients, execution environments, tool catalog and supporting services | Open-sourced Mecatl; identity (a SPIFFE trust domain with the delegation chain in a JWT), scoped resource grants and signed context are listed as design drafts, not shipped |
+| [OpenClaw Enterprise](https://thenewstack.io/openclaw-enterprise-kubernetes-agents/) (OpenClaw blog, 2026-09-29) | A control plane with isolated namespaces, credentials, permissions and audit over persistent agents, with a swappable harness, model and sandbox | Pre-1.0, pilot only; the post states IT's default stance is to ban such agents |
+| [kagent and Karpenter, per The New Stack](https://thenewstack.io/ai-agents-kubernetes-control/) | A loop of observe, diagnose, propose, approve, reconcile, verify, with agents reasoning and deterministic operators executing | An article's worked example on a CNCF Sandbox project |
+
+The one concrete durability claim is worth keeping exact: Mecatl keeps session state and event history in
+durable storage under single-writer coordination, so a replacement worker resumes from the **last
+persisted turn boundary**. The post says this does not resume an in-flight operation and work after the
+last save can be lost: turn-level durability, not a transaction. For a fleet that is the difference
+between a pod eviction ending a conversation and ending a unit of work, and it is the fleet-level
+sibling of [Long-Running Agents](25-long-running-agents.md) checkpointing. The post also argues a hosted
+agent should start from a catalog of allowed tools rather than an unrestricted shell, which lines up with
+the Approve pillar above and with [Permissions](08-permissions.md).
+
+## Unattended Fleet Mechanics: Wake, Recovery and Human-Wait
+
+A different set of Oct 2026 release notes, from small repos, converge on the failure modes of fleets
+that run without anyone watching. Each row is one pattern; the cells name the projects in this batch
+that ship it. All come from release notes or commit text, and several were read at
+title level only, so treat them as design signals, not verified behaviour.
+
+| Pattern | Who ships it |
+|---|---|
+| **De-duplicate wakes and launches** | [OpenRig 0.6.11](https://github.com/mvschwarz/openrig/releases/tag/v0.6.11): a parked seat is no longer re-woken for unchanged queue rows (and a known issue is documented where a held-back one-shot wake counts as the timer's single fire). [omnigent v0.16.0](https://github.com/omnigent-ai/omnigent/releases/tag/v0.16.0): brief runner drops no longer fail turns and host launches no longer spawn duplicate runners. [dream-machine #196](https://github.com/ruvnet/dream-machine/commit/3fc3222d2e): a `scheduleContract` with receipts and a duplicate-firing skip |
+| **Never let an automated trigger answer a human question** | [OpenRig 0.6.7](https://github.com/mvschwarz/openrig/releases/tag/v0.6.7): a send or watchdog wake is refused while the seat's latest hook says it is waiting on the human, and the wake goes up the escalation path. [session-orchestrator ADR-0016](https://github.com/Kanevry/session-orchestrator/blob/main/docs/adr/0016-cross-session-messaging.md) (rules CSM-001..005, [v5.8.0](https://github.com/Kanevry/session-orchestrator/releases/tag/v5.8.0)): an incoming peer message is a claim to re-verify, no permission laundering, delivery never guaranteed |
+| **Make the human pause a queue, not an ending** | [Archon v0.12.0](https://github.com/coleam00/Archon/releases/tag/v0.12.0): one "attention queue" routes every human-in-the-loop pause, and public stages pause as an attention item instead of ending. OpenRig 0.6.11: restore stops for a decision rather than starting a seat fresh |
+| **Durable, resumable state** | Archon v0.12.0: workflows can run without a database (`store: files`) and keep revisioned durable state; a run that hits a provider usage limit with a known reset pauses and auto-resumes without holding a resource slot. [session-orchestrator v5.11.0](https://github.com/Kanevry/session-orchestrator/releases/tag/v5.11.0): release verification resumable from a persisted receipt. [Orchestra v2.46.0](https://github.com/DrSeedon/orchestra/releases/tag/v2.46.0): per-worker durable checklists. [agent-orchestrator v0.13.2](https://github.com/OrchestratorInc/agent-orchestrator/releases/tag/v0.13.2): durable scheduled automations |
+| **Stop on stalls, not on wall-clock** | [hearting v3.35.0](https://github.com/dmlguq456/hearting/releases/tag/v3.35.0): dispatched foreground workers stop only when they show no activity, replacing blanket timeouts (release title read; the diff was not) |
+| **Unknown is not zero** | [session-orchestrator v5.11.0](https://github.com/Kanevry/session-orchestrator/releases/tag/v5.11.0): absent usage is reported as NO-USAGE, a missing population as "not measurable", and overflow write failures are reported rather than swallowed. Same defect class as the one named in [Failure Patterns](17-failure-patterns.md) |
+| **Enforce by mechanism, not prompt** | [hearting v3.12.0](https://github.com/dmlguq456/hearting/releases/tag/v3.12.0): workers marked no-commit are refused `git commit` by the runtime. Orchestra v2.46.0: a shell guard, described as "a narrow policy, not a sandbox". [session-orchestrator v5.6.0](https://github.com/Kanevry/session-orchestrator/releases/tag/v5.6.0): a fail-closed wave-scope gate for parallel agent waves |
+| **Reject an unfinishable loop before it runs** | [OpenRig 0.6.8](https://github.com/mvschwarz/openrig/releases/tag/v0.6.8): validate refuses a step with no allowed exit that can finish it or route onward (`step_cannot_finish`). Archon v0.12.0: a `when:` that can never be evaluated now fails at load |
+
+Two limits the rows share. First, a concurrency cap is a fleet control in its own right:
+agent-orchestrator v0.13.2 lists project agents capped at 6 (one line in the notes; behaviour beyond that
+is not verified). Second, the ADR-0016 measurements bound what a fleet can assume about coordination
+inside Claude Code: peer sessions on the same host are discoverable and messageable via
+`ListAgents`/`SendMessage`, sub-agents can send upward but not discover sideways, headless `-p`
+workers can accept messages, and cross-host Remote Control delivery was unreliable (a research preview) on
+the version measured. See [Harness Patterns](24-harness-patterns.md) for the same projects' dispatch
+and receipt designs, and [Common Failure Patterns](17-failure-patterns.md) for the polling and false-success
+classes several of these fixes answer.
+
 ## Case Study: Gas Town — 20-30 Parallel Instances via Git-Persisted Work Units
 
 Steve Yegge's "Gas Town" is a concrete, named production deployment of fleet

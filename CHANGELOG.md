@@ -18,6 +18,53 @@ Versioning follows [Semantic Versioning](https://semver.org/):
 
 ---
 
+## [3.7.7] — 20261019 15:30
+
+Tracker run 2026-10-19 15:02 UTC — **PATCH**: no new `docs/*.md`, 29 existing docs updated, 339 digest
+rows (366 in the artifact; 8 already published, 19 folded). First run after a 21-day gap
+(`last_run_date` 2026-09-28). **Every `x` sweep was `partial`** (logged-out browser; 0 of 11 fully
+covered) — see the digest's Coverage section. Doc agents worked from the search stage's captured
+summaries and fetched a primary only for verbatim quotes and figures; second-hand and vendor claims are
+labelled as such in the docs.
+
+### Changed
+- `docs/04-verification.md` — review loops that converge (Anthropic's own code-review process and five
+  open-source ledgers/gates) and measuring whether a guard, gate or judge works (GateGuard's null pilot,
+  caliper, Wilson-interval gate evals, harness test-adequacy papers)
+- `docs/24-harness-patterns.md`, `docs/22-learned-orchestration.md` — one literature map of the
+  late-2026 harness-evolution papers inside Self-Improving Harnesses; Harness², RunTune, Agent Lightning;
+  UHP/HarnessRouter at the harness boundary
+- `docs/33-agent-security-hardening.md`, `docs/19-mcp-security.md`, `docs/08-permissions.md` —
+  out-of-process runtime enforcement, containment failures that went around tool-level controls, monitors
+  and logs as attack surface, state-file injection laundering, approval-to-execution binding
+- `docs/11-cost-control.md` — the 5.5-generation model/price table, turns-not-observations cost, routing and
+  decision models, hard budget caps, measured team-cost multiples
+- `docs/26-factory-model.md`, `docs/23-fleet-engineering.md` — Scion and the merge-volume bottleneck; what
+  open-source factory floors converge on; Kubernetes-for-agents; eight unattended-fleet recovery patterns
+- `docs/38-agent-teams.md`, `docs/39-dynamic-workflows.md`, `docs/07-subagents.md` — measured evidence on
+  whether teams pay off; flows in Managed Agents; per-subagent `effort`
+- `docs/28-routines.md`, `docs/12-hooks.md`, `docs/13-context-management.md`, `docs/16-memory-patterns.md`,
+  `docs/29-background-agents.md`, `docs/37-session-architecture.md`, `docs/03-building-blocks.md` — Anthropic's
+  six rules for a reference automation, mods, idle compaction and Fork-and-Flush, git-backed memory with a
+  Dreaming pass, other vendors' always-on agents
+- `docs/27-loop-contract.md`, `docs/30-goal-engineering.md`, `docs/25-long-running-agents.md`,
+  `docs/20-loop-maturity-model.md` — Guards That Failed Open (eight repos), writing a condition `/goal` can
+  judge, control-plane continuity, score what is proven
+- `docs/21-context-vs-loop-engineering.md`, `docs/17-failure-patterns.md`, `docs/36-development-workflow.md`,
+  `docs/01-paradigm-shift.md` — the vocabulary formalised and contested; review-loop drift; back pressure
+- `docs/32-reading-list.md` — added two Anthropic first-party entries, removed one (group stays at 5); LoopX
+  link follows the repo rename
+- `LOOP_ENGINEERING.md` — summary clauses on 23 index rows; cross-links docs/04 ↔ docs/17, docs/17 → docs/27,
+  docs/24 UHP bullet → its new subsection
+- `SOURCES.md`, `README.md` — 89 rows (was 87): three added (claude.dev/blog, anthropic.com/engineering,
+  chaseai-yt/claudex-loop), the two LoopX rows merged, five rows switched to `rss`, renamed/moved repos and
+  the `claude.com/blog` redirect corrected, ~50 dated cadence/dormancy notes; **the tracker's expected-keys set
+  changes with these rows** (13 keys removed, 15 added — listed in the run's digest section). README counts
+  corrected to match
+- `KB_GAPS.md` — 2026-10-19 gap block (15 open gaps + structural candidates deliberately left for a decision)
+
+---
+
 ## [3.7.6] — 20260929 19:00
 
 Backlog `A17`: closes the root cause behind the 2026-09-28 run's 7 partial X sweeps —

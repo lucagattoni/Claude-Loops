@@ -116,19 +116,19 @@ on the site) — the loop reads it fresh on every run.
 | New Actor | rss | https://theirblog.com/feed | Why they're relevant |
 ```
 
-**Seven** source types are in use (row counts as of 2026-09-28, cross-checked by
+**Seven** source types are in use (row counts as of 2026-10-19, cross-checked by
 `scripts/kb-structure-check.sh` § 5, which flags any drift from `SOURCES.md`):
 
 | Type | What it is | Rows |
 |---|---|---|
 | `github` | One repo — commits and releases since the last run | 46 |
-| `rss` | RSS/Atom feed | 14 |
-| `x` | An X.com profile timeline | 11 |
-| `html` | A blog or index page, scraped directly | 10 |
+| `rss` | RSS/Atom feed | 19 |
+| `x` | An X.com profile timeline | 10 |
+| `html` | A blog or index page, scraped directly | 8 |
 | `github-search` | A GitHub search API query | 3 |
 | `x-search` | An X.com search query | 1 |
 | `linkedin` | A LinkedIn content search | 2 |
-| **Total** | | **87** |
+| **Total** | | **89** |
 
 **Prefer `html` over `rss` when a publication has no discoverable feed.** A 404 feed and a quiet
 week produce the same empty result, and this repo has lost two months of a high-value source to

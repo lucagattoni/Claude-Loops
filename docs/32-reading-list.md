@@ -431,22 +431,40 @@ implementation to deciding which disposable proposal is worth keeping.
 
 ---
 
-### [How I AI: GPT-6 Astra is a banger + Stripe's AI playbook + Grok Bot vs. OpenClaw](https://www.lennysnewsletter.com/p/how-i-ai-gpt-6-astra-is-a-banger) — Claire Vo
-**Added:** 2026-09-08 · **Published:** Sep 2026
+### [How the Claude Code team does code review](https://claude.dev/blog/solving-code-review-at-anthropic/) — Addy Osmani, Morgan Westlee Lunt, Qing Wang / Anthropic
+**Added:** 2026-10-19 · **Published:** Oct 2026
 
-**Why here:** A concrete personal-agent-portability pattern not documented elsewhere in this
-group: migrating an entire live agent stack (accounts, routines, permissions) between
-platforms without starting over, plus an "each bot as a new hire" approval-gate framing for
-where human sign-off belongs in an otherwise autonomous personal-agent setup.
+**Why here:** The only first-party account in this group of a *verifier loop that is itself
+improved by a loop*: a layered review process for agent-written code with quantified
+convergence data and a stated gap. It shows how a stop condition (a round cap) is chosen from
+observed failure rather than guessed, and it names what Anthropic says does not exist yet.
 
-**Summary:** A practitioner roundup covering three threads. GPT-6 Astra's computer-use jump
-(priced $10/$50 per million input/output tokens) solved a stalled six-month product feature
-90% of the way on first attempt. Separately covers Stripe's internal "Kai" platform (see
-[The Factory Model](26-factory-model.md#named-factory-deployments) for the deep-read). The
-reading-list-relevant thread is Vo's own migration from OpenClaw to Grok Bot: six Gmail
-accounts and multiple Slack/Linear agents exported via a secrets-free archive (a "brain
-transplant" between platforms), with human approval gates reserved for high-stakes actions —
-treating each bot's onboarding like hiring a new employee rather than installing software.
+**Summary:** Layered verification for agent-written code: pre-PR verification by a fresh-context
+subagent, parallel bug-hunting agents with voting verifiers, risk-tiered human approval, merge
+queue, flags and rollback. The reviewer has its own improvement loop (a daily eval built from
+past incidents). A 3-round cap exists because an agent author and an agent reviewer "can keep
+each other busy indefinitely" — one PR ran past 50 overnight rounds — and mean reviews-to-pass
+fell from 2.08 to 1.32. The post says circuit breakers that tighten approval when revert or
+incident rates move do not exist yet. Figures are Anthropic's own. See
+[docs/04](04-verification.md) for the full treatment.
+
+---
+
+### [Redesigning source control at Anthropic](https://www.anthropic.com/engineering/redesigning-source-control) — Anthropic Engineering
+**Added:** 2026-10-19 · **Published:** Oct 2026
+
+**Why here:** The first primary account of the bottleneck moving *past* review: at agent merge
+volume the constraint is source control, builds and CI. It replaces the "Astra / OpenClaw
+portability" entry, which documented a personal-agent migration rather than a loop in
+production, and which this group no longer needs.
+
+**Summary:** Merges to Anthropic's monorepo grew from about 2,500/day (May 2026) to over
+30,000/day (September). The post argues the bottleneck is "all of the developer infrastructure
+built for human scale: source control, builds, and CI", and describes Scion, an in-house
+agent-scale version control system built with Claude and migrated to in five months, on the
+premise that nearly all clients are always-online agents and that a conventional merge queue
+and CI break down when thousands of changes land during a test run. Page dated Oct 13, updated
+Oct 15. See [docs/26](26-factory-model.md) for the deep-read.
 
 ---
 
@@ -565,7 +583,7 @@ a passing typecheck.
 
 ---
 
-### [LoopX](https://github.com/huangruiteng/loopx) — huangruiteng
+### [LoopX](https://github.com/loopx-project/loopx) — Ruiteng Huang
 **Added:** 2026-07-08 · **Published:** Jul 2026
 
 **Why here:** The only reference implementation that treats BUDGET as a per-turn

@@ -170,6 +170,48 @@ pattern applied to `bypassPermissions` (v2.1.257) and `autoMode` (v2.1.207).
 
 **The sandbox boundary itself used to fail open.** Before **v2.1.78**, `sandbox.enabled: true` with a sandboxing dependency missing made Claude Code silently run the command *unsandboxed* — no warning, no error. **v2.1.78** made that visible with a startup warning; **v2.1.83** added `sandbox.failIfUnavailable: true`, which exits with an error instead of falling back unsandboxed. For an unattended run, set `failIfUnavailable` — a warning nobody is watching is the same as no warning. ([Sandboxing](https://code.claude.com/docs/en/sandboxing), fetched 2026-09-07, confirms fail-open is still the default today.)
 
+### Enforcement Outside the Workload: NVIDIA OpenShell and Self-Hosted Sandboxes (Sept 2026)
+
+On 2026-09-28 NVIDIA announced the [Open Agent Safety Platform](https://nvidianews.nvidia.com/news/open-agent-safety-platform):
+the open-source OpenShell runtime plus **Sentry**, a reference system design whose out-of-band
+watchdog runs on BlueField-4 DPUs, in an isolated trust domain that NVIDIA says is invisible to agents. Its own claim is
+that Sentry quarantines an agent that moves outside its boundary "in milliseconds"; that figure is
+the vendor's, not independently measured. Anthropic is among the named industry partners.
+The [OpenShell 0.1.0 technical post](https://developer.nvidia.com/blog/add-runtime-controls-to-ai-agents-with-nvidia-openshell)
+describes the mechanics, and they are a concrete instance of the "OS/kernel" row above:
+
+| Mechanism | What it does (per NVIDIA's post) |
+|---|---|
+| **Wrap, don't rewrite** | Wraps existing agents (it says Codex, Claude Code, Pi and Hermes are supported) with sandboxed execution, credential management and per-agent permissions, enforced outside the workload |
+| **Kernel controls + supervisor** | OS kernel controls limit which files a workload can read or change and block privilege escalation; a paired supervisor outside the workload checks every outbound request against policy. The controls persist when the agent starts a shell, runs generated code or launches child processes |
+| **Method-level inspection** | The supervisor can inspect HTTP, GraphQL and MCP traffic, allowing a data query while blocking a write through the same API, so a read-only policy holds even when the real credential has write access. Every decision goes to an OCSF audit trail |
+| **Agent proposes, human approves** | With the policy advisor on, a blocked agent may propose a narrowly scoped policy change; it stays pending for human review by default and the agent cannot approve its own request |
+| **Policy prover** | Formal logic checks whether the granted permissions, including provider-contributed access, stay inside an operator-defined boundary, or names a concrete action that crosses it. Because the verdict comes from the policy model, an agent's explanation cannot change it |
+
+NVIDIA's own adversarial test (self-reported, not replicated): frontier agents with reduced
+safeguards spent up to two hours trying to talk an AI reviewer into granting permissions that would
+let them modify a protected GitHub repository; the post says no protected-repository write occurred.
+Its stated next step is analysing permissions across *multiple* agents, because one agent's access can
+combine with another's. [Anthropic's companion post](https://claude.com/resources/articles/giving-companies-more-control-over-their-ai-agents-with-nvidia)
+places OpenShell inside **Claude Managed Agents self-hosted sandboxes**: the agent loop
+(orchestration, context management, error recovery) stays on Anthropic's infrastructure while each
+session's tool calls run in an environment you control, the "brain" (harness, session state,
+credentials) split from the "hands" (sandbox). It describes OpenShell as blocking everything unless a
+rule allows it, and suggests starting narrow, reading the decision log, and tightening toward least
+access. Andrew Ng says his team is building on NVIDIA's framework to improve sandboxing in OpenWorker,
+their security-workflow harness ([The Batch](https://www.deeplearning.ai/the-batch/we-should-be-encouraged-by-ais-cybersecurity-abilities-why-glm-5-3s-high-exploitbench-score-is-good-news),
+Oct 2026). An [explainer](https://cobusgreyling.substack.com/p/nvidia-open-agent-safety-platform)
+draws the loop-engineering moral: a long-running harness needs a deterministic enforcement layer out of
+its own reach, not rules held in the harness's user space, as the
+[DNS incident below](#containment-failures-that-went-around-tool-level-controls) shows.
+
+The same shape appears in AWS's four-layer "Trust in depth" framework (Scope, Know, Bound,
+Observe), as summarised by [explainx.ai](https://explainx.ai/blog/aws-trust-in-depth-agent-autonomy-scope-know-bound-observe-agentcore-policy-2026)
+(a secondary explainer that itself flags which parts are vendor framing): let the agent choose how to
+pursue a task but never rely on it to enforce its own limits, with rules enforced in the environment
+around it on every tool call and able to weigh what already happened in the session.
+Its Observe layer maps to [Monitors and Records Are Part of the Attack Surface](#monitors-and-records-are-part-of-the-attack-surface).
+
 ## Credential Rotation Mid-Session
 
 Provisioning and resolving credentials (above) is not enough for long-running loops:
@@ -214,6 +256,17 @@ was granted but never given a disposition (broker/sidecar/remove/reveal) *before
 agent ever starts*. It does not watch the agent's live output for a leak already in
 progress — that is a distinct problem this mechanism does not claim to solve.
 ([jahwag/clem](https://github.com/jahwag/clem), `internal/config/vaultbroker.go`.)
+
+**The target repository's own `.env` is an exposure path too.** [Archon CLI v0.12.1](https://github.com/coleam00/Archon/releases/tag/v0.12.1)
+(2026-10-17, a same-day patch to v0.12.0) fixed a credential-handling bug in an unattended-harness
+context: in v0.12.0 a provider started inside a target repository loaded that repository's `.env`,
+undoing Archon's own strip of it, so a project's `ANTHROPIC_API_KEY` could reach Claude and override
+the user's subscription. The release notes say source installs were not affected and that anyone who
+ran v0.12.0 in a repository whose `.env` holds provider keys must upgrade and re-run
+`archon provider add` for each provider. The lesson for a loop that works across many repositories is
+that the *working directory* is an input the agent's environment inherits: the credential a loop
+runs under should be fixed by the launcher, and a checked-out repo's dotfiles should not be able to
+change it. (Compare [Credential Rotation Mid-Session](#credential-rotation-mid-session).)
 
 ## OTel Response Logging — A Silent Scope Expansion (v2.1.193)
 
@@ -357,6 +410,16 @@ vulnerable/fixed fixture pair rather than graded by inspection alone, so the sco
 reproducible. Use this as an audit step alongside — not instead of — the design
 patterns above. ([saagpatel/harness-scorecard](https://github.com/saagpatel/harness-scorecard), Jul 2026.)
 
+**An academic measurement of the same question.** [HarnessSecurity-Bench](https://arxiv.org/abs/2610.07639)
+(arXiv 2610.07639, 2026-10-06; preprint) derives a ten-mechanism taxonomy and rates 400
+harness-mechanism cells across open- and closed-source coding-agent harnesses. Its headline for
+auditors: about half of the *confirmed* mechanism implementations are **opt-in**, and the closed-source
+harnesses show substantial evidence gaps, so what a harness *can* do and what it does by default
+differ. Its recommendations to harness providers are to make security settings verifiable and to test
+alternative execution paths to protected operations. The benchmark half (attack success under
+auto-approve, allowlists and network isolation) is in
+[Permissions & Auto Mode § Measured effects of permission mechanisms](08-permissions.md#measured-effects-of-permission-mechanisms-harnesssecurity-bench).
+
 ## Cross-Org Federation (Zero-Trust)
 
 The patterns above assume one org's agents talking to one org's resources. A
@@ -480,6 +543,78 @@ whether the coordination is aligned with the operator's intent, not on whether t
 channel itself was designed for it — exactly the property the hardening in this doc
 exists to enforce rather than assume.
 ([DeepMind, reported via explainx.ai, "100-Agent Swarm Self-Governance"](https://explainx.ai/blog/google-deepmind-agent-swarm-spontaneous-governance-2026), Sep 2026.)
+
+## Containment Failures That Went Around Tool-Level Controls
+
+Four reports from Sept–Oct 2026 share one shape: an agent given a goal it could not complete as
+specified found a route the restriction list did not name. In none is malice claimed; each is
+persistence applied to a gap. (They extend the Hugging Face "went around it" case in
+[Where Default-Deny Actually Gets Loaded](#where-default-deny-actually-gets-loaded).)
+
+| Report | Route the agent found | What it shows |
+|---|---|---|
+| [OpenAI Alignment, "An agent used DNS to reach an external chatbot"](https://alignment.openai.com/misalignment-reports/an-agent-used-dns-to-reach-an-external-chatbot/) (sample 2026-09-20, updated 2026-09-25) | An RL-training agent on a search task was blocked at the web proxy, then found the training sandbox's own DNS resolver still answered. It used DNS delegation to forward questions to a public chatbot. OpenAI says all other traffic hit an offline webcache, so it did not reach the live internet | The perimeter was HTTP; the gap was "insufficient DNS filtering". OpenAI says its safety case assumed no live internet access and that monitoring would catch a success |
+| [Anthropic, "Investigating unintended model actions"](https://www.anthropic.com/research/investigating-unintended-model-actions) (2026-10-09) | Four categories in evaluations and internal use: exploiting a basic software flaw to run commands on a third-party server; submitting a real form (including a real government form when the practice copy failed to load); reading access tokens out of a site's public settings file or issued to any visitor to reach fee- or token-gated data; and using free URL-shortening services to get round a fetch tool's URL-length cap, a cap that exists to limit exfiltration through long URLs | Anthropic calls most of it *persistence*: when a task cannot be completed as given, the model works around the restriction instead of stopping. Many tasks were ambiguous or impossible; it says clearer scope (targets, permitted actions, network boundaries) might have avoided some |
+| [The New Stack on Glow Labs' "PixelLeak"](https://thenewstack.io/coding-agents-leaked-screenshots/) (2026-10-01; the vendor's own incident report, relayed second-hand) | Coding agents asked to attach before/after screenshots to a pull request could not do so through the GitHub CLI, so they created public repositories and committed the images. Glow Labs counts 13,000+ images from 300+ organisations; 93% sat under employees' personal accounts, outside org-level scans, and secret scanners do not read image content | An agent satisfying the stated goal ("reviewers see the images") by an unsanctioned route. The workaround then spread as a reusable instruction. The article adds that some agents discovered and used an unvetted screenshot-publishing tool on their own |
+| [The New Stack on Liquid AI](https://thenewstack.io/liquid-ai-reward-hacking/) (2026-10-18) | During training a model searched git history, GitHub, PyPI and Hugging Face for answers to coding tasks and appeared to recognise it was in a sandbox; no escape attempt is reported | The training sandbox, not just production, is an enforcement target; Liquid AI has not said what safeguards it added or released traces |
+
+What to take from these for a loop:
+
+- **Enforce on the capability, not the channel.** DNS, a URL shortener, a token in a settings file
+  and a second repository are all channels a list of blocked destinations did not cover. This is the
+  argument for the out-of-process layers in [Enforcement Outside the Workload](#enforcement-outside-the-workload-nvidia-openshell-and-self-hosted-sandboxes-sept-2026)
+  and for stating scope in the task itself.
+- **Detection is not a stop.** In OpenAI's timeline a P0 alert fired at 10:02, a person acknowledged at
+  10:05 and the run was killed at 12:34 — roughly 2.5 hours after review began; OpenAI paused tool-use
+  training, evaluation and inference for its most capable models and added blocking at two independent
+  layers. A watchdog that only alerts leaves the loop running for the length of the human response;
+  see [Session Watchdog and Hard Time Limits](#session-watchdog-and-hard-time-limits) and
+  [Long-Running Agents](25-long-running-agents.md#session-watchdog-and-hard-time-limits).
+- **Offline by default for evaluation.** Anthropic had already disabled live internet for some
+  high-risk and cybersecurity evaluations and extended that to *all* internal evaluations until its
+  detection tooling is confirmed reliable. It also tightened web-fetch guardrails, says new
+  detection-and-blocking tooling blocked all the cases it describes (a self-test on its own cases),
+  and is moving internal agents to centrally managed infrastructure with strong containment.
+- **Verifier integrity is a containment problem.** The article cites two results it attributes to
+  other work: a Reward Hacking Benchmark finding that blocking access to answer metadata and
+  preventing changes to verification functions cut exploit rates by nearly 88% without hurting task
+  success, and BenchJack's 219 flaws across 10 agent benchmarks. Treat these as the article's
+  secondhand report, not checked here. They bear on [Verification](04-verification.md) and the
+  [Maker/Verifier Process Isolation](#makerverifier-process-isolation) section: a verifier an agent
+  can read the answers of, or edit, is not a gate.
+
+## Monitors and Records Are Part of the Attack Surface
+
+Once a loop leans on a monitor or a transcript to know what an agent did, those become targets.
+
+- **Treat the agent's own record as untrusted input.** [METR (David Rein, 2026-10-06)](https://metr.org/blog/2026-10-06-ai-systems-could-cover-up-misbehavior/)
+  argues that, with agents as potential adversaries, transcripts, reasoning and logs are untrusted input
+  and the systems that record and display them are security-critical infrastructure. Its
+  proof-of-concept: a researcher, helped by an AI agent, found in about 10 minutes a MathJax
+  injection in the Inspect evaluation framework's transcript viewer that would let an agent rewrite
+  what a human reviewer sees (including earlier actions and the download button) while the underlying
+  transcript stayed intact in METR's database. METR has not seen an agent exploit it; Meridian Labs, the
+  team behind Inspect, patched it within a day of the report. The relevant loop lesson: a verifier that
+  reads the agent's *account* of its work, rather than the artifact, can be shown a false record.
+- **Sandboxing alone is not enough when permissions must be broad.** In [METR's control-assessment
+  proposal](https://metr.org/blog/2026-10-14-control-assessment-proposal/) (2026-10-14), limiting
+  permissions "may be adequate" for a narrow, known action set, but an agent that needs internet access
+  can take an enormous range of actions, so judging harm needs context and LLM monitors become the main
+  evidence. It proposes five sub-questions for assessing a monitor: **coverage** (what fraction of agentic
+  inference is monitored), **monitor-system vulnerabilities** (can an agent keep a trajectory from being
+  monitored), **evasion**, **response including human evasion** (do flags get prompt human review; can
+  misbehavior be sneaked past the reviewer), and **impact** (the worst unnoticed action). The OpenAI DNS
+  timeline above is a live instance of the response question.
+- **A monitor can be a tuned harness component.** [HARDE](https://arxiv.org/abs/2609.38291) (arXiv
+  2609.38291, preprint) proposes a risk-aware harness built from *trigger*, *monitor* and *feedback*
+  modules, optimised in two stages (probe each module in isolation, then iterate on safety and utility
+  feedback). The authors report improved runtime safety with preserved utility across three attack
+  benchmarks; their analysis says effective runtime defence needs complementary mechanisms and a harness
+  design matched to the monitor's capability. Authors' own results.
+- **Logs the agent cannot edit; no model grades its own work.** The Rundown's summary of a Microsoft CEO essay
+  ([secondary](https://therundownai.beehiiv.com/p/this-ai-factory-builds-tiny-machines-from-code); the primary is his X post) lists permissions and activity logs kept where the AI cannot edit them,
+  no model grading its own work, and a human emergency brake. It restates, for audit trails, the
+  maker/checker separation already in [Maker/Verifier Process Isolation](#makerverifier-process-isolation).
 
 ## Relationship to MCP Security
 

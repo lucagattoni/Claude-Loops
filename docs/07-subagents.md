@@ -83,6 +83,10 @@ This pairs the maker/checker split with the cost discipline in [Cost & Turn Cont
 
 ([orobsonn/claude-harness](https://github.com/orobsonn/claude-harness) — repo no longer publicly reachable; 404 as of 2026-09-05, Jun 2026. **The quotes above cannot be re-verified:** this source was live when they were captured (Jun–Jul 2026) and has since been withdrawn, with no Wayback snapshot (checked 2026-09-06). They are kept, dated, and flagged rather than deleted — see `CLAUDE.md` § *Quoting a source that has since died*.)
 
+One counter-datum: in the [teams-of-coding-agents study](https://arxiv.org/abs/2610.17471) (Oct 2026, preprint),
+cheap models helped as *planners* but cheap *implementers* lowered reward in a minimal harness; see
+[Agent Teams](38-agent-teams.md#do-teams-pay-off-measured-evidence-oct-2026).
+
 **Refinement: route eye-tier by severity, not by role alone.** A fixed cheap/mid/strong
 split still spends "strong eyes" budget on low-stakes reviews. A `resolveEyeTier`
 function instead computes the reviewer tier per-change: Opus for high-severity,
@@ -285,6 +289,23 @@ level** each subagent actually ran on (v2.1.243+), so which rung applied on a gi
 checkable, not guessed. Full precedence table, the `_FORCE` mechanics, and the practical read on
 using `/tasks` to audit it: [Cost & Turn Control → Which model a subagent actually runs
 on](11-cost-control.md#which-model-a-subagent-actually-runs-on).
+
+### Effort is a second dial: `effort` on the Agent tool (v2.1.292+)
+
+Model choice is not the only per-subagent cost lever. The [Claude Code
+changelog](https://github.com/anthropics/claude-code/blob/main/CHANGELOG.md) for **2.1.292** lists "an
+`effort` parameter to the Agent tool, so Claude runs a sub-agent at the effort level you ask for". Per
+[explainx.ai](https://explainx.ai/blog/claude-code-subagent-effort-levels-low-high-v2-1-292-guide-2026)
+(an AI-written guide that says it did not have the release notes), citing the announcement by Anthropic's
+Lydia Hallie, the intended pattern is many low-effort scouts for wide search plus one high-effort reviewer
+over their output: a maker/checker cost split inside a single request. It is asked for in plain language
+("find every call site using low effort subagents, then run a high effort subagent over the results"); the
+guide could not confirm a frontmatter field for it, the default when unstated, or which levels apply to
+subagents, so test on a small prompt and read the effort shown in `/tasks` (see above) before relying on it.
+Two cautions: a low-effort scout can skim past a call site hidden behind a wrapper, so have scouts return
+file-and-line evidence the reviewer can spot-check; and effort competes with team size as a way to buy
+quality, which [Agent Teams → Do teams pay off?](38-agent-teams.md#do-teams-pay-off-measured-evidence-oct-2026)
+measures.
 
 ## Cache-Safe Forking and Isolated Child State
 

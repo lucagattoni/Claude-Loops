@@ -295,6 +295,13 @@ session" permission grants carry over, but forking into a separate process with 
 starts without them and you re-approve there. Useful for a checkpoint-and-branch pattern — fork
 before a risky step so a bad outcome doesn't corrupt the session you'd otherwise resume from.
 
+A fork can also be used to *shed* context rather than preserve it. The
+[Fork-and-Flush paper](https://arxiv.org/abs/2610.07447) (Oct 2026) forks an agent into parallel
+trajectories that keep the workspace but start with a fresh chat, then continues from the best scorer;
+its reported gains and caveats are in [Context Management](13-context-management.md#fork-and-flush-clear-the-chat-keep-the-workspace).
+Claude Code's `/branch` and `--fork-session` above copy the transcript, so they do not give you that
+fresh-context property on their own.
+
 ([Sessions](https://code.claude.com/docs/en/sessions) · [Agents and parallel work](https://code.claude.com/docs/en/agents) · [CLI reference](https://code.claude.com/docs/en/cli-reference).)
 
 ---

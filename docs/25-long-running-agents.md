@@ -227,6 +227,49 @@ loop](09-headless-mode.md#fault-tolerant-headless-loop).
 ([env-vars reference](https://code.claude.com/docs/en/env-vars);
 [CHANGELOG.md](https://raw.githubusercontent.com/anthropics/claude-code/main/CHANGELOG.md), v2.1.187.)
 
+## Control-Plane Continuity: LoopX and deep-loop (Oct 2026)
+
+Two multi-session orchestrators show what "read the state file first" becomes once the state
+is a database or a directory of runs rather than one `PROGRESS.md`.
+
+- **LoopX carries acceptance, evidence and the next action across iterations.** Per the
+  release notes, [v1.3.0](https://github.com/loopx-project/loopx/releases/tag/v1.3.0) (2026-10-06)
+  came out of long-horizon benchmark diagnosis: a bounded replan context that retains
+  outcome and route diversity, Next Action writeback bound to the selected Todo, settlement
+  that follows the original authority, and checkpoint recovery.
+  [v1.4.0](https://github.com/loopx-project/loopx/releases/tag/v1.4.0) (2026-10-11, flagged
+  as a breaking change) makes canonical SQLite state with `hard_lease` the default for new
+  unconfigured Goals, adds an implicit review cadence of six settled work Turns,
+  evidence-backed work-Turn review and reviewed SQLite recovery.
+  [v1.4.2](https://github.com/loopx-project/loopx/releases/tag/v1.4.2) (2026-10-15) makes
+  recovery retain the original operation identity; v1.4.1 adds missing-task-context and
+  stale current-basis checks. Read together (this KB's reading, not the release notes' wording): recovery restores the *original*
+  authority and identity of an operation instead of re-deriving them, and review is
+  triggered by a count of settled work, not by the agent's own sense that it is done.
+- **LoopX's own long-horizon benchmark, with its caveats.** The
+  [README](https://github.com/loopx-project/loopx#lhtb-results) reports a same-model,
+  three-mode comparison on Long-Horizon Terminal-Bench (46 tasks): LoopX 1.0.3 Heartbeat
+  0.4948 mean reward, Plain Codex 0.4218, native Codex Goal 0.4475 (self-reported). It also
+  caveats that some Heartbeat replacements ran with unequal runtime budgets and that strict
+  pass counts do not improve over Plain Codex (7/46 each); the study date is not stated on
+  the page. A usable template for reporting a loop harness honestly: mean reward and strict
+  pass counts side by side, budget inequality disclosed.
+- **Long-lived loop state needs bounded lookups.** [deep-loop v1.27.0](https://github.com/Sungmin-Cho/deep-loop/releases/tag/v1.27.0)
+  (2026-10-07) documents a failure of the recovery path itself: with more than 64 run
+  directories, or a stale absolute worktree claim, the PreCompact and SessionStart hooks
+  failed for every session, so no compact checkpoint was written. The fix adds explicit
+  bounds (256 runs, 64 full verifications, time caps) and distinguishes worktree claims of
+  finished runs from active ones. Accumulated run history is a scaling input to resume,
+  not just disk usage.
+- **Observability without write access.** [deep-loop v1.26.0](https://github.com/Sungmin-Cho/deep-loop/releases/tag/v1.26.0)
+  (2026-10-06) adds a read-only `run status` JSON envelope (budget, comprehension debt,
+  breaker, pending human reviews, workstreams, next action) and a Claude Code status band
+  with toasts for breaker, debt-gate, budget-stop and completion events; the UI reads the
+  control plane but cannot change it.
+
+For the per-turn admission side of LoopX see [Loop Contract → Quota-Aware Should-Run
+Gate](27-loop-contract.md#quota-aware-should-run-gate).
+
 ## Relationship to Cost Control
 
 Long-running agents are the highest-risk scenario for cost runaway. Always pair with:

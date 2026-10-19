@@ -316,6 +316,65 @@ tool call is **denied**, not deferred to the auto-mode classifier.
 ([Hooks reference — PermissionRequest](https://code.claude.com/docs/en/hooks), fetched
 2026-09-07; [CHANGELOG.md](https://raw.githubusercontent.com/anthropics/claude-code/main/CHANGELOG.md), v2.0.54, v2.1.89, v2.1.110.)
 
+## Approval Binding: The Action Approved Is Not Always the Action Run
+
+Every gate above assumes that the action a human (or a classifier) approves, A, is the action the
+harness then executes. [Approval Laundering](https://arxiv.org/abs/2609.38983) (arXiv 2609.38983,
+2026-09-30; preprint) tests that assumption and reports it failing systematically. It names six
+ways a harness can silently substitute A' for A after approval: **Scope, Argument, Temporal, Tool,
+Delegation and Semantic** laundering. The authors instrumented Claude Code's `PreToolUse` mediation
+point and ran a controlled, headless, repeated-measures study of each class (N=19-20 runs per class),
+reporting a Bound-Gap Rate with confidence intervals.
+
+They also prototyped an **Approval Token**: a keyed capability over principal, agent id, session id,
+tool, arguments, scope and expiry, issued by a mediator that never gives the key to the agent. In a paired
+replay of 118 runs it fully eliminated Delegation laundering and, for their seeded
+session-identity-mismatch construction, Temporal laundering, but left Scope laundering unaffected by
+design and showed no significant reduction in Argument laundering. The authors call this an honest
+negative result: those two classes leave every recorded dispatch field unchanged, so a verifier that
+checks only fields at the tool-invocation boundary cannot see them. For a loop, the practical reading
+is that a `PreToolUse` or `PermissionRequest` hook that matches on the call it is shown is
+necessary but not sufficient; what the call *does* one process level down is a separate thing to
+test (compare [Reject+Replan](#rejectreplan-pattern) for the human side of the same gate). The
+results come from the authors' own instrumentation of one harness, and are a preprint.
+
+### Measured effects of permission mechanisms (HarnessSecurity-Bench)
+
+[HarnessSecurity-Bench](https://arxiv.org/abs/2610.07639) (arXiv 2610.07639, 2026-10-06; preprint)
+is a 23-task, five-attack-surface benchmark run across six harnesses (Claude Code, Codex CLI, Gemini
+CLI, gptme, Qwen Code, GitHub Copilot), with GLM-5.2 as the fixed model so the harness is the variable
+(2,500 trials, 81,155 tool calls). Because the model is not a Claude model, read the numbers as
+properties of the mechanisms, not of any Claude configuration.
+
+| Mechanism | Reported effect |
+|---|---|
+| **Auto-approve** | Raises utility *and* raises attack success from 29.2% to 95.6% |
+| **Network isolation, read-only mode** | Reduce attack effects, with substantial utility loss |
+| **Command allowlisting** | Reduces attack effects with a small utility loss |
+| **Command denylisting** | Reduces attack effects with a utility *gain* |
+
+The task-level cases carry the transferable point: a restriction on a shared capability can obstruct
+legitimate and malicious operations alike, and an allowed tool or command can leave unauthorised
+operations reachable through an alternative execution path. That is the same reason
+[Agent Security Hardening](33-agent-security-hardening.md#grading-harness-security-posture) keeps OS-layer
+isolation underneath the permission list. The paper also finds about half of confirmed security
+mechanisms are opt-in, so check which are actually on.
+
+### Third-party classifiers in the auto-mode slot (OpenRouter Armor, beta)
+
+[explainx.ai's write-up](https://explainx.ai/blog/openrouter-armor-beta-tool-call-safety-classifier-jev-claude-code-auto-mode-claimed-vs-verified-2026)
+(Oct 2026; a secondary explainer summarising OpenRouter's documentation) describes Armor, a beta
+classifier that sits between the model and your application and evaluates every tool call against
+plain-English rules in three tiers: **hard-deny** (nothing clears it), **soft-deny** (an allow rule or
+the user asking for that exact operation can clear it) and **allow** (exceptions only). It has an
+**audit mode** that returns the same verdicts but releases every call, so rules can be tuned on real
+traffic before enforcing. In its Claude Code compatible mode, Anthropic's own classifier is used where
+the request reaches an Anthropic endpoint that supports the beta, and Armor otherwise; the explainer
+notes the calling application is what actually stops a flagged call, so a client that ignores the
+verdict field will run it. OpenRouter's claim to beat Claude Code's auto classifier on accuracy and
+cost is unverified: per the explainer, no test set or numbers are published. Treat it as one more
+probabilistic gate, not a replacement for the sandbox layer.
+
 ## Risk-Tiered Authorization by Consequence
 
 Rather than categorising permissions by tool name, classify them by the reversibility

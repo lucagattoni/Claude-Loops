@@ -241,6 +241,35 @@ large doesn't get one final check, it gets a standing subagent whose only job is
 cross-checking the working agents' output against the source data as it accumulates.
 ([Ben's Bites, "Scraping 107M rows of data to build this"](https://www.bensbites.com/p/scraping-107m-rows-of-data-to-build), Sep 2026.)
 
+## Writing a Condition Claude Code's Native `/goal` Can Judge
+
+The four primitives map onto the native command less directly than onto the Grok Build
+implementation, because the evaluator is constrained in one specific way. Per the
+[`/goal` docs](https://code.claude.com/docs/en/goal) (read 2026-10-19), the evaluator judges the
+condition against what Claude has **surfaced in the conversation**; it does not run commands or
+read files independently. The Verifier is therefore only as strong as the evidence Claude puts
+in the transcript: "all tests in `test/auth` pass" works because Claude runs the tests and the
+result appears for the evaluator to read, whereas a condition about a file's contents that Claude
+never prints cannot be confirmed. The docs list what a condition that holds up across many turns
+usually has:
+
+| Element | Maps to | Example from the docs |
+|---|---|---|
+| One measurable end state | Objective | a test result, a build exit code, a file count, an empty queue |
+| A stated check | Verifier | "npm test exits 0", "git status is clean" |
+| Constraints that matter | Guardrails | "no other test file is modified" |
+| A turn or time clause | Budget | "or stop after 20 turns" |
+
+The condition can be up to 4,000 characters; Claude reports progress against the turn clause and
+the evaluator judges it from the conversation, so the budget is itself conversation-visible
+rather than harness-enforced. The same page notes `/goal` is a session-scoped wrapper around a
+prompt-based Stop hook; a Stop hook in settings can instead run a script for a deterministic
+check. A [MindStudio explainer](https://www.mindstudio.ai/blog/claude-code-goal-command-verification/)
+(secondary source; it repeats the same four-part anatomy) pairs the condition with an executable
+check script as the definition of done, which is the way to make the "stated check" something the
+transcript can actually show. See [Verification](04-verification.md) for why the check should not
+be one the working agent can edit.
+
 ## Aspire — Can Models Self-Evolve from Vague Goals?
 
 The Four Goal Primitives above assume the Objective starts well-formed (per the "Bad" vs

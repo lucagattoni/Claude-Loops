@@ -175,6 +175,10 @@ solution and the original draft is the highest-signal output of the whole review
 surfaces hidden framing assumptions the implementer couldn't see from inside their own
 reasoning.
 
+Priming also has a looped form: a reviewer asked to "review and improve" finds a change every
+round, and the next session reads it as spec — see *Review-loop drift* in
+[Failure Patterns](17-failure-patterns.md).
+
 **The synthesizer problem.** Even with a perfectly fresh reviewer, the *human or agent who
 reconciles* the two solutions remains the most biased party in the loop — they already
 have an opinion before synthesis begins. Mitigation: log every rejection alongside every
@@ -571,6 +575,140 @@ this produced 128 bug fixes in the v1.4.0 release with only 19 regressions intro
 across the full 535,496-line rewrite — a real-world data point for what blind adversarial
 review buys at scale, not just at single-diff granularity. ([Bun, "Bun, in Rust"](https://bun.com/blog/bun-in-rust), Jul 2026.)
 
+## Review Loops That Converge: Anthropic's Own Process and Open-Source Ledgers (Oct 2026)
+
+The patterns above say a reviewer must be independent. They say less about the **review loop**
+itself — how many rounds, who may end it, what happens when the reviewer is down. Oct 2026 added
+a first-party account from the team that builds Claude Code, and a cluster of small open-source
+harnesses that converge on the same mechanics.
+
+**Anthropic's account — layers, then convergence.** The Claude Code team's
+[post](https://claude.dev/blog/solving-code-review-at-anthropic/) (Addy Osmani, Morgan Westlee
+Lunt and Qing Wang, Oct 15 2026; first-party, figures self-reported) describes six layers, each
+catching some problems and missing others, with rollback underneath:
+
+| Layer | What it does |
+|---|---|
+| Verified before the PR | Claude runs tests, build and linter and shows the output; a second agent reviews the diff in a fresh context |
+| Required CI | Lint, types, tests across platforms, build; red blocks the merge |
+| AI review + security review | Agents hunt for bugs in parallel, a separate group **votes** on each finding and only survivors are posted, ranked by severity; open findings from either review block the merge |
+| Risk-tiered approval | A classifier reads the *change* (not the author) and sets the tier: no person, one, or two. An agent's approval never fills a slot that calls for a person, and an approval covers one specific commit |
+| Merge queue, flags, gradual release | Checks re-run on the latest main; new behaviour ships behind a flag to employees first |
+| Fast detection and rollback | Flags turn off without a deploy; incident reviews ask which layer should have caught it |
+
+The post reports that from June to September merged PRs to the Claude Code repos more than
+doubled while the share reverted fell by more than 40 percent, and that the share of internal PRs
+with substantive review comments rose from 16% to 54% when the reviewer launched in research
+preview. Code Review has since left preview for Team and Enterprise with admin-selectable
+Quick/Standard/Deep levels per repository; the
+[GA page](https://claude.com/resources/articles/code-review-is-now-generally-available) is the
+vendor's own claim of ~3x faster reviews (about 20 minutes down to 6–10).
+
+The most transferable part is that the reviewer is itself a loop that must **converge**:
+
+- **The failure.** "An agent author and an agent reviewer can keep each other busy indefinitely";
+  one CLI PR went through more than fifty review-and-fix rounds overnight. `git blame` on what the
+  reviewer kept flagging showed about 59% was code present since the reviewer's first pass — it was
+  "finding a few more old ones each round", not new bugs.
+- **The fix.** A cap of three rounds, after which the reviewer asks the author to step back and
+  reconsider the approach; diff-only re-review after the first few passes; flag the *class* of bug
+  so the author fixes every instance; no repeats of findings already posted.
+- **The result (internal PRs, before → after).** Passing after one review-and-fix round 65% → 78%;
+  needing five or more rounds 8.9% → 1.5%; mean reviews to pass 2.08 → 1.32. This independently
+  matches the ~3-round cap, and the finding that rounds beyond it introduce bugs, reported for
+  [compound-review](#verifier-integrity-keeping-the-check-unfakeable) above.
+- **The reviewer has its own eval.** Past incidents and reverts, with each bug confirmed by an
+  engineer who knows the code, form an eval set the reviewer is scored against daily; a change to
+  its prompts, tools or model is kept only if the score rises. Noise is measured by how authors
+  respond to each comment (fixed, wrong, intentional, did not matter) and by running the reviewer
+  on PRs known to be clean. The stated priority is real bugs first, fewer rounds second.
+- **What is admitted missing.** The team has no circuit breakers that tighten approval when revert
+  or incident rates move, and says engineers want them before more code moves to zero-human merges.
+  That is the unbuilt half of the [STOP-condition](27-loop-contract.md#stop-condition-taxonomy)
+  design: a budget or round cap contains the reviewer loop, but nothing yet feeds production
+  outcomes back into how much human review a change gets. See also
+  [Human-in-the-Loop](14-human-in-the-loop.md).
+
+**Open-source review-loop harnesses — the same mechanics, small and unproven.** All of the
+following are young repos (0 stars at capture, dates are last push); they are designs to compare
+against, not evidence.
+
+| Harness | Mechanism worth taking | Caveat |
+|---|---|---|
+| [review-ledger](https://github.com/SwiftlyAside/review-ledger) | Claude authors, Codex reviews; a per-repo ledger gives every finding an id and forces a fix / reject / dispute / defer reply; four terminal states (converged, escalated, capped, stalled); a Stop hook blocks ending the turn while blocking findings are open; a per-turn check that the reviewer's model and effort did not drift when the thread resumed | README claims one-way review was "measured at 10-20 rounds" vs 2-3 with the ledger, but the protocol doc gives no data — an author claim |
+| [Reviewgate](https://github.com/Codevena/reviewgate) | Fail-closed Stop-hook gate over a multi-provider reviewer panel; a crash, timeout or quota outage is never turned into PASS (it blocks, defers within a bound, or escalates to a human) | Its alpha benchmark (30 hand-written cases x 3 repeats) reports baseline precision 0.3505, recall 0.8095 and clean-case false-positive rate 0.7292, with a critic stage cutting clean false positives by ~16.7 points; the page itself says the corpus is hand-written and the result is not a leaderboard |
+| [dev-loop](https://github.com/mo4islona/dev-loop) | Opus writer, Codex reviewer, and a **recorded-trust table** that decides which findings may be auto-fixed: a route moves from *ask* to *auto* after at least 9 of its last 10 findings were accepted with no veto, and falls back to *ask* after 2 rejections or at once after one veto of an auto-fix. Also treats reviewer-induced needless complexity ("both models add code") as a defect | Thresholds are the author's own defaults |
+| [cc-builder-loop](https://github.com/catchmeee2002/cc-builder-loop) | Four independent gates (machine, blind tester, proof, reviewer), each **bound to the digest of its inputs** so evidence expires when the inputs change; the tester subagent writes tests blind to the implementation; the same failure three times is a hard stop that needs a recorded user decision to resume | README is in Chinese |
+| [review-fix-loop](https://github.com/william-drakemond/review-fix-loop) | Stops when a round has no verified Major finding, or hands back after 4 rounds, when the same Major survives two fix attempts, when findings flip-flop, or when tests fail twice; state lives in a ledger file so it survives context compaction | Largely restates patterns already in this doc |
+
+What these add beyond the earlier sections: the reviewer's **own infrastructure failing must not
+read as approval** (Reviewgate; this KB's own rule that a check which cannot tell must fail, never pass, applied to the reviewer —
+see [Verifier Theater](17-failure-patterns.md)); evidence should **expire** when its inputs move
+(cc-builder-loop); and autonomy can be **earned per route from a track record** rather than set once
+(dev-loop) — a graduated version of the risk-tier table in
+[Belief State Machine](#belief-state-machine-for-claim-verification).
+
+**Turning review verdicts into structured facts.** Three Oct 2026 commits to
+[agent-ready-repo](https://github.com/eugenelim/agent-ready-repo) show the work loop moving off
+adjudication prose. [3.0.5](https://github.com/eugenelim/agent-ready-repo/commit/bfe30052cc760cc0e3c79e95582c3bfc6c87cd0e)
+adds closed review schemas, deterministic obligation selection, atomic report persistence and
+authority-bound dispositions with a pure readiness query, so a verdict becomes a fact a gate can
+read. [#1480/#1483](https://github.com/eugenelim/agent-ready-repo/commit/1e12326dd541e0b28549db32a3325ce90beef364)
+sizes review units by whether they can be independently understood, verified or reviewed (replacing
+a ~2,000-line gate) and derives a **position-free family key** (location plus stable title) so
+recurrence detection survives renumbering — the mechanical counterpart of Anthropic's "flag the
+class of bug, no repeats"
+([companion commit](https://github.com/eugenelim/agent-ready-repo/commit/c1df1520d6761682cd3eb597ca8d9f07de456720)).
+[3.1.3](https://github.com/eugenelim/agent-ready-repo/commit/9662d3780458f9f475505a0bcc0fde6af930c63f)
+feeds unsuperseded review-failure receipts into a read-only, candidates-only mode that proposes
+bounded "gotcha" candidates (it stores nothing) — a path from review failures back into project
+knowledge.
+
+**Critic mechanics in tenet.** Three releases of [tenet](https://github.com/JeiKeiLim/tenet)
+harden the critic stage described in [Structured Critic Finding Taxonomy](#structured-critic-finding-taxonomy):
+[v26.10.0](https://github.com/JeiKeiLim/tenet/releases/tag/v26.10.0) gives critics an
+`applicable_jobs` list and makes `tenet_retry_job` refuse to re-run a critic that already produced a
+verdict (red or green) or to retry after dev/integration jobs have completed since dispatch — so the
+"infra-failure retry only" rule becomes server-enforced instead of advisory, closing **verdict
+fishing** (re-asking until a critic says green); the commit cites roughly 69 hours of critic eval
+against 6 of dev as the motivation. [v26.10.1](https://github.com/JeiKeiLim/tenet/releases/tag/v26.10.1)
+adds a per-critic `parallel_safe` flag so read-only critics run concurrently while app-exercising
+critics chain sequentially. [v26.10.2](https://github.com/JeiKeiLim/tenet/releases/tag/v26.10.2)
+adds a per-round append-only evidence ledger: the first critic to run the suite, lint or build logs
+the result and siblings cite it skeptically (excerpt-bounded, stale if HEAD moves, never a gate,
+entries carry no pass/fail verdict so the rubric parser cannot false-green). Its commit notes two
+adversarial reviews hardened that design.
+
+**Isolating the cross-model reviewer, and keeping the plan honest.** The claudex-loop family and
+ECC's reviewer command add operational detail to pattern 5. Upstream
+[claudex-loop #28](https://github.com/chaseai-yt/claudex-loop/commit/013c7a649dc411ee50fcd430b4ae0c8c40a88961)
+records that a read-only shell sandbox does not govern MCP, plugin or app side effects, so each
+Codex review disables apps and plugins and every user MCP server (read from `codex mcp list
+--json`), failing closed when that listing is unusable. The
+[fork's wrapper 2.6.0](https://github.com/ujconsulting/claudex-loop/commit/953e15dd076ae645920baf920d3ecc5ab4c4b502)
+detects a **blind review** by counting executed commands in the event stream (a newer codex-cli
+stopped printing the string it used to look for) and refuses to log one, and refuses a project
+`.codex/config.toml` after measuring that its `developer_instructions` reached the reviewer; it
+reports a 49-mutant probe of the blind-run logic with no survivor (self-reported).
+[Wrapper 2.6.1](https://github.com/ujconsulting/claudex-loop/commit/e4e0483f70c5964e0fd5035293d4d2d581de8410)
+treats a model/CLI bump as a measured procedure — a preflight proves a real command ran and a shell
+write is refused — and the [upstream record](https://github.com/chaseai-yt/claudex-loop/commit/951a3591270aaba892e27e2fd0d810a8c13b10ee)
+adds the reviewer's effective model, effort and sandbox, plus a rule of **no cross-model fallback**
+when the reviewer is out of quota. [Delegated builders](https://github.com/chaseai-yt/claudex-loop/commit/8ef44653767f82c991c0cd94221c5127abce58b9)
+likewise load no user hooks, MCP tools, apps or plugins. ECC's
+[`/astra-review`](https://github.com/affaan-m/ECC/commit/603164ae79d986ee9a91d4b2ba1e6069f81dbd36)
+sends Claude-written code to another provider's CLI for a PASS/FAIL review with the same isolation
+(read-only sandbox, web search off, user config skipped, every configured MCP server disabled by
+name, filtered environment).
+
+On the plan side, the [fork](https://github.com/ujconsulting/claudex-loop/commit/b15d32ef373f83b3e0002858f0e65b94c1adc8eb)
+and upstream add two rules from field reports: when a REVISE changes behaviour, **every plan
+passage stating the old behaviour** (acceptance criteria and Verification included) must be changed
+or marked superseded, with the new plan's SHA256 logged; and post-build findings that change the
+build must edit PLAN.md in the same pass and be listed at the human gate as a post-approval plan
+change. The PLAN.md template gains a Verification section requiring proof on the real output of the
+producing program, with old-vs-new code run over the same inputs.
+
 ## Eval Metrics: pass@k vs. pass^k
 
 A single pass/fail run cannot tell you whether a loop is *reliably* correct or just
@@ -909,6 +1047,38 @@ microphones on one melody add volume, not information, and that redundant spend 
 correlation entirely, because it has no model-specific blind spot to share.
 ([LinkedIn — Rubén Domínguez Ibar](https://www.linkedin.com/pulse/forget-loop-engineering-its-all-graph-now-rub%C3%A9n-dom%C3%ADnguez-ibar-2cyzf/), Sep 2026.)
 
+**Oct 2026 corroboration: the oracle is what makes the agent's work checkable.** Several Oct 2026
+pieces make the same point from different angles, none with a measured rate:
+
+- [Andrew Ng](https://www.deeplearning.ai/the-batch/formal-verification-meets-unverifiable-judgement)
+  argues LLMs are far stronger on verifiable tasks (automatic reward checks) than on judgement
+  tasks with no ground truth, and that test sets for verifiable tasks make progress look better
+  than it is. For a loop, the split decides which steps can carry an automatic stop condition and
+  which still need a human.
+- Addy Osmani's [Agentic Verification](https://addyo.substack.com/p/agentic-verification) frames
+  quality as loops the agent can run itself: E2E tests as the "done" oracle, property-based tests,
+  differential testing against the old system, and fast deterministic loops (slow or flaky ones
+  teach the agent to retry rather than fix). His [The Code Nobody Reads](https://addyo.substack.com/p/the-code-nobody-reads)
+  (carries a sponsored block) names the **independence of the verifier** — a spec or reference
+  implementation, not a second copy of the same model — as the source of trust once line-by-line
+  review goes.
+- Two reference-oracle cases: Christian Schaller's open-source hw-harness lets Claude run a Windows
+  driver in a KVM VM, capture USB traffic and compare traces against a Linux driver — an agent given
+  that oracle succeeded where earlier unaided attempts stalled
+  ([The New Stack](https://thenewstack.io/claude-code-linux-driver/)); and an
+  [explainer](https://explainx.ai/blog/reverse-engineering-with-ai-agent-prove-it-differential-testing-guide-2026)
+  (secondary source) gives an eight-step reverse-engineering workflow that treats differential-test
+  mismatches as findings.
+- The counter-case: a 10-patch Claude Code-assisted Linux page-cache series from Linus Torvalds
+  (23x throughput on a synthetic benchmark) was then found by human reviewers to contain a race
+  ([The New Stack](https://thenewstack.io/torvalds-claude-code-kernel/)) — human review remaining
+  the verifier where no oracle covered concurrency.
+- Not-reading-the-code strategies come with constraints attached: Robert C. Martin's approach, as
+  [discussed on the ploeh blog](https://blog.ploeh.dk/2026/10/12/releasing-ai-generated-software/),
+  surrounds agents with unit and gherkin tests, QA procedures, mutation testing and coverage rather
+  than reading the output; the post notes Martin has since walked back some harness use and raises
+  liability questions.
+
 ## Benchmark and Eval Integrity (Sept 2026 corpus)
 
 Several independent findings converge on the same warning: a claimed result is only as
@@ -975,3 +1145,93 @@ than practitioners assume.
   criteria before proceeding — the same maker/checker discipline this doc documents for
   coding agents, appearing independently in a non-engineering product context.
   ([therundown.ai, "Use the loop method to get better results from ChatGPT"](https://app.therundown.ai/guides/use-the-loop-method-to-get-better-results-from-chatgpt), Aug 2026.)
+
+## Measuring Whether a Guard, Gate or Judge Works (Oct 2026)
+
+[Benchmark and Eval Integrity](#benchmark-and-eval-integrity-sept-2026-corpus) is about whether a
+*score* can be trusted. This section is about the narrower, more common question a loop builder
+faces: does the guard I added actually change outcomes, and is the judge I use failing safe? Oct
+2026 produced unusually candid worked examples.
+
+**A pre-registered eval that measured nothing, then one that did not confirm.** ECC's GateGuard is
+a fact-forcing PreToolUse hook gate. Its first
+[pilot](https://github.com/affaan-m/ECC/commit/5588e27646b22ff8aa2dfb26aefa5ced9cb85cde)
+(72 sessions; off / gate / minus-target / placebo arms) returned 18/18 in every arm — a null that
+carried no information, for three reasons the write-up names: every trap hid its deciding fact in
+the repo, the asking channel was disabled, and the pass criterion used the gate's own vocabulary.
+It did establish the gate's cost (+45% turns, +28% tokens). The redesign uses hidden intent, a
+simulated user, a hole-class taxonomy, and grader checks run **before any session is billed**. The
+pre-registered [confirmatory run](https://github.com/affaan-m/ECC/commit/d545071699e3f46a51ebfb4f09b2d1c8e1674595)
+then did not confirm the suggestive exploratory result: gate 25/48 vs off 18/48, exact McNemar
+p=0.210 (the exploratory run had shown +29 points at p=0.065; the replication showed +15). It was
+reported as not confirmed with no pooling, a follow-up showed an added question "helped" only
+because the ungated baseline fell, and the doc concludes that obtaining the deciding fact was the
+only reliable predictor of passing — the gate's one stable number is its cost (35–45% more
+turns/spend across 336 billed trials). Transferable method: (1) check the eval *can* fail before
+spending on it (ceiling arms measure nothing); (2) never score with the guard's own vocabulary;
+(3) replicate a suggestive result before adopting it, and report the miss. Compare the noise-floor
+discipline in [A/A Baseline](#aa-baseline-for-verifier-calibration).
+
+**Judge discipline in caliper.** The skill-eval harness [caliper](https://github.com/edonadei/caliper)
+shipped three releases that read as a checklist for any LLM judge.
+[v0.18.0](https://github.com/edonadei/caliper/releases/tag/v0.18.0): a judge that hits its spending
+cap stops the run (exit 2) instead of marking every remaining attempt `judge_error`, and a malformed
+judge answer (e.g. `"passed": "false"` or `{}`) is never read as pass or fail; specs that silently
+skewed scores (duplicate YAML keys, blank `assert:`) are refused.
+[v0.16.0](https://github.com/edonadei/caliper/releases/tag/v0.16.0): the judge now follows the
+`--model` backend by default, with the notes recommending a judge from a *different* model than the
+one evaluated because a model grading its own output can be biased; `compare` warns when two runs
+used different judges, and saved runs keep enough to rebuild the judge prompt.
+[v0.19.0](https://github.com/edonadei/caliper/releases/tag/v0.19.0) adds `history:` so a task
+resumes from planted real-session turns instead of a simulated user (the author rejects an
+LLM-played user as unrepresentative) and records `cli_version`/`judge_cli_version` per run. Note the
+contrast with GateGuard's redesign above, which *adopted* a simulated user: how to supply the
+conversation is an open design choice, not a settled one.
+
+**Evaluating loop gates themselves (InjayTseng).** The
+[loop-engineering-on-product](https://github.com/InjayTseng/loop-engineering-on-product) kit's
+[eval series](https://github.com/InjayTseng/loop-engineering-on-product/commit/a279c4fb92db3c03f4b3f512cdce5d0c92200751)
+(record every call's cost, label shipped commits from git, seeded gate cases with known answers,
+replay, whole-loop A/B) starts from a limit: git labels cannot rank gates when the human merges the
+whole branch (39 of 39 decided changes merged on the first adopter), so a bench script runs the real
+value-critic and validator on cases with fixed answers. Self-reported results include Sonnet-to-Haiku
+gates costing more ($1.27 to $2.37) and catching less, and a prefilter rejecting 18 of 32 bad ideas
+and 0 of 12 good ones. A [later commit](https://github.com/InjayTseng/loop-engineering-on-product/commit/396c925204dde498659fe6c74426641daa477592)
+prints 95% Wilson intervals beside every rate and flags deltas inside overlapping intervals; a
+Sonnet validator failed 9 of 9 changes that keep their CLAIM but break the next flow (and passed the
+correct version 3 of 3), so the proposed guardrail lines were not added to the PRD template — the
+cases were kept as regression tests. These are small-n, single-author numbers; the transferable part
+is the order: measure a loop change before adopting it. Its
+[v3.1 release](https://github.com/InjayTseng/loop-engineering-on-product/releases/tag/v3.1) and
+[lessons 11–17](https://github.com/InjayTseng/loop-engineering-on-product/blob/v3.1/docs/06-lessons.md)
+(from an overnight iOS-plus-backend adoption; each fix shipped with a test that fails on the old
+code) add failure modes: a usage limit mistaken for a structural failure, a veto that must read every
+channel the checked thing reports through, tests writing to the data they are later judged by, and
+"another judge agreed" is not ground truth. The corresponding
+[fix](https://github.com/InjayTseng/loop-engineering-on-product/commit/3f1280683ea8a59caf0c60ec774699f5289ce6c2)
+requires the validator to name the specific test covering its claim, since PASSes backed only by
+code reading, a test count and screenshots were unsupported.
+
+**Anthropic's eval-design post.** [Automating eval design and hillclimbing with Claude](https://claude.dev/blog/automating-eval-design-and-hillclimbing/)
+(Sep 28 2026) lists principles — headroom below 100%, low run-to-run variance, adversarial sampling
+— and a one-change-at-a-time hillclimb (`/claude-api build-eval` and `hillclimb`) with a held-out
+test set: if the train score improves while the test score stays flat, Claude suspects overfitting
+and reverts the patch. That revert-on-flat-held-out rule is a ready-made stop condition for any
+loop that tunes its own prompts; it is the same keep-only-if-the-score-rises rule Anthropic applies to
+its own reviewer above.
+
+**Two measurements of the harness layer.**
+[Complex Agents, Shallow Tests](https://arxiv.org/abs/2610.04921) (arXiv 2610.04921, Oct 2026) is
+the first empirical study of harness test adequacy and reports under half line/branch coverage for
+LLM-dependent harness code, proposing HarnessTester to improve it;
+[AgentBug-Smith](https://arxiv.org/abs/2609.37864) (arXiv 2609.37864, Sep 2026) automatically
+reproduces real harness bugs from open-source agentic systems, yielding Live-Harness-Bench with 200
+reproducible harness bugs. Both are abstract-level reads: they say the loop's own scaffolding is
+thinly tested and that its bugs are reproducible, not how to fix either.
+
+**A vendor-run benchmark ranks the vendor's product first.** GitHub and Microsoft's ReviewBench
+(219 PRs, 187 repos) puts Copilot code review first at 40.1% grounded F1, with Claude Sonnet 5
+classifying findings; [The New Stack](https://thenewstack.io/github-reviewbench-code-review/) notes
+an independent benchmark tells a different story. Read it as the review-tool counterpart of the
+undisclosed-harness Astra score above, and as another reason to run a reviewer against your own
+incident set, as Anthropic does.

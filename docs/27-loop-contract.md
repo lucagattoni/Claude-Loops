@@ -561,7 +561,11 @@ production.
   than an instruction the agent follows on trust, alongside a new convergence rule scoped to
   specific evidence, a budget policy, a silent run-gate, and an epic-level gate sitting above
   the per-item one — the same "code the check, don't prompt for it" move `loop-record.mjs`
-  already made for stagnation detection, now applied to closure itself.
+  already made for stagnation detection, now applied to closure itself. The later 0.19.0/0.19.1
+  Codex distribution exposes the workflows as skills through one runtime adapter; the
+  deterministic scripts (breaker, recording, close, archive gates) still enforce, but the
+  mechanical edit- and stop-blocking hooks stay Claude-only, so on Codex those two blocks are not
+  hook-enforced ([commit](https://github.com/huvii174/loop-engineering-plugin/commit/74692c3e9de3429a48b830a5ee9776d64c4f86bb), Oct 2026).
   ([huvii174/loop-engineering-plugin](https://github.com/huvii174/loop-engineering-plugin/commit/bde2b2f52e4c3c199455316fd39c330c78ff3a2a), v0.18.2/0.18.3, Sep 2026.)
 
 - **A three-way closure-eligibility gate, mechanically checked.** Where the huvii174 gates
@@ -589,6 +593,35 @@ production.
   SIGKILL) with an orphan-reaper that re-verifies PID identity before killing, closing a
   pgid-recycling false-kill risk in long-running supervised loops.
   ([Kanevry/session-orchestrator](https://github.com/Kanevry/session-orchestrator/releases/tag/v5.3.0), v5.3.0, Sep 2026.)
+- **Two retry budgets, and escalation only on plateau.** [ralphctl](https://github.com/lukas-grigis/ralphctl)
+  drives Claude Code, Copilot CLI, Codex CLI, OpenCode or Grok Build per task through a
+  generator, then an independent evaluator, then a verify gate. Its README states that the
+  two gates spend *different* budgets: a failed review re-runs the generator inside the same
+  attempt, up to `harness.maxTurns`; a red verify fails the attempt and opens a fresh one, up
+  to `harness.maxAttempts`, after which the task is marked blocked. A "strong-gate" preset
+  pairs a cheap generator with a permanently flagship evaluator, and an escalation ladder climbs
+  a model tier only on plateau. A concrete BUDGET and STOP example: the cap on
+  *revising* and the cap on *restarting* are separate numbers, and the strong-gate preset puts
+  the expensive model on the checker rather than the maker. (README claims, last push 2026-10-19; not independently
+  tested here.)
+- **A human gate whose results are recorded, not just passed.** [neal](https://github.com/navels/neal)'s
+  planner/coder/reviewer loop now keeps a per-run record of each manual gate and shows the
+  results to the coder and both reviewers, because passing gate checks only prove the operator
+  did the work, not that it worked. On failure the coder opens a new gate or splits the plan so
+  the fix is reviewed and the gate re-run, and an operator message can close a waiting gate whose
+  checks can never pass — a way out for a human-in-the-loop stop condition that would otherwise
+  deadlock.
+  ([navels/neal, 2026-10-08](https://github.com/navels/neal/commit/a0bc87a30473206f583ed3f061c46682b5de5df4).)
+- **Replan freedom versus a plan lock.** [ADR-0144](https://github.com/eugenelim/agent-ready-repo/commit/4b8c867a3d5f5a75d953b77e91fc27ce3dac5591)
+  (accepted 2026-10-11) makes a supervisor shipped inside the work-loop skill the single owner of
+  delivery procedure, replacing a phase engine, cohort writer, whole-plan hash lock and legacy
+  review gate. Task order and decomposition can then change after initial review without
+  approval, while criteria, evidence and structured review facts stay the only authority for
+  completion. The trade-off stated is lock versus replanning: pin the *completion authority*,
+  not the *plan*. A companion verb, [loop-cohort](https://github.com/eugenelim/agent-ready-repo/commit/f6ac607beac4e765e15da947bed397d3d21630e3),
+  screens a wave before dispatch and returns parallel-capable or sequential from plan `Touches:`
+  globs and cohort state, under owner-approved input bounds and a closed set of refusal codes;
+  the screen is explicitly not a greenlight.
 
 **Benchmarking the controller, not just the harness.** LoopArena evaluates models
 specifically as *runtime controllers* guiding coding agents through long tasks — the
@@ -600,6 +633,32 @@ right in principle and a model executing it reliably in practice remain two diff
 problems. A lightweight "Type II" evaluation correlates highly with full-task results as a
 cheap proxy metric for iterating on controller design.
 ([arXiv 2608.28281, "LoopArena"](https://arxiv.org/abs/2608.28281), Aug 2026.)
+
+### Guards That Failed Open
+
+Several unrelated repos reported, within weeks of each other, a stop or verification guard that
+looked present and passed while checking nothing. Each is the same defect: **a check that cannot
+tell must fail, and instead it passed.** Cited from commit messages and release notes, so the
+measurements are the authors' own.
+
+| Repo | What passed silently | Fix |
+|---|---|---|
+| [cobusgreyling/loop-engineering](https://github.com/cobusgreyling/loop-engineering/commit/9e1e2b017d0a682bf9e119d71b817351acd59025) (`loop-context`, 2026-10-10) | `--similarity-threshold 95` (meant as 95%) switched stagnation and repeated-action detection off, so four identical failures returned CONTINUE | CLI and library reject values outside (0, 1]; `loop-drill` reports a rejected config as a failed breaker drill |
+| [same repo](https://github.com/cobusgreyling/loop-engineering/commit/6b96a16d56532fe669819d59aa27e51ec37d0387) (`loop-audit`, 2026-10-10) | 19 empty files (142 bytes) scored 100/L3 on `fileExists()` signals | Ignore placeholders; gate L3 on `loop-drill.json` proofs (see [Maturity Model](20-loop-maturity-model.md)) |
+| [sdsrss/loop_eng v0.20.0](https://github.com/sdsrss/loop_eng/releases/tag/v0.20.0) (2026-09-21) | An unattended Stop-hook driver's dirty-tree guard answered CLEAN on a dirty tree (`grep -vq` and a SIGPIPE under `pipefail`) | Unattended drivers now exit 1 with "dirty tree, refusing unattended run" |
+| [andrewcigan/vibe-dev-plugin v9.0.4](https://github.com/andrewcigan/vibe-dev-plugin/commit/7e7df9a03bf945a649824fea623f1cfbe322c499) (2026-10-03) | A commit-scope guard checked zero commits because no writer maintained the field it read | Derive the active feature from per-entry state; commit message reports 68 of 199 historical commits blocked by the old rules versus 23 by the new, all genuinely out of scope |
+| [same plugin v9.0.3](https://github.com/andrewcigan/vibe-dev-plugin/commit/d2e9e432616451099df69c57421a0840c8c29948) (2026-09-30) | A guard's remediation hint named a relative script path; the agent ran a project-local lookalike that corrupted history state | Installer writes the plugin path; a test executes every hint command from the filesystem root and checks the consequence (31 of 33 fail on the old code) |
+| [huvii174/loop-engineering-plugin 0.18.3](https://github.com/huvii174/loop-engineering-plugin/blob/main/CHANGELOG.md) (2026-09-25) | An instruction-only epic gate was found failing in its own epic | Archive refuses the last item's run without a recorded `epic_gate`; no flag waives it |
+| [eugenelim/agent-ready-repo #1479](https://github.com/eugenelim/agent-ready-repo/commit/168394a5bb93a8c1bd838808f8869faee070ade0) (2026-10-01) | The run's event line reported no retry cap while the guard enforced a default of 5 | The budget snapshot resolves caps through the same helper the guards use, so reported and enforced budgets cannot diverge |
+| [daonhan/ralph](https://github.com/daonhan/ralph/commit/41d399846820a14f9d9991c9e883f9f1c73984fc) (2026-09-30) | (Preventive) a `REVIEW_CHECKLIST.md` rule that pending or skipped checks are never reported as passed; checks run in order and stop on failure | Reporting rule for the implementer and reviewer stages |
+
+Three moves recur across the rows, and they are this KB's synthesis rather than any one source's
+claim. **Validate configuration at the boundary** (the threshold row). **Test the guard with a
+case it must reject**, in both directions where possible (the drills, the hint-execution test).
+**Report the value that is enforced, from the code path that enforces it** (the retry-cap row).
+The assertion has to run against the artifact the guard protects, not against a file that
+describes the guard; for the same lesson applied to this KB's own tracker, see the repo's
+[CLAUDE.md](https://github.com/lucagattoni/Claude-Loops/blob/main/CLAUDE.md).
 
 ## Relationship to the Factory Model
 

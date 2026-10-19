@@ -96,6 +96,16 @@ repo (as Greyling, 2026b) as the "community reference repository" from which its
 heuristics were drafted (and, at its 2026-07-15 access, as having seven loop patterns).
 ([cobusgreyling/loop-engineering](https://github.com/cobusgreyling/loop-engineering), "Loop Ready" score, Sep 2026; [arXiv 2608.21884, Lulla et al., "Loop Engineering: Building Blocks, Adoption, and Impact"](https://arxiv.org/abs/2608.21884), Aug 2026.)
 
+**Score what is proven, not what is present.** The same repo's own `loop-audit` scorer gave a
+repo of 19 empty files (142 bytes) a 100/L3 because nearly every signal was a `fileExists()` check.
+Per the [commit message](https://github.com/cobusgreyling/loop-engineering/commit/6b96a16d56532fe669819d59aa27e51ec37d0387)
+(2026-10-10), it now ignores placeholders, requires name and description frontmatter for skills
+and verifier agents, and gates L3 on `loop-drill.json` proofs that the current `gate.yaml`
+(sha256-pinned, line-ending normalised) passes its drills in both directions. Read against the
+table above, an L3 claim built on artifacts alone is the failure this fixes: the L2-to-L3 gate
+should ask for evidence that the gate was exercised, not for the files that describe it. See also
+[Loop Contract → guards that failed open](27-loop-contract.md#guards-that-failed-open).
+
 ## Related
 
 - [The Paradigm Shift](01-paradigm-shift.md)

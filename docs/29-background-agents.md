@@ -339,9 +339,26 @@ Claude Code team member Boris Cherny separately describes "Projects" (beta, Pro/
 auto-splitting a single conversation into parallel cloud threads that keep running after the
 laptop closes, and remembering how he works across sessions — a primary-source description that
 may be the same underlying capability as Cowork above under different/evolved naming, or a
-distinct feature; treat as unconfirmed until official docs name it.
+distinct feature.
 ([@bcherny](https://x.com/bcherny/status/2100669598995816511),
 [@bcherny](https://x.com/bcherny/status/2100639991244427490), Sep 2026.)
+
+Anthropic's own [cloud-sessions field guide](https://claude.dev/blog/claude-code-in-the-cloud/)
+(6 Oct 2026) now names Projects (public beta for Pro and Max) as a coordinator conversation that starts
+and tracks cloud sessions for you and groups them by state: working, waiting on you, ready for review. It
+also gives a limit: projects can start up to 200 new threads a day. A TLDR item of 12 Oct (the linked
+[thread](https://threadreaderapp.com/thread/2108621476538781878.html) was not read) says Projects opened
+to every waitlisted Pro and Max user. Whether Projects and Cowork are one capability is still not stated
+in the sources read here.
+
+A first-party description of how the cloud-run Cowork is built: per Felix Rieseberg of Anthropic, quoted
+by [Simon Willison](https://simonwillison.net/2026/Oct/5/felix-rieseberg/) (5 Oct 2026), the "new"
+Cowork runs model inference and the per-session sandbox VM in the cloud so work continues when the laptop
+closes, and the desktop app handles only the device-side file-access tool calls. A newsletter
+([The New Stack, Matt Burns](https://thenewstack.io/claude-answer-to-dots-muse/), 3 Oct) frames this as
+Anthropic's answer to OpenAI's always-on Dots (see
+[Routines § other vendors](28-routines.md#always-on-agents-from-other-vendors-sep-oct-2026)); it is
+opinion and links no primary source for the change.
 
 ## Restart Resumability (OpenClaw, for comparison)
 

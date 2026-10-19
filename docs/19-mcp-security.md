@@ -97,6 +97,37 @@ worth budgeting for once a loop's MCP surface grows past a handful of tools.
 ([@kachar136](https://x.com/kachar136/status/2103941428007284893), ["BM25 got Orama. Jev
 still needs one."](https://kachar.dev/blog/an-orama-for-jev), Sep 2026.)
 
+## A Loop's Own State File Can Launder Injection
+
+The injection path is not only "tool result → model". A loop that copies third-party text (an issue
+title, a PR title, a CI check name) into a file it later re-reads as its own memory turns an
+untrusted string into something the agent treats as a note it wrote itself.
+[cobusgreyling/loop-engineering](https://github.com/cobusgreyling/loop-engineering/commit/8c0ab50cb7561c971419beb8dfb7f4f52a8393ed)
+(commit, 2026-10-10) names this failure mode for a committed `STATE.md` and ships a layered fix, as
+described in its commit message and `docs/safety.md`: titles are rendered inside code spans (inert),
+Unicode control and format characters (zero-width, bidirectional, the U+E0000 tag block) are
+stripped, text is capped at 160 code points, one canonical "Untrusted input" section is added to
+every skill and agent that reads state (55 files, kept identical by a sync script with a CI `--check`
+gate), an MCP state notice is added, and the loop-drill gets an injection canary. The commit message
+says its 12 new tests each fail when the guard they cover is removed (the author's claim, not
+re-run here). The reusable parts are the *canonicalise-then-gate-in-CI* pattern and the canary: a
+guard that is only prose in a `SKILL.md` can drift, a guard that CI diffs cannot. Related:
+[Agent Security Hardening § Hook and Context Trust Attacks](33-agent-security-hardening.md#hook-and-context-trust-attacks-sept-2026-research),
+which covers the harness-level version of this mis-attribution.
+
+## Reference MCP Servers Are Often Unauthenticated: Bind to Loopback
+
+Graphiti, a temporal-graph memory layer, shipped reference MCP and REST servers with no
+authentication or authorization that listened on `0.0.0.0` by default (and published Docker ports on
+all host interfaces), so any machine on the network could read, change or delete graph data.
+[getzep/graphiti#2032](https://github.com/getzep/graphiti/pull/2032) (2026-10-17) changes the default to
+`127.0.0.1` and publishes the Docker ports on the host loopback only; its companion #2029 documents
+that every episode in a `group_id` is trusted equally. For a loop using a shared MCP memory store the
+checklist is: what is the bind address, who can reach it, and does any reader treat one writer's
+content as more trustworthy than another's? A loopback default only protects a single-machine
+setup; a store shared across agents or machines still needs authentication and per-writer scoping.
+See also [Connector Trust Is a Separate Boundary From Output Validation](#connector-trust-is-a-separate-boundary-from-output-validation).
+
 ## The Broader Principle
 
 **Treat MCP tool results as untrusted user input**, not as trusted system output.

@@ -93,6 +93,15 @@ That last clause is the one people discover late. Parallel agents do not just sp
 spend **your attention**, which is the scarcer resource. [Session Architecture](37-session-architecture.md)
 covers when parallelism actually pays.
 
+Anthropic's own account of its staff puts numbers on the same constraint: interactive agent hours
+outnumbered employees 6:1 by August, human attention becomes the bottleneck for agent output
+(reading everything one's own Claude agents produced would take half a work week), and staff time
+shifts toward "meta-work" — building visibility tools and monitoring agent pipelines.
+([Anthropic, "How employment is changing at Anthropic"](https://www.anthropic.com/research/employment-at-anthropic), Oct 2026; the company's own report on itself.)
+That is the same pressure [Failure Patterns](17-failure-patterns.md) lists as the *orchestration
+tax* — and the reason to build the visibility layer (summaries, verdict-only reports) before
+adding the next parallel agent.
+
 Context management belongs to this skill too — see [Context Management](13-context-management.md)
 and [Memory Patterns](16-memory-patterns.md).
 
@@ -131,6 +140,18 @@ Practical placement in Claude Code:
 the instrument before trusting it — see
 [the calibration rule](37-session-architecture.md#practical-rules).
 
+One practitioner ran this as an experiment: a 96-line file reviewed ten times by fresh Claude Code
+sessions with every change applied. "Review and improve" grew the file 42% and invented a feature
+by round 3 that round 4 then treated as spec; "is anything actually wrong? 'no changes needed' is a
+valid answer" and a short design-principles file each stopped at three consecutive no-change rounds.
+One file, one model, one run per variant — a demonstration, not a study
+([kachar.dev, "Drift by a thousand suggestions"](https://kachar.dev/blog/drift-by-a-thousand-suggestions), Oct 2026).
+The same author's companion essay argues for phrasing prompts as questions that leave the *how*
+to the model, with the done-condition still written by you up front
+([kachar.dev, "Orders get obedience. Questions get opinions."](https://kachar.dev/blog/orders-get-obedience-questions-get-opinions), Oct 2026;
+the 10,752-prompt breakdown is the author's own prompts, so it describes one person's habits).
+Failure-mode entry: [Review-loop drift](17-failure-patterns.md).
+
 ### 4. Customizing the agent and its environment
 
 Skills, plugins, MCP servers, and standing context — Ng names the file explicitly, *AGENTS.md /
@@ -149,6 +170,17 @@ The rule that governs this whole skill: **an instruction that must hold with zer
 belong in prose.** Official guidance is blunt about it — *"Unlike CLAUDE.md instructions which are
 advisory, hooks are deterministic and guarantee the action happens."* And on bloat: *"Bloated
 CLAUDE.md files cause Claude to ignore your actual instructions!"* Run `/doctor` for proposed cuts.
+
+A practitioner example of the same rule in the field: [Geoffrey Huntley](https://ghuntley.com/agency/)
+frames the human's remaining job in a loop-engineering workflow as owning vision and verification,
+with verification acting as back pressure that keeps the loop honest — and says a recurring agent
+mistake is fixed with a deterministic pre-commit hook that fails the commit and injects a
+corrective prompt, not by editing AGENTS.md or adding skills.
+[Simon Willison's excerpt](https://simonwillison.net/2026/Oct/13/geoffrey-huntley/) gives the
+instance: a hook checks the git diff for bypassed diagnostics modules, fails the commit and injects
+a prompt, taking agent compliance "to ten out of ten" where AGENTS.md instructions drift. Both are
+one practitioner's report, not a measurement, but the hook doubles as a stopping condition — the
+agent cannot declare done past it. See [Hooks](12-hooks.md) and [Verification](04-verification.md).
 
 ### 5. Coding agent foundations
 

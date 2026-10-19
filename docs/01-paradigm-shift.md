@@ -98,6 +98,19 @@ effort concentrates:
 Engineers who thrive are those who excel at thinking at the right level of abstraction,
 specifying work precisely, and verifying output rigorously — not those who type fastest.
 
+The same shift is described from the frontier-lab side as human work *rising* rather than
+vanishing. [@karpathy](https://x.com/karpathy/status/2105819303471976479) writes that as models do
+more of the legwork autonomously, a lot more of our work will rise up the abstractions into
+oversight and understanding, and suggests asking the model for discardable custom artifacts
+(HTML pages, diagrams, bespoke explainer videos) to aid that understanding. In a longer post
+([@karpathy](https://x.com/karpathy/status/2109361546505966046), a re-surfacing of an April post) he
+describes frontier-lab agent swarms collaborating over weeks and says human review and
+comprehension are starting to fall behind — a first-party data point for the
+[comprehension-debt](17-failure-patterns.md) failure pattern, not a technique. For the
+attention cost of that oversight, see
+[Development Workflow](36-development-workflow.md#2-enabling-agent-autonomy). (Both posts are
+opinion from one practitioner, Oct 2026.)
+
 The harness and the spec are now first-class engineering artefacts. "Vibe coding"
 (accepting plausible-looking output without verification) is the new technical debt.
 (Addy Osmani, ["The New Software Lifecycle"](https://addyosmani.com/blog/new-sdlc-vibe-coding/), Jun 2026.)
@@ -126,6 +139,13 @@ and git worktrees for isolated rebuilds — the same primitives this KB document
 [Subagents](07-subagents.md) and [The Six Building Blocks](03-building-blocks.md), here as
 Anthropic's own recommended startup playbook rather than a community pattern.
 ([Anthropic, "The Claude Code guide for startups"](https://claude.com/blog/claude-code-guide-for-startups), Sep 2026.)
+
+A first-party worked example of the evaluator-optimizer shape with no human between rounds:
+in Anthropic's account of designing quantum circuits with Claude, Claude proposes a circuit, a
+programmatic evaluator checks correctness and scores it, and the score feeds the next attempt;
+one run worked for 53 hours from a one-paragraph brief, told to explore several approaches in
+parallel. The verifier is code, not a model — the property that makes an unattended run of that
+length trustworthy. ([Anthropic, "Designing more efficient quantum circuits with Claude"](https://www.anthropic.com/research/designing-efficient-quantum-circuits), Oct 2026; read from the primary page, the figures are Anthropic's own.)
 
 ## Who Benefits Most From the Shift
 

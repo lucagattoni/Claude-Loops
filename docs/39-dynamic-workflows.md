@@ -307,6 +307,42 @@ menu.
 
 ---
 
+## The same idea on the API: flows in Managed Agents (Oct 2026)
+
+Everything above is the Claude Code runtime. Anthropic has also put dynamic workflows into Claude Managed
+Agents, where its engineers call them "flows". Two secondary sources:
+
+- **[Latent Space's write-up](https://www.latent.space/p/claude-dynamic-workflows)** (Richard MacManus,
+  2026-10-12) of the AI Engineer New York talk by Anthropic's CJ Avilla and Harrison Stall. The lead agent
+  plans, then writes an orchestration program that launches agents, collects results and manages
+  information flow. It descends from the "a harness for every task" idea in Claude Code, and replaces the
+  earlier Managed Agents setup in which developers configured a coordinator plus a roster of subagents
+  (pre-configured subagents can still be passed in the agent config). The Console shows a graph of what
+  the lead passed to each subagent. Subagents share a filesystem; the API does not let a developer have
+  one message another directly.
+- **[explainx.ai](https://explainx.ai/blog/claude-managed-agents-dynamic-workflows-1000-subagents-2026)**
+  (2026-10-09, an AI-written explainer, so weaker than Anthropic's own docs) reports up to 1,000 agents
+  per execution, enabled through `multiagent.type` set to `multiagent_20261001`, and relays a demo
+  reported by The Decoder: 66 of 70 hidden bugs found in a 116,000-line codebase against 14 to 27 per run
+  for one agent. That is a vendor-run test on seeded bugs, which suits parallel scanning; The Decoder
+  itself says it is unclear the gain carries to other task types. Check the Managed Agents docs before
+  relying on the config value.
+
+The Q&A is the useful part for loop design. Per Latent Space, the running model **does not know its
+budget**; only a developer-set session budget exists, and Stall joked that telling models their budget
+could make them "a little bit anxious". How many agents a task gets is governed by "evals and lower
+defaults", with ambitious tasks needing explicit encouragement to parallelise. Flows cost "much more" than a
+single agent in the demo, though Avilla said they were "much more effective at finding all of the details". To
+improve a repeated flow, Avilla pointed to "dreaming" (a research-preview feature that rewrites a memory
+store from past session transcripts) and hill-climbing. Self-improvement of a scheduled flow is not
+built in. Treat all of these as conference statements, not documentation. For the hill-climbing loop see
+[Harness Patterns](24-harness-patterns.md), and for budget caps see [Cost & Turn Control](11-cost-control.md).
+
+For measured evidence on whether a lead-plus-workers shape beats one agent on a fixed budget, see
+[Agent Teams: Do teams pay off?](38-agent-teams.md#do-teams-pay-off-measured-evidence-oct-2026).
+
+---
+
 ## The cost is real
 
 Set this against the framing above: a workflow "spawns many agents, so a single run can use

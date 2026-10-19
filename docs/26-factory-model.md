@@ -131,6 +131,52 @@ explicitly as *"reliable enough for prototypes and spiking product ideas,"* not 
 critical systems or complex state management.
 ([MindStudio, "What Is an AI Software Factory?"](https://www.mindstudio.ai/blog/ai-software-factory-dark-factory/), Sep 2026.)
 
+## When Merge Volume Is the Bottleneck: Source Control and CI
+
+The [bottleneck shift](#the-shift-in-bottlenecks) does not stop at review. Once agents write most of the
+code, the infrastructure built for human-paced merging becomes the limit. Anthropic's own account is the
+clearest case so far (self-reported, from the company that sells the model doing the writing):
+
+- **The numbers.** Merges to Anthropic's monorepo rose from about 2,500 a day in May 2026 to over 30,000 a
+  day by September. The post says coding is no longer the bottleneck; the developer infrastructure built
+  for human scale (source control, builds, CI) is. It built **Scion**, an in-house version control
+  system, and migrated its monorepo off git in five months with a team of seven.
+- **The design premise.** Nearly all clients are agents and jobs that are online by definition, so
+  Scion drops git's offline-capable, full-copy-per-client model: the server answers history and blame
+  queries, creates commits and performs merges, and CI jobs can often skip a checkout entirely.
+- **What it did to the merge queue (the loop-design part).** The post says a proper merge queue "doesn't
+  make much sense at agent scale", asks what CI even means when hundreds or thousands of changes can
+  merge while tests are running, and reports it could not replicate a global repository lock. It
+  invested in **post-merge and pre-deploy automated testing** instead, accepting that concurrent changes
+  can conflict because (its claim) Claude can typically fix conflicts faster than humans can spot them.
+  Read for loop design: when merge rate outruns pre-merge CI, the [verifier](04-verification.md) gate
+  moves later in the pipeline rather than disappearing.
+- **Where the humans went.** The engineers' recurring role was telling Claude "no": agents sometimes
+  violated core system constraints, for example brute-force reading the commit log instead of asking the
+  code review tool. Anthropic uses adversarial review heavily and reports it is effective but can be
+  myopic (one review pushed Claude into excess validation), so skilled engineers steered away from
+  over-engineering. Team members still review every change request, but examine the **intent** of the
+  change rather than every line. Its review tool can express semantic constraints on approvals, such as
+  separating comment-only changes from sensitive logic changes, so human reviewers focus on the
+  consequential ones. It also runs one monitoring agent per component in a Slack channel ("superfans")
+  alongside traditional alerts.
+- **Not a product.** The post says Scion is not a suitable general replacement for git, and
+  [The New Stack](https://thenewstack.io/anthropic-scion-git-replacement/) reports no public release is
+  planned. The post's own suggestion is that git servers and forges can adopt the server-side ideas
+  without leaving the git model.
+  ([Anthropic, "Redesigning source control at Anthropic"](https://www.anthropic.com/engineering/redesigning-source-control),
+  Oct 13 2026, updated Oct 15; [Simon Willison's summary](https://simonwillison.net/2026/Oct/13/redesigning-source-control-at-anthropic/).)
+
+The same pressure shows up one layer over, at CI. The [25x CI-job growth](#the-dark-factory-ceiling-and-its-bottleneck)
+Anthropic reported in September is picked up by a vendor-sponsored (Signadot) argument that making
+pipelines faster is the wrong fix: the agent is fast and the loop around it is slow, so the
+verification loop has to move to where the agent can run a change against real service dependencies.
+Weigh it as a vendor's framing of a real problem.
+([The New Stack, "Agents have made CI the bottleneck"](https://thenewstack.io/ci-bottleneck-agent-verification/), Oct 2026.)
+The isolation idea extends to data: pgEdge Starfleet gives each parallel coding-agent experiment its own
+copy-on-write Postgres branch with its own MCP address and token, a worktree per agent for the database
+([The New Stack](https://thenewstack.io/pgedge-starfleet-postgres-branching/), Oct 2026).
+
 ## Named Factory Deployments
 
 - **Warp's "Wilson" factory**: turns Slack/Linear/GitHub requests into merged PRs via a "foreman"
@@ -197,6 +243,33 @@ critical systems or complex state management.
   ([Anthropic, "How to prepare for AI-driven code modernization projects"](https://claude.com/blog/how-to-prepare-for-ai-driven-code-modernization-projects), Sep 2026;
   plugin: [anthropics/claude-plugins-official — code-modernization](https://github.com/anthropics/claude-plugins-official/tree/main/plugins/code-modernization).)
 
+- **Block's orchestrator-plus-workers migrations** (self-reported by Block's head of AI capabilities,
+  in an Anthropic customer interview): for company-wide migrations of hundreds to thousands of PRs, a
+  frontier model (Claude Fable 5) does the higher-level design work and directs up to dozens of smaller,
+  cheaper models to make file edits and run tests, while a human engineer steers. Early results, in
+  Block's words, show frontier tokens going to upfront planning and a higher share of tokens to worker
+  models without a drop in quality; the whole setup runs on Buzz, which the interview describes as Block's open-source
+  workspace for human-agent teams, and a migration can merge around a thousand orchestrated PRs. Block also runs
+  daily or weekly agent passes over a codebase to find cleanup and consolidation, as a counter to the
+  tech debt that a higher PR rate accumulates faster.
+  ([Anthropic, "How Block orchestrates Claude Fable across thousands of pull requests"](https://claude.com/resources/articles/how-block-orchestrates-claude-fable-across-thousands-of-pull-requests), Oct 8 2026.)
+- **Harness (the company) buys a "software factory"**: it acquired Augment's Cosmos, described as taking
+  a requirement or bug report to a PR in isolated VMs, picking up failed checks and review comments, and
+  connecting to delivery history over MCP — the post-merge half of the line, which the coding agents
+  themselves usually stop short of.
+  ([The New Stack](https://thenewstack.io/harness-augment-cosmos-acquisition/), Oct 2026.)
+- **A ten-person team on the compound-engineering plugin** (Juma Labs; self-reported): the CTO says
+  the team merged 469 PRs in the week of 5 October 2026, against about 70 a week a year earlier with the
+  same ten people, and does not credit the plugin alone (models and Claude Code improved over the same
+  year). The line is [Every's compound-engineering plugin](https://github.com/EveryInc/compound-engineering-plugin):
+  brainstorm, plan, work, simplify, review, compound sequence, with humans at the two ends
+  (the plan and the review) and agents unattended in the middle; the README's stated bet is 80% in
+  planning and review, 20% in execution. Two honest limits from the same post: review fans out to
+  parallel specialist agents and is the token cost (a public issue reports a 32-line change using 17.1
+  million input tokens), and the author's own telemetry shows the `compound` step, the one that writes
+  lessons down for the next plan, is the one the team mostly skips. Pair with the author's [earlier essay on the dark-factory label](https://kachar.dev/blog/the-lights-were-never-off).
+  ([Ilko Kacharov, "Compound engineering is our factory floor"](https://kachar.dev/blog/compound-engineering-is-our-factory-floor), Oct 15 2026.)
+
 ## "Lit" vs. "Dark" Factories, and Where Judgment Relocates
 
 Addy Osmani's own naming for the [Dark-Factory Ceiling](#the-dark-factory-ceiling-and-its-bottleneck)
@@ -221,8 +294,49 @@ outside-software instance of "replace yourself as the person who prompts," and f
 evidence the factory-model shift is not specific to commercial software engineering.
 ([OpenAI, "Scientific computing in the age of agentic AI"](https://openai.com/index/scientific-computing-agentic-ai), Jul 2026.)
 
+## What Open-Source Factory Floors Converge On (Oct 2026)
+
+The word "factory" now covers at least four different things, which matters when comparing claims:
+the system around *bought* coding agents (tickets or alerts as triggers, cloud execution, a model
+gateway, agent identity, code review — [The AI Thinker's](https://www.theaithinker.com/p/how-to-build-an-ai-native-software)
+reading of Uber's setup); a shared, scrutinized AI system for one recurring task that beats per-person
+personal agents, with a "factory factory" that builds more of them
+(["Against the Personal Agents Theory of Everything"](https://www.gettheleverage.com/p/against-the-personal-agents-theory)); a **user-defined
+graph engine** ([zeroshot](https://github.com/the-open-engine/zeroshot), whose README now presents it
+as an open-source software factory, "CI for coding agents"); and a model scoped to one release or epic
+of 10-20 tickets with planning kept *outside* the automated loop
+([MindStudio](https://www.mindstudio.ai/blog/how-to-build-ai-software-factory/), an AI-generated explainer, so weaker than a primary).
+
+Independent projects that ship a working factory floor land on the same checker discipline. The rows
+below are each project's own description, not an audited comparison:
+
+| Project | Who builds | Who checks / what the gate demands | Who merges |
+|---|---|---|---|
+| [zeroshot](https://github.com/the-open-engine/zeroshot/commit/5423df24) (commit; [v10.13.0](https://github.com/the-open-engine/zeroshot/releases/tag/v10.13.0)) | A worker node in a user-defined graph | The engine, not the prompt, enforces review gates and retry limits; the writer cannot approve its own work. The delivery stage validates the **exact candidate PR head** before publication, review and merge (accept / wait / authored repair / refuse) and keeps credentials out of agent environments. A [review-loop guide](https://github.com/the-open-engine/zeroshot/commit/be185676) ships a worker plus two parallel reviewers in a bounded repair loop | The delivery stage, after the head check |
+| [omnigent `feature-agent`](https://github.com/omnigent-ai/omnigent/commit/f30a9f3c1e3a81c30ab6998fc88a376430e2b23a) | An unattended agent taking a Linear ticket through requirements, design, tests and a PR | "Implemented" needs at least one test and one recording per covered user journey plus a clean live review gate on the current head; otherwise `partially_implemented` with `remaining_work` | Never the agent |
+| [Orchestra v2.46.0](https://github.com/DrSeedon/orchestra/releases/tag/v2.46.0) | Per-worker sparse worktrees | The merge gate runs mapped tests and requires the changed tests to **fail against the pre-change sources**; failed or inconclusive required gates block the merge. A shell guard enforces rules by mechanism and is described as "a narrow policy, not a sandbox" | The gate |
+| [OpenRig v0.6.6](https://github.com/mvschwarz/openrig/releases/tag/v0.6.6) | Built-in factory team of seven seats: lead, advisor, builder, QA, design and two reviewers; the starter team pairs a Claude Code builder with a Codex reviewer | Separate QA and reviewer seats | Not stated in the release note |
+| [agent-orchestrator v0.13.4](https://github.com/OrchestratorInc/agent-orchestrator/releases/tag/v0.13.4) | Worktree-per-worker agents | Agents can request native review of their own PRs; the release also lists action postconditions (the PR bodies were not read, so the mechanism is unverified) | Not stated |
+| [MindStudio's factory loop](https://www.mindstudio.ai/blog/software-factory-ai-coding-agents/) (explainer, weaker) | Sandboxed worker | An independent verifier; the post reports workers self-reporting passing tests while the verifier found failures | A human; agents may open PRs but never merge |
+
+Four shared properties across the rows: **the builder cannot
+approve its own work**, and the rule is enforced by the engine or gate rather than by an instruction;
+**approval is bound to the exact current head**, so a later push invalidates it; **evidence beats
+self-report** (a test that must fail before the change, a recording per journey, a verifier that
+re-runs the claim; see [Verification](04-verification.md)); and **a human or a mechanical gate, never the
+agent, performs the merge**. The compound-engineering post above adds a fifth that costs nothing:
+run the reviewer in a sub-agent so it does not inherit the author's reasoning. That is the same maker/checker rule as the [Loop Contract](27-loop-contract.md)'s STOP and verifier fields.
+
+**Pricing the factory.** The AI Thinker piece prices each agent per unit of work, such as cost per
+merged PR (its Uber account), and a commenter objects that merged-PR count is a throughput proxy and
+proposes measuring instead whether a change survives 30 days without a revert. A post by [@zachlloydtweets](https://x.com/zachlloydtweets/status/2104957956794057068),
+seen only through a TLDR summary and unverified, frames the same goal as reducing human touches per PR. See
+[Cost & Turn Control](11-cost-control.md) for the BUDGET side and
+[Fleet Engineering](23-fleet-engineering.md) for operating many such lines.
+
 ## Relationship to Other Concepts
 
 - [Loop Contract](27-loop-contract.md) — the factory spec: what the loop is allowed to do and when it stops
 - [Harness Patterns](24-harness-patterns.md) — the factory floor: how the workers are orchestrated
 - [Verification](04-verification.md) — quality control: how finished work is checked before shipping
+- [Fleet Engineering](23-fleet-engineering.md) — operating many factory lines: recovery, wake and control-plane mechanics

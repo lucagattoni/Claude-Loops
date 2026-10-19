@@ -231,6 +231,11 @@ MCP servers that give the loop access to external systems: databases, browsers,
 APIs, Linear, Figma, Slack, GitHub. Add them once, and every loop session inherits
 the tools.
 
+Plugins can also carry **mods**, TypeScript functions that hook Claude Code's own events (tool
+calls, permission requests, screen draws) and are not sandboxed — see
+[Hooks § Beyond hooks: mods](12-hooks.md#beyond-hooks-mods) and the
+[announcement](https://claude.com/blog/claude-code-mods) (1 Oct 2026).
+
 ```bash
 # `name` and `commandOrUrl` are both required — there is no interactive form
 claude mcp add my-server -- npx my-mcp-server                      # stdio (default transport)

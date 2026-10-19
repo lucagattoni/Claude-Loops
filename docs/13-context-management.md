@@ -89,6 +89,38 @@ state keeps needing an explicit handoff between clean windows, the task may be b
 modelled as an explicit graph of steps than as a single loop leaning on compaction — see
 [the loops-vs-graphs debate](21-context-vs-loop-engineering.md#a-second-debate-loops-vs-graphs-jul-2026).
 
+### A managed reset at a threshold: aigent-OS
+
+[wrg32786/aigent-os](https://github.com/wrg32786/aigent-os) (MIT) automates the reset half of the table
+above. Its Managed Auto-Refresh asks Claude for a resume-ready checkpoint file (a "capsule") when
+context reaches a configurable threshold (default 80%), waits for an exact completion acknowledgement,
+sends one `/clear`, confirms a fresh session started, and tells it to load the capsule and carry on. It
+refuses to resume from a capsule that records no next step, and its README says an audit on 1 Aug 2026
+found three of four live vaults would otherwise have resumed into an empty checkpoint. It sets
+`"idleCompaction": false` (see [below](#idle-compaction-version-stamped)) so Claude Code's own compaction cannot replace the
+boundary it controls.
+
+Read its evidence as the README states it: 11 of 11 observed cycles, on one Windows seat, in one live run
+for v1.1.0-rc.1. The README does not claim to beat compaction, and notes that release can stall at the
+clear step (open issues #90 and #91, acknowledgement edge cases). This is the same shape as the
+handoff-artifact reset this section recommends, with the ack-before-clear step made mechanical.
+
+### Fork-and-flush: clear the chat, keep the workspace
+
+[*Fork-and-Flush: Escaping Idea Basins in Autoresearch Agents*](https://arxiv.org/abs/2610.07447)
+(arXiv, submitted 5 Oct 2026) reports that independent runs of the same agent on the same task plateau
+at substantially different scores, and that trajectories stay in localized regions of the solution space
+the authors call "idea basins". The intervention is periodic: fork the agent into parallel trajectories
+that each inherit the accumulated **workspace** but start with a **fresh chat context**, run each for a
+fixed horizon, then continue from the highest-scoring one. Across 13 long-horizon research and
+engineering tasks (individual runs up to several days) the abstract reports relative improvements of
+66.0% over a single run and 44.4% over best-of-N, on min-max normalized average score at equal compute.
+Those are the authors' figures on their own benchmark; the abstract does not say the result transfers to
+coding loops. For this KB it is a measured case for resetting *context* while preserving *state on
+disk*, with a scored selection step; compare Claude Code's [session forking](37-session-architecture.md#branching-and-forking-a-session),
+which copies the transcript rather than flushing it.
+([explainx.ai summary](https://explainx.ai/blog/fork-and-flush-idea-basins-autoresearch-agents-microsoft-2026), a secondary write-up.)
+
 ## Auto-compact thresholds by model (version-stamped)
 
 The point at which auto-compact fires has moved as 1M-context models' compaction windows were
@@ -114,6 +146,27 @@ limit:
 > "Improved the context-limit error to say when auto-compact is off and point to `/config` to
 > re-enable it"
 > — [v2.1.235 release notes](https://github.com/anthropics/claude-code/releases/tag/v2.1.235)
+
+## Idle compaction (version-stamped)
+
+Claude Code now compacts a long conversation *while you are away*, so a resumed loop does not pay to
+reprocess it. Per the [changelog](https://code.claude.com/docs/en/changelog), v2.1.299 (14 Oct 2026):
+
+> "Added idle compaction in the terminal: a 200K+ token conversation left idle for about 54 minutes is
+> compacted before its one-hour prompt cache expires, so your next message doesn't reprocess it all"
+
+The same entry adds `CLAUDE_CODE_IDLE_COMPACT_MIN_TOKENS` to change the 200K-token minimum and
+`"idleCompaction": false` in `settings.json` to turn it off (the entry says both need v2.1.290 or later).
+v2.1.302 (16 Oct 2026) added an **Idle compaction** row to `/config` and made the notice shown after an
+idle compaction say how to turn it off.
+
+Why it matters to a loop: a loop that sleeps between iterations (a `/loop` wait, a slow external gate)
+can now have its context compacted after roughly 54 idle minutes, and compaction is lossy (see above). If
+your loop depends on exact earlier tool output, either write it to disk before sleeping or turn idle
+compaction off for that project, as [aigent-OS](#a-managed-reset-at-a-threshold-aigent-os) does.
+Secondary write-ups ([MindStudio](https://www.mindstudio.ai/blog/claude-code-3-0-parallel-sessions/),
+[explainx.ai](https://explainx.ai/blog/claude-code-v2-1-301-v2-1-302-auto-mode-model-idle-compaction-fork-subagents-2026))
+describe the same feature; the changelog entry above is the primary source.
 
 ## Input Governance Pipeline
 

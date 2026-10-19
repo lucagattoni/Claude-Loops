@@ -84,6 +84,21 @@ human-facing controls (permissions, interruption policy) as the harness's remain
 Testable and not yet observed: the essay predicts an "attention policy surface" ships alongside
 AGENTS.md within a year. ([Dan McAteer / Latent Space, "The Evolution of the Agent Harness"](https://www.latent.space/p/attention-interface), Aug 2026.)
 
+**Training inside the harness you ship (Oct 2026).** The Co-Training era in practice:
+[Agent Lightning v1.0](https://arxiv.org/abs/2608.17528) (Microsoft Research; abstract read directly,
+an [explainx.ai summary](https://explainx.ai/blog/agent-lightning-v1-harnessed-agentic-rl-microsoft-swe-bench-guide-2026)
+only pointed to it) names the paradigm **harnessed agentic RL**: the deploy-time harness, not the
+training engine, owns the environment loop, and the trainer sees only the LLM request-response
+pairs. The paper lists the resulting difficulties (retokenization, sample merging, advantage
+calculation, loss normalization, backend scheduling) and ships a roughly 3,500-line framework that
+supports arbitrary harnesses. Its self-reported coding result: Qwen3.5-9B on SWE-bench Verified
+from 41.8% to 56.4% with 6K training examples. At the other end of the spectrum, [Harness²](24-harness-patterns.md#literature-map-the-late-2026-arxiv-wave-by-question-answered)
+holds the weights fixed and optimises only the harness, while
+[Evo²](https://arxiv.org/abs/2610.13025) co-evolves weights and harness with one policy acting as
+both Proposer of harness edits and Reflector diagnosing their effect (abstract-level
+description). Together they bracket the design space: harness only, weights only (inside the
+real harness), or both.
+
 A hand-designed analog of the same instinct — replan rather than restart on failure —
 appears in a large agent meta-harness's **Replanning Loop**: a GOAP-style A* planner
 decomposes a goal into an action sequence and replans specifically from the point of

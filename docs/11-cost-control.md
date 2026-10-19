@@ -96,6 +96,47 @@ every release-note quote against `CHANGELOG.md` at its tag in
 [anthropics/claude-code](https://github.com/anthropics/claude-code). All 30 figures in the pricing
 table matched.*
 
+### October 2026 update: the 5.5 generation
+
+The "four current models" above are superseded as of 2026-10-19. Anthropic's
+[Models overview](https://platform.claude.com/docs/en/about-claude/models/overview) now lists Fable 5.1,
+Opus 5.5, Sonnet 5.5 and Haiku 5.5 as the current set, and the older Sonnet 5, Opus 5 and Haiku 4.5
+sit under "Additional models" (both pages fetched 2026-10-19). Prices from
+[Pricing](https://platform.claude.com/docs/en/about-claude/pricing), per MTok:
+
+| Model | API ID | Input / output | 5m / 1h cache write | Cache read | Default effort |
+|---|---|---|---|---|---|
+| Opus 5.5 | `claude-opus-5-5` | $4 / $20 | $5 / $8 | $0.20 | medium |
+| Sonnet 5.5 | `claude-sonnet-5-5` | $2 / $10 | $2.50 / $4 | $0.10 | high |
+| Haiku 5.5, prompt up to 100K tokens | `claude-haiku-5-5` | $0.10 / $0.50 | $0.125 / $0.20 | $0.01 | medium |
+| Haiku 5.5, prompt over 100K tokens | `claude-haiku-5-5` | $0.50 / $2.50 | $0.625 / $1 | $0.05 | medium |
+
+All four current models list 1M context, 128K max output and a June 2026 reliable knowledge cutoff;
+Fable 5.1 is unchanged from the table above. Against the September table: Opus 5.5 is $1/$5 under
+Opus 5, Sonnet 5.5 keeps Sonnet 5's $2/$10 base price but **halves the cache-read rate** ($0.20 to
+$0.10), and Haiku 5.5 is one-tenth of Haiku 4.5's base price (up to 100K tokens) and moves the
+cheap tier from 200K to 1M context. Anthropic's positioning line for Haiku 5.5 is "For
+high-volume, latency-sensitive tasks such as classification, extraction, and routing", which is the
+cheap-hands role in the table below. Three caveats on that price:
+
+- **The price steps up 5x above 100K prompt tokens**, so a worker whose context grows long loses
+  most of the saving. ([Simon Willison](https://simonwillison.net/2026/Oct/7/claude-haiku-5-5/), 2026-10-07.)
+- **The tokenizer is less generous.** On one long prompt, his Claude Token Counter showed about
+  1.25x as many tokens on Haiku 5.5 as on Haiku 4.5 — one measurement on one prompt, but the same
+  "budget against the range" logic as the tokenizer note above applies. (Same post.)
+- **Reasoning cannot be turned off** on Haiku 5.5 and defaults to medium, per the same post, so a
+  "cheap" worker still has an [effort setting](#effort-levels) to pin.
+
+Sonnet 5.5 launched 2026-09-28; [The New Stack's report](https://thenewstack.io/claude-sonnet-55-launch/)
+gives Terminal-Bench 4.0 at 70.6% versus Opus 5.5's 66.4% and up to 30% lower cost per task (launch
+figures as reported, not independently reproduced here). Worked example of the cheap-worker shape on
+the new tier: a [Rundown AI guide](https://therundownai.beehiiv.com/p/ai-s-next-frontier-is-the-human-cell)
+has a Sonnet main model create a read-only Haiku subagent to sort a small batch, requires each item
+once with a source quote, has Sonnet review the flagged items, leaves refunds and replies to a human,
+and compares the cost against a Sonnet-only run. It is a newsletter walkthrough with no published
+cost figures, but it carries all three pieces the table below asks for: cheap hands, a stronger
+reviewer on exceptions, and a measured comparison. See [Subagents](07-subagents.md).
+
 ## Choosing a Model for the Job
 
 A table alone tells nobody what to do. Three levers actually decide the model bill on a loop:
@@ -252,6 +293,27 @@ loop), then raise after observing actual consumption on real runs.
 
 (Data Science Dojo, ["Agentic Loops: From ReAct to Loop Engineering"](https://datasciencedojo.com/blog/agentic-loops-explained-from-react-to-loop-engineering-2026-guide/), 2026.)
 
+**Team multiples, measured on a coding benchmark.** Vals AI ran GPT-6 Sol and Claude Opus 5.5 on
+its Vibe Code Bench as solo agents and as teams, at medium and maximum reasoning effort. Per
+[The Decoder's report](https://the-decoder.com/ai-agent-teams-waste-massive-tokens-for-barely-measurable-quality-gains-research-finds/),
+teams cost **1.8x to 5.1x** more, and only one of the four team-versus-solo comparisons (GPT-6 Sol
+at medium effort, +7.3 points) was statistically significant; at maximum effort neither model gained
+anything real from a team. The same report cites Anthropic's own tests with Opus 5.5, where going
+from ten to 100 agents nudged scores up only slightly after 24 hours. This is secondhand: the
+explainer that surfaced it could not find Vals' own write-up of the team experiment, so treat the
+multiples as reported until Vals publishes methodology. It sits between the ~15x multiplier above
+and the 20x harness step-change below: orchestration is not free, and the evidence for what it buys
+is narrower than the pitch. See [Agent Teams](38-agent-teams.md).
+
+**A small factory run, with the integrator included.** A MindStudio write-up of a "documented test
+run" (underlying run not linked, so secondhand) puts a 10-issue parallel coding run at about $3.67
+of Claude Code tokens for the triage, worker, verifier and reviewer stages, plus **$6.37 for a fifth
+integrator stage** because 7 of 9 approved pull requests hit merge conflicts, against roughly one
+cent of sandbox compute. Whatever the exact figures, the shape is the useful part: the stage added
+to repair parallel agents' collisions can cost more than the pipeline that caused them, and the
+token bill dwarfs the infrastructure bill. ([MindStudio](https://www.mindstudio.ai/blog/upstash-sandbox-pricing-ai-agents/), 2026-10-10.)
+See [Fan-Out](10-fan-out.md).
+
 ## Real project cost benchmarks
 
 From Anthropic's own harness engineering work ([Prithvi Rajasekaran, "Harness design for long-running application development"](https://www.anthropic.com/engineering/harness-design-long-running-apps), Mar 2026):
@@ -350,6 +412,148 @@ consecutive wake-ups where Claude has nothing to do now fold into a single line 
 terminal instead of printing each one." (Same source.) And as of **v2.1.248**, self-paced
 dynamic mode and the no-prompt autonomous default lost their platform gate — see [Loop
 Patterns → Loop Command Modes](34-loop-patterns.md#loop-command-modes).
+
+## Where the Money Goes: Turns, Not Observations
+
+Most loop-cost advice targets the size of what the agent reads. [TurnCost](https://arxiv.org/abs/2610.15093)
+(arXiv 2610.15093, v1 submitted 2026-10-10) tests that against 600 publicly released
+coding-agent trajectories from two scaffolds and two models, and defines loop engineering as
+context management, model selection, compaction and termination. From its abstract:
+
+- **Observations are small.** Median observations are 118-286 tokens; the large build logs used to
+  motivate compression sit near the 99th percentile.
+- **Nearly all input is cached.** 98.6% of input tokens are prefix-cache hits, so flat input
+  pricing overestimates loop cost by roughly 7x on average under near-ideal caching.
+- **Turn count is the driver.** It explains 84% of the variance in log trajectory cost, against 4%
+  for mean observation size; the most expensive trajectories have the most turns despite the
+  smallest observations.
+- **Delegation has a break-even.** The authors derive a closed-form break-even condition for model
+  delegation and validate it empirically: delegation increased cost in half of the evaluated
+  settings, near the predicted boundary.
+
+The authors' own caveat matters: these are associations, and they "do not establish that turns can
+be removed while holding task success fixed". It is one preprint on public trajectories, not a
+measurement of your loop. Read with this doc's other sections, it points at three levers: cut
+turns (the [early-exit rule](#token-cost-by-loop-pattern) and an explicit STOP in the
+[Loop Contract](27-loop-contract.md)), keep the prefix stable so the 98.6% stays a hit (see
+[The Cache Cost of Switching Model or Effort Mid-Session](#the-cache-cost-of-switching-model-or-effort-mid-session)),
+and treat a cheaper-model delegation as something to price with the break-even rather than assume.
+The companion tool, TurnCost, re-scores trajectory corpora under alternative caching, pricing,
+compression and routing policies. A separate theory paper,
+[Harnessing LLMs as Agents: What Does It Cost?](https://arxiv.org/abs/2610.02488) (arXiv 2610.02488),
+charges harness-level resources and derives communication, access and recomputation lower bounds on
+model calls and context-memory traffic; no empirical figure is taken from it here.
+
+Two adjacent cost drivers that are not tokens read per turn:
+
+- **Tool definitions.** [The New Stack](https://thenewstack.io/pi-agent-mcp-codemode/) reports
+  Chrome DevTools MCP at roughly 18,000 tokens (9% of a 200K window) before any work, and describes
+  Pi keeping MCP tool definitions out of the prompt: a QuickJS-sandboxed "Codemode" lets the agent
+  discover and call tools from JavaScript. Under TurnCost's cache numbers the dollar cost of a
+  stable prefix is likely mostly cache-read pricing; the larger loss is window headroom (inference,
+  not measured). See [Context Management](13-context-management.md).
+- **Tool calls as the bottleneck.** In [The Batch](https://www.deeplearning.ai/the-batch/scaling-up-for-future-ai-demands),
+  Andrew Ng says one of his agents (paperreview.ai) makes roughly 5-10K web search calls a day and
+  that for some agentic workflows tool calls, not token throughput, are the bottleneck. An unattended
+  loop's budget needs a tool-call or wall-time dimension, not only dollars; see
+  [Multi-Dimensional Budget Pressure](#multi-dimensional-budget-pressure).
+
+## Routing and Decision Models: Strong Model Only Where It Decides
+
+The role table in [Choosing a Model for the Job](#choosing-a-model-for-the-job) allocates models by
+role. Routing allocates them **per task**, and a newer class of small *decision models* takes the
+narrowest calls off the LLM entirely. Four October 2026 data points, with their provenance:
+
+| Evidence | Result | Provenance |
+|---|---|---|
+| [LangChain's Open SWE router](https://www.langchain.com/blog/how-to-build-a-model-router-in-the-harness) | 973-thread live A/B against always using GPT-6 Astra: median cost per thread $2.61 to $0.94 (64% lower; mean 42%, p90 37% lower); merged-PR rate 29.2% vs 27.3% (p = 0.49), PR-open rate 38.9% vs 39.6% (p = 0.82) | First-party, LangChain's own traffic |
+| [Cloudflare Clef](https://developers.cloudflare.com/changelog/post/2026-10-01-clef-workers-ai/) | Open-weight (Apache 2.0) decision models `@cf/cloudflare/clef` and `clef-flash` on Workers AI: read a state plus typed questions, return a probability per allowed answer; Cloudflare claims Clef is 2.5x faster than Jev at the median and Clef-flash 13x, and top on 7 of 10 decision benchmarks | Vendor launch claims, not reproduced here |
+| [Proceda on SOP-Bench](https://discuss.huggingface.co/t/offloading-bounded-decisions-cut-agent-llm-calls-by-29-6-on-360-sop-bench-cases/190420) | Main-LLM calls 2,537 to 1,785 (29.6% fewer); estimated cost including the decision model $6.41 to $4.70; 360/360 tasks correct vs 357/360 for Qwen alone | Self-disclosed: the author built the harness and ran the test |
+| OpenAI customer stories: [LegalOn](https://openai.com/index/legalon-halves-codex-costs), [Asana](https://openai.com/index/asana-browser-agent) | 65% cut in estimated daily Codex cost by matching models to tasks and managing budgets; browser agent 76x cheaper and 5x faster in tests | Vendor-reported; only the titles and descriptions were read (pages returned 403) |
+
+**What the Open SWE router actually is.** Three tiers (fast: GLM-5.3-Flash at xhigh effort; balanced:
+GPT-5.6 Sol at medium; performance: GPT-6 Astra at low), chosen once from the thread's first human
+message and kept for the whole thread. Routed threads split 56% balanced, 34% fast, 10% performance,
+with median cost $0.097, $1.50 and $2.88 per thread — a roughly 30x spread across tiers. LangChain
+notes the control was its most expensive model, so a large saving is unsurprising, and that
+mid-thread rerouting is not handled by this version. Its classifier first ran on an LLM with
+structured output and now runs on the Jev decision model, which LangChain reports made
+classification almost 50x faster. The argument to take: the router belongs in the harness rather
+than a generic gateway, because the harness already holds the task context the choice depends on
+(LangChain's reading). The success metric was merged PRs, an artifact, not a rating; the
+[Cobus Greyling opinion piece](https://cobusgreyling.substack.com/p/intelligent-mode-routing) makes
+the same ownership argument (own the harness, rent the model) with little evidence behind it. A
+non-significant difference at this sample size is not proof of equivalence — re-measure on your own
+task mix.
+
+**The decision-model pattern.** In the Proceda test a small decision model gated step completion:
+if both "tool calls made" and "evidence sufficient" yes-probabilities reached 0.8 the harness
+advanced without the follow-up LLM turn, otherwise the main LLM continued; tools still ran. For
+email intent it accepted a valid choice at probability 0.8 or above and fell back otherwise. The
+author's own summary of the pattern: supply the evidence, define the allowed choices, validate the
+result, keep an LLM fallback. Caveats he states: completion-checking alone saved 23.8% of LLM calls
+but finished 356/360 correct, and the combined 360/360 comes from one subset and does not establish
+an accuracy gain. This is a [stop-condition](27-loop-contract.md) step-gate whose failure mode is
+silently accepting a wrong "done" — the confidence threshold is the thing to validate (see
+[Confidence-Scheduled Verification](#confidence-scheduled-verification) and
+[Verification](04-verification.md)).
+
+**Measure the choice, and audit the alias.** Two small worked examples from one open-source setup,
+[claude-code-monorepo](https://github.com/milosCvetkovicDev/claude-code-monorepo):
+
+- A [commit](https://github.com/milosCvetkovicDev/claude-code-monorepo/commit/edf4bac27c89df9b8b8568ffa4d46061e6cbe6e4)
+  (2026-09-30) revisited whether a bug-fix skill should pin `model: sonnet` or `model: opus` with
+  `effort: low`. The Sonnet 5.5 and Opus 5.5 posts disagreed, so the note concludes to measure both
+  on your own tasks, because cost is tokens plus retries rather than the per-token price.
+- Another [commit](https://github.com/milosCvetkovicDev/claude-code-monorepo/commit/a82d07d8074972ad851e924ce1292f6e17c13318)
+  removed `ANTHROPIC_DEFAULT_HAIKU_MODEL`, which had silently sent every `haiku` request to a
+  Sonnet. A hidden alias override changes the model, and so the bill, without any line in the
+  prompt or skill saying so; check settings and environment before attributing a cost change to the
+  loop. (See [Which model a subagent actually runs on](#which-model-a-subagent-actually-runs-on).)
+
+## Hard Budget Caps and Honest Cost Accounting
+
+[`max_budget_usd`](#cost-turn-control) caps one run. Three further layers cap or measure spend
+across runs, and October 2026 produced evidence for each:
+
+- **At the provider.** Simon Willison [argues](https://simonwillison.net/2026/Oct/3/default-hard-budget-caps/)
+  (2026-10-03) that coding and personal agents make runaway spend likely, so pay-by-usage services
+  need *hard* caps on by default, not warn-only emails; he points to AWS's new spend limits
+  (announced 16 Sep; a project that reaches its limit is paused for the month, though AWS's own
+  page says the experience is releasing to a limited number of customers) and Google Cloud's Spend
+  Caps (July) as a trend. For the Anthropic API, his
+  [Haiku 5.5 post](https://simonwillison.net/2026/Oct/7/claude-haiku-5-5/) relays two relevant
+  changes: a monthly API credit for Max and Team subscribers (Max 5x $100, Max 20x $200, Team up to
+  $500 pooled; no rollover), and the option to disable auto-reload so that "API requests will stop
+  when your balance runs out". With auto-reload off, the balance becomes a provider-side hard cap for
+  an unattended loop. (Figures as relayed by Simon from Anthropic's announcement; not re-fetched
+  from Anthropic.)
+- **In the harness policy layer.** [omnigent v0.17.0](https://github.com/omnigent-ai/omnigent/releases/tag/v0.17.0)
+  (2026-10-06) adds period-based cost budgets to its governance policies, plus a `turn_final`
+  indicator so RESPONSE-phase checks can act on a finished turn. The release notes are the only
+  source read: they establish that the budget is enforced by the harness rather than the prompt, not
+  its configuration syntax. It is the inter-run counterpart to per-run caps, and the enforcement
+  version of the "budget >80% of period" row in
+  [Operational Kill / Pause / Slow-Down Thresholds](#operational-kill-pause-slow-down-thresholds).
+- **In the meter.** A cap is only as honest as the cost it computes.
+  [neal v0.6.12](https://github.com/navels/neal/releases/tag/v0.6.12) adds `neal usage` (turns,
+  tokens and cost by provider and role, per run or all runs, read from `events.ndjson` so
+  unfinished runs are covered) and fixes cached input being billed at the full input rate: on an
+  80%-cached turn with cached input at a tenth of the full rate, cost came out about 3.6x too high.
+  The same omnigent release prices cached prompt tokens at the cache-read rate for its openai-agents
+  and Codex-native sessions. Together with TurnCost's roughly 7x flat-pricing overestimate, the
+  lesson is that a budget gate computed at the full input rate trips early by multiples on a
+  cache-heavy loop; check the meter against the provider invoice before trusting the gate.
+
+**A lens for when verification itself is the expensive part.** An opinion essay, not a measurement:
+frmsaul's LessWrong post [The Expensive-Loop Problem](https://www.lesswrong.com/posts/2mStxuNDMdaWdyHu6/the-expensive-loop-problem)
+(2026-10-12) separates "cheap-loop" domains (fast, deterministic, cheap feedback) from
+"expensive-loop" ones where feedback is scarce, and argues models do poorly in the latter because
+they lack theory-building, proxy management and budgeting. Its practical reading for this doc: when
+the real check is slow or costly, the loop needs a ladder of cheaper proxies (its software example
+runs unit tests, integration tests, code review, then customers) and the proxy must be watched for
+Goodhart drift, which connects to [Verifier Theater](17-failure-patterns.md). A loop whose only
+verifier is expensive should say so in its BUDGET.
 
 ## Effort levels
 

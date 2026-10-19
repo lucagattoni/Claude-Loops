@@ -54,6 +54,77 @@ targeted GitHub and web searches.
   `parallel review agent cost benchmark`, `"ensemble" vs "chorus" LLM reviewers`, `graph
   vs sequential loop cost comparison agent`.
 
+### Logged by the 2026-10-19 tracker run
+
+Each bullet is a gap the doc agents named while integrating; keywords feed the next run's searches.
+**This run's X sweeps were all `partial`** (logged-out browser; see the digest's Coverage section), so
+absence of X-sourced material here is not evidence of absence.
+
+- **Harness-evolution papers are table rows from abstracts, not reads** (`docs/24`): Harness-Delta
+  Attribution, Self-Evolving Agent Harness, Trace-to-Architecture and Cortex deserve a real read,
+  especially the attribution protocol's numbers; no source compares a no-verifier, comparison-gated
+  loop (Harness²) with a held-out gate; pruning evidence (SHarP, Cortex) has no numbers; the
+  Awesome-Agent-Harnesses survey lists 208 papers, mostly unreviewed — search keywords:
+  `"harness-delta attribution"`, `"Propose-Probe-Compose"`, `"harness pruning" rule deletion`.
+- **Reviewer cost and autonomy from track record** (`docs/04`): reviewer false-positive cost has only
+  Reviewgate's alpha numbers and Anthropic's blame-based finding; the revert-rate-keyed approval
+  circuit breakers Anthropic says do not exist have no implementation anywhere in the findings;
+  simulated-user (GateGuard) vs planted-history (caliper) evals disagree with no head-to-head; dev-loop's
+  trust ledger has no evidence beyond its author's defaults — search keywords: `"code review false
+  positive rate" agent`, `"revert rate" gate approval tier`, `"trust ledger" auto-approve agent findings`.
+- **Verifier independence has essays, not measurements** (`docs/21`, `docs/04`): no measured data on
+  same-model author/test-writer/reviewer correlation — search keywords: `"verifier independence"`,
+  `same model reviews its own tests`.
+- **Review-loop drift is one file, one run** (`docs/17`): kachar136's ten-round result needs a
+  replication — search keywords: `"AI code review" drift sycophancy improve`.
+- **Evaluator self-tests and plateau detection** (`docs/27`, `docs/30`): held-out/frozen evaluators for
+  AutoResearch-style loops, plateau criteria compared across ralphctl / loopgain / loop-context, and
+  recorded human gates (neal) each have one source — search keywords: `"frozen evaluator" "held-out tasks"`,
+  `plateau detection agent loop`, `"manual gate" operator unblock agent loop`.
+- **Long-horizon harness benchmarks have only self-reported numbers** (`docs/25`): LoopX's LHTB/EdgeBench
+  figures, study date unknown; [LHTB](https://zli12321.github.io/LHTB/index.html) itself not read — search
+  keywords: `"Long-Horizon Terminal-Bench"`, `EdgeBench`.
+- **Anthropic primary text missing for several claims** (`docs/11`, `docs/39`, `docs/07`): when to pick
+  Haiku 5.5 vs Sonnet 5.5 per loop stage; the Managed Agents multiagent API page (config schema, limits,
+  pricing — only secondary sources cited); per-subagent effort frontmatter and inheritance; how nested /
+  parallel sessions consume plan limits; the monthly API credit and auto-reload terms (relayed by Simon
+  Willison only) — search keywords: `"Managed Agents" multiagent advisor`, `"subagent" effort frontmatter`,
+  `usage limits subagents parallel sessions`.
+- **Decision-model APIs unread** (`docs/11`): only Cloudflare's Clef changelog and the LangChain router post
+  were read; OpenAI's Decisions API, Liquid d1 and Microsoft Decision-1 appear only in a newsletter —
+  search keywords: `"Decisions API"`, `decision model routing agent`.
+- **Containment beyond the tool layer** (`docs/33`): egress controls beyond HTTP (DNS, URL shorteners) are
+  covered by incident only, with no recommended control set; no source on automatic kill/quarantine latency;
+  no method for testing alternative execution paths behind an allowed command; eval/training sandbox
+  integrity rests on one article's second-hand figures; the "Hugging Face incident" cited in docs/33 has
+  no primary — search keywords: `"DNS exfiltration" agent sandbox egress`, `"allowlist bypass" coding agent`,
+  `"quarantine" agent circuit breaker`.
+- **Shared MCP memory trust** (`docs/19`): per-writer scoping and provenance for shared stores; Graphiti #2029's
+  "all episodes in a group are trusted equally" rests on a finding summary only — search keywords:
+  `graphiti group_id trust`, `shared agent memory poisoning`.
+- **Scion alternatives and post-merge testing** (`docs/26`): git-ai, Cursor Origin and Cloudflare Artifacts are
+  unread; post-merge testing as a loop pattern has only Anthropic's own account; Debois' "Is the Future of
+  Software Engineering a Factory?" talk not watched; Third Moment's 10,000-agent run was readable by title only
+  (HTTP 403) — search keywords: `"Cursor Origin" agent source control`, `post-merge testing agents merge queue`,
+  `AI-authored code revert rate cost per merged PR`.
+- **Mods and loop safety** (`docs/12`): no tested mod used inside a loop; Anthropic's "build your first mod"
+  guide not read; the "nested sessions" reports (MindStudio, explainx) are absent from the official changelog
+  and unverified, so nothing was written — search keywords: `claude code mods guide`, `sec-default mod`.
+- **Third-party team harnesses lack primaries** (`docs/38`): Antigravity teamwork preview, Paperclip and
+  Turnstone are cited from MindStudio only; the Vals result is one run per setup — search keywords:
+  `"Vibe Code Bench" multi-agent`, `Paperclip agent orchestrator github`.
+- **Memory** (`docs/16`): Agent Memory Repo adoption and measured benefit, and Devin's Dreaming evaluation, not
+  found; Anthropic's own "dreaming" preview unverifiable — search keywords: `AgentMemoryRepo skill`, `Devin dreaming evaluation`.
+- **Non-code loop engineering has posts, not running examples** (`docs/21`): the GTM wave and its autonomy
+  critique are LinkedIn posts with no outcomes — search keywords: `"GTM agent loop" grader feedback`.
+- **Structural candidates, left for a decision (each would be a MAJOR change):** `docs/04` (~1,030 lines —
+  "Verifier Integrity" plus the two new October sections would make a "review loops and eval methodology" doc),
+  `docs/24` (the Self-Improving Harnesses section is ~330 lines), `docs/33` (~640 lines — runtime enforcement vs
+  incidents and monitoring), `docs/27` (~680 lines — the "Sept 2026 cohort" is a stop-verifier catalogue). Also a
+  possible "multi-agent economics" hub across docs 11/37/38/39/17, and a "cloud execution surfaces" table across
+  docs 28/29. A cross-doc sweep for "Haiku 4.5 / Sonnet 5 are current" is warranted (docs/11 now says the 5.5 set
+  supersedes them; `docs/07`, `35`, `27` were not swept).
+
 ### Logged by the 2026-09-28 tracker run
 
 - **`holny/Agent-Harness-Develop-Book` is tracked but only ever spot-cited, never
@@ -338,6 +409,13 @@ Evidence pack: [`plans/20260907_0100-c7-doc-sweep-evidence.md`](plans/20260907_0
 
 ## Recently Filled (archive — keep last 2 entries; remove older ones)
 
+- ~~**Four doc-level gaps filled by the 2026-10-19 run**~~ — `docs/11` had no 5.5-generation model/price table
+  (now fetched from Anthropic's Models and Pricing pages, 2026-10-19); `docs/04` had no coverage of review-loop
+  convergence or of measuring a gate or judge (Anthropic's own review loop, GateGuard, caliper, Wilson-interval
+  evals); `docs/24` had ~35 harness-evolution papers arriving with no map (now one literature map inside
+  Self-Improving Harnesses); `docs/33` had no out-of-process runtime enforcement or monitor-integrity section.
+  The durable record is the doc sections; the open follow-ups are in the 2026-10-19 block above.
+
 - ~~**A same-URL GitHub repo returned sharply conflicting metadata in one run's two
   passes**~~ — filled 2026-09-28 by the retry pass: no real conflict. `cobusgreyling/loop-engineering`'s
   direct sweep reported one commit (`d6a0f3d`, 2026-09-24, "examples/mcp: add a shared-state
@@ -353,32 +431,6 @@ Evidence pack: [`plans/20260907_0100-c7-doc-sweep-evidence.md`](plans/20260907_0
   citation marker of its own. `cocodedk/loop-engineering` (35 stars, no CLI, no pattern
   catalog, not cited by the paper) was never a candidate for either pass — it just shares a
   keyword.
-
-- ~~**Three gaps closed in one targeted pass**~~ — filled 2026-09-06 by the backlog's **C9**. Kept
-  as a single entry because they were one dated pass; the durable record is the doc section each
-  landed in.
-    1. ~~**F0–F3 fleet maturity indicators**~~ → `docs/23`. The answer was inside
-       [cobusgreyling/fleet-engineering](https://github.com/cobusgreyling/fleet-engineering) —
-       **a repo this doc already cited three times** — in `docs/maturity-model.md` and
-       `docs/fleet-ready-score.md`, which nobody had opened. File-existence exit criteria per
-       transition plus a runnable `fleet-audit` score (F0 0–39 · F1 40–64 · F2 65–84 · F3 85–100).
-       Written up beside the KB's *own* F0–F3 scale and explicitly distinguished from it — same
-       four labels, different criteria, different authors. **Process lesson: a citation is not a
-       read. Exhaust the repos already in `SOURCES.md` before searching outward.**
-    2. ~~**Effort-vs-tooling budget boundary**~~ → `docs/11`. Closed by
-       [arXiv 2608.28795](https://arxiv.org/abs/2608.28795), a controlled follow-up by the *same
-       author* as the paper `docs/11` already cited. The boundary is not codebase size or task
-       horizon but **reach**: a checker pays off only where it covers how the thing actually fails.
-       1,116 apps, 6 models, 8 tool configurations; a boot probe removes nearly all launch failures
-       at ~35% of a full shell's token cost, while a full shell costs 2.35× the no-tool baseline.
-    3. ~~**Underspecified-input mitigation for autonomous pipelines**~~ → `docs/30`. Four sources
-       supply the missing mechanism: a separate **Intent Agent** that halts the implementer
-       ([2603.26233](https://arxiv.org/abs/2603.26233), 69.40% on underspecified SWE-bench
-       Verified), an EVPI-scored question policy ([2511.08798](https://arxiv.org/abs/2511.08798)),
-       an industrial ambiguity classifier with mandatory rationale (ICSME 2025), and — the
-       counterintuitive one — **clarification timing decays**
-       ([2605.07937](https://arxiv.org/abs/2605.07937)): goal clarification loses nearly all value
-       after 10% of execution, and asking past mid-trajectory is *worse than never asking*.
 
 ## Claims Awaiting Verification — not search targets
 

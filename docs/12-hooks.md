@@ -376,6 +376,48 @@ now applied to model choice instead of only tool calls.
 ```
 When a background agent finishes, inspect its output and fire the next step.
 
+## Beyond hooks: mods
+
+Hooks gate an event and, through the JSON output above, can rewrite a tool call's input or output. Anthropic says they cannot rewrite events more generally, draw UI, or replace built-in features. Claude Code **mods** (added in **v2.1.287**, Oct 2026) are the layer above:
+TypeScript functions that hook one of the events Claude Code emits (a tool call, a permission
+request, a screen draw) and can run **before, after, instead of, or around** it. Per
+[Anthropic's announcement](https://claude.com/blog/claude-code-mods) (1 Oct 2026), a mod can rewrite
+a prompt before it reaches the model, block, rewrite or retry a tool call, approve or deny a
+permission request, and redact secrets from tool output before Claude reads it. The
+[v2.1.287 changelog entry](https://code.claude.com/docs/en/changelog) (1 Oct 2026) is the version
+stamp: *"Added Claude Mods: plugins may now modify deeper behavior"*, alongside a built-in
+"You should know" mod, a side agent that watches the session. Coverage:
+[The New Stack](https://thenewstack.io/anthropic-claude-code-mods-plugins/) (2 Oct 2026),
+[claude.com tutorial](https://claude.com/resources/articles/claude-code-mods).
+
+| | Hook | Mod |
+|---|---|---|
+| Form | Command, HTTP, MCP tool, prompt or agent, declared in settings | TypeScript function, shipped inside a [plugin](03-building-blocks.md) |
+| Reach | The lifecycle events and JSON output API above | Events including tool calls, permission requests and screen draws; can also edit the UI Claude Code draws |
+| Sandboxed | n/a | **No**: per the announcement, a mod has the same machine access as Claude Code itself; install only from sources you trust |
+| Ordering | n/a | Several mods on one event run in load order; the first to load sees the event first and the result last |
+
+Three things matter for an unattended loop, all from the announcement and the changelog:
+
+- **Admin guardrail.** On Team and Enterprise plans, and on machines with managed settings, a
+  built-in `sec-default` mod loads first and stops user-installed mods from doing risky things such
+  as overriding permission deny rules. Admins can load their own mods first instead; the post says to
+  keep `sec-default` in the list to keep its restrictions. v2.1.299 further improved enforcement of
+  managed permission rules, managed hooks and organization MCP tool names against user-installed
+  mods ([changelog](https://code.claude.com/docs/en/changelog), 14 Oct 2026).
+- **An audit seam.** The announcement's own example for teams: a mod that loads first can record
+  every call that every other mod makes, which complements the `PostToolUse` audit hook above rather
+  than replacing it.
+- **A way to break a stop condition.** v2.1.299 fixed a mod that submits a prompt at the end of every
+  turn keeping a headless run going past `--max-turns`, `--max-budget-usd`, an interrupt, or the end
+  of the host's conversation. A mod is code in the loop's control path: audit it like a hook that can
+  veto your STOP.
+
+Later changelog entries: `agent.spawn` for teammates (v2.1.289, 3 Oct 2026), and (v2.1.300, 14 Oct
+2026) the `agent.spawn` mod hook can rewrite a workflow agent's `prompt` and `model`, where before it
+could only refuse workflow agents. This KB has not exercised mods; the facts above are the vendor's
+description and changelog, not a tested loop.
+
 ## Related
 
 - [Verification](04-verification.md) — the broader verification philosophy

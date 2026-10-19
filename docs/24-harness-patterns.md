@@ -600,6 +600,105 @@ harness spend, not model spend, is where the marginal dollar buys reliability �
 thesis as [The Paradigm Shift](01-paradigm-shift.md), now with a cost multiplier attached.
 ([Hugging Face, "Don't train the model, evolve the harness"](https://huggingface.co/spaces/joelniklaus/harness-optimization), Jul 2026.)
 
+### Literature map: the late-2026 arXiv wave, by question answered
+
+Between late September and mid October 2026 about two dozen arXiv papers extended the cluster
+above. A paragraph each would bury the pattern, so the tables below group them by the question
+each one answers. The one-line contributions come from the papers' abstracts or listings, not
+from a paper-by-paper read, and every figure is the authors' own and unreplicated. For further
+candidates, [Awesome-Agent-Harnesses](https://github.com/NeuraLiying/Awesome-Agent-Harnesses) is a
+small curated index (its title counts 208 papers and 67 production harnesses; updated 2026-10-14)
+organised by component (agent loop, tools, memory/context, multi-agent, evaluation,
+self-improvement loops) and framing the loop as one component of the harness. Treat it as a
+candidate list, not as evidence: its entries have not been reviewed here.
+
+**Harness² — the best-known entry, and the one that drops the verifier.** Google Research's
+[Harness²](https://github.com/google-research/harness2) optimises the harness with model weights
+fixed. Per its README it exposes eight editable components (system prompt, guardrails, memory,
+tool guidance, subagents, skills, scripts, plugins), runs a task-level **Propose-Probe-Compose**
+recursion, and keeps a persistent *improvement harness* that carries evidence-backed lessons
+from task to task. The README reports gains of up to 11.5 points on WorkBuddy-Bench and says a
+larger recursion budget helps further (self-reported). The
+[paper](https://arxiv.org/abs/2610.14224) frames it as two levels working *without ground-truth
+verifiers*: contrastive task-level edits, plus a higher level that generalises across tasks. An
+[@akshay_pachaar](https://x.com/akshay_pachaar/status/2111753928031531232) summary (second-hand,
+not read at source) describes the same loop as proposing edits, running several candidate
+harness versions and composing a better one by comparing the runs, with no grader, executing via
+OpenCode or Codex. The contrast with [Self-Harness](#self-improving-harnesses) and AHE above is
+the point: those gate edits on a held-out run or a verified prediction, whereas here the gate is
+a comparison between candidate runs. The sources do not establish whether that is as safe as a
+disjoint held-out gate (see Darwin Mode above), so treat it as the open question rather than a
+settled saving.
+
+**RunTune — control-measured harness changes from your own transcripts.**
+[RunTune](https://github.com/kkrlstrm/runtune) reads Claude Code, Codex, Cursor and Antigravity
+transcripts, proposes capabilities (from successes), constraints (from failures) and routes,
+requires human approval, then measures each adopted change against a control and retires or
+revalidates it. Its `docs/EVIDENCE.md` reports a 150-day run over about 165k Claude Code
+attempts in which 51 of 154 candidates were proposed and 103 withheld, with a per-rule
+before/after net of the control (one guard rule at -19.1 points). Two of its own findings
+matter more than the headline: a model upgrade made 3 of 13 guard rules impossible to trigger
+(the [removal test](#when-to-remove-harness) in practice), and sub-agent token columns had been
+inflated 38.9x by a logging bug that the check itself could not catch. All numbers are the
+author's, from one team's deployment, and the repo was created 2026-09-27 (9 stars at capture).
+It is a practitioner version of the gating discipline the papers below formalise.
+
+| Question | Paper | One-line contribution |
+|---|---|---|
+| **When is an edit real?** (admission and attribution) | [Self-Evolving Agent Harness](https://arxiv.org/abs/2610.18813) | Separates proposal from admission; gives a generalization bound, a regression-budget retention bound and a fresh-validation admission rule |
+| | [Harness-Delta Attribution](https://arxiv.org/abs/2610.22466) | Splits a harness-evolution gain into artifact overfitting, test-time-scaling gain and residual generalizable gain; applied to 11 executors and three evolution frameworks |
+| | [Compliance-bounded self-evolution (credit pipelines)](https://arxiv.org/abs/2610.10629) | Confines self-evolution to the runtime harness behind a hash-chained admission gate; in simulation (a simulated agent, not LLMs) it admitted 144 of 7,449 candidates, none worsening held-out error |
+| | [VERSE](https://arxiv.org/abs/2610.02616) | Finds optimizer self-evolution fails without execution-based verification; the optimizer tests draft edits, replays failures and perturbs suspected steps before submitting |
+| | [Trace-to-Architecture](https://arxiv.org/abs/2610.16725) | Diagnoses which component to change from traces, then validates the target gain, regression on successes and that the edit actually triggers; reports +6.2 to +30.3 points over the strongest baselines on ALFWorld, ScienceWorld and AppWorld |
+| | [UCoE](https://arxiv.org/abs/2610.17609) | Evolves an executable verifier program together with harness state under fixed weights, testing verifier candidates on response contrasts with known preferences |
+| **How is the search run?** | [Harmony Harness](https://arxiv.org/abs/2610.15150) | Multi-objective Pareto search with factorized operators separating general mechanisms from environment-specific adaptation |
+| | [MESH-Harness](https://arxiv.org/abs/2610.05300) | LinUCB-scored recombination of module implementations under a limited evaluation budget |
+| | [MILO](https://arxiv.org/abs/2609.38349) | Island-based multi-agent evolution co-evolving harnesses and the discovery strategy; rejected mutations count as negative evidence |
+| | [Mixture of Self-Improving Branches](https://arxiv.org/abs/2609.37834) | Branches with evolving dev subsets and proposal policies to avoid single-trajectory local optima; builds on Meta-Harness |
+| | [FreeEvolve](https://arxiv.org/abs/2610.09197) | Replaces the hand-built search loop with an editable, meta-evolved skill that decides what to test, how much evidence to collect and when to stop |
+| | [ActiveSaddler](https://arxiv.org/abs/2610.00906) | Treats the training-scenario curriculum as a non-stationary bandit over reusable failure-pattern arms |
+| | [Causal Improvement Graph](https://arxiv.org/abs/2610.05039) | Keeps improvement state in a persistent graph so prior findings govern later revisions instead of an ever-growing proposer history |
+| | [ReHarness](https://arxiv.org/abs/2610.12668) | Backward revision of retrieved reflections from each new trajectory, under a strictly online streaming protocol |
+| | [ScholarEvolve](https://arxiv.org/abs/2609.40169) | Draws on published research, not only observed failures, to guide a meta-coding-agent's harness evolution |
+| **What is evolved, composed or cut?** | [Cortex](https://arxiv.org/abs/2610.14216) | Treats CLAUDE.md-style files, skills and rules as the harness; replays recurring developer corrections as tasks and keeps or deletes a rule only if repeated with/without runs show net gain (tested with Claude Haiku 4.5) |
+| | [SHarP](https://arxiv.org/abs/2610.04178) | Saliency-based pruning of tools, instructions and support modules to cut the token overhead of accreted harness complexity with little performance loss |
+| | [Agent Skill Evolution](https://arxiv.org/abs/2610.04832) | Empirical study of 2,608 first/last revision pairs across 3,159 SKILL.md files; most revisions change a rule or procedure; measures compliance effect on 21 models and four agents |
+| | [ContextEvo](https://arxiv.org/abs/2609.34649) | Learns a context-management policy from long-horizon trajectories, starting from the open-source Pi-agent harness; reported comparable to or better than Codex, OpenCode and OpenClaw on three benchmarks |
+| | [Harness Primitives](https://arxiv.org/abs/2609.38912) | Mines reusable primitives from failed trajectories and composes a task-specific harness at test time, because a global mechanism helps one task and hurts another |
+| | [Meta-Skills](https://arxiv.org/abs/2609.38143) | A Builder learns meta-skills from a Target's execution feedback to construct harnesses for unseen tasks; +8.95 pp over no-skill construction on Harness-Bench/NewtonBench |
+| | [Evo²](https://arxiv.org/abs/2610.13025) | Co-evolves model weights and harness with one policy as both Proposer and Reflector; see [Learned Orchestration](22-learned-orchestration.md#a-second-target-for-learning-the-harness-itself-not-just-the-orchestrator) |
+| **What can go wrong?** | [Provenance marks](https://arxiv.org/abs/2610.21458) | Published watermarks fail when a leaked harness passes through a self-evolver (KGW survives 0 of 12 copies); proposer habits decide survival; builds an attack-aware mark; see [Agent Security Hardening](33-agent-security-hardening.md) for the wider threat model |
+
+Reading the rows together: the centre of gravity has moved from *proposing* better harnesses to
+*admitting* them, which is where the Darwin Mode, HarnessLens and EvoUndo entries above already
+sat. The attribution protocol is the sharpest new tool for a reader, because it asks how much of
+a claimed gain is the artifact overfitting to its own tasks. The pruning rows (SHarP, Cortex) are
+the self-improving counterpart of [When to Remove Harness](#when-to-remove-harness): the same
+measurement loop, run in the deleting direction.
+
+**Harness versus model: controlled comparisons.** A second group of papers measures the harness
+against the model rather than optimising it, and the same conclusion keeps appearing.
+
+| Paper | Result |
+|---|---|
+| [Legislative document-to-XML](https://arxiv.org/abs/2610.19999) | Three harnesses by three Claude models on 153 bills: the weakest model in the full pipeline scored 0.948, the strongest model alone 0.806 |
+| [MedicalHarness](https://arxiv.org/abs/2610.05778) | Controlled model-by-harness study on a 107-task benchmark that isolates individual harness mechanisms; argues an agent score belongs to the model-harness pair |
+| [Mingbird](https://arxiv.org/abs/2610.02001) | Attributes small-model agent failures to the harness and adds a prefill budget, a finish gate that re-reads the task before accepting completion, and signature-level loop detection |
+| [Box²-Bench](https://arxiv.org/abs/2609.39578) | Varies workflow reliability to test whether models can override misleading harness guidance; frontier models stay vulnerable, and counterfactual SFT or RL improves robustness |
+| [Corporate and investment banking](https://arxiv.org/abs/2609.39958) | Industrial case where LLM judges guided harness changes; tests whether the gain over direct generation is real or a grading artifact |
+
+Two cautions apply. The Box²-Bench result cuts against "more harness guidance is always better":
+frontier models stay vulnerable to misleading workflow guidance, so a harness is only as good as
+its guidance is reliable (see also [Failure Patterns](17-failure-patterns.md)). And the banking
+paper's question (is the lift real, or does the judge reward the harness's style?) applies to
+every row above that scores itself with an LLM judge; see
+[Verification](04-verification.md). On the ARC-AGI-3 harness gap
+([above](#two-settings-tripled-a-benchmark-score-and-the-vendor-didnt-sell-the-harness)), an
+[explainx.ai write-up](https://explainx.ai/blog/gemini-4-argon-arc-agi-3-97-5-percent-provider-adapter-vs-49-8-standard-harness-claimed-vs-verified-2026)
+reports Gemini 4 Argon at 97.5% with the provider-adapter harness against 49.8% with the standard
+one. That is a secondary source that says it could not load the leaderboard to confirm, so it
+is a pointer to check against [ARC Prize](https://arcprize.org/blog), not a figure to cite.
+
 ## Harness vs. Environment Engineering
 
 Two complementary safety layers operating at different levels of the stack:
@@ -956,6 +1055,8 @@ running one model for everything.
   conformance suite (`uhp-conformance --class full`) against a public spec, not just a
   wrapper library — 664 stars.
   ([HarnessRouter/harnessrouter](https://github.com/HarnessRouter/harnessrouter), Sep 2026.)
+  The figures above are the September snapshot; the project has since grown to 20+ harness
+  bases — see [A protocol at the harness boundary](#a-protocol-at-the-harness-boundary-uhp-and-harnessrouter-sepoct-2026).
 - **Three independent large meta-harness/harness-router products converged in the same
   week** (1,286–10,316★ each), a dominant-theme signal worth naming as its own emerging
   category rather than three unrelated finds. **openrig** frames the layer explicitly —
@@ -1253,6 +1354,68 @@ Fixing a security gap at specification costs 1×; fixing it post-implementation 
 `apm compile` reads `.apm/` and writes deterministic per-target output for each supported runtime (`.claude/` for Claude Code, `.codex/` for Codex, etc.). Primitive files contain no CLI-specific directives — portability is enforced by convention, not tooling.
 
 ([sergiocarvalhosa/Monad-Harness](https://github.com/sergiocarvalhosa/Monad-Harness), Jun 2026 — a proposal/spec-stage repo (`PROPOSAL_L0_v2.0.md`, `SPEC_V1.md`, `ROADMAP_v1.md`; no shipped code as of this writing) that builds a lifecycle-management layer on top of APM rather than authoring its own schema.)
+
+### A protocol at the harness boundary: UHP and HarnessRouter (Sep–Oct 2026)
+
+Projection compiles one source to many harnesses. The
+[Unified Harness Protocol](https://github.com/HarnessRouter/harnessrouter) (UHP) takes the other
+route: leave each harness whole and standardise the boundary in front of it. A
+[Daily Dose of Data Science write-up](https://www.dailydoseofds.com/p/run-any-agent-harness-under-one-interface/)
+separates **harness routing** (choose the agent runtime that owns the whole task) from model
+routing, and describes UHP (version 2026-09-12 at that time) as a Responses-API-shaped HTTP
+contract with SSE events, sessions, files and cancellation, with the self-hosted HarnessRouter
+running one workflow through Codex and Claude Code. The project's
+[ecosystem page](https://github.com/HarnessRouter/harnessrouter/blob/main/protocol/ECOSYSTEM.md)
+places UHP as the product-to-complete-agent-harness boundary (tasks, sessions, streaming, files,
+results), with the harness keeping its own agent loop and tools, and MCP, A2A, ACP and AG-UI as
+neighbouring layers. A related academic proposal sits one layer down:
+[HEAR](https://arxiv.org/abs/2610.06597) is a bidirectional harness-engine protocol in which the
+harness communicates workflow intent and the inference engine returns runtime state and
+capabilities.
+
+The repo's October commits are useful less as a feature list than as measured examples of
+supervisor-layer design. All are the project's own records:
+
+- **A step budget enforced outside the harness.** Twelve harness bases (including codex, pi, qwen,
+  gemini, cline, opencode and kilo) had no step limit of their own, so a bounded task ran to the
+  wall-clock cap. The [fix](https://github.com/HarnessRouter/harnessrouter/commit/871640d044)
+  counts tool calls by id, stops the process as if cancelled once past the budget, and ends the
+  turn `error_max_turns`, reported as incomplete rather than failed, with the limit named. A
+  BUDGET/STOP control from [the Loop Contract](27-loop-contract.md) implemented by the router, not
+  by trusting each harness.
+- **A reasoning-effort knob in the contract.** [v0.30.0](https://github.com/HarnessRouter/harnessrouter/releases/tag/v0.30.0)
+  adds a per-task `reasoning.effort` (none to xhigh) that works across 19 of 20 harness bases,
+  clamps to the nearest level the model really has, and reports requested versus applied effort
+  and `reasoning_tokens` in usage.
+- **Stall limits tuned from measurement.** [v0.31.0](https://github.com/HarnessRouter/harnessrouter/releases/tag/v0.31.0)
+  cuts the silence timeout on a provider call from 10 to 3 minutes, having measured some models
+  sending nothing for 201-211 s at the highest thinking level.
+- **Verify before offering.** [v0.29.0 and v0.33.0](https://github.com/HarnessRouter/harnessrouter/releases/tag/v0.33.0)
+  add nine more harness bases (including Qoder Cloud Agent as the first remote runtime), publish
+  per-harness pass rates on five console scenarios (e.g. Kilo 291 of 295 runs), and withhold any
+  model whose own failure repeated. jcode's own todo and memory tools were switched off because
+  they led to runaway "re-validating" turns, a concrete runaway-loop failure mode.
+- **Memory and environment as protocol chapters.** The spec's
+  [changelog](https://github.com/HarnessRouter/harnessrouter/blob/main/protocol/CHANGELOG.md) adds
+  an Environments chapter (2026-09-28: build once, read-only mount) and a Memories chapter
+  (2026-10-04: ordered text/file parts, role-tagged observed turns, a `memory_unsupported`
+  refusal, conformance checks ME-01 to ME-10; implemented in v0.34.0 on 2026-10-15). The
+  [2026-10-19 revision](https://github.com/HarnessRouter/harnessrouter/commit/9ecd0046fe) lets a
+  new task import earlier turns as session history, stamps turns with `created_at` and
+  `completed_at`, and lets a server retire a harness's sessions under a stated restore window
+  (the one non-additive change). It also records that conformance suite `post1` caught the
+  reference server answering `running` where the lifecycle table requires `in_progress`: a suite
+  check that had been too weak to see a status mismatch.
+- **A default that means failure.** A reconcile sweep
+  [read a missing heartbeat as 0](https://github.com/HarnessRouter/harnessrouter/commit/ea4e8ed90b90dbec3c3826df6e4e2afca5b87dbf)
+  and aged a newborn session from 1970, settling it failed at once. The fix floors age by
+  `created_at` and leaves a session of unknown age alone ("an unknown age is past no cap"). It is
+  the same defect class this repo's own pipeline has paid for: an absent value must not default
+  to a verdict.
+
+A vendor post (no permalink) claims Qoder from Alibaba Cloud has adopted UHP; the only
+corroboration in the sources read is the v0.33.0 release above, which lists Qoder Cloud Agent as a
+supported remote runtime. Neither establishes that Alibaba itself adopted the protocol.
 
 ## 8-Phase DAG Execution Model (Tenet)
 

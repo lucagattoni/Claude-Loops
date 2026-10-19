@@ -211,6 +211,71 @@ For the underlying argument against splitting standing work by role rather than 
 boundary — which applies to agent teams as much as to a planner/coder/reviewer session split —
 see [Session Architecture](37-session-architecture.md); it is not re-argued here.
 
+## Do teams pay off? Measured evidence (Oct 2026)
+
+"Significantly more tokens" is Anthropic's own wording; two October 2026 studies put numbers on it.
+Both measure a lead delegating to workers, which is the shape of agent teams and of
+[subagent fan-out](07-subagents.md), not the Claude Code experimental flag specifically.
+
+**[Vals AI](https://www.vals.ai/blogs/multi-agent-vibe-code-bench) (Katrina Drozdov, 2026-10-09)**
+ran GPT 6 Sol and Claude Opus 5.5 on [Vibe Code Bench](https://www.vals.ai/benchmarks/vibe-code)
+(50 full-stack web apps, graded by browser agents) as a single agent and as a team (a lead plus up to
+five subagents, which cannot spawn their own). Each of the eight setups ran **once**.
+
+| Setup | Single agent: score, cost/app | Team: score, cost/app | Team cost multiple |
+|---|---|---|---|
+| Sol, medium effort | 77.6%, $1.22 | 84.9%, $3.07 | 2.5x |
+| Sol, max effort | 89.0%, $4.82 | 90.4%, $8.54 | 1.8x |
+| Opus 5.5, medium effort | 91.5%, $4.08 | 91.2%, $9.10 | 2.2x |
+| Opus 5.5, max effort | 89.8%, $23.77 | 93.2%, $122 | 5.1x |
+
+Only the first row's gain (+7.3 points, p = 0.005) was statistically significant; the other three
+differences (-0.3 to +3.4 points) were not. For Sol, raising effort lifted the score more than adding a
+team did, although the max-effort single agent cost 1.6x the medium-effort team. Vals attributes most of
+the extra spend to cached input: every subagent re-sends its own context (spec plus working state) on each
+model call. The two leads also orchestrated differently: Sol split the work in parallel within minutes,
+while Opus wrote a shared contract first and then delegated in sequential waves, so its teams ran up to
+2.3x longer. Vals cautions that this is one benchmark of web apps and may not generalise.
+
+**[Scaling Inference-Time Compute with Teams of Coding Agents](https://arxiv.org/abs/2610.17471)**
+(arXiv 2610.17471, v1, 2026-10-12, not peer reviewed) builds a minimal harness and varies *where* the lead
+delegates (planning, implementation, verification), the team's models and the worker count. Per the
+abstract: on ProgramBench teams beat solo agents at three to seven times the cost, and allocation moves the
+reward-cost frontier:
+
+- A heterogeneous 17-agent team came within 1.4 points of a strong homogeneous 5-agent team at 70% lower cost.
+- A lead that delegated only planning, then implemented and verified itself, matched full delegation at half the cost.
+- Cheap models paid off as planners (a strong lead with cheap planners recovered 47.5% of an all-strong
+  team's reward gain for 13.9% of its extra cost) but not as implementers, where they lowered reward.
+- Planners kept improving reward as the team grew; implementers and verifiers plateaued beyond four workers.
+
+Read together: a team is a compute-allocation decision, not a free speed-up. Spend the extra agents on
+planning, keep the strong model on implementation and the final check, and compare against simply raising
+effort on one agent before adopting a team. The finding that cheap implementers hurt complicates the "cheap
+hands" tier in [Subagents](07-subagents.md#strong-eyes-cheap-hands-cost-asymmetric-role-allocation);
+that tier assumes strong deterministic rails around the cheap worker, which this harness did not add.
+
+The opinion piece [More Agents, Same Mythical Month](https://www.brokenrobot.xyz/blog/more-agents-same-mythical-month)
+(Broken Robot, 2026-10-14) frames the same cost as Brooks's Law: cheap code moves the bottleneck to
+deciding, verifying and coordinating, and more agents amplify whatever coordination an organisation
+already has. It is an argument, not a measurement; the human-attention version is the "orchestration tax"
+in [Failure Patterns](17-failure-patterns.md).
+
+### Other vendors' team shapes (secondary sources)
+
+Four MindStudio explainers (secondary posts, weaker than a vendor primary; linked in the table)
+describe team harnesses that all pair workers with a checker role. None has been verified against a primary here.
+
+| Harness | Shape, per the explainer | Caveat in the same post |
+|---|---|---|
+| [Google Antigravity "teamwork" preview](https://www.mindstudio.ai/blog/google-anti-gravity-teamwork-preview/) (2026-10-15) | Lead interviews the user and plans, delegates to parallel workers, auditor/critic agents check them under an orchestrator; runs unattended for hours with human spot-checks at milestones; Ultra-tier preview | Secondary description of a preview |
+| [CodeAF crew mode](https://www.mindstudio.ai/blog/codeaf-crew-feature-benchmark/) (2026-10-06) | Go coding harness with separate worker, planner and checker models per task, parallel task splitting, per-task spend tracking | The author could not confirm in a short test that the checker reduces bugs; benchmark claims are the vendor's own |
+| [Paperclip](https://www.mindstudio.ai/blog/paperclip-ai-agent-team-manager/) (2026-10-06) | Open-source (MIT) coordinator over Claude Code, Codex and others: review/approval gates before a task is done, optional per-task git worktrees, scheduled routines, budgets with warning thresholds and hard stops | Budget enforcement relies on reported usage, so work can overshoot |
+| [Turnstone](https://www.mindstudio.ai/blog/turnstone-ai-orchestration-local-hardware/) (2026-10-08) | Manager persona spawns workers plus an evaluator across registered local nodes; a strong model (e.g. Opus) judges while cheaper local models do token-heavy work | Tiered-model pattern; no measured result |
+
+The shared lesson is the one above: the checker role is where these harnesses spend their trust, and a
+checker's value has to be measured (see [Verification](04-verification.md)), not assumed from its existence.
+
 ## The gotcha: teams can form uninvited
 
 Enabling agent teams changes what an ordinary subagent spawn does, not just what is possible:
