@@ -617,8 +617,9 @@ production.
   delivery procedure, replacing a phase engine, cohort writer, whole-plan hash lock and legacy
   review gate. Task order and decomposition can then change after initial review without
   approval, while criteria, evidence and structured review facts stay the only authority for
-  completion. The trade-off stated is lock versus replanning: pin the *completion authority*,
-  not the *plan*. A companion verb, [loop-cohort](https://github.com/eugenelim/agent-ready-repo/commit/f6ac607beac4e765e15da947bed397d3d21630e3),
+  completion. The ADR's stated trade-off is that an in-flight run started under the old engine is
+  re-derived by the loop rather than read through a compatibility adapter; "pin the *completion
+  authority*, not the *plan*" is this KB's own gloss. A companion verb, [loop-cohort](https://github.com/eugenelim/agent-ready-repo/commit/f6ac607beac4e765e15da947bed397d3d21630e3),
   screens a wave before dispatch and returns parallel-capable or sequential from plan `Touches:`
   globs and cohort state, under owner-approved input bounds and a closed set of refusal codes;
   the screen is explicitly not a greenlight.
@@ -645,7 +646,7 @@ measurements are the authors' own.
 |---|---|---|
 | [cobusgreyling/loop-engineering](https://github.com/cobusgreyling/loop-engineering/commit/9e1e2b017d0a682bf9e119d71b817351acd59025) (`loop-context`, 2026-10-10) | `--similarity-threshold 95` (meant as 95%) switched stagnation and repeated-action detection off, so four identical failures returned CONTINUE | CLI and library reject values outside (0, 1]; `loop-drill` reports a rejected config as a failed breaker drill |
 | [same repo](https://github.com/cobusgreyling/loop-engineering/commit/6b96a16d56532fe669819d59aa27e51ec37d0387) (`loop-audit`, 2026-10-10) | 19 empty files (142 bytes) scored 100/L3 on `fileExists()` signals | Ignore placeholders; gate L3 on `loop-drill.json` proofs (see [Maturity Model](20-loop-maturity-model.md)) |
-| [sdsrss/loop_eng v0.20.0](https://github.com/sdsrss/loop_eng/releases/tag/v0.20.0) (2026-09-21) | An unattended Stop-hook driver's dirty-tree guard answered CLEAN on a dirty tree (`grep -vq` and a SIGPIPE under `pipefail`) | Unattended drivers now exit 1 with "dirty tree, refusing unattended run" |
+| [sdsrss/loop_eng v0.20.0](https://github.com/sdsrss/loop_eng/releases/tag/v0.20.0) (2026-09-21) | An unattended driver's (polish and autoloop) dirty-tree guard answered CLEAN on a dirty tree (`grep -vq` and a SIGPIPE under `pipefail`) | Unattended drivers now exit 1 with "dirty tree, refusing unattended run" |
 | [andrewcigan/vibe-dev-plugin v9.0.4](https://github.com/andrewcigan/vibe-dev-plugin/commit/7e7df9a03bf945a649824fea623f1cfbe322c499) (2026-10-03) | A commit-scope guard checked zero commits because no writer maintained the field it read | Derive the active feature from per-entry state; commit message reports 68 of 199 historical commits blocked by the old rules versus 23 by the new, all genuinely out of scope |
 | [same plugin v9.0.3](https://github.com/andrewcigan/vibe-dev-plugin/commit/d2e9e432616451099df69c57421a0840c8c29948) (2026-09-30) | A guard's remediation hint named a relative script path; the agent ran a project-local lookalike that corrupted history state | Installer writes the plugin path; a test executes every hint command from the filesystem root and checks the consequence (31 of 33 fail on the old code) |
 | [huvii174/loop-engineering-plugin 0.18.3](https://github.com/huvii174/loop-engineering-plugin/blob/main/CHANGELOG.md) (2026-09-25) | An instruction-only epic gate was found failing in its own epic | Archive refuses the last item's run without a recorded `epic_gate`; no flag waives it |

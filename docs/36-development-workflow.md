@@ -95,7 +95,7 @@ covers when parallelism actually pays.
 
 Anthropic's own account of its staff puts numbers on the same constraint: interactive agent hours
 outnumbered employees 6:1 by August, human attention becomes the bottleneck for agent output
-(reading everything one's own Claude agents produced would take half a work week), and staff time
+(even among non-technical employees, reading all the output of their Claude agents would take half their work week), and staff time
 shifts toward "meta-work" — building visibility tools and monitoring agent pipelines.
 ([Anthropic, "How employment is changing at Anthropic"](https://www.anthropic.com/research/employment-at-anthropic), Oct 2026; the company's own report on itself.)
 That is the same pressure [Failure Patterns](17-failure-patterns.md) lists as the *orchestration
@@ -178,7 +178,7 @@ mistake is fixed with a deterministic pre-commit hook that fails the commit and 
 corrective prompt, not by editing AGENTS.md or adding skills.
 [Simon Willison's excerpt](https://simonwillison.net/2026/Oct/13/geoffrey-huntley/) gives the
 instance: a hook checks the git diff for bypassed diagnostics modules, fails the commit and injects
-a prompt, taking agent compliance "to ten out of ten" where AGENTS.md instructions drift. Both are
+a prompt, taking agent compliance to "ten out of ten" where AGENTS.md instructions drift. Both are
 one practitioner's report, not a measurement, but the hook doubles as a stopping condition — the
 agent cannot declare done past it. See [Hooks](12-hooks.md) and [Verification](04-verification.md).
 

@@ -118,8 +118,8 @@ which covers the harness-level version of this mis-attribution.
 ## Reference MCP Servers Are Often Unauthenticated: Bind to Loopback
 
 Graphiti, a temporal-graph memory layer, shipped reference MCP and REST servers with no
-authentication or authorization that listened on `0.0.0.0` by default (and published Docker ports on
-all host interfaces), so any machine on the network could read, change or delete graph data.
+authentication or authorization (the MCP server's default host was `0.0.0.0`, and the Docker Compose files published
+both servers' ports on all host interfaces), so any machine on the network could read, change or delete graph data.
 [getzep/graphiti#2032](https://github.com/getzep/graphiti/pull/2032) (2026-10-17) changes the default to
 `127.0.0.1` and publishes the Docker ports on the host loopback only; its companion #2029 documents
 that every episode in a `group_id` is trusted equally. For a loop using a shared MCP memory store the

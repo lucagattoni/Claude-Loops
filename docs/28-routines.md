@@ -110,7 +110,7 @@ STOP: issue opened
 
 **A nightly loop that audits its own routine.** The [`ruvnet/dream-machine`](https://github.com/ruvnet/dream-machine)
 [ADR-0011](https://github.com/ruvnet/dream-machine/blob/main/docs/adrs/ADR-0011-dream-cycle-v2-deep-research-and-routine-self-review.md)
-(status **Proposed** in the document; the finding records it merged to `main` on 19 Oct 2026) describes a
+(status **Proposed** in the document; the ADR landed on `main` on 18 Oct 2026; the tracker saw it on 19 Oct) describes a
 nightly cloud-scheduled loop with three guards worth borrowing. (1) **Mode selection with backpressure:**
 it picks CONSOLIDATE, RESEARCH-ONLY, IMPLEMENT or RESEARCH from the backlog, and switches mode when the
 review queue exceeds a limit, so it stops producing PRs no one can review. (2) **Measuring its own

@@ -140,7 +140,8 @@ and git worktrees for isolated rebuilds — the same primitives this KB document
 Anthropic's own recommended startup playbook rather than a community pattern.
 ([Anthropic, "The Claude Code guide for startups"](https://claude.com/blog/claude-code-guide-for-startups), Sep 2026.)
 
-A first-party worked example of the evaluator-optimizer shape with no human between rounds:
+A first-party worked example of the evaluator-optimizer shape with minimal human input between rounds
+(limited to the initial brief and occasional prompts to think more broadly):
 in Anthropic's account of designing quantum circuits with Claude, Claude proposes a circuit, a
 programmatic evaluator checks correctness and scores it, and the score feeds the next attempt;
 one run worked for 53 hours from a one-paragraph brief, told to explore several approaches in

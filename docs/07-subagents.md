@@ -299,7 +299,7 @@ changelog](https://github.com/anthropics/claude-code/blob/main/CHANGELOG.md) for
 (an AI-written guide that says it did not have the release notes), citing the announcement by Anthropic's
 Lydia Hallie, the intended pattern is many low-effort scouts for wide search plus one high-effort reviewer
 over their output: a maker/checker cost split inside a single request. It is asked for in plain language
-("find every call site using low effort subagents, then run a high effort subagent over the results"); the
+(the guide's own example reads "Find every payments API call with low effort subagents, then have a high effort one check the error handling."); the
 guide could not confirm a frontmatter field for it, the default when unstated, or which levels apply to
 subagents, so test on a small prompt and read the effort shown in `/tasks` (see above) before relying on it.
 Two cautions: a low-effort scout can skim past a call site hidden behind a wrapper, so have scouts return

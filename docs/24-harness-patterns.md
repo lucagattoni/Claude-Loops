@@ -607,7 +607,7 @@ above. A paragraph each would bury the pattern, so the tables below group them b
 each one answers. The one-line contributions come from the papers' abstracts or listings, not
 from a paper-by-paper read, and every figure is the authors' own and unreplicated. For further
 candidates, [Awesome-Agent-Harnesses](https://github.com/NeuraLiying/Awesome-Agent-Harnesses) is a
-small curated index (its title counts 208 papers and 67 production harnesses; updated 2026-10-14)
+small curated index (its title counts 208 papers and 67 production harnesses, essays and talks; updated 2026-10-14)
 organised by component (agent loop, tools, memory/context, multi-agent, evaluation,
 self-improvement loops) and framing the loop as one component of the harness. Treat it as a
 candidate list, not as evidence: its entries have not been reviewed here.
@@ -684,7 +684,7 @@ against the model rather than optimising it, and the same conclusion keeps appea
 | [Legislative document-to-XML](https://arxiv.org/abs/2610.19999) | Three harnesses by three Claude models on 153 bills: the weakest model in the full pipeline scored 0.948, the strongest model alone 0.806 |
 | [MedicalHarness](https://arxiv.org/abs/2610.05778) | Controlled model-by-harness study on a 107-task benchmark that isolates individual harness mechanisms; argues an agent score belongs to the model-harness pair |
 | [Mingbird](https://arxiv.org/abs/2610.02001) | Attributes small-model agent failures to the harness and adds a prefill budget, a finish gate that re-reads the task before accepting completion, and signature-level loop detection |
-| [Box²-Bench](https://arxiv.org/abs/2609.39578) | Varies workflow reliability to test whether models can override misleading harness guidance; frontier models stay vulnerable, and counterfactual SFT or RL improves robustness |
+| [Box²-Bench](https://arxiv.org/abs/2609.39578) | Varies workflow reliability to test whether models can override misleading harness guidance; frontier models stay vulnerable, counterfactual SFT improves robustness, and outcome-based RL shifts models toward using helpful workflows |
 | [Corporate and investment banking](https://arxiv.org/abs/2609.39958) | Industrial case where LLM judges guided harness changes; tests whether the gain over direct generation is real or a grading artifact |
 
 Two cautions apply. The Box²-Bench result cuts against "more harness guidance is always better":
@@ -1380,16 +1380,19 @@ supervisor-layer design. All are the project's own records:
   gemini, cline, opencode and kilo) had no step limit of their own, so a bounded task ran to the
   wall-clock cap. The [fix](https://github.com/HarnessRouter/harnessrouter/commit/871640d044)
   counts tool calls by id, stops the process as if cancelled once past the budget, and ends the
-  turn `error_max_turns`, reported as incomplete rather than failed, with the limit named. A
+  turn `error_max_turns`, which reports the task as incomplete and says where to raise the limit. A
   BUDGET/STOP control from [the Loop Contract](27-loop-contract.md) implemented by the router, not
   by trusting each harness.
 - **A reasoning-effort knob in the contract.** [v0.30.0](https://github.com/HarnessRouter/harnessrouter/releases/tag/v0.30.0)
   adds a per-task `reasoning.effort` (none to xhigh) that works across 19 of 20 harness bases,
   clamps to the nearest level the model really has, and reports requested versus applied effort
   and `reasoning_tokens` in usage.
-- **Stall limits tuned from measurement.** [v0.31.0](https://github.com/HarnessRouter/harnessrouter/releases/tag/v0.31.0)
-  cuts the silence timeout on a provider call from 10 to 3 minutes, having measured some models
-  sending nothing for 201-211 s at the highest thinking level.
+- **Stall limits tuned from measurement, and one tuning reverted.** [v0.31.0](https://github.com/HarnessRouter/harnessrouter/releases/tag/v0.31.0)
+  cut the silence timeout on a provider call from 10 to 3 minutes, having measured some models
+  sending nothing for 201-211 s at the highest thinking level, but
+  [v0.31.1](https://github.com/HarnessRouter/harnessrouter/releases/tag/v0.31.1) took it back about
+  two hours later (10 minutes again) because a wider measurement showed the silence was not limited
+  to those routes.
 - **Verify before offering.** [v0.29.0 and v0.33.0](https://github.com/HarnessRouter/harnessrouter/releases/tag/v0.33.0)
   add nine more harness bases (including Qoder Cloud Agent as the first remote runtime), publish
   per-harness pass rates on five console scenarios (e.g. Kilo 291 of 295 runs), and withhold any

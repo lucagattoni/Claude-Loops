@@ -305,7 +305,7 @@ verified beyond what is noted.
   discourse prescribes — see [Loop Maturity Model](20-loop-maturity-model.md).
 - **Spread beyond code, and its first pushback.** A go-to-market post applies the pattern to
   sales/marketing agents (trigger, context enrichment, action, grader evaluation, feedback that
-  updates prompts and scoring) ([LinkedIn — Alex Lindahl](https://www.linkedin.com/in/alexlindahl/));
+  updates prompts and scoring) ([LinkedIn — Alex Lindahl](https://www.linkedin.com/in/alexlindahl/), a profile page rather than a post; on 2026-10-19 the post could not be re-found there, so this description is the search stage's summary and is unconfirmed);
   a counterpoint post says GTM teams keep adding context, connected systems and feedback loops
   but things break once agents are given real autonomy (only the opening was read, so the failure
   argument itself is not captured). Treat the pair as evidence of use outside coding and of an
@@ -315,7 +315,7 @@ verified beyond what is noted.
   sources used any benchmark, and 2 of 114 used a security benchmark) says practitioners now
   call the surrounding discipline harness engineering and loop engineering — the vocabulary
   here is practitioner-led and mostly unmeasured ([LinkedIn — a Tampere professor relaying Rasheed et al.](https://www.linkedin.com/in/profabrahamsson/);
-  the figures are the post's summary of the review, which was not opened).
+  the figures are the post's summary of the review; the 15 percent figure could not be traced in the review itself on 2026-10-19, so treat it as unverified).
 - **Terminology critique.** One essay applies a replace-the-new-word-with-the-old-one test and
   argues "harness" is partly a rename of the older test and benchmarking harness while the core
   idea — a designed environment around the model — is genuinely new ([LinkedIn — Trivedi, "Harness Is Not Everything Minus the Model"](https://www.linkedin.com/pulse/harness-everything-minus-model-hasit-trivedi-cjthf/); opening only). Another defines the harness

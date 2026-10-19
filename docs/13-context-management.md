@@ -96,7 +96,7 @@ above. Its Managed Auto-Refresh asks Claude for a resume-ready checkpoint file (
 context reaches a configurable threshold (default 80%), waits for an exact completion acknowledgement,
 sends one `/clear`, confirms a fresh session started, and tells it to load the capsule and carry on. It
 refuses to resume from a capsule that records no next step, and its README says an audit on 1 Aug 2026
-found three of four live vaults would otherwise have resumed into an empty checkpoint. It sets
+found three of four live vaults would otherwise have resumed into a checkpoint with no actionable content. It sets
 `"idleCompaction": false` (see [below](#idle-compaction-version-stamped)) so Claude Code's own compaction cannot replace the
 boundary it controls.
 
