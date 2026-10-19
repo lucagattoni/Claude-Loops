@@ -18,6 +18,42 @@ Versioning follows [Semantic Versioning](https://semver.org/):
 
 ---
 
+## [3.7.9] — 20261019 18:21
+
+Backlog `A19` — **PATCH**: no new `docs/*.md`. The 2026-10-19 run swept every X source with Chrome logged
+out of X, published `v3.7.7` and exited 0; the only notice was a line inside the digest. Stage A now reads
+X's login state before dispatching anything, and the wrapper stops the run, with its own exit code, before
+anything is published. Proven by running the real wrapper against stubbed sessions; **not yet exercised by
+a real tracker run** (the logged-out coverage records and the skill's preflight are prose a model follows —
+the wrapper's defence is that a missing or malformed `x_login` fails the gate).
+
+### Added
+- `scripts/assert-x-login.sh` — the wrapper's reading of the artifact's new `x_login` field. Only a
+  positive `logged-in` (stamped today, with evidence, uncontradicted by the coverage records) passes;
+  `logged-out`, `unknown`, a missing or malformed field and an unreadable file all stop the run.
+- `scripts/verify-x-login-guard.sh`, wired into `guards.yml` — 21 decision cases on fixture artifacts, 15
+  cases that run the real `run-loop-news.sh` end to end against stubbed `claude`/`script`/`osascript`, 6
+  static placement/contract checks, 6 cases that run the skill's own preflight snippet under node, and 7 mutants (of the wrapper and of the
+  script) that must each be caught.
+- Wrapper **exit 8**: Chrome is not logged in to X, or that could not be shown. It fires right after
+  Stage A, before the retry logic and before Stage B, keeps the Stage-A artifact so a re-run resumes, and
+  notifies. `--allow-x-logged-out` (forwarded by `run-loop-news-now.sh`) publishes without X for that run
+  only: X sources are recorded `blocked: x-login`, and the digest's Coverage section opens by saying X was
+  not swept by the operator's choice.
+
+### Changed
+- `fetch-loop-news` Phase 1 step 4: one read-only browser call on `x.com/home` before any X source is
+  dispatched; the result is recorded as `x_login`. Logged out or unknown: no X source is swept, each gets
+  a `blocked: x-login` coverage record, and Stage A stops unless the operator's override file is present.
+- `integrate-loop-news`: the Coverage subsection states an overridden X gap on its first line.
+- `run-loop-news-now.sh` forwards its remaining arguments to the wrapper (before, they were ignored) and
+  explains exit 8.
+- `docs/09-headless-mode.md` (the preflight pattern, its limits), `scripts/SCHEDULING.md` (exit 8, the
+  login step, the override), `README.md`, `plans/20260904_2053-open-work-backlog.md` (`A19` struck, `A21`
+  opened).
+
+---
+
 ## [3.7.8] — 20261019 17:29
 
 Retry pass on the 2026-10-19 run — **PATCH**: no new `docs/*.md`, 18 docs extended, 13 docs corrected.

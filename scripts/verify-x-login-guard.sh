@@ -304,6 +304,7 @@ grep -q 'blocked: x-login' "$ASSERT"  || { contract_ok=0; echo "    assert-x-log
 grep -q 'x_login' "$SKILL"            || { contract_ok=0; echo "    skill lacks x_login"; }
 grep -q -- '--allow-x-logged-out' "$SKILL" || { contract_ok=0; echo "    skill never names the flag"; }
 (( contract_ok )) && pass "S4 skill, wrapper and assert script use the same field, file name and gap prefix" || fail "S4 skill, wrapper and assert script use the same field, file name and gap prefix" ""
+grep -qE '"\$LN_ARG0" "\$LN_ARG1" "\$@"' "$HERE/run-loop-news-now.sh" && pass "S6 run-loop-news-now.sh forwards its arguments to the wrapper (read, not run: the real tracker is not run here)" || fail "S6 run-loop-news-now.sh forwards its arguments to the wrapper" "the exec line lost \"\$@\""
 grep -qE '^\| `8` \|' "$SCHED" && pass "S5 exit 8 is in scripts/SCHEDULING.md's exit-code table" || fail "S5 exit 8 is in scripts/SCHEDULING.md's exit-code table" "row missing"
 
 # ═══ 4. the preflight snippet, extracted from the skill and run under node ═══════════════════════

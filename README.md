@@ -142,6 +142,10 @@ launchd LaunchAgent (`com.luca.loop-news`) remains available but disabled. See
 **[scripts/SCHEDULING.md](scripts/SCHEDULING.md)** for the exact commands to run a sweep, check
 which mode is live, or switch back to the schedule.
 
+Be logged in to X in the Chrome the CLI drives before a run: Stage A checks, and a logged-out Chrome
+stops the run with exit `8` before anything is published (`--allow-x-logged-out` publishes without X,
+for that run only).
+
 ---
 
 ## Contributing
