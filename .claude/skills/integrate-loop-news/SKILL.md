@@ -91,6 +91,12 @@ for keys, record fields, statuses and the completeness check have **one home: th
 records* section of `.claude/skills/fetch-loop-news/SKILL.md`** — read it and apply it exactly as
 written; do not re-derive it. Build the subsection from the *expected* set, not from whatever
 records happen to exist:
+- **X login (backlog `A19`):** if the artifact's `x_login.state` is anything but `logged-in`, open
+  the subsection with one line: `X was not swept: Chrome was not logged in to X (<state>); published
+  by the operator's choice (--allow-x-logged-out), not by a sweep that happened to fail.` The
+  wrapper starts this stage on a not-logged-in artifact only under that flag, so the line states a
+  decision. The per-key bullets then carry each `blocked: x-login` gap verbatim like any other gap,
+  and an X source is never a quiet one under "No new content".
 - **Expected keys:** the artifact's `expected_keys` (fixed by Stage A before any row this run
   adds). If it is absent, derive them from `SOURCES.md` as it stands when this skill starts, the
   same way (`<type>:<Handle/URL>`, plus `phase-3:x-general-search`).

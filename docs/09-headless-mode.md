@@ -340,6 +340,46 @@ copying for any self-writing daily loop:
    nothing runs decays** — the harness is wired into CI on any change to the scripts or the
    skills, because a check on disk that nobody executes is the same defect one level up.
 
+6. **Preflight the state the sweep depends on, and stop the run — not just the digest — when it
+   is missing.** A browser-driven stage reads whatever the browser can see, and a logged-out
+   browser shows a login wall that looks like a result: every search "returns", profiles load
+   with a handful of posts. On 2026-10-19 the search stage swept all 11 X profiles and both X
+   searches that way, 12 coverage records came back `partial`, the second stage published, the
+   wrapper exited 0, and the only notice was one line inside the digest. Recovery was a
+   logged-in re-sweep by 13 agents. Three parts of the fix each have a reason:
+
+   - **Read the state once, first, and record it in the artifact.** Before any X source is
+     dispatched, the search stage loads `x.com/home` in its own tab and reads three things from
+     the DOM: the path, the account switcher and the Post button. Only that positive reading is
+     `logged-in`; a tool error, an unrendered page, a changed layout or a login redirect is
+     `logged-out` or `unknown`, and **both stop the run** — "no login wall seen" is not evidence
+     of a login. The state, a timestamp and the raw reading go into the artifact as `x_login`;
+     each unswept X source gets a `blocked: x-login` coverage record, so the gap is in the data
+     rather than only in a log.
+   - **Decide in the wrapper, from the artifact, with its own exit code.** The search stage's
+     claim is prose; the wrapper's reading of it is code. `scripts/assert-x-login.sh` passes only
+     a `logged-in` state that is stamped today, carries evidence and is not contradicted by the
+     coverage records; a missing or malformed field fails the same way an unreadable one does.
+     The wrapper runs it straight after the search stage and exits **8** before the integrate
+     stage can start, so nothing is published. It sits ahead of the retry logic on purpose: a
+     login wall is deterministic, and retrying would only spend attempts and backoff.
+   - **Keep the work, and make the override a recorded decision.** The blocked artifact is
+     preserved unconsumed, so after logging in a re-run resumes it instead of searching twice.
+     Publishing without X is `--allow-x-logged-out`, per run: the wrapper hands the search stage a
+     file saying so, the stage sweeps every non-X source and records `override: true`, and the
+     script accepts it only if the artifact honours it in full (complete, flagged, every unswept
+     X source blocked). An artifact cannot grant itself an override the operator did not give, and
+     a standing environment variable is deliberately not the documented route — a default that
+     quietly degrades the run is the failure this exists to end.
+
+   `scripts/verify-x-login-guard.sh` runs the real wrapper end to end against stubbed `claude`,
+   `script` and `osascript` sessions, runs the decision script on fixture artifacts, and runs the
+   skill's own classifier snippet under node against stubbed pages — then breaks the wrapper and
+   the script on purpose and requires each break to be caught. **Limits:** it cannot see a login
+   that lapses *mid-sweep* (that still surfaces as `partial` records), it does not check
+   LinkedIn's separate login, and the logged-out page markers were not verified against the live
+   site — they only choose a label, since every state but `logged-in` stops the run.
+
 On success the wrapper fast-forwards the primary checkout (`git pull --ff-only`) only if it
 is on `main`, so the local checkout tracks the published run without disturbing other work.
 

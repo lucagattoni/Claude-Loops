@@ -28,9 +28,15 @@
 #   bash scripts/run-loop-news-now.sh            run a sweep now
 #   bash scripts/run-loop-news-now.sh --check    print the resolved environment and exit, run nothing
 #   bash scripts/run-loop-news-now.sh --status   which mode is live, and when it last published
+#   bash scripts/run-loop-news-now.sh <wrapper options>   anything else goes to the wrapper
+#       unchanged (e.g. --allow-x-logged-out, --model opus); the wrapper rejects what it does not know
+#
+# Be logged in to X in the Chrome the CLI drives BEFORE you run. Stage A checks (backlog A19) and
+# the wrapper exits 8 without publishing if it is not — see scripts/SCHEDULING.md.
 #
 # Exit codes are the wrapper's own, passed through unchanged — see scripts/SCHEDULING.md.
-# 6 = reported success but published nothing · 7 = failed and could not tell whether it published.
+# 6 = reported success but published nothing · 7 = failed and could not tell whether it published
+# · 8 = Chrome is not logged in to X, stopped before publishing.
 
 set -uo pipefail
 
@@ -158,7 +164,7 @@ env -i \
   USER="$LN_USER" \
   LOGNAME="$LN_USER" \
   TERM="${TERM:-dumb}" \
-  "$LN_ARG0" "$LN_ARG1" 2>&1 | tee -a "$LN_LOG"
+  "$LN_ARG0" "$LN_ARG1" "$@" 2>&1 | tee -a "$LN_LOG"
 rc="${PIPESTATUS[0]}"
 
 echo "[$(date -u +%Y-%m-%dT%H:%M:%SZ)] MANUAL RUN finished — exit ${rc}" | tee -a "$LN_LOG"
@@ -166,6 +172,7 @@ case "$rc" in
   0) echo "Published. Verify the artifact, not this message: check origin/main for a 'feat: loop news run ' commit." ;;
   6) echo "EXIT 6 — reported success but published NOTHING. Look for FATAL in the day log. The Stage-A artifact is preserved; a re-run resumes cheaply." >&2 ;;
   7) echo "EXIT 7 — failed and could not tell whether it had already published, so it refused to retry. Check origin/main BY HAND before re-running." >&2 ;;
+  8) echo "EXIT 8 — Chrome is not logged in to X (or that could not be shown), so the run stopped BEFORE publishing. Log in to X in the Chrome the CLI drives and re-run: Stage A resumes from the saved artifact. To publish without X on purpose: bash scripts/run-loop-news-now.sh --allow-x-logged-out" >&2 ;;
   *) echo "Exit ${rc} — see scripts/SCHEDULING.md for what it means." >&2 ;;
 esac
 exit "$rc"

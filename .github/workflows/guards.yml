@@ -1,6 +1,6 @@
 name: guards
 
-# Run the behavioural proofs of the two pipeline guards.
+# Run the behavioural proofs of the pipeline guards.
 #
 # WHY THIS EXISTS. Both harnesses sat in scripts/ with nothing invoking them. A proof on disk that
 # nobody executes decays silently the moment someone edits what it proves — which is the same
@@ -53,3 +53,8 @@ jobs:
 
       - name: Phase 5d digest guard behaves correctly
         run: bash scripts/verify-digest-guard.sh
+
+      # Runs the real wrapper end to end against stubbed `claude`, `script` and `osascript`, so it
+      # needs git, python3 and node, all preinstalled on ubuntu-latest. Backlog A19.
+      - name: X-login gate stops a logged-out run before it publishes
+        run: bash scripts/verify-x-login-guard.sh

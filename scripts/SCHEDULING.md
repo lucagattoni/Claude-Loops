@@ -30,6 +30,30 @@ bash scripts/run-loop-news-now.sh --status   # which mode is live, and when it l
 bash scripts/run-loop-news-now.sh --check    # print the environment it would use, run nothing
 ```
 
+**Before a run, be logged in to X in the Chrome the CLI drives.** Stage A reads X through that
+browser, and a logged-out X shows a login wall instead of a timeline. Stage A now checks first
+(backlog `A19`): it loads `x.com/home` once, and unless it positively sees the account switcher and
+the Post button it sweeps no X source and stops. The wrapper then ends the run with **exit `8`**
+before Stage B, so nothing is published, and keeps Stage A's artifact — log in, run again, and the
+re-run resumes from it rather than searching twice. This is the 20261019 failure made loud: that run
+swept every X source through a login wall, published `v3.7.7`, exited `0`, and said so only in a line
+of the digest. To publish *without* X on purpose, for this run only:
+
+```bash
+bash scripts/run-loop-news-now.sh --allow-x-logged-out
+```
+
+That sweeps every non-X source, records each X source as `blocked: x-login`, and the digest opens its
+Coverage section by saying X was not swept and that you chose it. Prefer the flag to an
+`LOOP_ALLOW_X_LOGGED_OUT=1` in `scripts/run-loop-news.env`: a standing override is the silent degrade
+the gate exists to end. (`run-loop-news-now.sh` runs the wrapper under `env -i`, so an exported
+variable never reaches it; the flag, which the launcher forwards, does.)
+
+**What the gate cannot see.** A login that lapses *during* the sweep, and LinkedIn's login (a
+separate wall, unchecked). Both still surface as `partial` coverage records in the digest, as before.
+A change to X's markup makes the check read `unknown`, which also stops the run — a false alarm by
+design; the fix is the snippet in `.claude/skills/fetch-loop-news/SKILL.md`, not the rule.
+
 **Which mode am I in?** `--status` asks launchd and the repo directly rather than inferring it. Use
 it before concluding anything about a stale digest — on 20260912 a paused tracker read as a broken
 one for three days because nothing reported the mode.
@@ -56,7 +80,8 @@ launchd would have captured them. The wrapper writes its own structured day log 
 
 The launcher passes the wrapper's exit code through unchanged. `0` is a verified publish;
 **`6`** = reported success but published nothing; **`7`** = failed and could not tell whether it had
-already published, so it refused to retry. Full table below.
+already published, so it refused to retry; **`8`** = Chrome is not logged in to X (or that could not
+be shown), stopped before Stage B. Full table below.
 
 > **Verify the artifact, not the message.** Confirm `origin/main` gained a `feat: loop news run `
 > commit before believing any summary.
@@ -154,10 +179,12 @@ whether to re-run, wait, or go and look at the repository:
 | `5` | `Credit balance is too low` — an API key is shadowing the subscription | Unset `ANTHROPIC_API_KEY`, or top up |
 | `6` | **Reported success but published nothing.** A guard inside the session aborted; `claude -p` still exited 0 | Look for `FATAL` in the day log. Stage A's artifact is preserved — re-run resumes cheaply |
 | `7` | **Failed, and it could not tell whether it had already published.** It refused to retry rather than risk committing the digest twice | Check `origin/main` by hand before re-running. The artifact and any checkpoint branch are preserved |
+| `8` | **Chrome is not logged in to X, or that could not be established** (`logged-out`, `unknown`, a missing or malformed `x_login`, or the checker itself absent). Stopped right after Stage A; Stage B never ran and nothing was published | Log in to X in the Chrome the CLI drives and re-run — Stage A resumes from the preserved artifact. Or re-run with `--allow-x-logged-out` to publish without X. The day log's `x-login:` line says which state and what was read |
 
 `6` and `7` are the two that need a human to look at the repository rather than just re-run: both
 mean the run stopped precisely because it would otherwise have reported something it had not
-verified. Neither pages anyone off-machine — `check-digest-freshness.sh` only fires once the newest digest
+verified. `8` needs a human too, but at the browser rather than the repository: nothing was
+published, and the next run costs only what Stage A had not already banked. Neither pages anyone off-machine — `check-digest-freshness.sh` only fires once the newest digest
 passes `MAX_AGE_HOURS` (336h / 14 days under on demand; 48h if the schedule is restored), and a
 single missed day is far under either threshold.
 
