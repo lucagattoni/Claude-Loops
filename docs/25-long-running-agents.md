@@ -179,6 +179,19 @@ al., ["Autonomous AI agents discover reverse transcriptases with tandem repeat a
 Heidi Ledford, ["Anthropic's AI biolab finds 'CRISPR-like' DNA in viruses. What's
 next?"](https://www.nature.com/articles/d41586-026-03039-6), Nature News, Sep 2026.)
 
+**A test-pruning loop still running two weeks on (the maintainer's own counters).** [OpenClaw](https://github.com/openclaw/openclaw)'s maintainer posted on 24 Sep 2026 that the project
+"deleted around 400k LOC of its own tests without much change in code coverage" ([post](https://x.com/steipete/status/2103147927313199260); see also
+[Verification](04-verification.md)). The loop kept going: "That /goal is still running." on 29 Sep ([post](https://x.com/steipete/status/2105049100983132648)),
+"So far deleted 600k of the slop part" on 30 Sep ([post](https://x.com/steipete/status/2105372982143226275)), and "Still running that loop, now at about 1.3Mio deleted weak
+tests, CI times twice as fast." on 8 Oct ([post](https://x.com/steipete/status/2108225854555975888)). Treat these as counters, not measurements: the unit moves between posts
+(LOC, unstated, "tests"), none comes with a coverage measurement or CI timing beyond the words quoted above, and the posts do not say which tool's `/goal` runs it. The repo's own skill pulls the other way. On `main`
+(read 2026-10-19; `SKILL.md` last changed 2026-10-12, `CAMPAIGN.md` 2026-10-13), [`test-audit/SKILL.md`](https://github.com/openclaw/openclaw/blob/main/.agents/skills/test-audit/SKILL.md) says audits "never chase deletion counts"
+and states no numeric target, and its [`CAMPAIGN.md`](https://github.com/openclaw/openclaw/blob/main/.agents/skills/test-audit/CAMPAIGN.md) bounds a whole-subsystem prune as eight steps where
+"Each step ends on its completion criterion; do not start the next step early": a pass/fail baseline pinned to a `main` SHA (in the Telegram campaign the baseline failures were "real delivery bugs, not stale
+tests"), lanes along production-owner boundaries, a per-test ledger by read-only agents, a layer plan, cutover, an independent preservation review (the Telegram one "found nine real
+gaps and one unreachable assertion") with a deliberate mutation per restored contract, a product-defect step, and a reconcile step because "Campaigns outlive many `main` commits". What the
+posts report is a running count; the repo bounds the work by per-step criteria plus a review that tries to put back what was deleted. Whether the `/goal` run follows `CAMPAIGN.md` is not stated.
+
 ## Detaching from the terminal
 
 Long-running agents often need to run after you close your IDE. Two shapes, illustrated with

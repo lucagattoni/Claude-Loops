@@ -219,6 +219,30 @@ SDKs export automatically). The post's framing for loop designers: review an age
 tool use and MCP calls, then widen its access as it proves reliable. That is the "how do you know it is
 done" question answered with a record you can read after the run, not the run's own report.
 
+## A practitioner's triage routine, eight runs a day (self-reported)
+
+Mehmet Semih Babacan's [*Put Claude Code on a schedule* (Harness Engineering, part 5, 26 Sep 2026)](https://www.mehmetsemihbabacan.com/2026/routines),
+read in full, describes a routine that "has run eight times a day for weeks". Each run opens an app's error tracking and
+onboarding funnel, files errors that still occur on the newest build as issues, drafts a fix for at most one as a draft pull request,
+and "tells me in Slack only when something changed". Four design points the reference automation above does not cover:
+
+- **Memory is files.** Every run "starts from a fresh copy of your repository and no memory of the run before". The saved prompt is one
+  short paragraph pointing at a runbook in the repo and a ledger file each run reads first and appends to ([Pattern G](16-memory-patterns.md#pattern-g-repo-owned-durable-ledger)).
+- **Guards before action, caps per run.** A run first confirms the right analytics project and tracker workspace, and otherwise stops and writes
+  nothing; the author says the analytics connector has a shared "current organization" setting another session can switch (not checked here).
+  Then "At most five new issues and one draft pull request per run", and a written definition of a real finding (the newest build only; never
+  debug builds, emulators or seeded test accounts).
+- **One routine reviews another.** A second routine, triggered on pull requests from `claude/` or `triage/` branches, reads the change against
+  the linked issue, runs the tests and checks that each claim about what was verified is true; its prompt says "Never approve, merge, or push
+  to the branch". Neither routine merges, so the person reads a pull request that has already been questioned.
+- **Mistakes the author reports, each now a runbook line.** Nine draft PRs in two days that only added ledger rows; a real fix called fabricated
+  because only `main` was searched (the fix sat in an open PR); two overlapping runs editing the ledger, whose PRs then conflicted; and silence read as
+  health when the Android app sent no error reports ("Zero is a question, not an answer."). Also: "A green mark in the run list only means the
+  session started and finished without an infrastructure error."
+
+All of this is one practitioner's account with no logs. The page's statements about routine limits and behaviour (research preview, a daily run cap,
+connectors acting as the user) are the author's and were not checked against Anthropic's docs here.
+
 ## Constraints to design around
 
 - **No permission prompts during run** — Routines run as full autonomous cloud sessions with no permission-mode picker and no approval prompts of any kind; design the Routine's prompt, repositories, environment, and connectors so nothing needs mid-run approval, since none is possible once it starts

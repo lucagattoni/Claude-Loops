@@ -327,6 +327,45 @@ sibling of [Long-Running Agents](25-long-running-agents.md) checkpointing. The p
 agent should start from a catalog of allowed tools rather than an unrestricted shell, which lines up with
 the Approve pillar above and with [Permissions](08-permissions.md).
 
+## Shared Gateway for a Team: One Trust Domain, Routed Humans
+
+The control-plane rows above put many agents behind one platform. [OpenClaw](https://github.com/openclaw/openclaw)'s
+[Team setup](https://docs.openclaw.ai/start/teams) guide describes the opposite shape: many humans
+around one agent host. It sets up "one OpenClaw gateway that a whole team uses" and says "team
+operation is configuration, not a separate edition". (Vendor documentation, read in full
+2026-10-19; the configuration was not run here.)
+
+| Concern | What the page says |
+|---|---|
+| Trust | "A gateway is one trust domain." Everyone who can message a tool-enabled agent shares its delegated tool authority. Ownership, presence and roles are "collaboration guardrails inside the boundary, not isolation between adversaries"; mutually untrusted users or organisations get separate gateways |
+| Access | Loopback bind by default. Teammates come in through [Tailscale Serve](https://tailscale.com/docs/features/tailscale-serve) (listed as recommended), an identity-aware proxy such as [Cloudflare Access](https://developers.cloudflare.com/cloudflare-one/access-controls/policies/), or a shared token or password, which gives everyone one owner profile instead of per-person identity |
+| Attribution | Each shared session has "an immutable creator, an assignable owner, and the history of people who actually prompted"; sessions are assigned "like GitHub issues". With Git co-author credit enabled, commits carry `Co-authored-by` trailers and generated pull requests link back to the session |
+| Bounds | `gateway.roles` bind a profile to the sessions it can touch, the agents it can use, a ceiling of operator scopes and whether its new sessions must be sandboxed. The example gives guests view-only access to others' sessions and notes this still lets them read every shared session, "including tool output" |
+
+The fleet lesson is the line the page draws: collaboration controls are not tenant isolation. The
+nearest row above for the untrusted case is OpenClaw Enterprise (isolated namespaces, pilot only); the
+Team page does not mention it, so that pairing is this KB's. One public example of the attribution
+layer: all 13 commits of OpenClaw [PR #161656](https://github.com/openclaw/openclaw/pull/161656)
+(merged 2026-09-30; the change is in
+[Session Architecture](37-session-architecture.md#what-inter-session-messages-cost-the-reader)) are
+authored by [`roboclaw-bot`](https://github.com/roboclaw-bot) with a `Co-authored-by` trailer naming [`steipete`](https://github.com/steipete), and the body lists
+"@steipete" under "Worked on by" and links a "Work sessions" page (checked with `gh api` 2026-10-19;
+the session was not opened). Consistent with the page; it does not show the configuration behind it.
+
+**Routing work between people and a shared agent.** Two informal posts from
+[@steipete](https://x.com/steipete), who built OpenClaw with the community (per its [README](https://github.com/openclaw/openclaw)), add the routing side; they are his own
+description, not documentation. On 2026-10-03 he explained a slide as "a joke around being the meat
+proxy": the team "moved to one agent, building together, everyone can see or prompt each others'
+sessions. Eliminating meatproxyism", linking the Team page
+([post](https://x.com/steipete/status/2106446572330631663)). On 2026-10-07: "I hooked up our team claw
+to X to trigger work faster. Unassigned sessions are for anyone to grab. Our agent looks who worked
+on the related code last and pings people on the server. Whole thing was a prompt and team server
+extended itself since plugins are now hot reloadable."
+([post](https://x.com/steipete/status/2107697554448421160).) The Team page, read in full, covers
+ownership and assignment but not the X trigger, the last-toucher ping or hot-reloadable plugins, so
+those three rest on the post alone, which reports no result for any of them (event trigger:
+[Background Agents](29-background-agents.md#event-triggered-sessions-left-for-a-person-to-claim-openclaw)).
+
 ## Unattended Fleet Mechanics: Wake, Recovery and Human-Wait
 
 A different set of Oct 2026 release notes, from small repos, converge on the failure modes of fleets

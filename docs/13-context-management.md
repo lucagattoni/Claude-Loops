@@ -32,6 +32,13 @@ an official data point behind it — an enumerated rule a newer model already ge
 judgement is a rule worth cutting, not just tolerating.
 ([Anthropic, "The new rules of context engineering for Claude 5-generation models"](https://claude.com/blog/the-new-rules-of-context-engineering-for-claude-5-generation-models), Jul 2026.)
 
+**An Anthropic engineer's practice on the same point.** In the Latent Space interview
+([29 Sep 2026](https://www.latent.space/p/thariq), transcript read), Thariq Shihipar said "it might be better
+to start a new project without a Claude.md" and that "if you see very repeated failure modes, you add them to
+your Claude.md". His reason for not accumulating them: a failure mode can disappear from one model version to
+the next, and a running log of old ones "will probably over constrain Claude". One interviewee's view, not
+documentation; it agrees with the half-life rule above.
+
 ## Rules
 
 - `/clear` between unrelated tasks — start each task with clean context
@@ -218,6 +225,18 @@ compaction must preserve or expose pre-compaction *artifacts* (the tool calls th
 than relying on a prose summary standing in for them. ([Simon Willison, "Generating running routes
 with GPT-6 Astra and ChatGPT
 Work"](https://simonwillison.net/2026/Sep/12/astra-running-routes/), Sep 2026.)
+
+**Keep the original, pass a handle.** The two context mechanisms in [SoL-Pi](https://github.com/NVlabs/SoL-Pi)
+(NVIDIA; design per its [paper](https://arxiv.org/abs/2609.20519) and README; cost results in
+[Cost & Turn Control](11-cost-control.md#where-the-money-goes-turns-not-observations)) archive before they
+shrink. Tool results over 10 KiB are stored locally and, from the third request on, replaced by a stable handle,
+the original size and a short head-and-tail excerpt, with exact pages retrievable on demand. Long build/test
+logs are replaced by a cheap-model "receipt" only if every quoted line matches the archived source; otherwise
+the original stays. Compaction is deferred to completed plan steps (or a nearly full window) and runs only when
+projected input savings exceed the cost of rewriting the prompt cache. Costs to plan for: archives are "not
+automatically deleted" when the session ends, and the log reducer sends content to a second model, so keep it
+off for logs that must stay local. These are the authors' design and results for the
+[Pi](https://github.com/earendil-works/pi) harness; this KB has not run them.
 
 ## What eats context fastest
 

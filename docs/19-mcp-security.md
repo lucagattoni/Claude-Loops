@@ -34,6 +34,13 @@ injection through tool results is harder:
 - MCP servers often read from external, attacker-influenced sources (error trackers, issue queues, email, Slack)
 - Auto-mode permission classifiers review tool *calls*, not tool *results* — a poisoned result bypasses the gate
 
+Intake channels count too. Describing Claude Tag in the [Latent Space interview](https://www.latent.space/p/thariq)
+(29 Sep 2026; transcript read), Anthropic's Thariq Shihipar gives a hypothetical: a suggestions page whose
+submissions flow into a Slack hook, where a prompt-injected submission could get the code base exfiltrated by an
+agent with access to the organisation's data. He adds external Slack channels and calls the surface "an iceberg".
+It is an illustration, not a reported incident. The rule for a loop is [The Broader Principle](#the-broader-principle)
+applied to every channel that can wake it; see [Claude Tag](31-claude-tag.md).
+
 ## Connector Trust Is a Separate Boundary From Output Validation
 
 Everything above assumes the MCP server is already running and connected, and the attack is in its *output*. A hostile repository can also try to get its own MCP servers running with more trust than you intended:
@@ -96,6 +103,16 @@ right one among what remains reachable — that is a separate, unsolved reliabil
 worth budgeting for once a loop's MCP surface grows past a handful of tools.
 ([@kachar136](https://x.com/kachar136/status/2103941428007284893), ["BM25 got Orama. Jev
 still needs one."](https://kachar.dev/blog/an-orama-for-jev), Sep 2026.)
+
+**Search-and-execute wrappers hide the real call surface.** [glebedel](https://x.com/glebedel/status/2112139189131096223),
+co-founder of an agent-tools vendor, wrote on 19 Oct 2026 that the ChatGPT plugin listing "does not like" the
+search/execute pattern (two tools fronting a catalogue of 30k+ actions) and conceded that "if every MCP had search &
+execute it's a mess for the harnesses". A [reply](https://x.com/CloudDogx/status/2112140457375310285) guesses the
+objection is that each such server becomes a potential agent loop the harness cannot audit, and proposes allowing
+the pattern when sandboxed and logged. Only these two posts were read, not the directory's rule, so this is a
+design question, not a known policy. For a loop it follows from how rules match: hooks and permission rules key on
+the tool name (the `matcher` examples in [Hooks](12-hooks.md)), so a gate sees the wrapper and not the action
+behind it (inference); log and gate at a proxy or sandbox rather than trusting the server's own record.
 
 ## A Loop's Own State File Can Launder Injection
 

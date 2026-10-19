@@ -422,6 +422,20 @@ contract this doc's own restart-recovery discussion leaves implicit — a checkp
 kept exactly as long as it might still be needed, not indefinitely and not never.
 ([the-open-engine/zeroshot #1142](https://github.com/the-open-engine/zeroshot/commit/22f9d0c0fad95cc065560569d2a59e4c9e981abc), Sep 2026.)
 
+### Event-triggered sessions left for a person to claim (OpenClaw)
+
+On 2026-10-07 [@steipete](https://x.com/steipete/status/2107697554448421160) described hooking his
+team's shared agent to X "to trigger work faster", with "Unassigned sessions" that are "for anyone to
+grab". The post quotes a reply from the [@roboclawbot](https://x.com/roboclawbot/status/2107696178125283724)
+account: "Opened a session to review PR #166379 for contrast, sidebar title spacing, and regressions."
+The shape is an external event starting a session, plus an ownership
+step this doc's CLI-side coverage lacks: per the post, a person can take an unassigned session. The post does not
+say the PR-review session it quotes was one of the unassigned ones. How ownership, assignment and the
+gateway's trust boundary work is in
+[Fleet Engineering](23-fleet-engineering.md#shared-gateway-for-a-team-one-trust-domain-routed-humans).
+This is one author's description of his own setup, from a single post; it gives no mechanism, failure
+handling or cost.
+
 ## Related
 
 - [Fan-Out](10-fan-out.md) — parallelism patterns using background agents

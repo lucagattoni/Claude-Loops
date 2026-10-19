@@ -114,7 +114,7 @@ by one engineer that would previously have taken a quarter. ([Anthropic, "Agenti
 straining CI"](https://claude.com/blog/agentic-coding-is-straining-ci-heres-how-we-scaled-test-impact-analysis-at-anthropic), Sep 2026.)
 
 **The primary source for the "dark factory" name, cited here directly rather than only
-through secondary coverage.** Dan Shapiro's original taxonomy names six levels, explicitly
+through secondary coverage.** [Dan Shapiro](https://www.danshapiro.com/blog/2026/01/the-five-levels-from-spicy-autocomplete-to-the-software-factory/)'s original taxonomy names six levels, explicitly
 modeled on NHTSA's driving-automation levels: **0 Manual** ("not a character hits the disk
 without your approval"), **1 Task Offloading** (discrete delegated tasks), **2
 Collaborative Pairing** (working with the AI like a colleague), **3 Human-in-Loop Manager**
@@ -130,6 +130,14 @@ ceiling](#the-dark-factory-ceiling-and-its-bottleneck) above: an AI tutor chatbo
 explicitly as *"reliable enough for prototypes and spiking product ideas,"* not yet
 critical systems or complex state management.
 ([MindStudio, "What Is an AI Software Factory?"](https://www.mindstudio.ai/blog/ai-software-factory-dark-factory/), Sep 2026.)
+
+**The best-known cases do not use the label, and only one forbids human review.** Ilko Kacharov's essay
+([*The lights were never off*](https://kachar.dev/blog/the-lights-were-never-off), 29 Jul 2026, read in full; his X post of 30 Sep 2026 re-shares it) argues
+the label outruns its sources. Checked against three primaries on 2026-10-19: [StrongDM's factory page](https://factory.strongdm.ai/) states
+"Code must not be written by humans" and "Code must not be reviewed by humans"; [Stripe's Minions post, part 2](https://stripe.dev/blog/minions-stripes-one-shot-end-to-end-coding-agents-part-2)
+says over 1,300 weekly PRs are "human-reviewed, but containing no human-written code"; [OpenAI's harness-engineering article](https://openai.com/index/harness-engineering/)
+(HTTP 403 on direct fetch, read from a Wayback copy) says "Humans may review pull requests, but aren’t required to." None of the three
+contains the phrase "dark factory" (StrongDM says "software factory"). The essay's other claims, such as where Shapiro places himself on his own ladder, rest on interviews not opened here.
 
 ## When Merge Volume Is the Bottleneck: Source Control and CI
 
@@ -270,6 +278,14 @@ copy-on-write Postgres branch with its own MCP address and token, a worktree per
   lessons down for the next plan, is the one the team mostly skips. Pair with the author's [earlier essay on the dark-factory label](https://kachar.dev/blog/the-lights-were-never-off).
   ([Ilko Kacharov, "Compound engineering is our factory floor"](https://kachar.dev/blog/compound-engineering-is-our-factory-floor), Oct 15 2026.)
 
+- **[Tessl](https://tessl.io)'s five or six factories** (Patrick Debois, in an interview; self-reported, and the podcast is produced by [Camplight](https://camplight.net), whose episode notes say it
+  builds dark factories for companies). From the auto-generated captions (segments 11:00-27:00 and 37:30-41:00, fetched 2026-10-19): Tessl's path was
+  "first the prompts, then fix the context, then add the harness, then add the loop, and then eventually the factory"; its developers had to relearn
+  operations (a proxy, a sandbox, security scanning, observability for the agent); the factory took over the marketing and sales boards unasked; and
+  one morning it had filed "15 tickets about improving itself", with no owner. His conclusion on ownership: "can you redo it without ownership? No." He had the
+  whole organisation build a factory "to understand the shape of a factory", which produced five or six, and advises a team starting out to "try to make the first loop better first before automating the whole loop".
+  ([After the Last Engineer, "Is the Future of Software Engineering a Factory?"](https://www.youtube.com/watch?v=FnCnv2tGsK0), 15 Oct 2026.)
+
 ## "Lit" vs. "Dark" Factories, and Where Judgment Relocates
 
 Addy Osmani's own naming for the [Dark-Factory Ceiling](#the-dark-factory-ceiling-and-its-bottleneck)
@@ -317,6 +333,7 @@ below are each project's own description, not an audited comparison:
 | [Orchestra v2.46.0](https://github.com/DrSeedon/orchestra/releases/tag/v2.46.0) | Per-worker sparse worktrees | The merge gate runs mapped tests and requires the changed tests to **fail against the pre-change sources**; failed or inconclusive required gates block the merge. A shell guard enforces rules by mechanism and is described as "a narrow policy, not a sandbox" | The gate |
 | [OpenRig v0.6.6](https://github.com/mvschwarz/openrig/releases/tag/v0.6.6) | Built-in factory team of seven seats: lead, advisor, builder, QA, design and two reviewers; the starter team pairs a Claude Code builder with a Codex reviewer | Separate QA and reviewer seats | Not stated in the release note |
 | [agent-orchestrator v0.13.4](https://github.com/OrchestratorInc/agent-orchestrator/releases/tag/v0.13.4) | Worktree-per-worker agents | Agents can request native review of their own PRs; the release also lists action postconditions (the PR bodies were not read, so the mechanism is unverified) | Not stated |
+| [magpie](https://github.com/yetone/magpie) (its `docs/code-standards.md` and `docs/contributors.md`, read 2026-10-19) | Claude Code `/loop` sessions, per [the maintainer's post](https://x.com/yetone/status/2109855710444237018); `LESSONS.md` says its code is "written, reviewed, merged and released by agents" | An acceptance list: a new test must fail when the old code is put back, a real-use check where possible, a check that was not run is listed as not run. A community PR is read for harm first, and a change to `.github/`, a release script, a credential file the goal does not need or a dependency stops the review until the maintainer has looked | Agents; the standard names the reviewed commit, `gh pr merge --match-head-commit <reviewed sha>`, so a push during review stops the merge |
 | [MindStudio's factory loop](https://www.mindstudio.ai/blog/software-factory-ai-coding-agents/) (explainer, weaker) | Sandboxed worker | An independent verifier; the post reports workers self-reporting passing tests while the verifier found failures | A human; agents may open PRs but never merge |
 
 Four shared properties across the rows: **the builder cannot
@@ -326,6 +343,24 @@ self-report** (a test that must fail before the change, a recording per journey,
 re-runs the claim; see [Verification](04-verification.md)); and **a human or a mechanical gate, never the
 agent, performs the merge**. The compound-engineering post above adds a fifth that costs nothing:
 run the reviewer in a sub-agent so it does not inherit the author's reasoning. That is the same maker/checker rule as the [Loop Contract](27-loop-contract.md)'s STOP and verifier fields.
+
+**An open-source factory maintained by its own loops: magpie.** The maintainer's post (Chinese, 13 Oct 2026) says
+the workflow is Claude Code with Opus 5.5 (his wording) running three `/loop` prompts in parallel, plus his own nightly pass over UI and UX
+issues. On my reading of the screenshots, each loop has one intake: GitHub issues and PRs plus every Discord channel (read a PR
+line by line and run it before merging, because it may be untested agent output); X feedback, where a cheap decision model (the prompt names Jev, a product no official page could be found for on 2026-10-19; see [MCP Security](19-mcp-security.md))
+first drops tweets that are not about magpie so the main model never sees them; and clean-up plus lessons, which is
+[Memory Patterns, Pattern L](16-memory-patterns.md#pattern-l-a-lessons-file-with-a-count-based-promotion-rule). For platform
+reports the standard says "the Windows box and its WSL2 distro are there". What went wrong is recorded in the repo's own file,
+not in the posts (the file's own tallies, not independently checked): 2026-10-05 had "220 commits and ~170 releases", and "About 40 of them fixed something released earlier the same day or the day before."
+
+**A vendor's version of the same list (not evidence).** [Mark Ajzenstadt](https://x.com/mardehaym/status/2112099730641555505), whose X bio
+says he founded [Limestone](https://limestonedigital.com), which embeds AI engineers in PE-backed companies, describes its Velocity Core (19 Oct 2026): a run has 22 steps,
+"Only three are left entirely to the agent. Fourteen are plain code." Credentials stay outside the agent; a run reads its rules from
+its starting commit and changing them needs a person's approval; outbound requests pass an allowlist; CI decides "done" with a
+cap of two CI runs; deleting or emptying a test sends the work back and "A second violation ends the run"; each run records prompt
+versions, the exact model per step, the starting commit and the cost; "A person still reviews and merges every pull request."
+It is a sales post with no evidence, and no product page was found (limestonedigital.com, checked 2026-10-19). Of its list, the test-deletion
+tripwire is the item the rows above lack.
 
 **Pricing the factory.** The AI Thinker piece prices each agent per unit of work, such as cost per
 merged PR (its Uber account), and a commenter objects that merged-PR count is a throughput proxy and

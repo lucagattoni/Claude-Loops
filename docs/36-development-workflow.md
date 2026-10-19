@@ -102,6 +102,17 @@ That is the same pressure [Failure Patterns](17-failure-patterns.md) lists as th
 tax* — and the reason to build the visibility layer (summaries, verdict-only reports) before
 adding the next parallel agent.
 
+**A single-job loop at the "nobody watching" end, and what its numbers trace to.** Samuel Stroschein, lix's maintainer, reports ([X article, 13 Oct 2026](https://x.com/samuelstroschei/status/2109993422471757932))
+agents looped on one job, making the [lix](https://github.com/opral/lix) version-control engine faster, for "the equivalent of $1M in tokens in 30 days": profile, remove the
+bottleneck, benchmark as the reward. His example goal requires each change to give ">10% improvement without regressing other metrics" and runs "until 10 consecutive runs do not yield
+an acceptable improvement anymore", a plateau stop. Rust compiles made CPU the bottleneck, so each agent got its own rented dedicated server, driven over SSH from the [Codex](https://developers.openai.com/codex) desktop app:
+parallel agents compete for machines as well as for your attention. The dollar figure is the author's and cannot be checked. I checked the eight PRs he cites against the repo
+(`gh api`, 2026-10-19; all are his own). All are merged, between 2026-07-29 and 2026-09-14 (47 days, not 30), and six of the eight headline figures appear in the PR bodies at about the stated size (for example #938, 1.49 s to
+0.414 ms; #969, 309.38 s to 10.17 s), with small differences (for #1184 the PR gives a median of 215.9 ms to 2.90 ms where the article says about 222 to 2.5). Two are narrower than they read.
+For #1224, the 105x is the PR's own Ryzen discovery screen (Rocks, 1K history, merge wall 393.439 to 3.747 ms), while its final qualification table shows -81.47% and -73.67% wall time on the two backends at that history.
+And the 867 ms to 0.26 ms of #1782 is a native probe quoted in a commit message, while the PR's QA report gives 87.8 ms for a two-row update at 1M rows and the PR description calls its figures
+"single-run observations, not latency guarantees". Commits on `main` in the 30-day windows ending 2026-07-28, 08-27 and 09-26 were 591, 2,325 and 662 (API count), so his "6x" depends on the baseline chosen.
+
 Context management belongs to this skill too — see [Context Management](13-context-management.md)
 and [Memory Patterns](16-memory-patterns.md).
 

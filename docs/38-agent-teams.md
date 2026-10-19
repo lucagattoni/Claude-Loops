@@ -276,6 +276,24 @@ describe team harnesses that all pair workers with a checker role. None has been
 The shared lesson is the one above: the checker role is where these harnesses spend their trust, and a
 checker's value has to be measured (see [Verification](04-verification.md)), not assumed from its existence.
 
+### Humans on one gateway, and an orchestrator session (OpenClaw)
+
+Claude Code's agent teams are one user's lead plus teammates. [OpenClaw](https://github.com/openclaw/openclaw)'s
+[Team setup](https://docs.openclaw.ai/start/teams) page uses "team" for several *humans* sharing one
+gateway and its agents, with sessions anyone on the team can open, steer and take over; its trust
+boundary, roles and attribution are in
+[Fleet Engineering](23-fleet-engineering.md#shared-gateway-for-a-team-one-trust-domain-routed-humans).
+
+A second OpenClaw pattern is an orchestrator session. In reply to
+[a question from @chansearrington](https://x.com/chansearrington/status/2105686839692493155) about how people use
+OpenClaw agents as orchestrators for coding, [@steipete](https://x.com/steipete/status/2105695004127588586) replied on 2026-10-01: "I use the OC web
+UI. Main session orchestrates my sessions. Mostly using the OC harness directly as it's faster." It
+reads as using OpenClaw's own harness rather than driving external coding-agent terminals, but the post gives no
+mechanism: not how the main session spawns, messages or watches the others, nor how they share git
+state. One person's remark, so a pointer to the shape, not a design. The nearest Claude Code primitives
+are the team lead above and cross-session `SendMessage`
+([Session Architecture](37-session-architecture.md#sessions-that-can-talk-to-each-other)).
+
 ## The gotcha: teams can form uninvited
 
 Enabling agent teams changes what an ordinary subagent spawn does, not just what is possible:
