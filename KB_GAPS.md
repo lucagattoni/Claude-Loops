@@ -54,11 +54,49 @@ targeted GitHub and web searches.
   `parallel review agent cost benchmark`, `"ensemble" vs "chorus" LLM reviewers`, `graph
   vs sequential loop cost comparison agent`.
 
+### Logged by the 2026-10-19 retry pass (hand-authored, not a tracker run)
+
+Evidence and method: `plans/20261019_1657-retry-of-20261019-run-evidence.md`.
+
+- **Three X sources are still `partial`.** `@hanakoxbt` (the per-day pass never ran: X search pages errored
+  and then stopped rendering in the agent's tab; replies unenumerated; `SOURCES.md` flags this account for
+  false attributions, so a claim from it about a named person or company needs a primary),
+  `@kirillk_web3` (replies to others from 2026-09-28 to 2026-10-12T17:29Z not read) and `@kachar136` (the
+  2026-10-19 per-day page errored three times; `/quotes` pages errored). Re-sweep when X search is not
+  throttling: `from:<handle> filter:replies since:2026-09-28`, then one day per query.
+- **The LinkedIn content search is still `partial`:** 68 posts read and the list was still growing when
+  scrolling stopped; seven findings have no permalink because LinkedIn exposes none for non-article posts. No
+  retry was run (LinkedIn is outside the X login).
+- **The Phase 3 X search is a recency sample, not window coverage:** the "Claude Code" live feed turns over
+  about five posts a minute, so it reaches back to 2026-10-19 only. Covering 2026-09-28 onwards would need
+  day-sliced queries with a tighter keyword set.
+- **Held out of the KB because unverified — each needs a primary before it is written anywhere:**
+  a "DeepSeek Harness (dsh)" teardown with a CVE and a star count ([post](https://x.com/ReignSwords/status/2112086247883809177);
+  the post gives an npm package, `@deepseek-ai/dsh`, and the matching GitHub path `deepseek-ai/dsh` returned 404 on 2026-10-19); the "230x" figure attributed to clawcodex
+  ([post](https://x.com/alextalksai/status/2112132389661000144); not on the repo's page); a viral
+  "Karpathy: keep Graph" quote ([post](https://x.com/LunarResearcher/status/2111806045429387749); disputed in
+  the replies); a "2-hour Graph Engineering course" attributed to Andrew Ng
+  ([post](https://x.com/Grow_withAI/status/2107099305433780546)); an "Anthropic 1-hour workshop"
+  ([post](https://x.com/RoundtableSpace/status/2106478142068322727)).
+- **Half of Stage B's doc additions were never checked.** The 2026-10-19 fact-check covered 312 of about 631
+  identifiable claims in 28 docs (49%). The unchecked remainder is mostly arXiv claims beyond the abstract
+  (`docs/24`, about 53) and sub-claims inside bundled table rows. Two claims in `docs/21` could not be
+  checked and are now labelled unconfirmed: the Alex Lindahl go-to-market post (the citation is a LinkedIn
+  profile page, not a post) and a "15 percent of industry sources used a benchmark" figure the review does not
+  appear to give (a check of the review's own tables was inconclusive: it may count "industry" by author
+  affiliation rather than by source type).
+- **Leads from the sweeps, not yet followed:** the official Claude Code `/advisor` documentation page is
+  absent from the KB; `@its_meseba`'s own site publishes Atom feeds and a routines page
+  ([mehmetsemihbabacan.com/2026/routines](https://www.mehmetsemihbabacan.com/2026/routines)), a candidate
+  `rss` row; the `jnaapti` blog post "Harness Engineering and Loop Engineering: The Fundamentals Are What
+  Matter" is a dated counter-position to the discourse in `docs/21`.
+
 ### Logged by the 2026-10-19 tracker run
 
 Each bullet is a gap the doc agents named while integrating; keywords feed the next run's searches.
 **This run's X sweeps were all `partial`** (logged-out browser; see the digest's Coverage section), so
 absence of X-sourced material here is not evidence of absence.
+**[Updated 2026-10-19, retry pass: 8 of the 11 `x` sources were later re-swept `complete` with a logged-in browser — see the next block up. Three are still `partial`.]**
 
 - **Harness-evolution papers are table rows from abstracts, not reads** (`docs/24`): Harness-Delta
   Attribution, Self-Evolving Agent Harness, Trace-to-Architecture and Cortex deserve a real read,

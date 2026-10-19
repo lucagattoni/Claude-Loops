@@ -18,6 +18,49 @@ Versioning follows [Semantic Versioning](https://semver.org/):
 
 ---
 
+## [3.7.8] — 20261019 17:29
+
+Retry pass on the 2026-10-19 run — **PATCH**: no new `docs/*.md`, 18 docs extended, 13 docs corrected.
+The run swept X with a logged-out browser (0 of 11 `x` sources fully covered); after logging in, the 13 X
+sources were re-swept (now 8 of 11 `complete`, the rest `partial` with their gaps stated) and 193 new
+findings were added to the digest. 59 Tier 1-2 findings were integrated into docs by four writers working
+from primaries, each independently verified claim by claim (219 claims: 208 verified, 11 corrected, none
+fabricated). A fact-check of the original run's doc changes (312 of about 631 claims) found 21 wording or
+attribution errors, now fixed — one contradicted claim, one invented quotation, one reverted timeout.
+Evidence: `plans/20261019_1657-retry-of-20261019-run-evidence.md`.
+
+### Changed
+- `docs/21-context-vs-loop-engineering.md`, `docs/01-paradigm-shift.md`, `docs/20-loop-maturity-model.md`,
+  `docs/32-reading-list.md` — a dated October 2026 discourse snapshot (definitions, critiques, the
+  Laforge/Venema deck, the June wave dated from The Register); promotional posts labelled as such
+- `docs/16-memory-patterns.md` — Pattern L, a lessons file with a count-based promotion rule (magpie)
+- `docs/25-long-running-agents.md`, `docs/26-factory-model.md`, `docs/28-routines.md`,
+  `docs/36-development-workflow.md` — OpenClaw's test-pruning loop, the dark-factory label against its
+  primaries, a practitioner triage routine, the lix loop with its PR figures checked
+- `docs/24-harness-patterns.md`, `docs/11-cost-control.md`, `docs/12-hooks.md`,
+  `docs/13-context-management.md`, `docs/19-mcp-security.md` — SoL-Pi (from the paper and repo), the
+  Apodex ranking reversal, the multi-harness RL guide, Claude Code mods, blade-code, Strands Box
+- `docs/23-fleet-engineering.md`, `docs/29-background-agents.md`, `docs/37-session-architecture.md`,
+  `docs/38-agent-teams.md` — OpenClaw's shared gateway and inter-session receipt collapse
+- `LOOP_ENGINEERING_NEWS.md` — a hand-authored "Retry pass" entry (coverage after the retry, 193 rows,
+  held-out claims, corrections); eleven rows of the 15:02 run carry bracketed corrections
+- `KB_GAPS.md` — a retry-pass gap block; a note on the 15:02 block that its X gap is now partly closed
+
+### Fixed
+- `docs/23`: hearting v3.35.0 was said to replace blanket timeouts; its PR adds an earlier stop and keeps
+  the hard limit
+- `docs/24`: HarnessRouter v0.31.0's 3-minute silence timeout was taken back in v0.31.1; the doc now says so
+- `docs/07`, `docs/17`: a quotation not on its cited page, and two quotes that differed from their source
+- `docs/21`: two unconfirmable LinkedIn claims relabelled; `docs/36`: two of the lix PR figures are narrower
+  than the article reads
+- sixteen smaller wording, date, attribution and link fixes across `docs/01 04 13 19 23 24 26 27 28 36`
+
+### Not changed
+- The `v3.7.7` entry above stands as written; its X coverage statement ("0 of 11") is superseded by this
+  entry, not rewritten.
+
+---
+
 ## [3.7.7] — 20261019 15:30
 
 Tracker run 2026-10-19 15:02 UTC — **PATCH**: no new `docs/*.md`, 29 existing docs updated, 339 digest
