@@ -11,11 +11,15 @@ Claude-Loops is a living knowledge base and automated daily tracker for **loop e
 > reproduces a scheduled one — **closely, not identically**; `SCHEDULING.md` names the gap.
 > **Do not run `scripts/run-loop-news.sh` bare** — your shell's `PATH` is a superset and would
 > mask the failure class that once cost this repo eight weeks.
+> **Before a run, be logged in to X in the Chrome the CLI drives** — Stage A does not check, and a
+> logged-out run publishes with every X source `partial` (backlog `A19`).
 > Tags and releases are in step — nothing is awaiting a backfill.
 >
-> **Open work.** `plans/20260904_2053-open-work-backlog.md` §3 and §4 are empty; **§5 holds two
-> open items** — `A15` (`--status` should check `MAX_AGE_HOURS` against the live mode) and `A16`
-> (nothing off-machine separates "no sweep ran" from "a sweep ran and published nothing"). Its §1
+> **Open work.** `plans/20260904_2053-open-work-backlog.md` §3 and §4 are empty; **§5 holds five
+> open items** — `A15` (`--status` should check `MAX_AGE_HOURS` against the live mode), `A16`
+> (nothing off-machine separates "no sweep ran" from "a sweep ran and published nothing"), `A18`
+> (`A17`'s lane caps are prose and were exceeded), `A19` (no X-login preflight) and `A20` (build a quote
+> gate?). Its §1
 > *"Do not re-spend budget on"* list names work already paid for. Open **content** work lives in
 > `KB_GAPS.md` § *Active Gaps*: `docs/24` is under-sampled and 47 UNVERIFIABLE claims need triage
 > (the numbered list is in `plans/20260907_0645-c7-unverifiable-and-coverage-appendix.md`).
