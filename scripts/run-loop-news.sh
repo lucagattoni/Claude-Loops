@@ -26,9 +26,21 @@
 # branch for the third. Exit 7 is the failure-path one: the run failed and we could not determine
 # whether it had already published, so it stops rather than risk a second commit.
 #
+# X-login gate (A19): Stage A's Phase 1 step 4 reads whether Chrome is logged in to X and writes the
+# answer into the artifact as `x_login`; scripts/assert-x-login.sh is this file's reading of it, run
+# right after Stage A and before anything else decides what happens next. Only a positive
+# "logged-in" proceeds. Logged out, unknown, missing or malformed all exit 8 — Stage B never runs, so
+# nothing is published — and the artifact is kept, so once you have logged in a re-run resumes Stage
+# A instead of redoing it. This replaces the 2026-10-19 outcome: every X source swept through a login
+# wall, v3.7.7 published, exit 0, and the only notice a line inside the digest. To publish with no X
+# coverage ON PURPOSE, pass --allow-x-logged-out for that run: the decision is per run and visible in
+# the log and in the digest, never a standing default. scripts/verify-x-login-guard.sh proves this
+# path by running THIS file against stubbed claude sessions.
+#
 # Exit codes: 0 ok · 1 attempts exhausted / failed after publishing / deterministic stop · 3 no
 # usable claude binary · 4 a slash command did not resolve · 5 credit balance · 6 reported success
-# but published nothing · 7 failed and could not tell whether it published.
+# but published nothing · 7 failed and could not tell whether it published · 8 Chrome is not (or
+# could not be shown to be) logged in to X — stopped before Stage B, nothing published.
 #
 # Drop -e: a failed attempt must NOT kill the script — we handle failures explicitly.
 set -uo pipefail
@@ -107,6 +119,8 @@ built-in default — precedence is: CLI flag > env var > default):
   --integrate-effort <level>   Effort for the integrate stage
   --model <model>              Shorthand: set both stages' model at once
   --effort <level>             Shorthand: set both stages' effort at once
+  --allow-x-logged-out         Publish even though Chrome is not logged in to X (exit 8 otherwise).
+                               Per run, on purpose: no X source is swept and the digest says so.
   -h, --help                   Show this help and exit
 
 Model accepts an alias (sonnet|opus|fable) or a full model id (e.g. claude-sonnet-5).
@@ -117,8 +131,14 @@ Examples:
 USAGE
 }
 
+# A19: the operator's per-run decision to accept a run with no X coverage. Only the literal "1"
+# counts (the LOOP_ALLOW_API_KEY convention), and an env file or an exported variable is read the
+# same way — but prefer the flag: a standing override is the silent degrade the gate exists to end.
+LOOP_ALLOW_X_LOGGED_OUT="${LOOP_ALLOW_X_LOGGED_OUT:-0}"
+
 while [[ $# -gt 0 ]]; do
   case "$1" in
+    --allow-x-logged-out) LOOP_ALLOW_X_LOGGED_OUT=1; shift ;;
     --search-model) SEARCH_MODEL="$2"; shift 2 ;;
     --search-effort) SEARCH_EFFORT="$2"; shift 2 ;;
     --integrate-model) INTEGRATE_MODEL="$2"; shift 2 ;;
@@ -297,6 +317,19 @@ else
   git -C "$REPO_ROOT" worktree add -b "$TEMP_BRANCH" "$WT_DIR" origin/main
 fi
 
+# A19: hand the operator's decision to Stage A as a FILE it reads in Phase 1 step 4 — a file the
+# wrapper wrote, not a clause in a prompt the model may or may not weigh. Stage A defaults to
+# stopping the moment it finds Chrome logged out of X; this file is the only thing that makes it
+# carry on and sweep what it can. It is never a way to PASS the gate: assert-x-login.sh decides that
+# from the artifact and the environment on its own, and refuses an override the artifact does not
+# honour. Exported so that script sees the same value this file read.
+export LOOP_ALLOW_X_LOGGED_OUT
+if [[ "$LOOP_ALLOW_X_LOGGED_OUT" == "1" ]]; then
+  mkdir -p "$WT_DIR/.loop-news"
+  printf 'LOOP_ALLOW_X_LOGGED_OUT=1 — the operator accepts a run with no X coverage (%s)\n' "$(stamp)" > "$WT_DIR/.loop-news/x-login-override"
+  echo "[$(stamp)] --allow-x-logged-out: a logged-out Chrome will NOT stop this run — X sources will be recorded as blocked and the run published without them" | tee -a "$LOG_FILE"
+fi
+
 # artifact_valid <path> — true when the file is a Stage-A artifact this run may use: parses as
 # JSON, declares the schema this wrapper understands, is stamped with the current UTC date, and
 # carries at least one finding. Checked as a whole because each part fails differently: a truncated
@@ -449,6 +482,36 @@ while (( attempt <= MAX_ATTEMPTS )); do
     findings_valid || ok=0             # A must have produced a usable artifact
   else
     echo "[$(stamp)] attempt ${attempt}: valid findings.json present — skipping search" | tee -a "$LOG_FILE"
+  fi
+
+  # A19 — the X-login gate. See the header. It runs on ANY artifact Stage A left, complete or not,
+  # because the blocked early-stop artifact is deliberately `complete: false`; and on a seeded
+  # artifact when Stage A was skipped, since the decision belongs to THIS run's flag, not to
+  # whichever run banked the file. It sits BEFORE the failure handling below on purpose: a logged-out
+  # Chrome is deterministic (a retry reads the same login wall), so it must not burn attempts and
+  # backoff, and its artifact must reach cleanup() unconsumed so a re-run resumes from it. With no
+  # usable artifact at all Stage A itself failed, and the existing failure path owns that.
+  if artifact_usable "$WT_DIR/.loop-news/findings.json"; then
+    XL_OUT="$(bash "$REPO_ROOT/scripts/assert-x-login.sh" "$WT_DIR/.loop-news/findings.json" 2>&1)"; rc_xl=$?
+    echo "[$(stamp)] attempt ${attempt}: ${XL_OUT}" | tee -a "$LOG_FILE"
+    # Enumerate the two proceed codes; EVERY other code — 1 blocked, 2 cannot tell, 127 the script is
+    # not on disk — stops the run. A catch-all that meant "fine" would be a fabricated result. This is
+    # an if/elif chain, not a `case`, on purpose: verify-publish-guard.sh case 11b counts every `*)`
+    # and `1)` arm in this file as one of published_state()'s, and this is not one.
+    # The diagnostic carries model-written evidence text, so strip quotes and backslashes before it
+    # reaches osascript's string literal; the full line is already in the log above.
+    XL_NOTE="${XL_OUT//[\"\\]/}"; XL_NOTE="${XL_NOTE:0:300}"
+    if (( rc_xl == 0 )); then
+      :
+    elif (( rc_xl == 3 )); then
+      notify "Publishing with NO X coverage, as --allow-x-logged-out asked. ${XL_NOTE}"
+    elif (( rc_xl == 1 )); then
+      notify "STOPPED, exit 8: Chrome is not logged in to X. Nothing was published and Stage B did not run. ${XL_NOTE} Log in to X in the Chrome the CLI drives, then re-run (Stage A resumes from the saved artifact), or re-run with --allow-x-logged-out to publish without X. See ${LOG_FILE}."
+      exit 8
+    else
+      notify "STOPPED, exit 8: could not establish that Chrome is logged in to X, so it is treated as not (assert-x-login.sh status ${rc_xl}). Nothing was published and Stage B did not run. ${XL_NOTE} See ${LOG_FILE}."
+      exit 8
+    fi
   fi
 
   # Cheap, zero-LLM-cost guard: if Stage A's own session already carried the pipeline

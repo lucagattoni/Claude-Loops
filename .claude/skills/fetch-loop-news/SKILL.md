@@ -31,7 +31,8 @@ refinements) inside the artifact instead.
    complete. (The wrapper normally skips this whole session in that case, so reaching here means
    you were invoked directly.)
    If the file is absent, unreadable, or stamped with a different date, ignore it and start clean —
-   never guess at partial state.
+   never guess at partial state. (`x_login` is the one field **not** carried: step 4 measures it
+   afresh every time.)
 
 1. Read `SOURCES.md`:
    - Extract the sources table (Actor, Type, Handle/URL, Notes)
@@ -51,11 +52,75 @@ refinements) inside the artifact instead.
    ```
    Record the date part as `today` and the full output as `run_time`.
    Always use UTC — never estimate the time or substitute a local timezone.
+4. **X login preflight — before any X source is dispatched.** Every `x` and `x-search` source and
+   the Phase 3 X search read X through Chrome, and X shows a logged-out browser a login wall and a
+   handful of profile posts, not the timeline. On 2026-10-19 Stage A swept all 11 `x` sources and
+   both X searches that way: 12 coverage records were `partial`, the run published `v3.7.7` and
+   exited 0, and the only notice was one line inside the digest; recovering it took a 13-agent
+   logged-in re-sweep (backlog `A19`; `plans/20261019_1657-retry-of-20261019-run-evidence.md`
+   §1–2). Run this on **every** invocation, resumed or not — a login can lapse between runs — and
+   before Phase 2 starts any subagent, so you have the browser to yourself.
+   - **One browser call.** Call `tabs_context_mcp`, create your own tab with `tabs_create_mcp`, navigate it to
+     `https://x.com/home`, run this with `javascript_tool`, then close that tab — only that one.
+     It is read-only; it never clicks, types or submits anything:
+     ```javascript
+     const n = s => document.querySelectorAll(s).length;
+     const read = () => {
+       const o = { path: location.pathname,
+                   switcher: n('[data-testid="SideNav_AccountSwitcher_Button"]'),
+                   compose: n('[data-testid="SideNav_NewTweet_Button"]'),
+                   login: n('[data-testid="loginButton"]') + n('a[href^="/i/flow/login"]') + n('a[href="/login"]') };
+       o.state = (o.path === '/home' && o.switcher > 0 && o.compose > 0) ? 'logged-in'
+               : (/^\/(login|i\/flow\/login)/.test(o.path) || o.login > 0) ? 'logged-out' : 'unknown';
+       return o;
+     };
+     let o = read();
+     for (let i = 0; i < 5 && o.state === 'unknown'; i++) { await new Promise(r => setTimeout(r, 3000)); o = read(); }
+     JSON.stringify(o)
+     ```
+     (Checked 2026-10-19 against a live logged-in `x.com/home`: `logged-in`, switcher 1, compose 1;
+     against `example.com`: `unknown`. The logged-out markers were **not** checked on the live
+     site — Chrome was logged in — and they only choose the label: both `logged-out` and `unknown`
+     stop the run.)
+   - **Only a positive reading is `logged-in`.** The snippet returns it only when the page is
+     `/home` and both the account switcher and the Post button are present. Anything it cannot
+     read — a tool error, Chrome not connected, a page that never settles, X changing its markup —
+     is `unknown`, never `logged-in`: a check that cannot tell must fail. If the markup has
+     changed and Chrome is in fact logged in, the run stops with a false alarm, which is the
+     right way round; fix the snippet, do not weaken the rule. **Never try to log in** — no
+     credentials, no clicking through a login page; that is the operator's step.
+   - **Record it.** Set the artifact's `x_login` to `{"state": "<logged-in|logged-out|unknown>",
+     "checked": "<run_time>", "evidence": "<the snippet's JSON verbatim, or the tool error>",
+     "override": false}`. The wrapper reads this field, requires today's date in `checked` and
+     non-empty `evidence`, and treats a missing or malformed one as a failed preflight.
+   - **`logged-in`:** drop any `blocked: x-login` record a resumed artifact carried in `coverage`
+     — those keys are not in `sources_done`, so Phase 2 sweeps them normally and its records
+     replace the blocked ones. Go on to Phase 2.
+   - **Not `logged-in`:** sweep **no** X-bound source — every `x:` and `x-search:` key plus
+     `phase-3:x-general-search`. For each of those keys not already in `sources_done`, write
+     `{"source": "<key>", "status": "partial", "passes": [], "gap": "blocked: x-login — <state>:
+     <evidence>"}` into `coverage`, and do not add it to `sources_done` (it was not swept). Also
+     write `expected_keys` now if it is not already in the artifact — the same set Phase 2 would
+     write; a resumed artifact's stands. Then:
+     - **If `.loop-news/x-login-override` does not exist (the default): stop.** Write the artifact
+       with `complete: false`, `x_login`, `expected_keys`, everything carried from a resumed
+       artifact, and the blocked records; do **not** start Phase 2 or Phase 3 and never set
+       `complete: true`. Print one line: `BLOCKED: x-login (<state>)`. The wrapper
+       (`scripts/run-loop-news.sh`) reads `x_login` straight after this session, ends the run with
+       its own exit code before Stage B, and keeps the artifact — so once the operator has logged
+       in, the re-run resumes from it instead of searching again.
+     - **If that file exists** (the operator started the wrapper with `--allow-x-logged-out`): set
+       `x_login.override` to `true` and carry on with every **non-X** source. Phase 2 does not
+       dispatch an X-bound key, the pre-Phase-3 re-run skips them, Phase 3 skips its X search, and
+       Phase 4 sets `complete: true` — the run finished with a stated gap, and the blocked records
+       carry it to the digest. This is the operator's decision, recorded; never take it on your own.
 
 ## Phase 2 — Per-source search
 
 Launch one subagent per source — **skipping any source whose key is in `sources_done`** from the
-Phase 1 resume check (keys: see *Coverage records* below). Each subagent receives the source row
+Phase 1 resume check (keys: see *Coverage records* below), **and, whenever Phase 1 step 4 left
+`x_login.state` anything but `logged-in`, every X-bound key** (`x:`, `x-search:`) — those already
+carry a `blocked: x-login` record and are not swept. Each subagent receives the source row
 and its key, the full keywords list, and `last_run_date`. Two lanes:
 
 - **Browser-bound sources (`x`, `x-search`, `linkedin`) run at most 3 at a time.** They all drive
@@ -89,6 +154,7 @@ returns, rewrite `.loop-news/findings.json` with everything banked so far:
 ```json
 { "schema": 1, "today": "...", "run_time": "...", "last_run_date": "...",
   "complete": false,
+  "x_login": { "state": "logged-in", "checked": "...", "evidence": "...", "override": false },
   "expected_keys": [ ... every source's key, written once at the start of Phase 2 ... ],
   "sources_done": ["x:@bcherny", "github:https://github.com/cobusgreyling/loop-engineering", "..."],
   "findings": [ ... everything gathered so far ... ],
@@ -97,6 +163,9 @@ returns, rewrite `.loop-news/findings.json` with everything banked so far:
 ```
 
 Rules that make the checkpoint trustworthy:
+- **`x_login` goes into every checkpoint exactly as Phase 1 step 4 recorded it.** The wrapper
+  reads it after this session; an artifact that lacks it fails the gate, so a checkpoint that drops
+  it throws away the run's one proof that X was readable.
 - **`complete` stays `false` for the whole of Phase 2 and 3.** It is set to `true` exactly once,
   in Phase 4. The wrapper reads that flag to decide whether a later run may skip this stage — set
   it early and a dead run looks finished.
@@ -484,7 +553,8 @@ When you bank a browser source, check its coverage record (*Coverage records*) a
 the artifact's `coverage` array under the source's key.
 
 **Before Phase 3, re-run every `partial` record of a Phase-2 `x`, `x-search` or `linkedin` key
-that lacks `"rerun": true` — once each, one at a time** (not `phase-3:x-general-search`, which
+that lacks `"rerun": true` — except one whose `gap` starts `blocked: x-login`, which a re-run cannot
+fix while Chrome is logged out — once each, one at a time** (not `phase-3:x-general-search`, which
 retries itself inside Phase 3), with the browser otherwise idle (`sampled` records are not
 re-run). Keep the findings of both attempts — union by `url`; a finding with `url: null` is
 dropped if the other attempt has the same source, date and the same first 60 characters of text
@@ -500,7 +570,8 @@ the gap to the digest; it is never quietly upgraded or dropped. This is the retr
 After all per-source subagents return, run two additional searches:
 
 **X.com keyword search** — a browser source like any other: follow *Browser rules* and give it
-the key `phase-3:x-general-search`. **This key's re-run lives inside this phase, not in the
+the key `phase-3:x-general-search`. **Skip it when `x_login.state` is not `logged-in`** — it already
+has its `blocked: x-login` record from Phase 1 step 4, and the rest of this paragraph does not apply. **This key's re-run lives inside this phase, not in the
 pre-Phase-3 pass.** On a resumed run: if the key is in `sources_done` with a `"rerun": true`
 record, or a non-`partial` record, skip it — already settled. If it is in `sources_done` with a
 `partial` record lacking `"rerun": true`, run it once more now and mark the kept record
@@ -541,6 +612,9 @@ If Phase 2 or Phase 3 surfaces a person or company that:
    {
      "schema": 1,
      "complete": true,
+     "x_login": { "state": "logged-in", "checked": "YYYY-MM-DD HH:MM UTC",
+                  "evidence": "{\"path\":\"/home\",\"switcher\":1,\"compose\":1,\"login\":0,\"state\":\"logged-in\"}",
+                  "override": false },
      "expected_keys": ["...every source's key, fixed at the start of Phase 2..."],
      "sources_done": ["...the key of every source swept this run..."],
      "today": "YYYY-MM-DD",
@@ -563,6 +637,10 @@ If Phase 2 or Phase 3 surfaces a person or company that:
      ]
    }
    ```
+   - `x_login` is what Phase 1 step 4 recorded, unchanged — `logged-in` with its evidence on a
+     normal run; on an `--allow-x-logged-out` run it keeps its real state with `"override": true`
+     and every unswept X-bound key has its `blocked: x-login` record. A blocked run that is not
+     overridden never reaches this phase: it stopped in Phase 1 with `complete: false`.
    - `today`, `run_time`, `last_run_date` come from Phase 1. `findings` is the merged
      pre-dedup list. `sources_to_consider` / `source_updates` may be empty arrays.
    - `coverage` holds one record per browser key, after the pre-Phase-3 re-runs, plus a "not
